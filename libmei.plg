@@ -1108,12 +1108,23 @@ getName "(obj) {
     }
 }"
 
+setText "(obj, val) {
+    for each Value v in obj {
+        v['text'] = val;
+    }
+}"
 getText "(obj) {
     t = '';
     for each Value v in obj {
         t = v['text'];
     }
     return t;
+}"
+
+setTail "(obj, val) {
+    for each Value v in obj {
+        v['tail'] = val;
+    }
 }"
 
 getTail "(obj) {
@@ -1132,16 +1143,14 @@ createXmlTag "(name, attributesList, isTerminal) {
         spacer = ' ';
         for each Pair attr in attributesList {
             if (attr.Value != ' ') {
-                attrstring = attrstring & attr.Name & '=' & ''' & attr.Value & '' ';
+                attrstring = attrstring & attr.Name & '=' & Chr(34) & attr.Value & Chr(34) & ' ';
             }
         }
     }
     if (isTerminal) {
-        return '<' & name & spacer & attrstring & '/>
-';
+        return '<' & name & spacer & attrstring & '/>';
     } else {
-        return '<' & name & spacer & attrstring & '>
-';
+        return '<' & name & spacer & attrstring & '>';
     }
 }"
 
@@ -1154,13 +1163,13 @@ convertDictToXml "(meiel) {
     tx = libmei.getText(meiel);
     tl = libmei.getTail(meiel);
     
-    if (ch) {
+    if (ch or Length(tx) > 0) {
         terminalTag = false;
     }
 
     xmlout = createXmlTag(nm, at, terminalTag);
 
-    if (tx) {
+    if (Length(tx) > 0) {
         xmlout = xmlout & tx;
     }
 
@@ -1170,15 +1179,34 @@ convertDictToXml "(meiel) {
         }
     }
 
-    if (tl) {
+    if (Length(tl) > 0) {
         xmlout = xmlout & tl;
     }
 
-    if (ch) {
+    // convertDictToXml takes care of adding the />
+    // for tags that do not have children. We'll 
+    // take care of the terminal tag here for those 
+    // that do.
+    if (not terminalTag) {
         xmlout = xmlout & '</' & nm & '>';
     }
 
     return xmlout;
 }"
+
+meiDocumentToFile "(meidoc, filename) {
+    xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-8' & Chr(34) & ' ?>
+';
+    meiout = xdecl & convertDictToXml(meidoc[0]);
+
+    dir = Sibelius.GetDocumentsFolder();
+    fname = dir & filename;
+
+    Sibelius.CreateTextFile(fname);
+    Sibelius.AppendTextFile(fname, meiout, 0);
+
+    return true;
+}"
+
 
 }
