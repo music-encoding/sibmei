@@ -1,0 +1,1159 @@
+
+{
+    
+    _License "() {
+    return 'Copyright (c) 2011-2012 Andrew Hankinson, Alastair Porter, and Others
+    
+    Permission is hereby granted, free of charge, to any person obtaining
+    a copy of this software and associated documentation files (the
+    Software), to deal in the Software without restriction, including
+    without limitation the rights to use, copy, modify, merge, publish,
+    distribute, sublicense, and/or sell copies of the Software, and to
+    permit persons to whom the Software is furnished to do so, subject to
+    the following conditions:
+    
+    The above copyright notice and this permission notice shall be
+    included in all copies or substantial portions of the Software.
+    
+    THE SOFTWARE IS PROVIDED AS IS, WITHOUT WARRANTY OF ANY KIND,
+    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+    NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+    LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+    OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+    WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.';
+    }"
+
+    
+Arpeg "() {
+    createEntry('arpeg');
+}"
+
+BTrem "() {
+    createEntry('bTrem');
+}"
+
+Beam "() {
+    createEntry('beam');
+}"
+
+BeamSpan "() {
+    createEntry('beamSpan');
+}"
+
+BeatRpt "() {
+    createEntry('beatRpt');
+}"
+
+Bend "() {
+    createEntry('bend');
+}"
+
+Breath "() {
+    createEntry('breath');
+}"
+
+FTrem "() {
+    createEntry('fTrem');
+}"
+
+Fermata "() {
+    createEntry('fermata');
+}"
+
+Gliss "() {
+    createEntry('gliss');
+}"
+
+Hairpin "() {
+    createEntry('hairpin');
+}"
+
+HalfmRpt "() {
+    createEntry('halfmRpt');
+}"
+
+HarpPedal "() {
+    createEntry('harpPedal');
+}"
+
+MRest "() {
+    createEntry('mRest');
+}"
+
+MRpt "() {
+    createEntry('mRpt');
+}"
+
+MRpt2 "() {
+    createEntry('mRpt2');
+}"
+
+MSpace "() {
+    createEntry('mSpace');
+}"
+
+Measure "() {
+    createEntry('measure');
+}"
+
+MultiRest "() {
+    createEntry('multiRest');
+}"
+
+MultiRpt "() {
+    createEntry('multiRpt');
+}"
+
+Octave "() {
+    createEntry('octave');
+}"
+
+Ossia "() {
+    createEntry('ossia');
+}"
+
+Pedal "() {
+    createEntry('pedal');
+}"
+
+Reh "() {
+    createEntry('reh');
+}"
+
+Slur "() {
+    createEntry('slur');
+}"
+
+Tie "() {
+    createEntry('tie');
+}"
+
+Tuplet "() {
+    createEntry('tuplet');
+}"
+
+TupletSpan "() {
+    createEntry('tupletSpan');
+}"
+
+Mordent "() {
+    createEntry('mordent');
+}"
+
+Trill "() {
+    createEntry('trill');
+}"
+
+Turn "() {
+    createEntry('turn');
+}"
+
+MeiCorpus "() {
+    createEntry('meiCorpus');
+}"
+
+App "() {
+    createEntry('app');
+}"
+
+Lem "() {
+    createEntry('lem');
+}"
+
+Rdg "() {
+    createEntry('rdg');
+}"
+
+Abbr "() {
+    createEntry('abbr');
+}"
+
+Add "() {
+    createEntry('add');
+}"
+
+Choice "() {
+    createEntry('choice');
+}"
+
+Corr "() {
+    createEntry('corr');
+}"
+
+Damage "() {
+    createEntry('damage');
+}"
+
+Del "() {
+    createEntry('del');
+}"
+
+Expan "() {
+    createEntry('expan');
+}"
+
+Gap "() {
+    createEntry('gap');
+}"
+
+HandShift "() {
+    createEntry('handShift');
+}"
+
+Orig "() {
+    createEntry('orig');
+}"
+
+Reg "() {
+    createEntry('reg');
+}"
+
+Restore "() {
+    createEntry('restore');
+}"
+
+Sic "() {
+    createEntry('sic');
+}"
+
+Subst "() {
+    createEntry('subst');
+}"
+
+Supplied "() {
+    createEntry('supplied');
+}"
+
+Unclear "() {
+    createEntry('unclear');
+}"
+
+Facsimile "() {
+    createEntry('facsimile');
+}"
+
+Surface "() {
+    createEntry('surface');
+}"
+
+Zone "() {
+    createEntry('zone');
+}"
+
+Fig "() {
+    createEntry('fig');
+}"
+
+FigDesc "() {
+    createEntry('figDesc');
+}"
+
+Graphic "() {
+    createEntry('graphic');
+}"
+
+Table "() {
+    createEntry('table');
+}"
+
+Td "() {
+    createEntry('td');
+}"
+
+Th "() {
+    createEntry('th');
+}"
+
+Tr "() {
+    createEntry('tr');
+}"
+
+Barre "() {
+    createEntry('barre');
+}"
+
+ChordDef "() {
+    createEntry('chordDef');
+}"
+
+ChordMember "() {
+    createEntry('chordMember');
+}"
+
+ChordTable "() {
+    createEntry('chordTable');
+}"
+
+F "() {
+    createEntry('f');
+}"
+
+Fb "() {
+    createEntry('fb');
+}"
+
+Harm "() {
+    createEntry('harm');
+}"
+
+AccessRestrict "() {
+    createEntry('accessRestrict');
+}"
+
+AcqSource "() {
+    createEntry('acqSource');
+}"
+
+AltId "() {
+    createEntry('altId');
+}"
+
+AppInfo "() {
+    createEntry('appInfo');
+}"
+
+Application "() {
+    createEntry('application');
+}"
+
+Availability "() {
+    createEntry('availability');
+}"
+
+Change "() {
+    createEntry('change');
+}"
+
+ChangeDesc "() {
+    createEntry('changeDesc');
+}"
+
+ClassCode "() {
+    createEntry('classCode');
+}"
+
+Classification "() {
+    createEntry('classification');
+}"
+
+Condition "() {
+    createEntry('condition');
+}"
+
+ContentItem "() {
+    createEntry('contentItem');
+}"
+
+Contents "() {
+    createEntry('contents');
+}"
+
+Correction "() {
+    createEntry('correction');
+}"
+
+Creation "() {
+    createEntry('creation');
+}"
+
+Dimensions "() {
+    createEntry('dimensions');
+}"
+
+EditionStmt "() {
+    createEntry('editionStmt');
+}"
+
+EditorialDecl "() {
+    createEntry('editorialDecl');
+}"
+
+EncodingDesc "() {
+    createEntry('encodingDesc');
+}"
+
+Ensemble "() {
+    createEntry('ensemble');
+}"
+
+Event "() {
+    createEntry('event');
+}"
+
+EventList "() {
+    createEntry('eventList');
+}"
+
+ExhibHist "() {
+    createEntry('exhibHist');
+}"
+
+Extent "() {
+    createEntry('extent');
+}"
+
+FileDesc "() {
+    createEntry('fileDesc');
+}"
+
+Fingerprint "() {
+    createEntry('fingerprint');
+}"
+
+Hand "() {
+    createEntry('hand');
+}"
+
+HandList "() {
+    createEntry('handList');
+}"
+
+History "() {
+    createEntry('history');
+}"
+
+IncipCode "() {
+    createEntry('incipCode');
+}"
+
+IncipText "() {
+    createEntry('incipText');
+}"
+
+Inscription "() {
+    createEntry('inscription');
+}"
+
+InstrVoice "() {
+    createEntry('instrVoice');
+}"
+
+InstrVoiceGrp "() {
+    createEntry('instrVoiceGrp');
+}"
+
+Instrumentation "() {
+    createEntry('instrumentation');
+}"
+
+Interpretation "() {
+    createEntry('interpretation');
+}"
+
+Key "() {
+    createEntry('key');
+}"
+
+LangUsage "() {
+    createEntry('langUsage');
+}"
+
+Language "() {
+    createEntry('language');
+}"
+
+MeiHead "() {
+    createEntry('meiHead');
+}"
+
+Meter "() {
+    createEntry('meter');
+}"
+
+Normalization "() {
+    createEntry('normalization');
+}"
+
+NotesStmt "() {
+    createEntry('notesStmt');
+}"
+
+PerfMedium "() {
+    createEntry('perfMedium');
+}"
+
+PhysDesc "() {
+    createEntry('physDesc');
+}"
+
+PhysLoc "() {
+    createEntry('physLoc');
+}"
+
+PhysMedium "() {
+    createEntry('physMedium');
+}"
+
+PlateNum "() {
+    createEntry('plateNum');
+}"
+
+Price "() {
+    createEntry('price');
+}"
+
+ProjectDesc "() {
+    createEntry('projectDesc');
+}"
+
+Provenance "() {
+    createEntry('provenance');
+}"
+
+PubStmt "() {
+    createEntry('pubStmt');
+}"
+
+RelatedItem "() {
+    createEntry('relatedItem');
+}"
+
+Resp "() {
+    createEntry('resp');
+}"
+
+RespStmt "() {
+    createEntry('respStmt');
+}"
+
+RevisionDesc "() {
+    createEntry('revisionDesc');
+}"
+
+SamplingDecl "() {
+    createEntry('samplingDecl');
+}"
+
+Segmentation "() {
+    createEntry('segmentation');
+}"
+
+SeriesStmt "() {
+    createEntry('seriesStmt');
+}"
+
+Source "() {
+    createEntry('source');
+}"
+
+SourceDesc "() {
+    createEntry('sourceDesc');
+}"
+
+StdVals "() {
+    createEntry('stdVals');
+}"
+
+SysReq "() {
+    createEntry('sysReq');
+}"
+
+Term "() {
+    createEntry('term');
+}"
+
+TermList "() {
+    createEntry('termList');
+}"
+
+TitleStmt "() {
+    createEntry('titleStmt');
+}"
+
+TreatHist "() {
+    createEntry('treatHist');
+}"
+
+TreatSched "() {
+    createEntry('treatSched');
+}"
+
+Unpub "() {
+    createEntry('unpub');
+}"
+
+UseRestrict "() {
+    createEntry('useRestrict');
+}"
+
+Watermark "() {
+    createEntry('watermark');
+}"
+
+Work "() {
+    createEntry('work');
+}"
+
+WorkDesc "() {
+    createEntry('workDesc');
+}"
+
+Timeline "() {
+    createEntry('timeline');
+}"
+
+When "() {
+    createEntry('when');
+}"
+
+Lyrics "() {
+    createEntry('lyrics');
+}"
+
+Verse "() {
+    createEntry('verse');
+}"
+
+Ligature "() {
+    createEntry('ligature');
+}"
+
+Mensur "() {
+    createEntry('mensur');
+}"
+
+Proport "() {
+    createEntry('proport');
+}"
+
+Cc "() {
+    createEntry('cc');
+}"
+
+Chan "() {
+    createEntry('chan');
+}"
+
+ChanPr "() {
+    createEntry('chanPr');
+}"
+
+Cue "() {
+    createEntry('cue');
+}"
+
+Hex "() {
+    createEntry('hex');
+}"
+
+InstrDef "() {
+    createEntry('instrDef');
+}"
+
+InstrGrp "() {
+    createEntry('instrGrp');
+}"
+
+Marker "() {
+    createEntry('marker');
+}"
+
+MetaText "() {
+    createEntry('metaText');
+}"
+
+Midi "() {
+    createEntry('midi');
+}"
+
+NoteOff "() {
+    createEntry('noteOff');
+}"
+
+NoteOn "() {
+    createEntry('noteOn');
+}"
+
+Port "() {
+    createEntry('port');
+}"
+
+Prog "() {
+    createEntry('prog');
+}"
+
+SeqNum "() {
+    createEntry('seqNum');
+}"
+
+TrkName "() {
+    createEntry('trkName');
+}"
+
+Vel "() {
+    createEntry('vel');
+}"
+
+CorpName "() {
+    createEntry('corpName');
+}"
+
+GeogName "() {
+    createEntry('geogName');
+}"
+
+PeriodName "() {
+    createEntry('periodName');
+}"
+
+PersName "() {
+    createEntry('persName');
+}"
+
+StyleName "() {
+    createEntry('styleName');
+}"
+
+Ineume "() {
+    createEntry('ineume');
+}"
+
+Syllable "() {
+    createEntry('syllable');
+}"
+
+Uneume "() {
+    createEntry('uneume');
+}"
+
+AvFile "() {
+    createEntry('avFile');
+}"
+
+Clip "() {
+    createEntry('clip');
+}"
+
+Performance "() {
+    createEntry('performance');
+}"
+
+Recording "() {
+    createEntry('recording');
+}"
+
+Ptr "() {
+    createEntry('ptr');
+}"
+
+Ref "() {
+    createEntry('ref');
+}"
+
+Accid "() {
+    createEntry('accid');
+}"
+
+Actor "() {
+    createEntry('actor');
+}"
+
+AddrLine "() {
+    createEntry('addrLine');
+}"
+
+Address "() {
+    createEntry('address');
+}"
+
+Annot "() {
+    createEntry('annot');
+}"
+
+Artic "() {
+    createEntry('artic');
+}"
+
+BarLine "() {
+    createEntry('barLine');
+}"
+
+Bibl "() {
+    createEntry('bibl');
+}"
+
+Body "() {
+    createEntry('body');
+}"
+
+Caption "() {
+    createEntry('caption');
+}"
+
+CastGrp "() {
+    createEntry('castGrp');
+}"
+
+CastItem "() {
+    createEntry('castItem');
+}"
+
+CastList "() {
+    createEntry('castList');
+}"
+
+Chord "() {
+    createEntry('chord');
+}"
+
+Clef "() {
+    createEntry('clef');
+}"
+
+ClefGrp "() {
+    createEntry('clefGrp');
+}"
+
+Custos "() {
+    createEntry('custos');
+}"
+
+Date "() {
+    createEntry('date');
+}"
+
+Dir "() {
+    createEntry('dir');
+}"
+
+Dot "() {
+    createEntry('dot');
+}"
+
+Dynam "() {
+    createEntry('dynam');
+}"
+
+Edition "() {
+    createEntry('edition');
+}"
+
+Ending "() {
+    createEntry('ending');
+}"
+
+Expansion "() {
+    createEntry('expansion');
+}"
+
+Fw "() {
+    createEntry('fw');
+}"
+
+Group "() {
+    createEntry('group');
+}"
+
+GrpSym "() {
+    createEntry('grpSym');
+}"
+
+Identifier "() {
+    createEntry('identifier');
+}"
+
+Incip "() {
+    createEntry('incip');
+}"
+
+KeyAccid "() {
+    createEntry('keyAccid');
+}"
+
+KeySig "() {
+    createEntry('keySig');
+}"
+
+Label "() {
+    createEntry('label');
+}"
+
+Layer "() {
+    createEntry('layer');
+}"
+
+LayerDef "() {
+    createEntry('layerDef');
+}"
+
+Lb "() {
+    createEntry('lb');
+}"
+
+Mdiv "() {
+    createEntry('mdiv');
+}"
+
+Mei "() {
+    createEntry('mei');
+}"
+
+Music "() {
+    createEntry('music');
+}"
+
+Name "() {
+    createEntry('name');
+}"
+
+Note "() {
+    createEntry('note');
+}"
+
+Num "() {
+    createEntry('num');
+}"
+
+P "() {
+    createEntry('p');
+}"
+
+Pad "() {
+    createEntry('pad');
+}"
+
+Part "() {
+    createEntry('part');
+}"
+
+Parts "() {
+    createEntry('parts');
+}"
+
+Pb "() {
+    createEntry('pb');
+}"
+
+PgDesc "() {
+    createEntry('pgDesc');
+}"
+
+PgFoot "() {
+    createEntry('pgFoot');
+}"
+
+PgFoot2 "() {
+    createEntry('pgFoot2');
+}"
+
+PgHead "() {
+    createEntry('pgHead');
+}"
+
+PgHead2 "() {
+    createEntry('pgHead2');
+}"
+
+Phrase "() {
+    createEntry('phrase');
+}"
+
+Rend "() {
+    createEntry('rend');
+}"
+
+Repository "() {
+    createEntry('repository');
+}"
+
+Rest "() {
+    createEntry('rest');
+}"
+
+Role "() {
+    createEntry('role');
+}"
+
+RoleDesc "() {
+    createEntry('roleDesc');
+}"
+
+Sb "() {
+    createEntry('sb');
+}"
+
+Score "() {
+    createEntry('score');
+}"
+
+ScoreDef "() {
+    createEntry('scoreDef');
+}"
+
+Section "() {
+    createEntry('section');
+}"
+
+Space "() {
+    createEntry('space');
+}"
+
+Stack "() {
+    createEntry('stack');
+}"
+
+Staff "() {
+    createEntry('staff');
+}"
+
+StaffDef "() {
+    createEntry('staffDef');
+}"
+
+StaffGrp "() {
+    createEntry('staffGrp');
+}"
+
+Syl "() {
+    createEntry('syl');
+}"
+
+Tempo "() {
+    createEntry('tempo');
+}"
+
+Title "() {
+    createEntry('title');
+}"
+
+TitlePage "() {
+    createEntry('titlePage');
+}"
+
+Back "() {
+    createEntry('back');
+}"
+
+Div "() {
+    createEntry('div');
+}"
+
+Front "() {
+    createEntry('front');
+}"
+
+Head "() {
+    createEntry('head');
+}"
+
+Item "() {
+    createEntry('item');
+}"
+
+L "() {
+    createEntry('l');
+}"
+
+Lg "() {
+    createEntry('lg');
+}"
+
+List "() {
+    createEntry('list');
+}"
+
+Quote "() {
+    createEntry('quote');
+}"
+
+AnchoredText "() {
+    createEntry('anchoredText');
+}"
+
+Curve "() {
+    createEntry('curve');
+}"
+
+Line "() {
+    createEntry('line');
+}"
+
+Symbol "() {
+    createEntry('symbol');
+}"
+
+SymbolDef "() {
+    createEntry('symbolDef');
+}"
+
+SymbolTable "() {
+    createEntry('symbolTable');
+}"
+
+    
+createEntry "(tagname) {
+    return CreateDictionary(tagname, CreateDictionary('attrs', CreateDictionary(), 'children', CreateSparseArray()));
+}"
+
+getChildren "(obj) {
+    c = '';
+    for each Value v in obj {
+        c = v['children'];
+    }
+    return c;
+}"
+
+getAttrs "(obj) {
+    a = '';
+    for each Value v in obj {
+        a = v['attrs'];
+    }
+    return a;
+}"
+
+getName "(obj) {
+    for each Name n in obj {
+        return n;
+    }
+}"
+
+createXmlTag "(name, attributesList, isTerminal) {
+    attrstring = '';
+    spacer = '';
+    if (attributesList) {
+        spacer = ' ';
+        for each Pair attr in attributesList {
+            if (attr.Value != ' ') {
+                attrstring = attrstring & attr.Name & '=' & '\'' & attr.Value & '\' ';
+            }
+        }
+    }
+    if (isTerminal) {
+        return '<' & name & spacer & attrstring & '/>
+';
+    } else {
+        return '<' & name & spacer & attrstring & '>
+';
+    }
+}"
+
+convertDictToXml "(meiel) {
+    xmlout = '';
+    terminalTag = true;
+    nm = libmei.getName(meiel);
+    at = libmei.getAttrs(meiel);
+    ch = libmei.getChildren(meiel);
+    
+    if (ch) {
+        terminalTag = false;
+    }
+
+    xmlout = createXmlTag(nm, at, terminalTag);
+
+    if (ch) {
+        for each child in ch {
+            xmlout = xmlout & convertDictToXml(child);
+        }
+    }
+    
+    if (ch) {
+        xmlout = xmlout & '</' & nm & '>';
+    }
+
+    return xmlout;
+}"
+
+
+
+}
