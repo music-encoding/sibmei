@@ -1094,12 +1094,31 @@ getChildren "(obj) {
     return c;
 }"
 
-getAttrs "(obj) {
+addChild "(obj, child) {
+    c = getChildren(obj);
+    c.Push(child);
+}"
+
+getAttributes "(obj) {
     a = '';
     for each Value v in obj {
         a = v['attrs'];
     }
     return a;
+}"
+
+addAttribute "(obj, attrname, attrval) {
+    a = getAttributes(obj);
+    a[attrname] = attrval;
+}"
+
+removeAttribute "(obj, attrname) {
+    // since there are no delete functions
+    // for dictionaries, we set the attribute
+    // to a blank space and this will get 
+    // removed when converted to XML.
+    a = getAttributes(obj);
+    a[attrname] = ' ';
 }"
 
 getName "(obj) {
@@ -1134,7 +1153,6 @@ getTail "(obj) {
     }
     return t;
 }"
-
 
 createXmlTag "(name, attributesList, isTerminal) {
     attrstring = '';
