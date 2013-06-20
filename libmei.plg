@@ -1432,7 +1432,7 @@ lookBack "(from, name) {
     indent = 0;
     meiout = xdecl & convertDictToXml(meidoc[0], indent);
     Sibelius.CreateTextFile(filename);
-    Sibelius.AppendTextFile(filename, meiout, 0);
+    Sibelius.AppendTextFile(filename, meiout, 1);
 
     return true;
 }"
