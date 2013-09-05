@@ -1246,6 +1246,28 @@
     el = obj[objname];
     return el['children'];
 }"
+    setChildren "(obj, childarr) {
+        trace(childarr.Type);
+        props = obj.GetPropertyNames();
+        objname = props[0];
+        el = obj[objname];
+        el['children'] = childarr;
+}"
+    addChildAtPosition "(obj, child, position) {
+        c = getChildren(obj);
+        r = CreateSparseArray();
+        // copy the children to the new array. Add two
+        // beyond the length since we'll be adding a new element.
+        for i = c.Length + 2 {
+            if (i = position) {
+                r[i] = child;
+                i = i + 1;
+            } else {
+                r[i] = c[i];
+            }
+        }
+        setChildren(obj, r);
+}"
     addChild "(obj, child) {
     c = getChildren(obj);
     c.Push(child);
