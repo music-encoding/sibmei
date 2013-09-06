@@ -1280,6 +1280,9 @@
 }"
     addAttribute "(obj, attrname, attrval) {
     a = getAttributes(obj);
+    // check and replace any newlines
+    nc = Chr(10);
+    attrval = utils.Replace(attrval, nc, '&#10;', true);
     a[attrname] = attrval;
 }"
     getAttribute "(obj, attrname) {
