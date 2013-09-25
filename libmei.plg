@@ -1303,6 +1303,14 @@
     el = obj[objname];
     el['attrs'] = attrs;
 }"
+    getId "(obj)
+    {
+        return getAttribute(obj, 'xml:id');
+}"
+    setId "(obj, value)
+    {
+        addAttribute(obj, 'xml:id', value);
+}"
     removeAttribute "(obj, attrname) {
     // since there are no delete functions
     // for dictionaries, we set the attribute
