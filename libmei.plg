@@ -1247,7 +1247,6 @@
     return el['children'];
 }"
     setChildren "(obj, childarr) {
-        trace(childarr.Type);
         props = obj.GetPropertyNames();
         objname = props[0];
         el = obj[objname];
