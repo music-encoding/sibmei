@@ -18,3 +18,5 @@ Under the “Home” tab of the Sibelius ribbon, select the “Plug-ins” butto
 Known Issues
 -------------
 Sibelius allows lyrics to be assigned to both chords and rests, which MEI will mark as invalid markup. When it encounters these objects the Sibelius MEI Plugin will translate the lyrics to the chord or rest object, but will also display a warning.
+
+For SymbolItems assigned to all voices (e.g., a non-line based Trill symbol), the plugin will assume that the symbol is assigned to voice 1. If this is incorrect, you should explicitly assign a symbol to a specific voice by right-clicking on the symbol and explicitly choosing the voice to which the symbol should be attached.
