@@ -482,6 +482,7 @@ function GenerateClef (bobj) {
 function GenerateNoteRest (bobj, layer) {
     //$module(ExportGenerators.mss)
     nr = null;
+
     switch(bobj.NoteCount)
     {
         case(0)
@@ -637,8 +638,8 @@ function GenerateNoteRest (bobj, layer) {
     // a tremolo is a parent of note or chord in MEI
     if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = -1))
     {
-        btrem = libmei.BTrem();
-        libmei.AddChild(btrem, nr);
+        // btrem = libmei.BTrem();
+        // libmei.AddChild(btrem, nr);
 
         if (bobj.SingleTremolos = ZOnStem)
         {
@@ -650,8 +651,6 @@ function GenerateNoteRest (bobj, layer) {
         }
 
         libmei.AddAttribute(nr, 'stem.mod', stemmod);
-
-        return btrem;
     }
 
     return nr;
