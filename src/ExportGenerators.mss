@@ -345,7 +345,7 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('NoteRest')
             {
-                note = GenerateNoteRest(bobj);
+                note = GenerateNoteRest(bobj, l);
 
                 // record the position of this element
                 objVoice = barObjectPositions[voicenumber];
@@ -540,7 +540,12 @@ function GenerateNoteRest (bobj, layer) {
         fermata = libmei.Fermata();
         libmei.AddAttribute(fermata, 'form', 'norm');
         libmei.AddAttribute(fermata, 'shape', 'curved');
-        libmei.AddChild(nr, fermata);
+        libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
+        libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
+        libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+
+        mlines = Self._property:MeasureLines;
+        mlines.Push(fermata._id);
     }
 
     if (bobj.GetArticulation(TriPauseArtic))
@@ -548,7 +553,12 @@ function GenerateNoteRest (bobj, layer) {
         fermata = libmei.Fermata();
         libmei.AddAttribute(fermata, 'form', 'norm');
         libmei.AddAttribute(fermata, 'shape', 'angular');
-        libmei.AddChild(nr, fermata);
+        libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
+        libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
+        libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+
+        mlines = Self._property:MeasureLines;
+        mlines.Push(fermata._id);
     }
 
     if (bobj.GetArticulation(SquarePauseArtic))
@@ -556,7 +566,12 @@ function GenerateNoteRest (bobj, layer) {
         fermata = libmei.Fermata();
         libmei.AddAttribute(fermata, 'form', 'norm');
         libmei.AddAttribute(fermata, 'shape', 'square');
-        libmei.AddChild(nr, fermata);
+        libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
+        libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
+        libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+
+        mlines = Self._property:MeasureLines;
+        mlines.Push(fermata._id);
     }
 
     if (bobj.GetArticulation(StaccatoArtic))
