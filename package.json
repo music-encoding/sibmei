@@ -1,0 +1,20 @@
+{
+  "name": "sibmei2",
+  "version": "2.0.0",
+  "description": "",
+  "main": "plgconfig.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-spawn": "^0.3.0",
+    "gulp-util": "^3.0.6",
+    "q": "^1.4.1"
+  }
+}
