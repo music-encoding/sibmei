@@ -271,6 +271,8 @@ function GenerateStaff (staffnum, measurenum) {
         libmei.AddAttribute(stf, 'visible', 'false');
     }
 
+    libmei.AddAttribute(stf, 'n', staffnum);
+
     layers = GenerateLayers(staffnum, measurenum);
     // NB: Completely resets any previous children!
     libmei.SetChildren(stf, layers);
