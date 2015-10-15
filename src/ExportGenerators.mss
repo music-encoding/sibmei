@@ -131,6 +131,10 @@ function GenerateMEIMusic () {
     Self._property:ActiveVolta = null;
     Self._property:VoltaElement = null;
 
+    // track page numbers
+    Self._property:CurrentPageNumber = null;
+    Self._property:PageBreak = null;
+
     // grab some global markers from the system staff
     // This will store it for later use.
     ProcessSystemStaff(score);
@@ -171,6 +175,13 @@ function GenerateMEIMusic () {
         m = GenerateMeasure(j);
         ending = ProcessVolta(j);
 
+        if (Self._property:PageBreak != null)
+        {
+            pb = Self._property:PageBreak;
+            libmei.AddChild(section, pb);
+            Self._property:PageBreak = null;
+        }
+
         if (ending != null)
         {
             libmei.AddChild(section, ending);
@@ -208,6 +219,15 @@ function GenerateMeasure (num) {
     {
         this_staff = score.NthStaff(i);
         bar = this_staff[num];
+
+        curr_pn = bar.OnNthPage;
+        if (curr_pn != Self._property:CurrentPageNumber)
+        {
+            Self._property:CurrentPageNumber = curr_pn;
+            pb = libmei.Pb();
+            libmei.AddAttribute(pb, 'n', curr_pn);
+            Self._property:PageBreak = pb;
+        }
 
         if (bar.ExternalBarNumberString)
         {
