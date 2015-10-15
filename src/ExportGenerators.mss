@@ -469,8 +469,6 @@ function GenerateClef (bobj) {
     clefinfo = ConvertClef(bobj.StyleId);
     clef_el = libmei.Clef();
 
-    libmei.AddChild(l, clef_el);
-
     libmei.AddAttribute(clef_el, 'shape', clefinfo[0]);
     libmei.AddAttribute(clef_el, 'line', clefinfo[1]);
     libmei.AddAttribute(clef_el, 'dis', clefinfo[2]);
