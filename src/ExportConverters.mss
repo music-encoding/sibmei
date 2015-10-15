@@ -962,3 +962,18 @@ function ConvertEndingValues (styleid) {
     return CreateSparseArray(num, label, type);
 
 }  //$end
+
+function ConvertDate (datetime) {
+    //$module(ExportConverters.mss)
+    d = datetime.DayOfMonth;
+    m = datetime.Month;
+    y = datetime.Year;
+
+    hh  = datetime.Hours;
+    mm = datetime.Minutes;
+    ss = datetime.Seconds;
+
+    isodate = utils.Format("%s-%s-%sT%s:%s:%sZ", y, m, d, hh, mm, ss);
+
+    return isodate;
+}  //$end
