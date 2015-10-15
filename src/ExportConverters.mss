@@ -903,7 +903,7 @@ function ConvertTextElement (textobj) {
 
     if (textobj.Dy != 0)
     {
-        libmei.AddAttribute(obj, 'vo', ConvertOffset(textobj.Dy));
+        libmei.AddAttribute(obj, 'vo', ConvertOffsets(textobj.Dy));
     }
 
     return obj;
