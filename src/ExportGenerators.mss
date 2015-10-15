@@ -793,6 +793,16 @@ function GenerateNote (nobj) {
             next_object = next_bar.NthBarObject(0);
         }
 
+        if (next_object = null or next_object.Type != 'NoteRest')
+        {
+            // it's a hanging tie. What to do, what to do?
+            // for now, just encode the startid with no endid and return the note.
+            tie = libmei.Tie();
+            libmei.AddAttribute(tie, 'startid', '#' & n._id);
+            n._property:TieIds = CreateSparseArray(tie._id);
+            return n;
+        }
+
         for each next_note in next_object
         {
             if (nobj.Pitch = next_note.Pitch)
