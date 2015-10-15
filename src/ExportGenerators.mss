@@ -844,6 +844,11 @@ function GenerateBarRest (bobj) {
     //$module(ExportGenerators.mss)
     switch (bobj.RestType)
     {
+        case(BreveBarRest)
+        {
+            obj = libmei.MRest();
+            libmei.AddAttribute(obj, 'dur', 'breve');
+        }
         case (WholeBarRest)
         {
             obj = libmei.MRest();
