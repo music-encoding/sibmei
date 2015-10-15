@@ -92,12 +92,21 @@ function GenerateMEIHeader () {
     libmei.AddChild(encodingD, appI);
 
     applic = libmei.Application();
-    libmei.SetId(applic, 'sibelius7');
+    libmei.SetId(applic, 'sibelius');
     libmei.AddChild(appI, applic);
     libmei.AddAttribute(applic, 'version', Sibelius.ProgramVersion);
-    nm = libmei.Name();
-    libmei.SetText(nm, 'Sibelius (' & Version & ')');
-    libmei.AddChild(applic, nm);
+    plgname = libmei.Name();
+    libmei.SetText(plgname, PluginName & ' (' & Version & ')');
+    libmei.AddAttribute(plgname, 'type', 'plugin');
+    libmei.AddChild(applic, plgname);
+
+    isodate = ConvertDate(Sibelius.CurrentDate);
+    libmei.AddAttribute(plgname, 'isodate', isodate);
+
+    osname = libmei.Name();
+    libmei.SetText(osname, Sibelius.OSVersionString);
+    libmei.AddAttribute(osname, 'type', 'operating-system');
+    libmei.AddChild(applic, osname);
     
     libmei.AddChild(header, workDesc);
 

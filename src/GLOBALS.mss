@@ -1,5 +1,5 @@
-Version     "2.0.0"
-PluginName  "Sibmei2"
+Version     "2.0.0 beta2"
+PluginName  "Sibelius to MEI Exporter"
 Author      "Andrew Hankinson"
 
 _InitialProgressTitle "Exporting %s to MEI"
