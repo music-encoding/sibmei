@@ -162,6 +162,7 @@ function GenerateMEIMusic () {
         progressMsg = utils.Format(_ExportingBars, j, numbars);
         cont = Sibelius.UpdateProgressDialog(j, progressMsg);
 
+        // if the user has clicked cancel, stop the plugin.
         if (cont = 0)
         {
             ExitPlugin();
@@ -937,6 +938,10 @@ function GenerateScoreDef (score) {
     {
         libmei.AddAttribute(scoredef, 'key.sig.showchange', 'true');
     }
+
+    libmei.AddAttribute(scoredef, 'music.name', score.MainMusicFontName);
+    libmei.AddAttribute(scoredef, 'text.name', score.MainTextFontName);
+    libmei.AddAttribute(scoredef, 'lyric.name', score.MusicTextFontName);
 
     systf = score.SystemStaff;
     timesig = systf.CurrentTimeSignature(1);
