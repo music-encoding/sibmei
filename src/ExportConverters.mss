@@ -969,11 +969,9 @@ function ConvertDate (datetime) {
     m = datetime.Month;
     y = datetime.Year;
 
-    hh  = datetime.Hours;
-    mm = datetime.Minutes;
-    ss = datetime.Seconds;
+    time = datetime.TimeWithSeconds;
 
-    isodate = utils.Format("%s-%s-%sT%s:%s:%sZ", y, m, d, hh, mm, ss);
+    isodate = utils.Format('%s-%s-%sT%sZ', y, m, d, time);
 
     return isodate;
 }  //$end
