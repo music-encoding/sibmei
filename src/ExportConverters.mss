@@ -196,19 +196,19 @@ function ConvertOffsets (offset) {
      Sibelius offsets into a millimeter measurement as required by the 
      data.MEASUREMENT datatype used by MEI.
 
+    The `StaffHeight` property always returns the staff height in millimeters.
+
     Most offsets are given in Sibelius Units, which
     are defined as 1/32 of a space. A space is 1/4 of the staff height
     set at 128. For real world calculations, then, a unit is:
-    ((staffheight / 4) / 32).
-
-    The `StaffHeight` property always returns the staff height in millimeters.
+    ((staffheight / 128).
 
     So a staff height of 7mm (default) gives us (7/4 = 1.75) / 32 = 0.05mm per Sibelius
     Unit.
     */
     scr = Sibelius.ActiveScore;
     staffheight = scr.StaffHeight;
-    factor = (((staffheight & '.0') / 4.0) / 32.0);
+    factor = (staffheight / 128.0);
     oset = factor * offset;
     retval = oset & 'mm';
     return retval;
