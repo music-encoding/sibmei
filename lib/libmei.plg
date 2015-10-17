@@ -1554,12 +1554,11 @@ GetTail "(element) {
     // comments are simple so they're handled specially.
     if (nm = '<!--')
     {
-        xmlout = nm & ' ' & tx & ' -->
-';
+        xmlout = nm & ' ' & tx & ' -->' & Chr(10);
         return xmlout;
     }
 
-    if (ch or Length(tx) > 0)
+    if (ch.Length > 0 or Length(tx) > 0)
     {
         terminalTag = false;
     }
@@ -1570,11 +1569,17 @@ GetTail "(element) {
     {
         endchar = '';
         xmlout = xmlout & tx;
+
+        // if an element has both text and children,
+        // insert a line break.
+        if (ch.Length > 0)
+        {
+            xmlout = xmlout & Chr(10);
+        }
     }
     else
     {
-        xmlout = xmlout & '
-';
+        xmlout = xmlout & Chr(10);
     }
 
     if (ch.Length > 0)
@@ -1589,7 +1594,7 @@ GetTail "(element) {
 
     if (Length(tl) > 0)
     {
-        xmlout = xmlout & tl;
+        xmlout = xmlout & tabs & tl & Chr(10);
     }
 
     // convertDictToXml takes care of adding the />
@@ -1598,16 +1603,14 @@ GetTail "(element) {
     // that do.
     if (not terminalTag)
     {
-        if (Length(tx) > 0)
+        if (ch.Length = 0 and Length(tx) > 0)
         {
-            xmlout = xmlout & '</' & nm & '>
-';
+            xmlout = xmlout & '</' & nm & '>' & Chr(10);
         }
         else
         {
             tabs = Substring(tabs, 0, Length(tabs) - 4);
-            xmlout = xmlout & tabs & '</' & nm & '>
-';
+            xmlout = xmlout & tabs & '</' & nm & '>' & Chr(10);
         }
     }
 
@@ -1615,8 +1618,7 @@ GetTail "(element) {
 }"
 
     _exportMeiDocument "(meidoc) {
-        xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>
-';
+        xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>' & Chr(10);
         indent = 0;
         meiout = xdecl & convertDictToXml(meidoc[0], indent);
 
