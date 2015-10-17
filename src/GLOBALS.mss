@@ -15,4 +15,3 @@ _ObjectHasNoMEISupport "%s is not supported by MEI at this time."
 _ObjectIsOnAnIllogicalObject "Bar %s, voice %s. %s is added to a %s object. This will create invalid MEI. You should fix this in your Sibelius file if possible, or edit your MEI file after export."
 
 LOGFILE "/tmp/sibelius.log"
-

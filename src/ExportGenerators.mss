@@ -134,12 +134,37 @@ function GenerateMEIMusic () {
     // track page numbers
     Self._property:CurrentPageNumber = null;
     Self._property:PageBreak = null;
+    Self._property:FrontMatter = CreateDictionary();
 
     // grab some global markers from the system staff
     // This will store it for later use.
     ProcessSystemStaff(score);
 
     music = libmei.Music();
+
+    frontmatter = Self._property:FrontMatter;
+    frontpages = frontmatter.GetPropertyNames();
+
+    if (frontpages.Length > 0)
+    {
+        // sort the front pages 
+        Log('front: ' & frontmatter);
+
+        sorted_front = utils.SortArray(frontpages, False);
+        frontEl = libmei.Front();
+        for each pnum in sorted_front
+        {
+            pgels = frontmatter[pnum];
+
+            for each el in pgels
+            {
+                libmei.AddChild(frontEl, el);
+            }
+        }
+
+        libmei.AddChild(music, frontEl);
+    }
+
     body = libmei.Body();
     mdiv = libmei.Mdiv();
     sco = libmei.Score();
@@ -225,7 +250,9 @@ function GenerateMeasure (num) {
         {
             Self._property:CurrentPageNumber = curr_pn;
             pb = libmei.Pb();
-            libmei.AddAttribute(pb, 'n', curr_pn);
+
+            // pages are stored internally as 0-based, so increment by one for the 'human' representation.
+            libmei.AddAttribute(pb, 'n', curr_pn + 1);
             Self._property:PageBreak = pb;
         }
 
@@ -530,7 +557,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.Dx != 0)
     {
-        libmei.AddAttribute(nr, 'ho', ConvertOffsets(bobj.Dx));
+        libmei.AddAttribute(nr, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
     }
 
     if (bobj.CueSize = true and libmei.GetName(nr) != 'space')
@@ -1157,4 +1184,247 @@ function GenerateTrill (bobj) {
     trill = AddBarObjectInfoToElement(bobj, trill);
 
     return trill;
+}  //$end
+
+function GenerateFormattedString (bobj) {
+    //$module(ExportGenerators.mss)
+    /*
+        Returns an array containing at least one paragraph
+        tag, formatted with the <rend> element. 
+
+        Multiple paragraph tags may be returned if the formatting string contains
+        a '\n\' (new paragraph)
+    */
+
+    FORMATOPEN = 1;
+    FORMATCLOSE = 2;
+    FORMATTAG = 3;
+    FORMATINFO = 4;
+    TEXTSTR = 5;
+
+    // initialize context as a text string, since we may not always open with a formatting tag.
+    ctx = TEXTSTR;
+    tag = null;
+    activeinfo = '';
+    activetext = '';
+
+    ret = CreateSparseArray();
+    activeDiv = libmei.Div();
+    activePara = libmei.P();
+    libmei.AddChild(activeDiv, activePara);
+    ret.Push(activeDiv);
+
+    text = bobj.TextWithFormattingAsString;
+    Log('text: ' & text);
+    Log('initial context: ' & ctx);
+
+    if (text = '')
+    {
+        return ret;
+    }
+
+    for i = 0 to Length(text)
+    {
+        c = CharAt(text, i);
+        Log('c: ' & c);
+
+        if (c = '\\')
+        {
+            if (ctx = FORMATINFO or ctx = FORMATTAG)
+            {
+                /*
+                    If we have an open format context or
+                    we are looking at format info and see
+                    a slash, we are closing the format context
+                */
+                ctx = FORMATCLOSE;
+            }
+            else
+            {
+                if (ctx = TEXTSTR or ctx = FORMATCLOSE)
+                {
+                    /* If we have a slash we are either switching
+                        into a new formatting tag context
+                        or we are opening a new formatting tag
+                        immediately after closing one.
+                    */
+                    ctx = FORMATOPEN;
+                }
+            }
+        }
+        else
+        {
+            switch (ctx)
+            {
+                case (FORMATOPEN)
+                {
+                    // the previous iteration gave us an opening
+                    // formatting string, so the next character is
+                    // the formatting tag
+                    ctx = FORMATTAG;
+                }
+
+                case (FORMATTAG)
+                {
+                    /*
+                        After seeing a tag we will expect to find some
+                        info. If there is no info, the next character will
+                        be a \ and it will be caught above.
+                    */
+                    ctx = FORMATINFO;
+                    activeinfo = activeinfo & c;
+                }
+
+                case (FORMATINFO)
+                {
+                    // keep appending the active info until
+                    // we reach the end.
+                    activeinfo = activeinfo & c;
+                }
+
+                case (FORMATCLOSE)
+                {
+                    // the previous context was a closing format tag,
+                    // so the next character, if it is not another opening
+                    // tag, is a text string. Assume it is a text string
+                    // which will be corrected on the next go-round.
+                    ctx = TEXTSTR;
+                    activetext = activetext & c;
+                }
+
+                case (TEXTSTR)
+                {
+                    Log('Activetext: ' & activetext);
+                    activetext = activetext & c;
+                }
+            }
+        }
+
+        Log('Context: ' & ctx);
+
+        // now that we have figured out what context we are in, we
+        // can do something about it.
+        switch (ctx)
+        {
+            case (FORMATTAG)
+            {
+                tag = c;
+
+                if (tag = 'n')
+                {
+                    if (activetext != '')
+                    {
+                        libmei.SetText(activePara, activetext);
+                        activetext = '';
+                    }
+
+                    activePara = libmei.P();
+                    libmei.AddChild(activeDiv, activePara);
+                }
+
+                if (tag = 'N')
+                {
+                    if (activetext != '')
+                    {
+                        children = activePara.children;
+
+                        if (children.Length > 0)
+                        {
+                            lastLbId = children[-1];
+                            lastLb = libmei.getElementById(lastLbId);
+                            libmei.SetTail(lastLb, activetext);
+                        }
+                        else
+                        {
+                            libmei.SetText(activePara, activetext);
+                        }
+                    }
+                    activetext = '';
+
+                    lb = libmei.Lb();
+                    libmei.AddChild(activePara, lb);
+                }
+            }
+
+            case (TEXTSTR)
+            {
+                ;
+            }
+
+            case (FORMATOPEN)
+            {
+                // if we have hit a new format opening tag and we have some previous text.
+                // if (activetext != '')
+                // {
+                //     // we have some pending text that needs to be dealt with
+                //     libmei.SetText(activePara, activetext);
+                //     activetext = '';
+                // }
+                ;
+            }
+
+            case (FORMATCLOSE)
+            {
+                Log('Format close: ' & activeinfo);
+                if (activeinfo != '')
+                {
+                    // tags that have info.
+                    switch (tag)
+                    {
+                        case ('s')
+                        {
+                            // our info block should contain units.
+                            Log('Units: ' & activeinfo);
+                        }
+
+                        case ('c')
+                        {
+                            // our info block should contain a style
+                            Log('Style: ' & activeinfo);
+                        }
+
+                        case ('f')
+                        {
+                            // our info block should either contain 
+                            // a font name or an underscore to switch
+                            // back to the default font.
+                            Log('Font: ' & activeinfo);
+                        }
+
+                        case ('$')
+                        {
+                            // our info block should contain a substitution
+                            Log('Substitution: ' & activeinfo);
+                        }
+                    }
+
+                    activeinfo = '';
+                    tag = '';
+                }
+            }
+            default
+            {
+                Log('default: ' & ctx);
+            }
+        }
+    }
+
+    // 
+    if (ctx = TEXTSTR and activetext != '')
+    {
+        // if we end the text on a text string, append it to the active paragraph element.
+        children = activePara.children;
+        if (children.Length > 0)
+        {
+            lastLbId = children[-1];
+            lastLb = libmei.getElementById(lastLbId);
+            libmei.SetTail(lastLb, activetext);
+        }
+        else
+        {
+            libmei.SetText(activePara, activetext);
+        }
+    }
+
+    return ret;
 }  //$end
