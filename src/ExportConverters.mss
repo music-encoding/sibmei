@@ -214,6 +214,18 @@ function ConvertOffsetsToMillimeters (offset) {
     return retval;
 }  //$end
 
+function ConvertUnitsToPoints (units) {
+    //$module(ExportConverters.mss)
+    scr = Sibelius.ActiveScore;
+    staffheight = scr.StaffHeight;
+
+    /*
+        Points are 0.352778mm (a point is 1/72 of an inch * 25.4mm/in).
+    */
+    retval = (((staffheight / 128.0) * units) / 0.352778;
+    return retval & 'pt';
+}  //$end
+
 function ConvertDuration (dur) {
     //$module(ExportConverters.mss)
     // there doesn't really seem to be a smarter way to do this...
