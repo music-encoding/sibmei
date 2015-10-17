@@ -1035,6 +1035,20 @@ function GenerateStaffGroups (score) {
             libmei.AddAttribute(std, 'key.mode', 'minor');
         }
 
+        if (s.InstrumentName != null)
+        {
+            instrObj = s.InitialInstrumentType;
+            instrComment = libmei.XMLComment(instrObj.DefaultSoundId);
+            libmei.AddChild(std, instrComment);
+
+            instrDef = libmei.InstrDef();
+            // libmei.AddAttribute(instrDef, 'midi.instrname', s.InstrumentName);
+            libmei.AddAttribute(instrDef, 'midi.pan', s.Pan);
+            libmei.AddAttribute(instrDef, 'midi.volume', s.Volume);
+            libmei.AddAttribute(instrDef, 'midi.channel', s.Channel);
+            libmei.AddChild(std, instrDef);
+        }
+
         staffdict[s.StaffNum] = std;
     }
 
