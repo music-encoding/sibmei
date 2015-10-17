@@ -706,12 +706,12 @@ function GenerateRest (bobj) {
     
     if (bobj.Dx != 0)
     {
-        libmei.AddAttribute(r, 'ho', ConvertOffsets(bobj.Dx));
+        libmei.AddAttribute(r, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
     }
 
     if (bobj.Dy != 0)
     {
-        libmei.AddAttribute(r, 'vo', ConvertOffsets(bobj.Dy));
+        libmei.AddAttribute(r, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
     }
 
     if (bobj.CueSize = true and libmei.GetName(r) != 'space')

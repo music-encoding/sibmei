@@ -188,7 +188,7 @@ function ConvertDiatonicPitch (diatonic_pitch) {
     return CreateSparseArray(pname, octv);
 }  //$end
 
-function ConvertOffsets (offset) {
+function ConvertOffsetsToMillimeters (offset) {
     //$module(ExportConverters.mss)
 
     /*
@@ -199,11 +199,11 @@ function ConvertOffsets (offset) {
     The `StaffHeight` property always returns the staff height in millimeters.
 
     Most offsets are given in Sibelius Units, which
-    are defined as 1/32 of a space. A space is 1/4 of the staff height
-    set at 128. For real world calculations, then, a unit is:
-    ((staffheight / 128).
+    are defined as 1/32 of a space. A space is 1/4 of the staff height, so
+    the staff height is always 128. A unit is therefore:
+    ((staffheight / 128) = units in mm.
 
-    So a staff height of 7mm (default) gives us (7/4 = 1.75) / 32 = 0.05mm per Sibelius
+    So a staff height of 7mm (default) gives us (7 / 128) = 0.05mm per Sibelius
     Unit.
     */
     scr = Sibelius.ActiveScore;
@@ -867,12 +867,12 @@ function ConvertText (textobj) {
 
             if (textobj.Dx != 0)
             {
-                libmei.AddAttribute(dynam, 'ho', ConvertOffset(textobj.Dx));
+                libmei.AddAttribute(dynam, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
             }
 
             if (textobj.Dy != 0)
             {
-                libmei.AddAttribute(dynam, 'vo', ConvertOffset(textobj.Dy));
+                libmei.AddAttribute(dynam, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
             }
             return dynam;
         }
@@ -898,12 +898,12 @@ function ConvertTextElement (textobj) {
 
     if (textobj.Dx != 0)
     {
-        libmei.AddAttribute(obj, 'ho', ConvertOffsets(textobj.Dx));
+        libmei.AddAttribute(obj, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
     }
 
     if (textobj.Dy != 0)
     {
-        libmei.AddAttribute(obj, 'vo', ConvertOffsets(textobj.Dy));
+        libmei.AddAttribute(obj, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
     }
 
     return obj;
