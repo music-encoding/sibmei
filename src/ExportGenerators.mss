@@ -148,7 +148,7 @@ function GenerateMEIMusic () {
     if (frontpages.Length > 0)
     {
         // sort the front pages 
-        Log('front: ' & frontmatter);
+        // Log('front: ' & frontmatter);
 
         sorted_front = utils.SortArray(frontpages, False);
         frontEl = libmei.Front();
@@ -1215,8 +1215,6 @@ function GenerateFormattedString (bobj) {
     ret.Push(activeDiv);
 
     text = bobj.TextWithFormattingAsString;
-    Log('text: ' & text);
-    Log('initial context: ' & ctx);
 
     if (text = '')
     {
@@ -1226,7 +1224,6 @@ function GenerateFormattedString (bobj) {
     for i = 0 to Length(text)
     {
         c = CharAt(text, i);
-        Log('c: ' & c);
 
         if (c = '\\')
         {
@@ -1294,13 +1291,10 @@ function GenerateFormattedString (bobj) {
 
                 case (TEXTSTR)
                 {
-                    Log('Activetext: ' & activetext);
                     activetext = activetext & c;
                 }
             }
         }
-
-        Log('Context: ' & ctx);
 
         // now that we have figured out what context we are in, we
         // can do something about it.
@@ -1374,13 +1368,15 @@ function GenerateFormattedString (bobj) {
                         case ('s')
                         {
                             // our info block should contain units.
-                            Log('Units: ' & activeinfo);
+                            // Log('Units: ' & activeinfo);
+                            ;
                         }
 
                         case ('c')
                         {
                             // our info block should contain a style
-                            Log('Style: ' & activeinfo);
+                            // Log('Style: ' & activeinfo);
+                            ;
                         }
 
                         case ('f')
@@ -1388,13 +1384,15 @@ function GenerateFormattedString (bobj) {
                             // our info block should either contain 
                             // a font name or an underscore to switch
                             // back to the default font.
-                            Log('Font: ' & activeinfo);
+                            // Log('Font: ' & activeinfo);
+                            ;
                         }
 
                         case ('$')
                         {
                             // our info block should contain a substitution
-                            Log('Substitution: ' & activeinfo);
+                            // Log('Substitution: ' & activeinfo);
+                            ;
                         }
                     }
 
@@ -1404,7 +1402,8 @@ function GenerateFormattedString (bobj) {
             }
             default
             {
-                Log('default: ' & ctx);
+                // Log('default: ' & ctx);
+                ;
             }
         }
     }
