@@ -142,7 +142,10 @@ function AddBarObjectInfoToElement (bobj, element) {
     if (bobj.Type = 'Line')
     {
         // lines have durations, but symbols do not.
-        libmei.AddAttribute(element, 'dur.ges', bobj.Duration & 'p');
+        if (bobj.Duration > 0)
+        {
+            libmei.AddAttribute(element, 'dur.ges', bobj.Duration & 'p');
+        }
     }
 
     libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
