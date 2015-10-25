@@ -404,62 +404,64 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 note = GenerateNoteRest(bobj, l);
 
-                // record the position of this element
-                objVoice = barObjectPositions[voicenumber];
-                objVoice[bobj.Position] = note._id;
-
-                if (note._property:TieIds != null)
+                if (note != null)
                 {
-                    ties = note._property:TieIds;
-                    mties = Self._property:MeasureTies;
-                    mties = mties.Concat(ties);
-                    Self._property:MeasureTies = mties;
-                }
+                    // record the position of this element
+                    objVoice = barObjectPositions[voicenumber];
+                    objVoice[bobj.Position] = note._id;
 
-                beam = ProcessBeam(bobj, l);
-                tuplet = ProcessTuplet(bobj, note, l);
-
-                if (beam != null)
-                {
-                    libmei.AddChild(beam, note);
-
-                    if (tuplet != null)
+                    if (note._property:TieIds != null)
                     {
-                        if (beam._parent != tuplet._id)
-                        {
-                            libmei.AddChild(tuplet, beam);
-                        }
+                        ties = note._property:TieIds;
+                        mties = Self._property:MeasureTies;
+                        mties = mties.Concat(ties);
+                        Self._property:MeasureTies = mties;
+                    }
 
-                        if (tuplet._parent != l._id)
+                    beam = ProcessBeam(bobj, l);
+                    tuplet = ProcessTuplet(bobj, note, l);
+
+                    if (beam != null)
+                    {
+                        libmei.AddChild(beam, note);
+
+                        if (tuplet != null)
                         {
-                            libmei.AddChild(l, tuplet);
+                            if (beam._parent != tuplet._id)
+                            {
+                                libmei.AddChild(tuplet, beam);
+                            }
+
+                            if (tuplet._parent != l._id)
+                            {
+                                libmei.AddChild(l, tuplet);
+                            }
+                        }
+                        else
+                        {
+                            if (beam._parent != l._id)
+                            {
+                                libmei.AddChild(l, beam);
+                            }
                         }
                     }
                     else
                     {
-                        if (beam._parent != l._id)
+                        if (tuplet != null)
                         {
-                            libmei.AddChild(l, beam);
+                            libmei.AddChild(tuplet, note);
+
+                            if (tuplet._parent != l._id)
+                            {
+                                libmei.AddChild(l, tuplet);
+                            }
+                        }
+                        else
+                        {
+                            libmei.AddChild(l, note);
                         }
                     }
                 }
-                else
-                {
-                    if (tuplet != null)
-                    {
-                        libmei.AddChild(tuplet, note);
-
-                        if (tuplet._parent != l._id)
-                        {
-                            libmei.AddChild(l, tuplet);
-                        }
-                    }
-                    else
-                    {
-                        libmei.AddChild(l, note);
-                    }
-                }
-
             }
             case('BarRest')
             {
@@ -536,7 +538,16 @@ function GenerateClef (bobj) {
 
 function GenerateNoteRest (bobj, layer) {
     //$module(ExportGenerators.mss)
+    if (bobj.GraceNote = True or bobj.IsAppoggiatura = True or bobj.IsAcciaccatura = True)
+    {
+        // skip any notes that are grace notes, since these will be encoded on the next note.
+        return null;
+    }
+
     nr = null;
+
+    // the previous object will tell us if it was a grace note, appogiature, or acciaccatura.
+    prev_object = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
 
     switch(bobj.NoteCount)
     {
@@ -576,17 +587,17 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'color', nrest_color);
     }
 
-    if (bobj.GraceNote = true)
+    if (prev_object != null and prev_object.GraceNote = true)
     {
-        libmei.addAttribute(nr, 'grace', 'acc');
+        libmei.AddAttribute(nr, 'grace', 'acc');
     }
 
-    if (bobj.IsAppoggiatura = true)
+    if (prev_object != null and prev_object.IsAppoggiatura = true)
     {
         libmei.AddAttribute(nr, 'ornam', 'A');
     }
 
-    if (bobj.IsAcciaccatura = true)
+    if (prev_object != null and prev_object.IsAcciaccatura = true)
     {
         libmei.AddAttribute(nr, 'ornam', 'a');
     }
