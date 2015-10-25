@@ -877,7 +877,7 @@ function ConvertText (textobj) {
             dynam = libmei.Dynam();
             libmei.SetText(dynam, lstrip(textobj.Text));
             libmei.AddAttribute(dynam, 'staff', textobj.ParentBar.ParentStaff.StaffNum);
-            libmei.AddAttribute(dynam, 'tstamp', ConvertPositionToTimestamp(textobj));
+            libmei.AddAttribute(dynam, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
 
             if (textobj.Dx != 0)
             {
