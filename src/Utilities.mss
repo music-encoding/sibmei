@@ -157,12 +157,12 @@ function AddBarObjectInfoToElement (bobj, element) {
 
     if (bobj.Dx > 0)
     {
-        libmei.AddAttribute(element, 'ho', ConvertOffsets(bobj.Dx));
+        libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
     }
 
     if (bobj.Dy > 0)
     {
-        libmei.AddAttribute(element, 'vo', ConvertOffsets(bobj.Dy));
+        libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
     }
 
     return element;
