@@ -147,7 +147,7 @@ function AddBarObjectInfoToElement (bobj, element) {
 
     libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
 
-    if (bobj.Type = 'Line')
+    if (bobj.Type = 'Line' or bobj.Type = 'Slur')
     {
         libmei.AddAttribute(element, 'tstamp2', ConvertPositionToTimestamp(bobj.EndPosition, bar));
     }
