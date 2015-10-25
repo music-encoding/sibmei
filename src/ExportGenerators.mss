@@ -532,6 +532,9 @@ function GenerateClef (bobj) {
     libmei.AddAttribute(clef_el, 'line', clefinfo[1]);
     libmei.AddAttribute(clef_el, 'dis', clefinfo[2]);
     libmei.AddAttribute(clef_el, 'dis.place', clefinfo[3]);
+    libmei.AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    libmei.AddAttribute(clef_el, 'layer', bobj.VoiceNumber);
+    libmei.AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
     return clef_el;
 }  //$end
