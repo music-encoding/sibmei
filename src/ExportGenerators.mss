@@ -1191,10 +1191,11 @@ function GenerateLine (bobj) {
             linecomps = MSplitString(bobj.StyleId, '.');
             switch(linecomps[2])
             {
-                case('bracket')
+                case ('bracket')
                 {
                     line = libmei.Line();
                     libmei.AddAttribute(line, 'type', 'bracket');
+
                     if (linecomps.Length > 4)
                     {
                         if (linecomps[4] = 'start')
@@ -1207,6 +1208,11 @@ function GenerateLine (bobj) {
                             libmei.AddAttribute(line, 'subtype', 'end');
                         }
                     }
+                }
+                case ('vertical')
+                {
+                    Log('A vertical line was found.');
+                    line = libmei.BarLine();
                 }
             }
         }
