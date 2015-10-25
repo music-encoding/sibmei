@@ -769,15 +769,55 @@ function GenerateNote (nobj) {
     //$module(ExportGenerators.mss)
     dur = nobj.ParentNoteRest.Duration;
     meidur = ConvertDuration(dur);
-    ntinfo = ConvertDiatonicPitch(nobj.DiatonicPitch);
     pos = nobj.ParentNoteRest.Position;
     keysig = nobj.ParentNoteRest.ParentBar.GetKeySignatureAt(pos);
+    clef = nobj.ParentNoteRest.ParentBar.GetClefAt(pos);
+    // SparseArray(shape, line, dis, dir);
+    clefinfo = ConvertClef(clef.StyleId);
 
     n = libmei.Note();
     hash = SimpleNoteHash(nobj);
     n._property:hash = hash;
 
-    libmei.AddAttribute(n, 'pnum', nobj.Pitch);
+    ntinfo = ConvertDiatonicPitch(nobj.DiatonicPitch);
+    pnum = nobj.Pitch;
+
+    dis = clefinfo[2];
+    dir = clefinfo[3];
+
+    if (dis != ' ')
+    {
+        octges = ' ';
+        // there is a transposing clef in action, so we need to adjust the
+        // performed octave.
+        if (dis = '8' and dir = 'below')
+        {
+            octges = ntinfo[1] - 1;
+            pnum = pnum - 12;  // subtract an octave from the MIDI number
+        }
+
+        if (dis = '8' and dir = 'above')
+        {
+            octges = ntinfo[1] + 1;
+            pnum = pnum + 12;
+        }
+
+        if (dis = '15' and dir = 'below')
+        {
+            octges = ntinfo[1] - 2;
+            pnum = pnum - 24;  // subtract two octaves from the MIDI number
+        }
+
+        if (dis = '15' and dir = 'above')
+        {
+            octges = ntinfo[1] + 2;
+            pnum = pnum + 24;
+        }
+
+        libmei.AddAttribute(n, 'oct.ges', octges);
+    }
+
+    libmei.AddAttribute(n, 'pnum', pnum);
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
     libmei.AddAttribute(n, 'dur', meidur[0]);

@@ -30,6 +30,7 @@ function ConvertClef (clefid) {
             dis = '15';
         }
     }
+
     switch (clefparts[1]) {
         case ('bass')
         {
@@ -102,6 +103,7 @@ function ConvertClef (clefid) {
             shape = 'perc';
         }
     }
+
     ret = CreateSparseArray(shape, line, dis, dir);
     return ret;
 }  //$end
