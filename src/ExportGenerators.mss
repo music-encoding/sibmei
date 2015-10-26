@@ -409,15 +409,6 @@ function GenerateLayers (staffnum, measurenum) {
                     // record the position of this element
                     objVoice = barObjectPositions[voicenumber];
                     objVoice[bobj.Position] = note._id;
-
-                    if (note._property:TieIds != null)
-                    {
-                        ties = note._property:TieIds;
-                        mties = Self._property:MeasureTies;
-                        mties = mties.Concat(ties);
-                        Self._property:MeasureTies = mties;
-                    }
-
                     beam = ProcessBeam(bobj, l);
                     tuplet = ProcessTuplet(bobj, note, l);
 
@@ -784,6 +775,7 @@ function GenerateNote (nobj) {
     dur = nobj.ParentNoteRest.Duration;
     meidur = ConvertDuration(dur);
     pos = nobj.ParentNoteRest.Position;
+    parent_bar = nobj.ParentNoteRest.ParentBar;
     keysig = nobj.ParentNoteRest.ParentBar.GetKeySignatureAt(pos);
     clef = nobj.ParentNoteRest.ParentBar.GetClefAt(pos);
     // SparseArray(shape, line, dis, dir);
@@ -838,8 +830,11 @@ function GenerateNote (nobj) {
     libmei.AddAttribute(n, 'dur.ges', dur & 'p');
     libmei.AddAttribute(n, 'dots', meidur[1]);
 
-    // Accidentals will always be encoded as child elements, not attributes
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
+    layer = nobj.ParentNoteRest.VoiceNumber;
+
+    libmei.AddAttribute(n, 'staff', staff);
+    libmei.AddAttribute(n, 'layer', layer);
 
     if (nobj.NoteStyle != NormalNoteStyle)
     {
@@ -878,55 +873,56 @@ function GenerateNote (nobj) {
         }
     }
 
-    /*
-        Ties
-    */
-    tieresolver = Self._property:TieResolver;
-    if (tieresolver.PropertyExists(hash))
+    tie_resolver = Self._property:TieResolver;
+
+    // construct an index that will be used to open a tie, or check if a tie is open.
+    // this may be modified below if the tie extends to the next bar
+    tie_idx = parent_bar.BarNumber + '-' + pnum;
+
+    if (tie_resolver.PropertyExists(tie_idx) and tie_resolver[tie_idx] != null)
     {
-        // this note is the end of the tie.
-        tie_id = tieresolver[hash];
-        tie = libmei.getElementById(tie_id);
-        libmei.AddAttribute(tie, 'endid', '#' & n._id);
+        // get the tie
+        tie_id = tie_resolver[tie_idx];
+        tie_el = libmei.getElementById(tie_id);
+        libmei.AddAttribute(tie_el, 'endid', '#' & n._id);
+
+        // null it in case we get another one in this measure.
+        tie_resolver[tie_idx] = null;
+    }
+
+    /*
+        If we have an unresolved tie with the same pitch number from the previous bar, 
+        assume that it stretches to this bar. Look backwards to see if this is the case
+        and set it as the end of the tie.
+    */
+    prev_tie_idx = (parent_bar.BarNumber - 1) + '-' + pnum;
+
+    if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
+    {
+        tie_id = tie_resolver[prev_tie_idx];
+        tie_el = libmei.getElementById(tie_id);
+        libmei.AddAttribute(tie_el, 'endid', '#' & n._id);
+
+        tie_resolver[prev_tie_idx] = null;
     }
 
     if (nobj.Tied = True)
     {
-        // set the end hash
-        parent_nr = nobj.ParentNoteRest;
-        next_object = parent_nr.NextItem(parent_nr.VoiceNumber, 'NoteRest');
+        measure_ties = Self._property:MeasureTies;
 
-        if (next_object = null)
+        tie = libmei.Tie();
+        libmei.AddAttribute(tie, 'startid', '#' & n._id);
+        measure_ties.Push(tie._id);
+        tie_dur = pos + dur;
+
+        // if the tie extends beyond the length of the bar, increment the
+        // bar by one so that we can pick up on it later...
+        if (tie_dur >= parent_bar.Length)
         {
-            // check the first object in the next bar
-            next_bar_num = parent_nr.ParentBar.BarNumber + 1;
-            next_bar = parent_nr.ParentBar.ParentStaff.NthBar(next_bar_num);
-            next_object = next_bar.NthBarObject(0);
+            tie_idx = (parent_bar.BarNumber + 1) + '-' + pnum;
         }
 
-        if (next_object = null or next_object.Type != 'NoteRest')
-        {
-            // it's a hanging tie. What to do, what to do?
-            // for now, just encode the startid with no endid and return the note.
-            tie = libmei.Tie();
-            libmei.AddAttribute(tie, 'startid', '#' & n._id);
-            n._property:TieIds = CreateSparseArray(tie._id);
-            return n;
-        }
-
-        for each next_note in next_object
-        {
-            if (nobj.Pitch = next_note.Pitch)
-            {
-                // it's probably this one.
-                endhash = SimpleNoteHash(next_note);
-                tie = libmei.Tie();
-                libmei.AddAttribute(tie, 'startid', '#' & n._id);
-                tieresolver[endhash] = tie._id;
-
-                n._property:TieIds = CreateSparseArray(tie._id);
-            }
-        }
+        tie_resolver[tie_idx] = tie._id;
     }
 
     return n;
@@ -941,22 +937,12 @@ function GenerateChord (bobj) {
     libmei.AddAttribute(n, 'dur', meidur[0]);
     libmei.AddAttribute(n, 'dur.ges', dur & 'p');
     libmei.AddAttribute(n, 'dots', meidur[1]);
-    
-    tiearr = CreateSparseArray();
 
     for each note in bobj
     {
         sn = GenerateNote(note);
         libmei.AddChild(n, sn);
-
-        if (sn._property:TieIds != null)
-        {
-            tieids = sn._property:TieIds;
-            tiearr = tiearr.Concat(tieids);
-        }
     }
-
-    n._property:TieIds = tiearr;
 
     return n;
 }  //$end
