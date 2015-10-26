@@ -541,7 +541,7 @@ function GenerateClef (bobj) {
 
 function GenerateNoteRest (bobj, layer) {
     //$module(ExportGenerators.mss)
-    if (bobj.GraceNote = True or bobj.IsAppoggiatura = True or bobj.IsAcciaccatura = True)
+    if (bobj.IsAppoggiatura = True or bobj.IsAcciaccatura = True)
     {
         // skip any notes that are grace notes, since these will be encoded on the next note.
         return null;
@@ -590,7 +590,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'color', nrest_color);
     }
 
-    if (prev_object != null and prev_object.GraceNote = true)
+    if (bobj.GraceNote = true)
     {
         libmei.AddAttribute(nr, 'grace', 'acc');
     }
