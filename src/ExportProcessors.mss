@@ -384,7 +384,6 @@ function ProcessVolta (mnum) {
     {
         voltaElement = libmei.Ending();
 
-        // swap out the section as the parent for the ending
         Self._property:VoltaElement = voltaElement;
 
         voltaObject = voltabars[mnum];
