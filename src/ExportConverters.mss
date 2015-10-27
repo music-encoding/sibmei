@@ -323,7 +323,9 @@ function PitchesInKeySignature (keysig) {
 
     // keysig is 7 >= 0 >= -7, for the number of sharps (negative is flats)
     ac = CreateSparseArray('F', 'C', 'G', 'D', 'A', 'E', 'B');
-    if (keysig = 0)
+    
+    // key of C, or atonal. All notes are natural.
+    if (keysig = 0 or keysig = -8)
     {
         return CreateSparseArray();
     }
@@ -429,7 +431,7 @@ function HasVisibleAccidental (noteobj) {
     }
 
     keysig = noteobj.ParentNoteRest.ParentBar.GetKeySignatureAt(noteobj.ParentNoteRest.Position);
-    sf = sibmei2.PitchesInKeySignature(keysig.Sharps);
+    sf = PitchesInKeySignature(keysig.Sharps);
     pname = Substring(noteobj.Name, 0, 1);  // captures first letter
     accid = Substring(noteobj.Name, 1);  // captures all other characters
 
