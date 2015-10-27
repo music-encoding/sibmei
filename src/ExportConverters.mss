@@ -892,11 +892,25 @@ function ConvertText (textobj) {
         }
         case ('text.system.page_aligned.title')
         {
-            return ConvertTextElement(textobj);
+            text = ConvertSubstitution(textobj.Text);
+            atext = libmei.AnchoredText();
+            title = libmei.Title();
+
+            libmei.AddChild(atext, title);
+            libmei.SetText(title, text);
+
+            return atext;
         }
         case ('text.system.page_aligned.composer')
         {
             return ConvertTextElement(textobj);
+        }
+        case ('text.system.tempo')
+        {
+            tempo = libmei.Tempo();
+            atext = ConvertTextElement(textobj);
+            libmei.AddChild(tempo, atext);
+            return tempo;
         }
         default
         {
@@ -908,7 +922,10 @@ function ConvertText (textobj) {
 function ConvertTextElement (textobj) {
     //$module(ExportConverters.mss)
     obj = libmei.AnchoredText();
-    libmei.SetText(obj, lstrip(textobj.Text));
+
+    text = ConvertSubstitution(textobj.Text);
+
+    libmei.SetText(obj, text);
 
     if (textobj.Dx != 0)
     {
@@ -988,4 +1005,60 @@ function ConvertDate (datetime) {
     isodate = utils.Format('%s-%s-%sT%sZ', y, m, d, time);
 
     return isodate;
+}  //$end
+
+function ConvertSubstitution (string) {
+    //$module(ExportConverters.mss)
+    // if the string does not start with a substitution, send back the original string.
+    if (Substring(string, 0, 2) != '\\$')
+    {
+        return string;
+    }
+
+    score = Self._property:ActiveScore;
+    // it's 3 because of the two chars at the beginning, and then the last backslash.
+    fieldname = Substring(string, 2, Length(string) - 3);
+
+    switch (fieldname)
+    {
+        case ('Title')
+        {
+            return score.Title;
+        }
+        case ('Composer')
+        {
+            return score.Composer;
+        }
+        case ('Arranger')
+        {
+            return score.Arranger;
+        }
+        case ('Lyricist')
+        {
+            return score.Lyricist;
+        }
+        case ('MoreInfo')
+        {
+            return score.MoreInfo;
+        }
+        case ('Artist')
+        {
+            return score.Artist;
+        }
+        case ('Copyright')
+        {
+            return score.Copyright;
+        }
+        case ('Publisher')
+        {
+            return score.Publisher;
+        }
+        case ('PartName')
+        {
+            return score.PartName;
+        }
+    }
+
+    // if it doesn't match anything, return the original string.
+    return string;
 }  //$end

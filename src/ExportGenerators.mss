@@ -932,7 +932,7 @@ function GenerateNote (nobj) {
         If we have an unresolved tie with the same pitch number from the previous bar, 
         assume that it stretches to this bar. Look backwards to see if this is the case
         and set it as the end of the tie.
-    
+    */
     prev_tie_idx = (parent_bar.BarNumber - 1) + '-' + pnum;
 
     if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
