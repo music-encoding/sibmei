@@ -1121,7 +1121,9 @@ function GenerateStaffGroups (score) {
 
             instrDef = libmei.InstrDef();
             // libmei.AddAttribute(instrDef, 'midi.instrname', s.InstrumentName);
-            libmei.AddAttribute(instrDef, 'midi.pan', s.Pan);
+            // midi pan is 0-127, Sib. pan is -127 to + 127, so this needs to be converted.
+            pan = RoundUp((s.Pan + 127) / 2);
+            libmei.AddAttribute(instrDef, 'midi.pan', pan);
             libmei.AddAttribute(instrDef, 'midi.volume', s.Volume);
             libmei.AddAttribute(instrDef, 'midi.channel', s.Channel);
             libmei.AddChild(std, instrDef);
