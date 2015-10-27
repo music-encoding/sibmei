@@ -532,12 +532,6 @@ function GenerateClef (bobj) {
 
 function GenerateNoteRest (bobj, layer) {
     //$module(ExportGenerators.mss)
-    if (bobj.IsAppoggiatura = True or bobj.IsAcciaccatura = True)
-    {
-        // skip any notes that are grace notes, since these will be encoded on the next note.
-        return null;
-    }
-
     nr = null;
 
     // the previous object will tell us if it was a grace note, appogiature, or acciaccatura.
@@ -620,19 +614,24 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'color', nrest_color);
     }
 
-    if (bobj.GraceNote = true)
+    /* NB: If there is a problem with grace notes, look here first.
+        I think most of these cases should be covered by appog. and acciacc.
+        but possibly not...
+
+    if (bobj.GraceNote = True)
     {
         libmei.AddAttribute(nr, 'grace', 'acc');
     }
+    */
 
-    if (prev_object != null and prev_object.IsAppoggiatura = true)
+    if (bobj.IsAppoggiatura = True)
     {
-        libmei.AddAttribute(nr, 'ornam', 'A');
+        libmei.AddAttribute(nr, 'grace', 'unacc');
     }
 
-    if (prev_object != null and prev_object.IsAcciaccatura = true)
+    if (bobj.IsAcciaccatura = True)
     {
-        libmei.AddAttribute(nr, 'ornam', 'a');
+        libmei.AddAttribute(nr, 'grace', 'acc');
     }
 
     if (bobj.GetArticulation(PauseArtic))
@@ -933,7 +932,7 @@ function GenerateNote (nobj) {
         If we have an unresolved tie with the same pitch number from the previous bar, 
         assume that it stretches to this bar. Look backwards to see if this is the case
         and set it as the end of the tie.
-    */
+    
     prev_tie_idx = (parent_bar.BarNumber - 1) + '-' + pnum;
 
     if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
