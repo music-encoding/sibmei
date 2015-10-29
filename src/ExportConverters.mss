@@ -419,6 +419,15 @@ function HasVisibleAccidental (noteobj) {
 
     // Returns a boolean if the note is visible.
 
+    // Sibelius 7.1.3 introduced the IsAccidentalVisible parameter. Sweet.
+    if (Sibelius.ProgramVersion >= 7130)
+    {
+        if (noteobj.IsAccidentalVisible = True)
+        {
+            return True;
+        }
+    }
+
     // If it has a cautionary accidental, it's most likely to be visible.
     if (noteobj.AccidentalStyle = CautionaryAcc)
     {
