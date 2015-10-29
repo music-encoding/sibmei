@@ -799,15 +799,15 @@ function ConvertTupletStyle (tupletStyle) {
     {
         case(TupletNoNumber)
         {
-            libmei.addAttribute(activeTuplet, 'dur.visible', 'false');
+            libmei.AddAttribute(activeTuplet, 'dur.visible', 'false');
         }
         case(TupletLeft)
         {
-            libmei.addAttribute(activeTuplet, 'num.format', 'count');
+            libmei.AddAttribute(activeTuplet, 'num.format', 'count');
         }
         case(TupletLeftRight)
         {
-            libmei.addAttribute(activeTuplet, 'num.format', 'ratio');
+            libmei.AddAttribute(activeTuplet, 'num.format', 'ratio');
         }
     }
 

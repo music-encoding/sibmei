@@ -698,7 +698,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.GetArticulation(AccentArtic))
     {
-        libmei.addAttributeValue(nr, 'artic', 'acc');
+        libmei.AddAttributeValue(nr, 'artic', 'acc');
     }
 
     if (bobj.GetArticulation(TenutoArtic))
