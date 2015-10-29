@@ -1272,7 +1272,7 @@ function GenerateTrill (bobj) {
     if (voicenum = 0)
     {
         warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bobj.Type));
+        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, bobj.Type));
         voicenum = 1;
     }
 
