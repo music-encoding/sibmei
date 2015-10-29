@@ -17,9 +17,6 @@ function Run() {
         return False;
     }
 
-    // Set up the warnings tracker
-    Self._property:warnings = CreateSparseArray();
-
     // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', False, False, 'mei', 'TEXT', 'Music Encoding Initiative');
 
@@ -29,9 +26,19 @@ function Run() {
         return False;
     }
 
+    DoExport(filename);
+
+}  //$end
+
+function DoExport (filename) {
+    //$module(Run.mss)
+
     // Deal with the Progress GUI
     // set the active score here so we can refer to it throughout the plugin
     Self._property:ActiveScore = Sibelius.ActiveScore;
+
+    // Set up the warnings tracker
+    Self._property:warnings = CreateSparseArray();
 
     progCount = Sibelius.ActiveScore.SystemStaff.BarCount;
     fn = utils.ExtractFileName(filename);
@@ -39,7 +46,7 @@ function Run() {
     Sibelius.CreateProgressDialog(progressTitle, 0, progCount - 1);
 
     // finally, process the score.
-    sibmei2.ProcessScore();
+    ProcessScore();
 
     doc = libmei.getDocument();
     // save the file
@@ -61,5 +68,5 @@ function Run() {
 
     // clean up after ourself
     libmei.destroy();
-
 }  //$end
+
