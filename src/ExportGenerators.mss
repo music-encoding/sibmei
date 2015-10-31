@@ -921,7 +921,7 @@ function GenerateNote (nobj) {
     if (nobj.NoteStyle != NormalNoteStyle)
     {
         nstyle = ConvertNoteStyle(nobj.NoteStyle);
-        libmei.AddAttribute(n, 'headshape', nstyle);
+        libmei.AddAttribute(n, 'head.shape', nstyle);
     }
 
     accid = ConvertAccidental(nobj, keysig.Sharps);
