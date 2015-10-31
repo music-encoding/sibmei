@@ -1233,7 +1233,7 @@ function GenerateLine (bobj) {
         {
             line = libmei.Slur();
             slurrend = ConvertSlurStyle(bobj.StyleId);
-            libmei.AddAttribute(line, 'rend', slurrend[1]);
+            libmei.AddAttribute(line, 'lform', slurrend[1]);
         }
         case ('CrescendoLine')
         {
