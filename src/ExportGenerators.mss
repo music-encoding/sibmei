@@ -1284,7 +1284,6 @@ function GenerateLine (bobj) {
                 }
                 case ('vertical')
                 {
-                    Log('A vertical line was found.');
                     line = libmei.BarLine();
                 }
             }
