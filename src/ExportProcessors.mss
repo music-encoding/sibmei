@@ -22,7 +22,6 @@ function ProcessScore () {
 
 function ProcessBeam (bobj, layer) {
     //$module(ExportProcessors.mss)
-    next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
     ret = null;
 
     if (bobj.Duration < 256)
@@ -46,8 +45,9 @@ function ProcessBeam (bobj, layer) {
             encoded correctly).
         */
         falseNegative = False;
+        next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
 
-        if (bobj.Beam = ContinueBeam and layer._property:ActiveBeamId = null)
+        if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
         {
             // by all accounts this should be a beamed note, but we'll need to double-check.
             prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
@@ -71,13 +71,10 @@ function ProcessBeam (bobj, layer) {
             ret = beam;
         }
 
-        if (layer._property:ActiveBeamId != null and bobj.Beam = ContinueBeam)
+        if (layer._property:ActiveBeamId != null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
         {
-            // add the note to the beam, but return null
-            // so that we don't add it again to the tree.
             beamid = layer._property:ActiveBeamId;
             beam = libmei.getElementById(beamid);
-
             ret = beam;
         }
     }
@@ -152,10 +149,6 @@ function ProcessTuplet (bobj, meielement, layer) {
         }
 
         return tuplet;
-
-        // used for tuplet spans...
-        // mlines = Self._property:MeasureLines;
-        // mlines.Push(tuplet._id);
     }
     else
     {
@@ -170,6 +163,39 @@ function ProcessTuplet (bobj, meielement, layer) {
         }
 
         return t;
+    }
+}  //$end
+
+function ShiftTupletToTupletSpan (tuplet, layer) {
+    //$module(ExportProcessors.mss)
+    /*
+        Shifts the tuplet object to a tupletSpan object. This is
+        useful if we need to define a tuplet outside of a hierarchy;
+        for example, if a tuplet is only on part of a beam group.
+        
+        A tupletSpan supports many of the same attributes as a tuplet
+        object, so we can copy the attributes verbatim. Functionally,
+        it should behave the same way as a tuplet, except that it 
+        takes no child elements and the parent element is the measure,
+        not the layer. These two things get handled higher up the
+        processing chain, however, so we don't have to worry about them here.
+    */
+
+    tupletSpan = libmei.TupletSpan();
+    libmei.SetAttributes(tupletSpan, tuplet.attrs);
+    tupletSpan._property:AddedToMeasure = False;
+
+    layer._property:ActiveTupletId = tupletSpan._id;
+
+    if (tuplet._parent != null)
+    {
+        // if the tuplet has already been added to the tree,
+        // remove it now. (Unfortunately, we can't delete the object,
+        // but disowning it from the tree should be enough to keep it from
+        // appearing in the output.)
+        pobj = libmei.getElementById(tuplet._parent);
+        libmei.RemoveChild(pobj, tuplet);
+        tuplet._parent = null;
     }
 }  //$end
 

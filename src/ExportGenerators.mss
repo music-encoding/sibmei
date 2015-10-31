@@ -412,7 +412,11 @@ function GenerateLayers (staffnum, measurenum) {
                     // record the position of this element
                     objVoice = barObjectPositions[voicenumber];
                     objVoice[bobj.Position] = note._id;
+
+                    // fetch or create the active beam object (if any)
                     beam = ProcessBeam(bobj, l);
+
+                    // fetch or create the active tuplet object (if any)
                     tuplet = ProcessTuplet(bobj, note, l);
 
                     if (beam != null)
@@ -421,14 +425,43 @@ function GenerateLayers (staffnum, measurenum) {
 
                         if (tuplet != null)
                         {
-                            if (beam._parent != tuplet._id)
+                            if (beam._parent = l._id)
                             {
-                                libmei.AddChild(tuplet, beam);
-                            }
+                                /* 
+                                   If the beam has been previously added to the layer but now
+                                   finds itself part of a tuplet, shift the tuplet to a tupletSpan. This
+                                   effectively just replaces the active tuplet with a tupletSpan element
+                                */
+                                if (tuplet.name != 'tupletSpan')
+                                {
+                                    ShiftTupletToTupletSpan(tuplet, l);
+                                    tsid = l._property:ActiveTupletId;
+                                    tsobj = libmei.getElementById(tsid);
 
-                            if (tuplet._parent != l._id)
+                                    if (tsobj._parent = null and tsobj._property:AddedToMeasure = False)
+                                    {
+                                        /*
+                                            The measure lines get added to the measure object
+                                            so pretend this tuplet span object is a line
+                                            and queue it for addition to the measure.
+                                        */
+                                        tsobj._property:AddedToMeasure = True;
+                                        line = tsobj;
+                                    }
+
+                                }
+                            }
+                            else
                             {
-                                libmei.AddChild(l, tuplet);
+                                if (beam._parent != tuplet._id)
+                                {
+                                    libmei.AddChild(tuplet, beam);
+                                }
+
+                                if (tuplet._parent != l._id)
+                                {
+                                    libmei.AddChild(l, tuplet);
+                                }
                             }
                         }
                         else
@@ -443,7 +476,16 @@ function GenerateLayers (staffnum, measurenum) {
                     {
                         if (tuplet != null)
                         {
-                            libmei.AddChild(tuplet, note);
+                            tname = libmei.GetName(tuplet);
+
+                            if (tname != 'tupletSpan')
+                            {
+                                libmei.AddChild(tuplet, note);
+                            }
+                            else
+                            {
+                                libmei.AddChild(l, note);
+                            }
 
                             if (tuplet._parent != l._id)
                             {
