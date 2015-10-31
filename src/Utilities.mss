@@ -94,6 +94,12 @@ function GetNoteObjectAtPosition (bobj) {
     barObjectPositions = staffObjectPositions[bar_num];
     voiceObjectPositions = barObjectPositions[voice_num];
 
+    if (voiceObjectPositions = null)
+    {
+        // theres not much we can do here. Bail.
+        return null;
+    }
+
     if (voiceObjectPositions.PropertyExists(bobj.Position))
     {
         obj_id = voiceObjectPositions[bobj.Position];
