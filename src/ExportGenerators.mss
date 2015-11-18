@@ -814,31 +814,32 @@ function GenerateRest (bobj) {
         r = libmei.Rest();
     }
 
+    name = libmei.GetName(r);
     libmei.AddAttribute(r, 'dur', meidur[0]);
     libmei.AddAttribute(r, 'dur.ges', dur & 'p');
     libmei.AddAttribute(r, 'dots', meidur[1]);
     
-    if (bobj.Dx != 0)
+    if (bobj.Dx != 0 and name != 'space')
     {
         libmei.AddAttribute(r, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
     }
 
-    if (bobj.Dy != 0)
+    if (bobj.Dy != 0 and name != 'space')
     {
         libmei.AddAttribute(r, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
     }
 
-    if (bobj.CueSize = true and libmei.GetName(r) != 'space')
+    if (bobj.CueSize = true and name != 'space')
     {
         libmei.AddAttribute(r, 'size', 'cue');
     }
 
-    if (bobj.Hidden = true and libmei.GetName(r) != 'space')
+    if (bobj.Hidden = true and name != 'space')
     {
         libmei.AddAttribute(r, 'visible', 'false');
     }
 
-    if (bobj.Color != 0)
+    if (bobj.Color != 0 and name != 'space')
     {
         nrest_color = ConvertColor(bobj);
         libmei.AddAttribute(r, 'color', nrest_color);
