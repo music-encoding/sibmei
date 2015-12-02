@@ -145,6 +145,14 @@ function AddBarObjectInfoToElement (bobj, element) {
     voicenum = bobj.VoiceNumber;
     bar = bobj.ParentBar;
 
+    if (voicenum = 0)
+    {
+        // assign it to the first voice, since we don't have any notes in voice/layer 0.
+        voicenum = 1;
+        warnings = Self._property:warnings;
+        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
+    }
+
     if (bobj.Type = 'Line')
     {
         // lines have durations, but symbols do not.
@@ -162,6 +170,7 @@ function AddBarObjectInfoToElement (bobj, element) {
     }
 
     libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+
     libmei.AddAttribute(element, 'layer', voicenum);
 
     if (bobj.Dx > 0)
