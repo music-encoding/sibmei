@@ -1250,8 +1250,8 @@ function GenerateLine (bobj) {
         {
             line = libmei.Octave();
             octrend = ConvertOctava(bobj.StyleId);
-            libmei.AddAttribute(octl, 'dis', octrend[0]);
-            libmei.AddAttribute(octl, 'dis.place', octrend[1]);
+            libmei.AddAttribute(line, 'dis', octrend[0]);
+            libmei.AddAttribute(line, 'dis.place', octrend[1]);
         }
         case ('Trill')
         {
