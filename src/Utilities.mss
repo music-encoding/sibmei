@@ -213,7 +213,7 @@ function TupletsEqual (t, t2) {
 
 function IsLastNoteInTuplet (bobj) {
     //$module(Utilities.mss)
-    if (bobj.ParentTupletIfAny = null)
+    if (bobj.ParentTupletIfAny = null or bobj.GraceNote = True)
     {
         return false;
     }
