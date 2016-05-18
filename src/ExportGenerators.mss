@@ -960,7 +960,7 @@ function GenerateNote (nobj) {
 
     // construct an index that will be used to open a tie, or check if a tie is open.
     // this may be modified below if the tie extends to the next bar
-    tie_idx = parent_bar.BarNumber + '-' + pnum;
+    tie_idx = parent_bar.BarNumber + '-' + nobj.ParentNoteRest.VoiceNumber + '-' + pnum;
 
     if (tie_resolver.PropertyExists(tie_idx) and tie_resolver[tie_idx] != null)
     {
@@ -978,7 +978,7 @@ function GenerateNote (nobj) {
         assume that it stretches to this bar. Look backwards to see if this is the case
         and set it as the end of the tie.
     */
-    prev_tie_idx = (parent_bar.BarNumber - 1) + '-' + pnum;
+    prev_tie_idx = (parent_bar.BarNumber - 1) + '-' + nobj.ParentNoteRest.VoiceNumber + '-' + pnum;
 
     if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
     {
@@ -1002,7 +1002,7 @@ function GenerateNote (nobj) {
         // bar by one so that we can pick up on it later...
         if (tie_dur >= parent_bar.Length)
         {
-            tie_idx = (parent_bar.BarNumber + 1) + '-' + pnum;
+            tie_idx = (parent_bar.BarNumber + 1) + '-' + nobj.ParentNoteRest.VoiceNumber + '-' + pnum;
         }
 
         tie_resolver[tie_idx] = tie._id;
