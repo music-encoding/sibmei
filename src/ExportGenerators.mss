@@ -916,8 +916,8 @@ function GenerateNote (nobj) {
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
     layer = nobj.ParentNoteRest.VoiceNumber;
 
-    libmei.AddAttribute(n, 'staff', staff);
-    libmei.AddAttribute(n, 'layer', layer);
+    //libmei.AddAttribute(n, 'staff', staff);
+    //libmei.AddAttribute(n, 'layer', layer);
 
     if (nobj.NoteStyle != NormalNoteStyle)
     {
