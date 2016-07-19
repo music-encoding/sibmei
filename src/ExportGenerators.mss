@@ -286,15 +286,19 @@ function GenerateMeasure (num) {
 
     if (specialbarlines.PropertyExists(num))
     {
-        bline = specialbarlines[num];
+        // an array of bar lines for this measure
+        blines = specialbarlines[num];
 
-        if (bline = 'rptstart')
+        for each bline in blines
         {
-            libmei.AddAttribute(m, 'left', bline);
-        }
-        else
-        {
-            libmei.AddAttribute(m, 'right', bline);
+            if (bline = 'rptstart')
+            {
+                libmei.AddAttribute(m, 'left', bline);
+            }
+            else
+            {
+                libmei.AddAttribute(m, 'right', bline);
+            }
         }
     }
 

@@ -333,7 +333,12 @@ function ProcessSystemStaff (score) {
                 case ('SpecialBarline')
                 {
                     spclbarlines = Self._property:SpecialBarlines;
-                    spclbarlines[bar.BarNumber] = ConvertBarline(bobj.BarlineInternalType);
+                    if (spclbarlines.PropertyExists(bar.BarNumber) = False)
+                    {
+                        spclbarlines[bar.BarNumber] = CreateSparseArray();
+                    }
+
+                    spclbarlines[bar.BarNumber].Push(ConvertBarline(bobj.BarlineInternalType));
                 }
                 case ('SystemTextItem')
                 {
