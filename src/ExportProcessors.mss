@@ -275,6 +275,11 @@ function ProcessLyric (lyricobj, objectPositions) {
         if (j = 0)
         {
             libmei.AddAttribute(sylel, 'wordpos', 'i'); // 'initial'
+
+            if (lyric_word.Length > 1)
+            {
+                libmei.AddAttribute(sylel, 'con', 'd');
+            }
         }
         else
         {
@@ -291,6 +296,7 @@ function ProcessLyric (lyricobj, objectPositions) {
             else
             {
                 libmei.AddAttribute(sylel, 'wordpos', 'm'); // medial
+                libmei.AddAttribute(sylel, 'con', 'd');
             }
         }
 
