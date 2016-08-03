@@ -17,8 +17,18 @@ function Run() {
         return False;
     }
 
+    // get the active score object
+    activeScore = Sibelius.ActiveScore;
+
+    // it does not seem possible to get the current folder for the file
+    // so we will default to the user's documents folder.
+    // NB: it seems that if we don't specify a folder name, the filename
+    // is not properly set.
+    activeFileName = activeScore.FileName;
+    defaultFolder = Sibelius.GetDocumentsFolder();
+
     // Ask to the file to be saved somewhere
-    filename = Sibelius.SelectFileToSave('Save as...', False, False, 'mei', 'TEXT', 'Music Encoding Initiative');
+    filename = Sibelius.SelectFileToSave('Save as...', activeFileName, defaultFolder, 'mei', 'TEXT', 'Music Encoding Initiative');
 
     if (filename = null)
     {
