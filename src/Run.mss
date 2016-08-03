@@ -24,11 +24,12 @@ function Run() {
     // so we will default to the user's documents folder.
     // NB: it seems that if we don't specify a folder name, the filename
     // is not properly set.
-    activeFileName = activeScore.FileName;
-    defaultFolder = Sibelius.GetDocumentsFolder();
+    activeFileNameFull = activeScore.FileName;
+    activeFileName = utils.ExtractFileName(activeFileNameFull);
+    activePath = Sibelius.GetDocumentsFolder();
 
     // Ask to the file to be saved somewhere
-    filename = Sibelius.SelectFileToSave('Save as...', activeFileName, defaultFolder, 'mei', 'TEXT', 'Music Encoding Initiative');
+    filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
 
     if (filename = null)
     {
