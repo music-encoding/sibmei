@@ -557,7 +557,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each SymbolItem sobj in bar
     {
-        ProcessSymbol(sobj, objectPositions);
+        ProcessSymbol(sobj);
     }
 
     return layers;
