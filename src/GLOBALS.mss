@@ -1,6 +1,6 @@
 Version     "2.0.0b3"
 PluginName  "Sibelius to MEI Exporter"
-Author      "Andrew Hankinson"
+Author      "Andrew Hankinson, Anna Plaksin"
 
 _InitialProgressTitle "Exporting %s to MEI"
 _ExportFileIsNull "You must specify a file to save."
