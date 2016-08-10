@@ -2,6 +2,11 @@
 
 This plugin allows Sibelius to export to the Music Encoding Initiative (MEI) format.
 
+## CMO customization
+
+This fork comprises special additions for the [Corpus Musicae Ottomanicae](https://www.uni-muenster.de/CMO-Edition/).
+It exports additional symbols and text classes used for the edition.
+
 ## Download and Installation
 
 The latest release of the plugin can be found on the GitHub releases page: https://github.com/music-encoding/sibmei/releases
