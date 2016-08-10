@@ -540,6 +540,15 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 line = GenerateLine(bobj);
             }
+            case('Text')
+            {
+                text = ConvertText(bobj);
+
+                if (text != null)
+                        {
+                            libmei.AddChild(l, text);
+                        }
+            }
         }
 
         if (line != null)

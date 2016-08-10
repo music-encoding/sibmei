@@ -923,6 +923,15 @@ function ConvertText (textobj) {
             libmei.AddChild(tempo, atext);
             return tempo;
         }
+
+        case('text.staff.plain.user.0000012')
+        {
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','sb-pb');
+            return text;
+        }
+
         default
         {
             return null;
