@@ -521,5 +521,57 @@ function ProcessSymbol (sobj, objectPositions) {
             // triple staccato
             return null;
         }
+
+        case ('404')
+        {
+            // start bracket
+            startBracket = libmei.Symbol();
+
+            //Add SMuFL glyph codepoint
+            libmei.AddAttribute(startBracket, 'glyphnum', 'U+E1FE');
+            //Add type of symbol
+            libmei.AddAttribute(startBracket, 'type', 'group_start');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(startBracket, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            startBracket = AddBarObjectInfoToElement(sobj, startBracket);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(startBracket._id);
+        }
+
+        case ('405')
+        {
+            // end bracket
+            endBracket = libmei.Symbol();
+
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(endBracket, 'glyphnum', 'U+E200');
+            //Add type of symbol
+            libmei.AddAttribute(endBracket, 'type', 'group_end');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(endBracket, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            endBracket = AddBarObjectInfoToElement(sobj, endBracket);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(endBracket._id);
+        }
     }
 }  //$end
