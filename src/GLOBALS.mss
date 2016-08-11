@@ -1,5 +1,5 @@
 Version     "2.0.1"
-PluginName  "Sibelius to MEI Exporter"
+PluginName  "Sibelius to MEI Exporter (CMO Version)"
 Author      "Andrew Hankinson, Anna Plaksin"
 
 _InitialProgressTitle "Exporting %s to MEI"

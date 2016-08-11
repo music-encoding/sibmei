@@ -1,5 +1,5 @@
 var config = {
-  plgPath:        'C:\Users\plaksin\AppData\Roaming\Avid\Sibelius\Plugins',
+  plgPath:        process.env.USERPROFILE + '\\AppData\\Roaming\\Avid\\Sibelius\\Plugins',
   plgCategory:    'CMO MEI Export',
   pluginFilename: 'sibmei2.plg',
   linkLibraries: ['libmei.plg', 'sibmei_batch_mxml.plg', 'sibmei_batch_sib.plg'],
