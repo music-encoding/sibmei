@@ -291,14 +291,19 @@ function GenerateMeasure (num) {
 
         for each bline in blines
         {
-            if (bline = 'rptstart')
+            //has to insert if visible...
+            if (Self._property:Hidden = False)
             {
-                libmei.AddAttribute(m, 'left', bline);
+                if (bline = 'rptstart')
+                {
+                    libmei.AddAttribute(m, 'left', bline);
+                }
+                else
+                {
+                    libmei.AddAttribute(m, 'right', bline);
+                }
             }
-            else
-            {
-                libmei.AddAttribute(m, 'right', bline);
-            }
+            
         }
     }
 
