@@ -334,44 +334,48 @@ function ProcessSystemStaff (score) {
     {
         for each bobj in bar
         {
-            switch (bobj.Type)
+            if (bobj.Hidden = False) 
             {
-                case ('SpecialBarline')
+                switch (bobj.Type)
                 {
-                    spclbarlines = Self._property:SpecialBarlines;
-                    if (spclbarlines.PropertyExists(bar.BarNumber) = False)
+                    case ('SpecialBarline')
                     {
-                        spclbarlines[bar.BarNumber] = CreateSparseArray();
-                    }
+                        spclbarlines = Self._property:SpecialBarlines;
+                        if (spclbarlines.PropertyExists(bar.BarNumber) = False)
+                        {
+                            spclbarlines[bar.BarNumber] = CreateSparseArray();
+                        }
 
-                    spclbarlines[bar.BarNumber].Push(ConvertBarline(bobj.BarlineInternalType));
-                }
-                case ('SystemTextItem')
-                {
-                    if (bobj.OnNthBlankPage < 0)
+                        spclbarlines[bar.BarNumber].Push(ConvertBarline(bobj.BarlineInternalType));
+                    }
+                    case ('SystemTextItem')
                     {
-                        ProcessFrontMatter(bobj);
+                        if (bobj.OnNthBlankPage < 0)
+                        {
+                            ProcessFrontMatter(bobj);
+                        }
+
+                        systemtext = Self._property:SystemText;
+
+                        if (systemtext.PropertyExists(bar.BarNumber) = False)
+                        {
+                            systemtext[bar.BarNumber] = CreateSparseArray();
+                        }
+
+                        systemtext[bar.BarNumber].Push(bobj);
                     }
-
-                    systemtext = Self._property:SystemText;
-
-                    if (systemtext.PropertyExists(bar.BarNumber) = False)
+                    case ('Graphic')
                     {
-                        systemtext[bar.BarNumber] = CreateSparseArray();
+                        Log('Found a graphic!');
+                        Log('is object? ' & IsObject(bobj));
                     }
-
-                    systemtext[bar.BarNumber].Push(bobj);
-                }
-                case ('Graphic')
-                {
-                    Log('Found a graphic!');
-                    Log('is object? ' & IsObject(bobj));
-                }
-                case ('RepeatTimeLine')
-                {
-                    RegisterVolta(bobj);
+                    case ('RepeatTimeLine')
+                    {
+                        RegisterVolta(bobj);
+                    }
                 }
             }
+            
         }
     }
 }  //$end
