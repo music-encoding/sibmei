@@ -932,6 +932,14 @@ function ConvertText (textobj) {
             return text;
         }
 
+        case('text.staff.plain.user.0000016')
+        {
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','armenian');
+            return text;
+        }
+
         default
         {
             return null;
