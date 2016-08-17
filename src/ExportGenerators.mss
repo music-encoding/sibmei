@@ -1300,6 +1300,12 @@ function GenerateLine (bobj) {
                             libmei.AddAttribute(line, 'subtype', 'end');
                         }
                     }
+
+                    if (linecomps[3] = 'vertical')
+                    {
+                        libmei.AddAttribute(line, 'subtype', 'vertical');
+                    }
+
                 }
                 case ('vertical')
                 {
@@ -1315,6 +1321,14 @@ function GenerateLine (bobj) {
     }
 
     line = AddBarObjectInfoToElement(bobj, line);
+
+    //Try to get note at position of bracket and put id
+    obj = GetNoteObjectAtPosition(bobj);
+
+    if (obj != null)
+    {
+        libmei.AddAttribute(line, 'startid', '#' & obj._id);
+    }
 
     return line;
 }  //$end

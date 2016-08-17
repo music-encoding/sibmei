@@ -111,7 +111,8 @@ function GetNoteObjectAtPosition (bobj) {
         // if we can't find anything at this position,
         // find the previous and subsequent objects, and align the
         // lyrics with them.
-        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+        //prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+        prev_obj = bobj.PreviousItem(voice_num);
 
         if (prev_obj != null)
         {
@@ -122,13 +123,25 @@ function GetNoteObjectAtPosition (bobj) {
         }
         else
         {
-            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+            //next_obj = bobj.NextItem(voice_num, 'NoteRest');
+            next_obj = bobj.NextItem(voice_num);
 
             if (next_obj != null)
             {
                 obj_id = voiceObjectPositions[next_obj.Position];
                 obj = libmei.getElementById(obj_id);
                 return obj;
+            }
+            else
+            {
+                next_obj = next_obj.NextItem(voice_num);
+                
+                if (next_obj != null)
+                {
+                    obj_id = voiceObjectPositions[next_obj.Position];
+                    obj = libmei.getElementById(obj_id);
+                    return obj;
+                }
             }
         }
     }
