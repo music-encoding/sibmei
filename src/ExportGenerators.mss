@@ -418,6 +418,12 @@ function GenerateLayers (staffnum, measurenum) {
 
                 if (note != null)
                 {
+                    test = GetNoteObjectAtPosition(bobj);
+                    if (test != null)
+                    {
+                        libmei.AddAttribute(note, 'prev', '#' & test._id);
+                    }
+
                     // record the position of this element
                     objVoice = barObjectPositions[voicenumber];
                     objVoice[bobj.Position] = note._id;
@@ -544,6 +550,9 @@ function GenerateLayers (staffnum, measurenum) {
             case('Line')
             {
                 line = GenerateLine(bobj);
+                // record the position of this element
+                    objVoice = barObjectPositions[voicenumber];
+                    objVoice[bobj.Position] = line._id;
             }
             case('Text')
             {
