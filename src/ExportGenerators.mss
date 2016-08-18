@@ -1301,11 +1301,13 @@ function GenerateLine (bobj) {
                         }
                     }
 
-                    if (linecomps[3] = 'vertical')
+                    if (linecomps.Length > 3)
                     {
-                        libmei.AddAttribute(line, 'subtype', 'vertical');
+                        if (linecomps[3] = 'vertical')
+                        {
+                            libmei.AddAttribute(line, 'subtype', 'vertical');
+                        }
                     }
-
                 }
                 case ('vertical')
                 {
