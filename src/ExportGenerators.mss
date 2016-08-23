@@ -400,7 +400,6 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
-        line = null;
         parent = null;
         beam = null;
         tuplet = null;
@@ -418,12 +417,6 @@ function GenerateLayers (staffnum, measurenum) {
 
                 if (note != null)
                 {
-                    test = GetNoteObjectAtPosition(bobj);
-                    if (test != null)
-                    {
-                        libmei.AddAttribute(note, 'prev', '#' & test._id);
-                    }
-
                     // record the position of this element
                     objVoice = barObjectPositions[voicenumber];
                     objVoice[bobj.Position] = note._id;
@@ -523,25 +516,32 @@ function GenerateLayers (staffnum, measurenum) {
                     libmei.AddChild(l, brest);
                 }
             }
+        }
+    }
+
+    for each bobj in bar
+    {
+        switch (bobj.Type)
+        {
             case('Slur')
             {
-                line = GenerateLine(bobj);
+                GenerateLine(bobj);
             }
             case('CrescendoLine')
             {
-                line = GenerateLine(bobj);
+                GenerateLine(bobj);
             }
             case('DimuendoLine')
             {
-                line = GenerateLine(bobj);
+                GenerateLine(bobj);
             }
             case('OctavaLine')
             {
-                line = GenerateLine(bobj);
+                GenerateLine(bobj);
             }
             case('Trill')
             {
-                line = GenerateLine(bobj);
+                GenerateLine(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -549,27 +549,28 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                line = GenerateLine(bobj);
-                // record the position of this element
-                    objVoice = barObjectPositions[voicenumber];
-                    objVoice[bobj.Position] = line._id;
-            }
-            case('Text')
-            {
-                text = ConvertText(bobj);
-
-                if (text != null)
-                        {
-                            libmei.AddChild(l, text);
-                        }
+                GenerateLine(bobj);
             }
         }
+    }
 
-        if (line != null)
+    for each Text tobj in bar
+    {
+        text = ConvertText(tobj);
+
+        if (text != null)
         {
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(tobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(text, 'startid', '#' & obj._id);
+            }
+
+            //Add element to measure
             mlines = Self._property:MeasureLines;
-            mlines.Push(line._id);
-            Self._property:MeasureLines = mlines;
+            mlines.Push(text._id);
         }
     }
 
@@ -1326,10 +1327,10 @@ function GenerateLine (bobj) {
         }
     }
 
-    if (line = null)
-    {
-        return null;
-    }
+    //if (line = null)
+    //{
+    //    return null;
+    //}
 
     line = AddBarObjectInfoToElement(bobj, line);
 
@@ -1341,7 +1342,14 @@ function GenerateLine (bobj) {
         libmei.AddAttribute(line, 'startid', '#' & obj._id);
     }
 
-    return line;
+    if (line != null)
+        {
+            mlines = Self._property:MeasureLines;
+            mlines.Push(line._id);
+            Self._property:MeasureLines = mlines;
+        }
+
+    //return line;
 }  //$end
 
 
