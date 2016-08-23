@@ -544,8 +544,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(startBracket, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            startBracket = AddBarObjectInfoToElement(sobj, startBracket);
+            else
+            {
+                //Add bar object information for safety
+                startBracket = AddBarObjectInfoToElement(sobj, startBracket);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -570,8 +573,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(endBracket, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            endBracket = AddBarObjectInfoToElement(sobj, endBracket);
+            else
+            {
+                //Add bar object information for safety
+                endBracket = AddBarObjectInfoToElement(sobj, endBracket);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -596,8 +602,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(comma, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            comma = AddBarObjectInfoToElement(sobj, comma);
+            else
+            {
+                //Add bar object information for safety
+                comma = AddBarObjectInfoToElement(sobj, comma);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -607,13 +616,59 @@ function ProcessSymbol (sobj, objectPositions) {
         case ('836')
         {
             //Opening bracket 2 lines
-            return null;
+            suppliedBracketStart = libmei.Symbol();
+
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(suppliedBracketStart, 'glyphnum', 'U+E877');
+            //Add type of symbol
+            libmei.AddAttribute(suppliedBracketStart, 'type', 'suppliedBracketStart');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(suppliedBracketStart, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                suppliedBracketStart = AddBarObjectInfoToElement(sobj, suppliedBracketStart);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(suppliedBracketStart._id);
         }
 
         case ('837')
         {
             //Closing bracket 2 lines
-            return null;
+            suppliedBracketEnd = libmei.Symbol();
+
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(suppliedBracketEnd, 'glyphnum', 'U+E878');
+            //Add type of symbol
+            libmei.AddAttribute(suppliedBracketEnd, 'type', 'suppliedBracketEnd');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(suppliedBracketEnd, 'startid', '#' & obj._id);
+            }
+
+            else 
+            {
+                //Add bar object information for safety
+                suppliedBracketEnd = AddBarObjectInfoToElement(sobj, suppliedBracketEnd);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(suppliedBracketEnd._id);
         }
 
         case ('74')
@@ -634,8 +689,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(stickShot, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            stickShot = AddBarObjectInfoToElement(sobj, stickShot);
+            else
+            {
+                //Add bar object information for safety
+                stickShot = AddBarObjectInfoToElement(sobj, stickShot);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -647,6 +705,8 @@ function ProcessSymbol (sobj, objectPositions) {
             //(
             hampRptStartBracket = libmei.Symbol();
 
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(hampRptStartBracket, 'glyphnum', 'U+E875');
             //Add type of symbol
             libmei.AddAttribute(hampRptStartBracket, 'type', 'hampRptStartBracket');
 
@@ -658,8 +718,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(hampRptStartBracket, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            hampRptStartBracket = AddBarObjectInfoToElement(sobj, hampRptStartBracket);
+            else
+            {
+                //Add bar object information for safety
+                hampRptStartBracket = AddBarObjectInfoToElement(sobj, hampRptStartBracket);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -671,6 +734,8 @@ function ProcessSymbol (sobj, objectPositions) {
             //)
             hampRptEndBracket = libmei.Symbol();
 
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(hampRptEndBracket, 'glyphnum', 'U+E876');
             //Add type of symbol
             libmei.AddAttribute(hampRptEndBracket, 'type', 'hampRptEndBracket');
 
@@ -682,8 +747,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(hampRptEndBracket, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            hampRptEndBracket = AddBarObjectInfoToElement(sobj, hampRptEndBracket);
+            else
+            {
+                //Add bar object information for safety
+                hampRptEndBracket = AddBarObjectInfoToElement(sobj, hampRptEndBracket);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -706,8 +774,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(HampSubDivision, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            HampSubDivision = AddBarObjectInfoToElement(sobj, HampSubDivision);
+            else
+            {
+                //Add bar object information for safety
+                HampSubDivision = AddBarObjectInfoToElement(sobj, HampSubDivision);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -730,8 +801,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(HampEndCycle, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            HampEndCycle = AddBarObjectInfoToElement(sobj, HampEndCycle);
+            else
+            {
+                //Add bar object information for safety
+                HampEndCycle = AddBarObjectInfoToElement(sobj, HampEndCycle);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -754,8 +828,11 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(HampSegno, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            HampSegno = AddBarObjectInfoToElement(sobj, HampSegno);
+            else
+            {
+                //Add bar object information for safety
+                HampSegno = AddBarObjectInfoToElement(sobj, HampSegno);
+            }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
@@ -778,9 +855,12 @@ function ProcessSymbol (sobj, objectPositions) {
                 libmei.AddAttribute(HampEndCycle, 'startid', '#' & obj._id);
             }
 
-            //Add bar object information for safety
-            HampEndCycle = AddBarObjectInfoToElement(sobj, HampEndCycle);
-
+            else
+            {
+                //Add bar object information for safety
+                HampEndCycle = AddBarObjectInfoToElement(sobj, HampEndCycle);
+            }
+            
             Supplied = libmei.Supplied();
             Supplied.AddChild(HampEndCycle);
 
