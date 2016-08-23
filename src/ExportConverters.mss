@@ -924,19 +924,84 @@ function ConvertText (textobj) {
             return tempo;
         }
 
-        case('text.staff.plain.user.0000012')
+        case ('text.staff.plain.user.0000012')
         {
+            //line and page breaks
             text = ConvertTextElement(textobj);
             text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','sb-pb');
             return text;
         }
 
-        case('text.staff.plain.user.0000016')
+        case ('text.staff.plain.user.0000016')
         {
+            //Armenian letters
             text = ConvertTextElement(textobj);
             text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','armenian');
+            return text;
+        }
+
+        case ('text.staff.plain.user.0000009')
+        {
+            //Hâne 
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Hâne');
+            return text;
+        }
+
+        case ('text.staff.plain.user.0000020')
+        {
+            //editor initials
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Editor_Initials');
+            return text;
+        }
+
+        case ('text.staff.technique.user.0000008')
+        {
+            //Usûl name (beginning of staff 2)
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Usûl_name');
+            return text;
+        }
+
+        case ('text.system.page_aligned.subtitle.user.0000002')
+        {
+            //Makâm
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Makâm_subtitle');
+            return text;
+        }
+
+        case ('text.system.page_aligned.subtitle.user.0000003')
+        {
+            //Usûl
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Usûl_subtitle');
+            return text;   
+        }
+
+        case ('text.system.page_aligned.subtitle.user.0000004')
+        {
+            //Genre
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Genre_subtitle');
+            return text;
+        }
+
+        case ('text.system.page_aligned.composer.user.0000001')
+        {
+            //Source
+            text = ConvertTextElement(textobj);
+            text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Source_subtitle');
             return text;
         }
 

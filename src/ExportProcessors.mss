@@ -577,5 +577,217 @@ function ProcessSymbol (sobj, objectPositions) {
             mlines = Self._property:MeasureLines;
             mlines.Push(endBracket._id);
         }
+
+        case ('247')
+        {
+            //Comma
+            comma = libmei.Symbol();
+
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
+            //Add type of symbol
+            libmei.AddAttribute(comma, 'type', 'ornamentComma');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(comma, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            comma = AddBarObjectInfoToElement(sobj, comma);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(comma._id);
+        }
+
+        case ('836')
+        {
+            //Opening bracket 2 lines
+            return null;
+        }
+
+        case ('837')
+        {
+            //Closing bracket 2 lines
+            return null;
+        }
+
+        case ('74')
+        {
+            //stick shot
+            stickShot = libmei.Symbol();
+
+            // Add SMuFL glyph codepoint
+            libmei.AddAttribute(stickShot, 'glyphnum', 'U+E7F0');
+            //Add type of symbol
+            libmei.AddAttribute(stickShot, 'type', 'stickShot');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(stickShot, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            stickShot = AddBarObjectInfoToElement(sobj, stickShot);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(stickShot._id);
+        }
+
+        case ('18')
+        {
+            //(
+            hampRptStartBracket = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(hampRptStartBracket, 'type', 'hampRptStartBracket');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(hampRptStartBracket, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            hampRptStartBracket = AddBarObjectInfoToElement(sobj, hampRptStartBracket);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(hampRptStartBracket._id);
+        }
+
+        case ('19')
+        {
+            //)
+            hampRptEndBracket = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(hampRptEndBracket, 'type', 'hampRptEndBracket');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(hampRptEndBracket, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            hampRptEndBracket = AddBarObjectInfoToElement(sobj, hampRptEndBracket);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(hampRptEndBracket._id);        
+        }
+
+        case ('928')
+        {
+            //HampSubDivision
+            HampSubDivision = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(HampSubDivision, 'type', 'HampSubDivision');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(HampSubDivision, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            HampSubDivision = AddBarObjectInfoToElement(sobj, HampSubDivision);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(HampSubDivision._id);
+        }
+
+        case ('929')
+        {
+            //HampEndCycle
+            HampEndCycle = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(HampEndCycle, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            HampEndCycle = AddBarObjectInfoToElement(sobj, HampEndCycle);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(HampEndCycle._id);
+        }
+
+        case ('930')
+        {
+            //HampSegno
+            HampSegno = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(HampSegno, 'type', 'HampSegno');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(HampSegno, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            HampSegno = AddBarObjectInfoToElement(sobj, HampSegno);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(HampSegno._id);
+        }
+
+        case ('931')
+        {
+            //HampEndCycle Brackets
+            HampEndCycle = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(HampEndCycle, 'startid', '#' & obj._id);
+            }
+
+            //Add bar object information for safety
+            HampEndCycle = AddBarObjectInfoToElement(sobj, HampEndCycle);
+
+            Supplied = libmei.Supplied();
+            Supplied.AddChild(HampEndCycle);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(Supplied._id);
+        }
+
     }
 }  //$end
