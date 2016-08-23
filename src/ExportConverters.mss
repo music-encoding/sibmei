@@ -928,7 +928,7 @@ function ConvertText (textobj) {
         {
             //line and page breaks
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','sb-pb');
             return text;
         }
@@ -937,7 +937,7 @@ function ConvertText (textobj) {
         {
             //Armenian letters
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','armenian');
             return text;
         }
@@ -946,7 +946,7 @@ function ConvertText (textobj) {
         {
             //Hâne 
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Hâne');
             return text;
         }
@@ -955,7 +955,7 @@ function ConvertText (textobj) {
         {
             //editor initials
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Editor_Initials');
             return text;
         }
@@ -964,7 +964,7 @@ function ConvertText (textobj) {
         {
             //Usûl name (beginning of staff 2)
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Usûl_name');
             return text;
         }
@@ -973,7 +973,7 @@ function ConvertText (textobj) {
         {
             //Makâm
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Makâm_subtitle');
             return text;
         }
@@ -982,7 +982,7 @@ function ConvertText (textobj) {
         {
             //Usûl
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Usûl_subtitle');
             return text;   
         }
@@ -991,7 +991,7 @@ function ConvertText (textobj) {
         {
             //Genre
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Genre_subtitle');
             return text;
         }
@@ -1000,7 +1000,7 @@ function ConvertText (textobj) {
         {
             //Source
             text = ConvertTextElement(textobj);
-            text = AddBarObjectInfoToElement(textobj, text);
+            //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Source_subtitle');
             return text;
         }
