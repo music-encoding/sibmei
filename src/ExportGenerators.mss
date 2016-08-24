@@ -805,6 +805,30 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'plop');
     }
 
+    //Add Comma
+    //looking for a previous symbol
+    prev_symb = bobj.PreviousItem(bobj.VoiceNumber, 'SymbolItem');
+
+    if (prev_symb != null) 
+    {
+        if (prev_symb.Position = bobj.Position)
+        {
+            if (prev_symb.Index = '247' and prev_symb.Hidden = False)
+            {
+                comma = libmei.Artic();
+
+                // Add SMuFL glyph codepoint
+                libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
+                //Add type of symbol
+                libmei.AddAttribute(comma, 'label', 'ornamentComma');
+
+                libmei.AddChild(nr, comma);
+            }
+        }
+        
+        prev_symb = null;
+    }
+
     // a tremolo is a parent of note or chord in MEI
     if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = -1))
     {
