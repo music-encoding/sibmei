@@ -914,7 +914,9 @@ function ConvertText (textobj) {
         }
         case ('text.system.page_aligned.composer')
         {
-            return ConvertTextElement(textobj);
+            text = ConvertTextElement(textobj);
+            libmei.AddAttribute(text,'label','composer');
+            return text;
         }
         case ('text.system.tempo')
         {
