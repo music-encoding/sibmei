@@ -136,6 +136,65 @@ function GetNoteObjectAtPosition (bobj) {
     return null;
 }  //$end
 
+function GetNoteObjectAtEndPosition (bobj) {
+    //$module(Utilities.mss)
+    // takes a dictionary of {pos:id} mappings for a given
+    // voice, and returns the NoteRest object. If one isn't found
+    // exactly at `position`, it will first look back (previous)
+    // and then look forward, for candidate objects.
+
+    objectPositions = Self._property:ObjectPositions;
+    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
+    bar_num = bobj.ParentBar.BarNumber;
+    voice_num = bobj.VoiceNumber;
+
+    staffObjectPositions = objectPositions[staff_num];
+    barObjectPositions = staffObjectPositions[bar_num];
+    voiceObjectPositions = barObjectPositions[voice_num];
+
+    if (voiceObjectPositions = null)
+    {
+        // theres not much we can do here. Bail.
+        return null;
+    }
+
+    if (voiceObjectPositions.PropertyExists(bobj.EndPosition))
+    {
+        obj_id = voiceObjectPositions[bobj.EndPosition];
+        obj = libmei.getElementById(obj_id);
+        return obj;
+    }
+    
+    /*else
+    {
+        // if we can't find anything at this position,
+        // find the previous and subsequent objects, and align the
+        // lyrics with them.
+        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+
+        if (prev_obj != null)
+        {
+            // there should be an object registered here
+            obj_id = voiceObjectPositions[prev_obj.Position];
+            obj = libmei.getElementById(obj_id);
+            return obj;
+        }
+        else
+        {
+            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+
+            if (next_obj != null)
+            {
+                obj_id = voiceObjectPositions[next_obj.Position];
+                obj = libmei.getElementById(obj_id);
+                return obj;
+            }
+        }*/
+    }
+
+    return null;
+}  //$end
+
 function AddBarObjectInfoToElement (bobj, element) {
     //$module(Utilities.mss)
     /*
