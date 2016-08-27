@@ -463,7 +463,7 @@ function ProcessVolta (mnum) {
     return null;
 }  //$end
 
-function ProcessSymbol (sobj, objectPositions) {
+function ProcessSymbol (sobj) {
     //$module(ExportProcessors.mss)
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
