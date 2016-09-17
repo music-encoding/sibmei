@@ -1354,6 +1354,8 @@ function GenerateChordSymbol (bobj) {
         Generates a <harm> element containing chord symbol information
     */
     harm = libmei.Harm();
+
+    libmei.AddAttribute(harm, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
     libmei.AddAttribute(harm, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
     libmei.SetText(harm, bobj.ChordNameAsPlainText);
 
