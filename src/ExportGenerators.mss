@@ -1326,16 +1326,7 @@ function GenerateTrill (bobj) {
         symbol object. This method normalizes both of these.
     */
     trill = libmei.Trill();
-    voicenum = bobj.VoiceNumber;
     bar = bobj.ParentBar;
-
-    if (voicenum = 0)
-    {
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, bobj.Type));
-        voicenum = 1;
-    }
-
     obj = GetNoteObjectAtPosition(bobj);
 
     if (obj != null)
@@ -1354,6 +1345,8 @@ function GenerateChordSymbol (bobj) {
         Generates a <harm> element containing chord symbol information
     */
     harm = libmei.Harm();
+
+    libmei.AddAttribute(harm, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
     libmei.AddAttribute(harm, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
     libmei.SetText(harm, bobj.ChordNameAsPlainText);
 
