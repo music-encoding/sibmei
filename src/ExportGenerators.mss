@@ -187,6 +187,10 @@ function GenerateMEIMusic () {
     section = libmei.Section();
     libmei.AddChild(sco, section);
 
+    systf = score.SystemStaff;
+
+    currentScoreDef = null;
+
     for j = 1 to numbars + 1
     {
         // this value may get changed by the volta processor
@@ -208,6 +212,61 @@ function GenerateMEIMusic () {
             pb = Self._property:PageBreak;
             libmei.AddChild(section, pb);
             Self._property:PageBreak = null;
+        }
+
+        currTimeS = systf.CurrentTimeSignature(j);
+        currKeyS = systf.CurrentKeySignature(j);
+
+        // Do not try to get the signatures for bar 0 -- will not work
+        if (j > 1)
+        {
+            prevTimeS = systf.CurrentTimeSignature(j - 1);
+            prevKeyS = systf.CurrentKeySignature(j - 1);
+        }
+        else
+        {
+            prevTimeS = systf.CurrentTimeSignature(j);
+            prevKeyS = systf.CurrentKeySignature(j);
+        }
+
+        /*
+            This will check for a change in the current time signature and create a new
+            scoredef element if it's changed. The key signature will always be processed later,
+            so by then we will either have a new scoredef with a timesig change, or we'll need
+            to create one just for the keysig change.
+        */
+        if ((currTimeS.Numerator != prevTimeS.Numerator) or (currTimeS.Denominator != prevTimeS.Denominator))
+        {
+            currentScoreDef = libmei.ScoreDef();
+            // Log('Time Signature Change in Bar ' & j);
+            libmei.AddAttribute(currentScoreDef, 'meter.count', currTimeS.Numerator);
+            libmei.AddAttribute(currentScoreDef, 'meter.unit', currTimeS.Denominator);
+            libmei.AddAttribute(currentScoreDef, 'meter.sym', ConvertNamedTimeSignature(currTimeS.Text));
+        }
+
+        if (currKeyS.Sharps != prevKeyS.Sharps)
+        {
+            if (currentScoreDef = null)
+            {
+                currentScoreDef = libmei.ScoreDef();
+            }
+
+            libmei.AddAttribute(currentScoreDef, 'key.sig', ConvertKeySignature(currKeyS.Sharps));
+        }
+
+        if (currentScoreDef != null)
+        {
+            // The sig changes must be added just before we add the measure to keep
+            // the proper order.
+            if (ending != null)
+            {
+                libmei.AddChild(ending, currentScoreDef);
+            }
+            else
+            {
+                libmei.AddChild(section, currentScoreDef);
+            }
+            currentScoreDef = null;
         }
 
         if (ending != null)
