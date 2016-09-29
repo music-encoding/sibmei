@@ -20,7 +20,7 @@ function ProcessScore () {
 
 }  //$end
 
-function ProcessBeam (bobj, layer) {
+function ProcessBeam (bobj, note, layer) {
     //$module(ExportProcessors.mss)
     ret = null;
 
@@ -31,8 +31,36 @@ function ProcessBeam (bobj, layer) {
         if (bobj.Beam = NoBeam and layer._property:ActiveBeamId != null)
         {
             layer._property:ActiveBeamId = null;
+            layer._property.ActiveSubBeamId = null;
             return ret;
         }
+
+        // If we are in an active SubBeam is the note is no GraceNote end the active SubBeam
+        if (bobj.GraceNote = False and layer._property:ActiveSubBeamId != null)
+        {
+            layer._property:ActiveSubBeamId = null;
+        }
+
+        // If we have a Gracenote and an active Beam and no active SubBeam and the following
+        // non-grace Note is a startbeam quit the current beam to start a new one
+        if (bobj.GraceNote = True and layer._property:ActiveBeamId != null and layer._property:ActiveSubBeamId = null)
+        {
+            // if the previous Note is also a GraceNote and has a Beam do nothing
+            prevNote = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
+            if ((prevNote.GraceNote = True and prevNote.Beam = ContinueBeam and prevNote.Duration < 256) = False)
+            {
+                nextNote = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+                while (nextNote.GraceNote = True)
+                {
+                    nextNote = nextNote.NextItem(nextNote.VoiceNumber, 'NoteRest');
+                }
+
+                if (nextNote.Duration >= 256 or nextNote.Beam = StartBeam)
+                {
+                    layer._property:ActiveBeamId = null;
+                }
+            }
+        } 
 
         /*
             It's possible that Sibelius records a 'continue beam' at the start
@@ -46,13 +74,18 @@ function ProcessBeam (bobj, layer) {
         */
         falseNegative = False;
         next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+        prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
 
         if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
         {
             // by all accounts this should be a beamed note, but we'll need to double-check.
-            prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
-
             if (prev_obj != null and (prev_obj.Duration >= 256))
+            {
+                falseNegative = True;
+            }
+            // GraceNotes never have a StartBeam. If the following Note is also a GraceNote
+            // and the Durations fine set the falseNegative also to true to start a new
+            if (next_obj != null and next_obj.GraceNote = True and next_obj.Duration < 256)
             {
                 falseNegative = True;
             }
@@ -60,21 +93,107 @@ function ProcessBeam (bobj, layer) {
 
         if (next_obj != null and (bobj.Beam = StartBeam or falseNegative = True) and next_obj.Beam = ContinueBeam)
         {
-            // if:
-            //  - we're not at the end of the bar
-            //  - we have a start beam
-            //  - the next note is a continue beam
-            beam = libmei.Beam();
-            layer._property:ActiveBeamId = beam._id;
+            if (bobj.Beam = StartBeam and layer._property:ActiveBeamId != null 
+                and prev_obj != null and prev_obj.GraceNote = True and prev_obj.Beam = ContinueBeam)
+            {
+                // In this constellation we have a startbeam but the beam already startet because of GraceNotes
+                beamid = layer._property:ActiveBeamId;
+                beam = libmei.getElementById(beamid);
+                libmei.AddChild(beam, note);
 
-            // return the beam so that we can add it to the tree.
-            ret = beam;
+                return beam;
+            }
+            else
+            {
+                // if:
+                //  - we're not at the end of the bar
+                //  - we have a start beam
+                //  - the next note is a continue beam
+                beam = libmei.Beam();
+                layer._property:ActiveBeamId = beam._id;
+
+                bolNoteAdded2SubBeam = False;
+
+                // if we have a gracenote and the next none-gracenote is the start of a beam start a new SubBeam
+                // and add this SubBeam to the Beam and the note to the SubBeam
+                if (bobj.GraceNote = True)
+                {
+                    while (next_obj.GraceNote = True)
+                    {
+                        next_obj = next_obj.NextItem(next_obj.VoiceNumber, 'NoteRest');
+                    }
+                    if (next_obj.Beam = StartBeam and next_obj.Duration < 256)
+                    {
+                        beam = libmei.Beam();
+                        layer._property:ActiveBeamId = beam._id;
+
+                        subBeam = libmei.Beam();
+                        layer._property:ActiveSubBeamId = subBeam._id;
+
+                        libmei.AddChild(beam, subBeam);
+
+                        libmei.AddChild(subBeam, note);
+                        bolNoteAdded2SubBeam = True;
+                    }
+                }
+
+                if (bolNoteAdded2SubBeam = False)
+                {
+                    libmei.AddChild(beam, note);
+                }
+
+                // return the beam so that we can add it to the tree.
+                return beam;
+            }
+            
         }
 
         if (layer._property:ActiveBeamId != null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
         {
+            // if we have a gracenote we need to check if either we already have an active SubBeam
+            // or if the folowing Note is also graced so we need to start a new SubBeam
+            bolNoteAdded2SubBeam = False;
+            if (bobj.GraceNote = True)
+            {
+                if (layer._property:ActiveSubBeamId != null)
+                {
+                    beamid = layer._property:ActiveSubBeamId;
+                    beam = libmei.getElementById(beamid);
+                    libmei.AddChild(beam, note);
+                    bolNoteAdded2SubBeam = True;
+                }
+                else
+                {
+                    next_obj = bobj.NextItem(next_obj.VoiceNumber, 'NoteRest');
+                    if (next_obj != null and bobj.Duration < 256 and next_obj.GraceNote = True and next_obj.Duration < 256)
+                    {
+                        // Get the active Beam
+                        beamid = layer._property:ActiveBeamId;
+                        beam = libmei.getElementById(beamid);
+
+                        // Create a new SubBeam
+                        subBeam = libmei.Beam();
+                        layer._property:ActiveSubBeamId = subBeam._id;
+
+                        libmei.AddChild(beam, subBeam);
+                        libmei.AddChild(subBeam, note);
+
+                        bolNoteAdded2SubBeam = True;
+                    }
+                }
+            }
+            // If we haven't added the note to a SubBeam add it to the beam
+            if (bolNoteAdded2SubBeam = False)
+            {
+                beamid = layer._property:ActiveBeamId;
+                beam = libmei.getElementById(beamid);
+                libmei.AddChild(beam, note);
+            }
+
+            // Always return the active beam
             beamid = layer._property:ActiveBeamId;
             beam = libmei.getElementById(beamid);
+            // Return the Beam
             ret = beam;
         }
     }
@@ -84,6 +203,10 @@ function ProcessBeam (bobj, layer) {
         {
             // this is a break in any active beam, so register it as such.
             layer._property:ActiveBeamId = null;
+        }
+        if (layer._property:ActiveSubBeamId != null)
+        {
+            layer._property:ActiveSubBeamId = null;
         }
     }
 

@@ -422,14 +422,14 @@ function GenerateLayers (staffnum, measurenum) {
                     objVoice[bobj.Position] = note._id;
 
                     // fetch or create the active beam object (if any)
-                    beam = ProcessBeam(bobj, l);
+                    beam = ProcessBeam(bobj, note, l);
 
                     // fetch or create the active tuplet object (if any)
                     tuplet = ProcessTuplet(bobj, note, l);
 
                     if (beam != null)
                     {
-                        libmei.AddChild(beam, note);
+                        // libmei.AddChild(beam, note);
 
                         if (tuplet != null)
                         {
