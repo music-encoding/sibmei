@@ -502,7 +502,7 @@ function ProcessSymbol (sobj) {
             turn = libmei.Turn();
             libmei.AddAttribute(turn, 'form', 'norm');
             turn = AddBarObjectInfoToElement(sobj, turn);
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(turn._id);
         }
 
@@ -512,7 +512,7 @@ function ProcessSymbol (sobj) {
             turn = libmei.Turn();
             libmei.AddAttribute(turn, 'form', 'inv');
             turn = AddBarObjectInfoToElement(sobj, turn);
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(turn._id);
         }
 

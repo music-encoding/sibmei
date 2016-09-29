@@ -230,7 +230,7 @@ function GenerateMeasure (num) {
     score = Self._property:ActiveScore;
     // measureties
     Self._property:MeasureTies = CreateSparseArray();
-    Self._property:MeasureLines = CreateSparseArray();
+    Self._property:MeasureObjects = CreateSparseArray();
 
     m = libmei.Measure();
     libmei.AddAttribute(m, 'n', num);
@@ -275,7 +275,7 @@ function GenerateMeasure (num) {
         m.children.Push(tie);
     }
 
-    mlines = Self._property:MeasureLines;
+    mlines = Self._property:MeasureObjects;
 
     for each line in mlines
     {
@@ -549,18 +549,18 @@ function GenerateLayers (staffnum, measurenum) {
 
         if (line != null)
         {
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(line._id);
-            Self._property:MeasureLines = mlines;
+            Self._property:MeasureObjects = mlines;
         }
 
-        // add chord symbols to the measure lines
+        // add chord symbols to the measure objects
         // so that they get added to the measure later in the processing cycle.
         if (chordsym != null)
         {
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(chordsym._id);
-            Self._property:MeasureLines = mlines;
+            Self._property:MeasureObjects = mlines;
         }
     }
 
@@ -705,7 +705,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
         libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
-        mlines = Self._property:MeasureLines;
+        mlines = Self._property:MeasureObjects;
         mlines.Push(fermata._id);
     }
 
@@ -718,7 +718,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
         libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
-        mlines = Self._property:MeasureLines;
+        mlines = Self._property:MeasureObjects;
         mlines.Push(fermata._id);
     }
 
@@ -731,7 +731,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
         libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
-        mlines = Self._property:MeasureLines;
+        mlines = Self._property:MeasureObjects;
         mlines.Push(fermata._id);
     }
 
