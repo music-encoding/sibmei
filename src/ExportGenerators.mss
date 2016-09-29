@@ -1088,8 +1088,6 @@ function GenerateBarRest (bobj) {
 function GenerateScoreDef (score) {
     //$module(ExportGenerators.mss)
     scoredef = libmei.ScoreDef();
-    Self._property:_GlobalScoreDef = libmei.GetId(scoredef);
-
     docSettings = score.DocumentSetup;
 
     // this will ensure that the units specified by the user is the one that is
