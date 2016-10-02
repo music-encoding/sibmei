@@ -474,7 +474,7 @@ function ProcessSymbol (sobj) {
         {
             // trill
             trill = GenerateTrill(sobj);
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(trill._id);
         }
 
@@ -483,7 +483,7 @@ function ProcessSymbol (sobj) {
             // inverted mordent
             mordent = libmei.Mordent();
             libmei.AddAttribute(mordent, 'form', 'inv');
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(mordent._id);
         }
 
@@ -492,7 +492,7 @@ function ProcessSymbol (sobj) {
             // mordent
             mordent = libmei.Mordent();
             libmei.AddAttribute(mordent, 'form', 'norm');
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(mordent._id);
         }
 
