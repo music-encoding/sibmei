@@ -1,4 +1,4 @@
-Version     "2.0.2"
+Version     "2.0.3"
 PluginName  "Sibelius to MEI Exporter"
 Author      "Andrew Hankinson"
 
