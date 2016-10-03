@@ -93,58 +93,18 @@ function ProcessBeam (bobj, note, layer) {
 
         if (next_obj != null and (bobj.Beam = StartBeam or falseNegative = True) and next_obj.Beam = ContinueBeam)
         {
-            if (bobj.Beam = StartBeam and layer._property:ActiveBeamId != null 
-                and prev_obj != null and prev_obj.GraceNote = True and prev_obj.Beam = ContinueBeam)
-            {
-                // In this constellation we have a startbeam but the beam already startet because of GraceNotes
-                beamid = layer._property:ActiveBeamId;
-                beam = libmei.getElementById(beamid);
-                libmei.AddChild(beam, note);
+            // if:
+            //  - we're not at the end of the bar
+            //  - we have a start beam
+            //  - the next note is a continue beam
+            beam = libmei.Beam();
+            layer._property:ActiveBeamId = beam._id;
 
-                return beam;
-            }
-            else
-            {
-                // if:
-                //  - we're not at the end of the bar
-                //  - we have a start beam
-                //  - the next note is a continue beam
-                beam = libmei.Beam();
-                layer._property:ActiveBeamId = beam._id;
+            
+            libmei.AddChild(beam, note);
 
-                bolNoteAdded2SubBeam = False;
-
-                // if we have a gracenote and the next none-gracenote is the start of a beam start a new SubBeam
-                // and add this SubBeam to the Beam and the note to the SubBeam
-                if (bobj.GraceNote = True)
-                {
-                    while (next_obj.GraceNote = True)
-                    {
-                        next_obj = next_obj.NextItem(next_obj.VoiceNumber, 'NoteRest');
-                    }
-                    if (next_obj.Beam = StartBeam and next_obj.Duration < 256)
-                    {
-                        beam = libmei.Beam();
-                        layer._property:ActiveBeamId = beam._id;
-
-                        subBeam = libmei.Beam();
-                        layer._property:ActiveSubBeamId = subBeam._id;
-
-                        libmei.AddChild(beam, subBeam);
-
-                        libmei.AddChild(subBeam, note);
-                        bolNoteAdded2SubBeam = True;
-                    }
-                }
-
-                if (bolNoteAdded2SubBeam = False)
-                {
-                    libmei.AddChild(beam, note);
-                }
-
-                // return the beam so that we can add it to the tree.
-                return beam;
-            }
+            // return the beam so that we can add it to the tree.
+            return beam;
             
         }
 
