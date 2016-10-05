@@ -1347,6 +1347,21 @@ function GenerateLine (bobj) {
                 {
                     line = libmei.BarLine();
                 }
+
+                case ('vibrato')
+                {
+                    line = libmei.Line();
+                    libmei.AddAttribute(line, 'type', 'vibrato');
+                    libmei.AddAttribute(line, 'form', 'wavy');
+                    libmei.AddAttribute(line, 'place', 'above');
+
+                }
+
+                //To catch diverse line types, set a default
+                default
+                {
+                    line = libmei.Line();
+                }
             }
         }
     }
@@ -1356,43 +1371,44 @@ function GenerateLine (bobj) {
     //    return null;
     //}
 
-    //Try to get note at position of bracket and put id
-    obj = GetNoteObjectAtPosition(bobj);
-
-    if (obj != null)
-    {
-        libmei.AddAttribute(line, 'startid', '#' & obj._id);
-
-        end_obj = GetNoteObjectAtEndPosition(bobj);
-
-        if (end_obj != null) 
+    if (line != null)
         {
-            libmei.AddAttribute(line, 'endid', '#' & end_obj._id);
-        }
-        else
-        {
-            dur = bobj.Duration;
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(bobj);
 
-            if (dur > 0)
+            if (obj != null)
             {
-                meidur = ConvertDuration(dur);
-                libmei.AddAttribute(line, 'dur', meidur[0]);
-                libmei.AddAttribute(line, 'dur.ges', dur & 'p');
+                libmei.AddAttribute(line, 'startid', '#' & obj._id);
+
+                end_obj = GetNoteObjectAtEndPosition(bobj);
+
+                if (end_obj != null) 
+                {
+                    libmei.AddAttribute(line, 'endid', '#' & end_obj._id);
+                }
+                else
+                {
+                    dur = bobj.Duration;
+
+                    if (dur > 0)
+                    {
+                        meidur = ConvertDuration(dur);
+                        libmei.AddAttribute(line, 'dur', meidur[0]);
+                        libmei.AddAttribute(line, 'dur.ges', dur & 'p');
+                    }
+                    else
+                    {
+                        libmei.AddAttribute(line, 'endid', '#' & obj._id);
+                    }
+                    
+                }
             }
             else
             {
-                libmei.AddAttribute(line, 'endid', '#' & obj._id);
+                line = AddBarObjectInfoToElement(bobj, line);
             }
-            
-        }
-    }
-    else
-    {
-        line = AddBarObjectInfoToElement(bobj, line);
-    }
 
-    if (line != null)
-        {
+    
             mlines = Self._property:MeasureLines;
             mlines.Push(line._id);
             Self._property:MeasureLines = mlines;
