@@ -928,10 +928,10 @@ function ConvertText (textobj) {
 
         case ('text.staff.plain.user.0000012')
         {
-            //line and page breaks
+            //Line breaks
             text = ConvertTextElement(textobj);
             //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','sb-pb');
+            libmei.AddAttribute(text,'label','line break');
             return text;
         }
 
@@ -940,7 +940,7 @@ function ConvertText (textobj) {
             //Armenian letters
             text = ConvertTextElement(textobj);
             //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','armenian');
+            libmei.AddAttribute(text,'label','Armenian letters');
             return text;
         }
 
@@ -1004,6 +1004,62 @@ function ConvertText (textobj) {
             text = ConvertTextElement(textobj);
             //text = AddBarObjectInfoToElement(textobj, text);
             libmei.AddAttribute(text,'label','Source_subtitle');
+            return text;
+        }
+
+        case ('text.staff.plain.user.0000025')
+        {
+            //Mükerrer
+            text = ConvertTextElement(textobj);
+            //text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Mükerrer');
+            return text;
+        }
+
+        case ('text.staff.plain.user.0000024')
+        {
+            //Division number change
+            text = ConvertTextElement(textobj);
+            //text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Division number change');
+            return text;
+        }
+
+        case ('text.staff.plain.user.0000026')
+        {
+            //Performance instruction
+            direction = libmei.Dir();
+            libmei.SetText(direction, lstrip(textobj.Text));
+            libmei.AddAttribute(direction,'label','Performance instruction');
+            libmei.AddAttribute(direction, 'staff', textobj.ParentBar.ParentStaff.StaffNum);
+            libmei.AddAttribute(direction, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
+            if (textobj.Dx != 0)
+            {
+                libmei.AddAttribute(direction, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
+            }
+
+            if (textobj.Dy != 0)
+            {
+                libmei.AddAttribute(direction, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
+            }
+            return direction;
+        }
+
+        case ('text.staff.plain')
+        {
+            //Section label
+            text = ConvertTextElement(textobj);
+            //text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','Section label');
+            return text;
+        }
+
+        case ('text.system.page_aligned.composer.user.0000021')
+        {
+            //CMO Ref
+            text = ConvertTextElement(textobj);
+            //text = AddBarObjectInfoToElement(textobj, text);
+            libmei.AddAttribute(text,'label','CMO Ref');
             return text;
         }
 
