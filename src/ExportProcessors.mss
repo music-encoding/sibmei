@@ -741,35 +741,6 @@ function ProcessSymbol (sobj, objectPositions) {
             mlines.Push(dir._id);
         }
 
-        case ('74')
-        {
-            //stick shot
-            stickShot = libmei.Symbol();
-
-            // Add SMuFL glyph codepoint
-            libmei.AddAttribute(stickShot, 'glyphnum', 'U+E7F0');
-            //Add type of symbol
-            libmei.AddAttribute(stickShot, 'type', 'stickShot');
-
-            //Try to get note at position of bracket and put id
-            obj = GetNoteObjectAtPosition(sobj);
-
-            if (obj != null)
-            {
-                libmei.AddAttribute(stickShot, 'startid', '#' & obj._id);
-            }
-
-            else
-            {
-                //Add bar object information for safety
-                stickShot = AddBarObjectInfoToElement(sobj, stickShot);
-            }
-
-            //Add element to measure
-            mlines = Self._property:MeasureLines;
-            mlines.Push(stickShot._id);
-        }
-
         case ('18')
         {
             //(
@@ -835,8 +806,11 @@ function ProcessSymbol (sobj, objectPositions) {
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);    
         }
+    }
 
-        case ('928')
+    switch (sobj.Name)
+    {
+        case ('Division')
         {
             //HampSubDivision
             HampSubDivision = libmei.Symbol();
@@ -867,13 +841,14 @@ function ProcessSymbol (sobj, objectPositions) {
             mlines.Push(dir._id);    
         }
 
-        case ('929')
+        case ('End cycle')
         {
             //HampEndCycle
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
             libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+            libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -898,7 +873,74 @@ function ProcessSymbol (sobj, objectPositions) {
             mlines.Push(dir._id);    
         }
 
-        case ('930')
+        case ('End cycle 2')
+        {
+            //HampEndCycle
+            HampEndCycle = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+            libmei.AddAttribute(HampEndCycle, 'subtype', 'diagonal');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, HampEndCycle);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);    
+        }
+
+        case ('[End cycle]')
+        {
+            //HampEndCycle Brackets
+            HampEndCycle = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+            libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, HampEndCycle);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+            
+            Supplied = libmei.Supplied();
+            libmei.AddChild(Supplied, dir);
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(Supplied._id);
+        }
+
+        case ('HampSegno')
         {
             //HampSegno
             HampSegno = libmei.Symbol();
@@ -928,40 +970,6 @@ function ProcessSymbol (sobj, objectPositions) {
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);  
         }
-
-        case ('931')
-        {
-            //HampEndCycle Brackets
-            HampEndCycle = libmei.Symbol();
-
-            //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
-
-            //Put symbol in dir element
-            dir = libmei.Dir();
-            libmei.AddChild(dir, HampSegno);
-
-            //Try to get note at position of bracket and put id
-            obj = GetNoteObjectAtPosition(sobj);
-
-            if (obj != null)
-            {
-                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
-            }
-
-            else
-            {
-                //Add bar object information for safety
-                dir = AddBarObjectInfoToElement(sobj, dir);
-            }
-            
-            Supplied = libmei.Supplied();
-            libmei.AddChild(Supplied, dir);
-
-            //Add element to measure
-            mlines = Self._property:MeasureLines;
-            mlines.Push(Supplied._id);
-        }
-
     }
+
 }  //$end
