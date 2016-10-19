@@ -456,6 +456,11 @@ function ProcessSystemStaff (score) {
                     {
                         RegisterVolta(bobj);
                     }
+
+                    case ('SystemSymbolItem')
+                    {
+                        ProcessSymbol(bobj);
+                    }
                 }
             }
             
