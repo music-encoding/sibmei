@@ -400,6 +400,7 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
+        chordsym = null;
         parent = null;
         beam = null;
         tuplet = null;
@@ -523,6 +524,10 @@ function GenerateLayers (staffnum, measurenum) {
     {
         switch (bobj.Type)
         {
+            case('GuitarFrame')
+            {
+                chordsym = GenerateChordSymbol(bobj);
+            }
             case('Slur')
             {
                 GenerateLine(bobj);
@@ -572,6 +577,15 @@ function GenerateLayers (staffnum, measurenum) {
             mlines = Self._property:MeasureLines;
             mlines.Push(text._id);
         }
+
+        // add chord symbols to the measure lines
+        // so that they get added to the measure later in the processing cycle.
+        if (chordsym != null)
+        {
+            mlines = Self._property:MeasureLines;
+            mlines.Push(chordsym._id);
+            Self._property:MeasureLines = mlines;
+        }
     }
 
     for each LyricItem lobj in bar
@@ -581,7 +595,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each SymbolItem sobj in bar
     {
-        ProcessSymbol(sobj, objectPositions);
+        ProcessSymbol(sobj);
     }
 
     return layers;
@@ -917,8 +931,8 @@ function GenerateNote (nobj) {
     clefinfo = ConvertClef(clef.StyleId);
 
     n = libmei.Note();
-    hash = SimpleNoteHash(nobj);
-    n._property:hash = hash;
+    //hash = SimpleNoteHash(nobj);
+    //n._property:hash = hash;
 
     ntinfo = ConvertDiatonicPitch(nobj.DiatonicPitch);
     pnum = nobj.Pitch;
@@ -1458,6 +1472,20 @@ function GenerateTrill (bobj) {
     trill = AddBarObjectInfoToElement(bobj, trill);
 
     return trill;
+}  //$end
+
+function GenerateChordSymbol (bobj) {
+    //$module(ExportGenerators.mss)
+    /*
+        Generates a <harm> element containing chord symbol information
+    */
+    harm = libmei.Harm();
+
+    libmei.AddAttribute(harm, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+    libmei.AddAttribute(harm, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    libmei.SetText(harm, bobj.ChordNameAsPlainText);
+
+    return harm;
 }  //$end
 
 function GenerateFormattedString (bobj) {
