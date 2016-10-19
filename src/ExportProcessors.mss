@@ -609,6 +609,39 @@ function ProcessSymbol (sobj, objectPositions) {
             return null;
         }
 
+        case ('2')
+        {
+            //Coda
+            dir = libmei.Dir();
+            coda = libmei.Symbol();
+
+            //Add SMuFL glyph codepoint
+            libmei.AddAttribute(startBracket, 'glyphnum', 'U+E048');
+            //Add type of symbol
+            libmei.AddAttribute(startBracket, 'type', 'coda');
+
+            //Add Coda to dir
+            libmei.AddChild(dir, coda);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);
+        }
+
         case ('404')
         {
             // start bracket
@@ -914,9 +947,13 @@ function ProcessSymbol (sobj, objectPositions) {
             libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
-            //Put symbol in dir element
+            //Put symbol in supplied element
+            supp = libmei.Supplied();
+            libmei.AddChild(supp, HampEndCycle);
+
+            //Put supplied into dir
             dir = libmei.Dir();
-            libmei.AddChild(dir, HampEndCycle);
+            libmei.AddChild(dir, supp);
 
             //Try to get note at position of bracket and put id
             obj = GetNoteObjectAtPosition(sobj);
@@ -931,13 +968,10 @@ function ProcessSymbol (sobj, objectPositions) {
                 //Add bar object information for safety
                 dir = AddBarObjectInfoToElement(sobj, dir);
             }
-            
-            Supplied = libmei.Supplied();
-            libmei.AddChild(Supplied, dir);
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
-            mlines.Push(Supplied._id);
+            mlines.Push(dir._id);
         }
 
         case ('HampSegno')
