@@ -459,7 +459,17 @@ function ProcessSystemStaff (score) {
 
                     case ('SystemSymbolItem')
                     {
-                        ProcessSymbol(bobj);
+                        sysSymb = Self._property:SystemSymbolItems;
+                        if (sysSymb.PropertyExists(bar.BarNumber) = False)
+                        {
+                            sysSymb[bar.BarNumber] = CreateSparseArray();
+                        }
+                        
+                        //Get symbol converted
+                        symbol = ProcessSystemSymbol(bobj);
+                        
+                        //Add element to dictionary
+                        sysSymb[bar.BarNumber].Push(symbol);
                     }
                 }
             }
@@ -555,7 +565,7 @@ function ProcessVolta (mnum) {
     return null;
 }  //$end
 
-function ProcessSymbol (sobj, objectPositions) {
+function ProcessSymbol (sobj) {
     //$module(ExportProcessors.mss)
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
@@ -612,39 +622,6 @@ function ProcessSymbol (sobj, objectPositions) {
         {
             // triple staccato
             return null;
-        }
-
-        case ('2')
-        {
-            //Coda
-            dir = libmei.Dir();
-            coda = libmei.Symbol();
-
-            //Add SMuFL glyph codepoint
-            libmei.AddAttribute(startBracket, 'glyphnum', 'U+E048');
-            //Add type of symbol
-            libmei.AddAttribute(startBracket, 'type', 'coda');
-
-            //Add Coda to dir
-            libmei.AddChild(dir, coda);
-
-            //Try to get note at position of bracket and put id
-            obj = GetNoteObjectAtPosition(sobj);
-
-            if (obj != null)
-            {
-                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
-            }
-
-            else
-            {
-                //Add bar object information for safety
-                dir = AddBarObjectInfoToElement(sobj, dir);
-            }
-
-            //Add element to measure
-            mlines = Self._property:MeasureLines;
-            mlines.Push(dir._id);
         }
 
         case ('404')
@@ -1008,6 +985,39 @@ function ProcessSymbol (sobj, objectPositions) {
             //Add element to measure
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);  
+        }
+    }
+
+}  //$end
+
+function ProcessSystemSymbol(sobj) {
+    //$module(ExportProcessors.mss)
+
+    switch (sobj.Index)
+    {
+        case (2)
+        {
+            //Coda
+            dir = libmei.Dir();
+            coda = libmei.Symbol();
+
+            //Add SMuFL glyph codepoint
+            libmei.AddAttribute(coda, 'glyphnum', 'U+E048');
+            //Add type of symbol
+            libmei.AddAttribute(coda, 'type', 'coda');
+
+            //Add tstamp to dir
+            libmei.AddAttribute(dir, 'tstamp', ConvertPositionToTimestamp(sobj.Position, sobj.ParentBar));
+
+            //Add Coda to dir
+            libmei.AddChild(dir, coda);
+
+            return dir;
+        }
+
+        default
+        {
+            return null;
         }
     }
 
