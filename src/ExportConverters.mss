@@ -1129,7 +1129,14 @@ function ConvertEndingValues (styleid) {
         {
             num = 3;
             label = '3.';
-            type = 'closed';
+            if (ending_style[-1] = 'closed')
+            {
+                type = 'closed';
+            }
+            else
+            {
+                type = 'open';
+            }
         }
         case ('open')
         {
