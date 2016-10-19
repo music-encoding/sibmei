@@ -1340,6 +1340,20 @@ function GenerateLine (bobj) {
                         if (linecomps[3] = 'vertical')
                         {
                             libmei.AddAttribute(line, 'subtype', 'vertical');
+
+                            //Add direction of bracket
+                            if (linecomps > 4) 
+                            {   
+                                if (linecomps[4] = '2') 
+                                {
+                                    libmei.AddAttribute(line, 'label', 'start');
+                                }
+                            }
+
+                            else
+                            {
+                                libmei.AddAttribute(line, 'label', 'end');
+                            }
                         }
                     }
                 }
