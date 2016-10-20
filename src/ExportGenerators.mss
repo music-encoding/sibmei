@@ -1316,7 +1316,7 @@ function GenerateLine (bobj) {
             line = libmei.Hairpin();
             libmei.AddAttribute(line, 'form', 'cres');
         }
-        case ('DimuendoLine')
+        case ('DiminuendoLine')
         {
             line = libmei.Hairpin();
             libmei.AddAttribute(line, 'form', 'dim');
