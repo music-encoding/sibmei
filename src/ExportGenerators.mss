@@ -454,7 +454,7 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
-        line = null;
+        mobj = null;
         chordsym = null;
         parent = null;
         beam = null;
@@ -578,23 +578,23 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Slur')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('CrescendoLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('DimuendoLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('OctavaLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('Trill')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -602,15 +602,15 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
         }
 
-        if (line != null)
+        if (mobj != null)
         {
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(line._id);
-            Self._property:MeasureObjects = mlines;
+            mobjs = Self._property:MeasureObjects;
+            mobjs.Push(mobj._id);
+            Self._property:MeasureObjects = mobjs;
         }
 
         // add chord symbols to the measure objects
