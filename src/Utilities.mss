@@ -164,13 +164,35 @@ function AddBarObjectInfoToElement (bobj, element) {
 
     libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
 
-    if (bobj.Type = 'Line' or bobj.Type = 'Slur' or bobj.Type = 'DiminuendoLine' or bobj.Type = 'CrescendoLine')
+    switch (bobj.Type)
     {
-        libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        case('Line')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('Slur')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('DiminuendoLine')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('CrescendoLine')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('GlissandoLine')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('Trill')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
     }
 
     libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
-
     libmei.AddAttribute(element, 'layer', voicenum);
 
     if (bobj.Dx > 0)
