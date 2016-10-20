@@ -584,7 +584,7 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 mobj = GenerateLine(bobj);
             }
-            case('DimuendoLine')
+            case('DiminuendoLine')
             {
                 mobj = GenerateLine(bobj);
             }
