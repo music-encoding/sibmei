@@ -592,6 +592,10 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 mobj = GenerateLine(bobj);
             }
+            case('GlissandoLine')
+            {
+                mobj = GenerateLine(bobj);
+            }
             case('Trill')
             {
                 mobj = GenerateLine(bobj);
@@ -1331,6 +1335,10 @@ function GenerateLine (bobj) {
             octrend = ConvertOctava(bobj.StyleId);
             libmei.AddAttribute(line, 'dis', octrend[0]);
             libmei.AddAttribute(line, 'dis.place', octrend[1]);
+        }
+        case ('GlissandoLine')
+        {
+            line = libmei.Gliss();
         }
         case ('Trill')
         {
