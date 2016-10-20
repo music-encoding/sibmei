@@ -187,6 +187,10 @@ function GenerateMEIMusic () {
     section = libmei.Section();
     libmei.AddChild(sco, section);
 
+    systf = score.SystemStaff;
+
+    currentScoreDef = null;
+
     for j = 1 to numbars + 1
     {
         // this value may get changed by the volta processor
@@ -210,6 +214,61 @@ function GenerateMEIMusic () {
             Self._property:PageBreak = null;
         }
 
+        currTimeS = systf.CurrentTimeSignature(j);
+        currKeyS = systf.CurrentKeySignature(j);
+
+        // Do not try to get the signatures for bar 0 -- will not work
+        if (j > 1)
+        {
+            prevTimeS = systf.CurrentTimeSignature(j - 1);
+            prevKeyS = systf.CurrentKeySignature(j - 1);
+        }
+        else
+        {
+            prevTimeS = systf.CurrentTimeSignature(j);
+            prevKeyS = systf.CurrentKeySignature(j);
+        }
+
+        /*
+            This will check for a change in the current time signature and create a new
+            scoredef element if it's changed. The key signature will always be processed later,
+            so by then we will either have a new scoredef with a timesig change, or we'll need
+            to create one just for the keysig change.
+        */
+        if ((currTimeS.Numerator != prevTimeS.Numerator) or (currTimeS.Denominator != prevTimeS.Denominator))
+        {
+            currentScoreDef = libmei.ScoreDef();
+            // Log('Time Signature Change in Bar ' & j);
+            libmei.AddAttribute(currentScoreDef, 'meter.count', currTimeS.Numerator);
+            libmei.AddAttribute(currentScoreDef, 'meter.unit', currTimeS.Denominator);
+            libmei.AddAttribute(currentScoreDef, 'meter.sym', ConvertNamedTimeSignature(currTimeS.Text));
+        }
+
+        if (currKeyS.Sharps != prevKeyS.Sharps)
+        {
+            if (currentScoreDef = null)
+            {
+                currentScoreDef = libmei.ScoreDef();
+            }
+
+            libmei.AddAttribute(currentScoreDef, 'key.sig', ConvertKeySignature(currKeyS.Sharps));
+        }
+
+        if (currentScoreDef != null)
+        {
+            // The sig changes must be added just before we add the measure to keep
+            // the proper order.
+            if (ending != null)
+            {
+                libmei.AddChild(ending, currentScoreDef);
+            }
+            else
+            {
+                libmei.AddChild(section, currentScoreDef);
+            }
+            currentScoreDef = null;
+        }
+
         if (ending != null)
         {
             libmei.AddChild(section, ending);
@@ -230,7 +289,7 @@ function GenerateMeasure (num) {
     score = Self._property:ActiveScore;
     // measureties
     Self._property:MeasureTies = CreateSparseArray();
-    Self._property:MeasureLines = CreateSparseArray();
+    Self._property:MeasureObjects = CreateSparseArray();
 
     m = libmei.Measure();
     libmei.AddAttribute(m, 'n', num);
@@ -275,7 +334,7 @@ function GenerateMeasure (num) {
         m.children.Push(tie);
     }
 
-    mlines = Self._property:MeasureLines;
+    mlines = Self._property:MeasureObjects;
 
     for each line in mlines
     {
@@ -395,7 +454,7 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
-        line = null;
+        mobj = null;
         chordsym = null;
         parent = null;
         beam = null;
@@ -519,23 +578,23 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Slur')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('CrescendoLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
-            case('DimuendoLine')
+            case('DiminuendoLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('OctavaLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('Trill')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -543,24 +602,28 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
+            }
+            case('Text')
+            {
+                mobj = ConvertText(bobj);
             }
         }
 
-        if (line != null)
+        if (mobj != null)
         {
-            mlines = Self._property:MeasureLines;
-            mlines.Push(line._id);
-            Self._property:MeasureLines = mlines;
+            mobjs = Self._property:MeasureObjects;
+            mobjs.Push(mobj._id);
+            Self._property:MeasureObjects = mobjs;
         }
 
-        // add chord symbols to the measure lines
+        // add chord symbols to the measure objects
         // so that they get added to the measure later in the processing cycle.
         if (chordsym != null)
         {
-            mlines = Self._property:MeasureLines;
+            mlines = Self._property:MeasureObjects;
             mlines.Push(chordsym._id);
-            Self._property:MeasureLines = mlines;
+            Self._property:MeasureObjects = mlines;
         }
     }
 
@@ -705,7 +768,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
         libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
-        mlines = Self._property:MeasureLines;
+        mlines = Self._property:MeasureObjects;
         mlines.Push(fermata._id);
     }
 
@@ -718,7 +781,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
         libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
-        mlines = Self._property:MeasureLines;
+        mlines = Self._property:MeasureObjects;
         mlines.Push(fermata._id);
     }
 
@@ -731,7 +794,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
         libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
-        mlines = Self._property:MeasureLines;
+        mlines = Self._property:MeasureObjects;
         mlines.Push(fermata._id);
     }
 
@@ -1088,8 +1151,6 @@ function GenerateBarRest (bobj) {
 function GenerateScoreDef (score) {
     //$module(ExportGenerators.mss)
     scoredef = libmei.ScoreDef();
-    Self._property:_GlobalScoreDef = libmei.GetId(scoredef);
-
     docSettings = score.DocumentSetup;
 
     // this will ensure that the units specified by the user is the one that is
@@ -1259,7 +1320,7 @@ function GenerateLine (bobj) {
             line = libmei.Hairpin();
             libmei.AddAttribute(line, 'form', 'cres');
         }
-        case ('DimuendoLine')
+        case ('DiminuendoLine')
         {
             line = libmei.Hairpin();
             libmei.AddAttribute(line, 'form', 'dim');

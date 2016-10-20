@@ -162,11 +162,11 @@ function AddBarObjectInfoToElement (bobj, element) {
         }
     }
 
-    libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
 
-    if (bobj.Type = 'Line' or bobj.Type = 'Slur')
+    if (bobj.Type = 'Line' or bobj.Type = 'Slur' or bobj.Type = 'DiminuendoLine' or bobj.Type = 'CrescendoLine')
     {
-        libmei.AddAttribute(element, 'tstamp2', ConvertPositionToTimestamp(bobj.EndPosition, bar));
+        libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
     }
 
     libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
