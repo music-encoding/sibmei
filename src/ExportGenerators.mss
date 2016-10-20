@@ -604,6 +604,10 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 mobj = GenerateLine(bobj);
             }
+            case('Text')
+            {
+                mobj = ConvertText(bobj);
+            }
         }
 
         if (mobj != null)
