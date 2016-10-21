@@ -940,6 +940,24 @@ function GenerateRest (bobj) {
 
 function GenerateNote (nobj) {
     //$module(ExportGenerators.mss)
+
+    // handle modifications to the gestural duration
+    // if this particular note is a member of a tuplet.
+    gesdur = null;
+    if (nobj.ParentNoteRest.ParentTupletIfAny != null)
+    {
+        dur = nobj.ParentNoteRest.Duration;
+        ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
+        pnum = ptuplet.Left;
+        pden = ptuplet.Right;
+        floatgesdur = (pnum & '.0' / pden & '.0') * dur;
+        gesdur = Round(floatgesdur);
+    }
+    else
+    {
+        gesdur = nobj.ParentNoteRest.Duration;
+    }
+
     dur = nobj.ParentNoteRest.Duration;
     meidur = ConvertDuration(dur);
     pos = nobj.ParentNoteRest.Position;
@@ -995,7 +1013,7 @@ function GenerateNote (nobj) {
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
     libmei.AddAttribute(n, 'dur', meidur[0]);
-    libmei.AddAttribute(n, 'dur.ges', dur & 'p');
+    libmei.AddAttribute(n, 'dur.ges', gesdur & 'p');
     libmei.AddAttribute(n, 'dots', meidur[1]);
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
