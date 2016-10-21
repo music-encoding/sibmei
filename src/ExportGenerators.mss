@@ -510,7 +510,7 @@ function GenerateLayers (staffnum, measurenum) {
                                             and queue it for addition to the measure.
                                         */
                                         tsobj._property:AddedToMeasure = True;
-                                        line = tsobj;
+                                        mobj = tsobj;
                                     }
 
                                 }
