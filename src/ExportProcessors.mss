@@ -1118,6 +1118,130 @@ function ProcessSymbol (sobj) {
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);  
         }
+
+        case ('Asterisk')
+        {
+            //Asterisk
+            Asterisk = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(Asterisk, 'type', 'Asterisk');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, Asterisk);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);  
+        }
+
+        case ('Double stroke')
+        {
+            //Double stroke
+            dblStroke = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(dblStroke, 'type', 'Double stroke');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, dblStroke);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);  
+        }
+
+        case ('Prolongation')
+        {
+            //Prolongation
+            Prolongation = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(Prolongation, 'type', 'Prolongation');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, Prolongation);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);
+        }
+
+        case ('Single stroke')
+        {
+            //Single stroke
+            sglStroke = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(sglStroke, 'type', 'Single stroke');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, sglStroke);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);  
+        }
     }
 
 }  //$end
