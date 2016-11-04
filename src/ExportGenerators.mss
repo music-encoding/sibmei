@@ -842,6 +842,11 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'stop');
     }
 
+    if (bobj.GetArticulation(HarmonicArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'harm');
+    }
+
     if (bobj.FallType = FallTypeDoit)
     {
         libmei.AddAttributeValue(nr, 'artic', 'doit');
