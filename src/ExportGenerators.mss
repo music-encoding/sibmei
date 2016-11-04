@@ -807,6 +807,16 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'stacc');
     }
 
+    if (bobj.GetArticulation(TenutoArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'ten');
+    }
+
+    if (bobj.GetArticulation(MarcatoArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'marc');
+    }
+
     if (bobj.GetArticulation(DownBowArtic))
     {
         libmei.AddAttributeValue(nr, 'artic', 'dnbow');
@@ -817,19 +827,9 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'upbow');
     }
 
-    if (bobj.GetArticulation(MarcatoArtic))
-    {
-        libmei.AddAttributeValue(nr, 'artic', 'marc');
-    }
-
     if (bobj.GetArticulation(AccentArtic))
     {
         libmei.AddAttributeValue(nr, 'artic', 'acc');
-    }
-
-    if (bobj.GetArticulation(TenutoArtic))
-    {
-        libmei.AddAttributeValue(nr, 'artic', 'ten');
     }
 
     if (bobj.GetArticulation(StaccatissimoArtic))
