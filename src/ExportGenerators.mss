@@ -846,34 +846,30 @@ function GenerateNoteRest (bobj, layer) {
     {
         if (prev_symb.Position = bobj.Position)
         {
-            //Write standard comma
-            if (prev_symb.Index = '247' and prev_symb.Hidden = False)
+            //Write single stroke
+            if (prev_symb.Name = 'Single stroke' and prev_symb.Hidden = False)
             {
-                comma = libmei.Artic();
+                singleStroke = libmei.Artic();
 
-                // Add SMuFL glyph codepoint
-                libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
                 //Add type of symbol
-                libmei.AddAttribute(comma, 'label', 'ornamentComma');
+                libmei.AddAttribute(singleStroke, 'label', 'singleStroke');
 
-                libmei.AddChild(nr, comma);
+                libmei.AddChild(nr, singleStroke);
             }
 
-            //Write bracketed comma as a supplied comma
-            if (prev_symb.Name = '[Comma]' and prev_symb.Hidden = False)
+            //Write bracketed single stroke
+           /* if (prev_symb.Name = '[Comma]' and prev_symb.Hidden = False)
             {
-                comma = libmei.Artic();
+                singleStroke = libmei.Artic();
 
-                // Add SMuFL glyph codepoint
-                libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
                 //Add type of symbol
-                libmei.AddAttribute(comma, 'label', 'ornamentComma');
+                libmei.AddAttribute(singleStroke, 'label', 'singleStroke');
 
                 supp = libmei.Supplied();
-                libmei.AddChild(supp, comma);
+                libmei.AddChild(supp, singleStroke);
 
                 libmei.AddChild(nr, supp);
-            }
+            }*/
         }
         
         prev_symb = null;

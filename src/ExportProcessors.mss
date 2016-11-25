@@ -890,6 +890,39 @@ function ProcessSymbol (sobj) {
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);    
         }
+
+        case ('247')
+        {
+            //Single stroke
+            comma = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(comma, 'type', 'ornamentComma');
+            //Add SMuFL glyph codepoint
+            libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, comma);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);  
+        }
     }
 
     switch (sobj.Name)
@@ -1215,17 +1248,21 @@ function ProcessSymbol (sobj) {
             mlines.Push(dir._id);
         }
 
-        case ('Single stroke')
+        case ('[Comma]')
         {
             //Single stroke
-            sglStroke = libmei.Symbol();
+            comma = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(sglStroke, 'type', 'Single stroke');
+            libmei.AddAttribute(comma, 'type', 'ornamentComma');
+            //Add SMuFL glyph codepoint
+            libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
 
             //Put symbol in dir element
             dir = libmei.Dir();
-            libmei.AddChild(dir, sglStroke);
+            supp = libmei.Supplied();
+            libmei.AddChild(supp,comma);
+            libmei.AddChild(dir, supp);
 
             //Try to get note at position of bracket and put id
             obj = GetNoteObjectAtPosition(sobj);

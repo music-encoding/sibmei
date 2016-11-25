@@ -949,7 +949,15 @@ function ConvertText (textobj) {
             //Hâne 
             text = ConvertTextElement(textobj);
             //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Hâne');
+            libmei.AddAttribute(text,'label','Section');
+            return text;
+        }
+
+        //Miyân 
+        case ('text.staff.plain.user.0000032')
+        {
+            text = ConvertTextElement(textobj);
+            libmei.AddAttribute(text,'label','Section');
             return text;
         }
 
@@ -1050,7 +1058,7 @@ function ConvertText (textobj) {
             //Section label
             text = ConvertTextElement(textobj);
             //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Section label');
+            libmei.AddAttribute(text,'label','Subsection');
             return text;
         }
 
