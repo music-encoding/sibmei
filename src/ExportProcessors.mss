@@ -68,7 +68,7 @@ function ProcessBeam (bobj, note, layer) {
             note was a quarter note or higher. 
             
             The first check we do is if the note has a 'continue beam' attribute and
-            the previous note has a duration higher than 256 (quarter) then we probably have
+            the previous note has a duration higher than 256 (quarter) or is a rest then we probably have
             a false negative (i.e., there is the start of a beam, but it isn't necessarily
             encoded correctly).
         */
@@ -80,7 +80,7 @@ function ProcessBeam (bobj, note, layer) {
         if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
         {
             // by all accounts this should be a beamed note, but we'll need to double-check.
-            if (prev_obj != null and (prev_obj.Duration >= 256))
+            if (prev_obj != null and (prev_obj.Duration >= 256 or prev_obj.NoteCount = 0))
             {
                 falseNegative = True;
             }
