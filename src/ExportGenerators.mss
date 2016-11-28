@@ -857,19 +857,16 @@ function GenerateNoteRest (bobj, layer) {
                 libmei.AddChild(nr, singleStroke);
             }
 
-            //Write bracketed single stroke
-           /* if (prev_symb.Name = '[Comma]' and prev_symb.Hidden = False)
+            //Write double stroke
+           if (prev_symb.Name = 'Double stroke' and prev_symb.Hidden = False)
             {
-                singleStroke = libmei.Artic();
+                doubleStroke = libmei.Artic();
 
                 //Add type of symbol
-                libmei.AddAttribute(singleStroke, 'label', 'singleStroke');
+                libmei.AddAttribute(singleStroke, 'label', 'doubleStroke');
 
-                supp = libmei.Supplied();
-                libmei.AddChild(supp, singleStroke);
-
-                libmei.AddChild(nr, supp);
-            }*/
+                libmei.AddChild(nr, doubleStroke);
+            }
         }
         
         prev_symb = null;
