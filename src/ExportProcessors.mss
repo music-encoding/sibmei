@@ -995,6 +995,7 @@ function ProcessSymbol (sobj) {
         }
     }
 
+    //Get user-defined by name because index position doesn't stay consistent
     switch (sobj.Name)
     {
         case ('Division')
@@ -1003,7 +1004,7 @@ function ProcessSymbol (sobj) {
             HampSubDivision = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampSubDivision, 'type', 'HampSubDivision');
+            libmei.AddAttribute(HampSubDivision, 'type', 'Division');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -1034,7 +1035,7 @@ function ProcessSymbol (sobj) {
             HampSubDivision = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampSubDivision, 'type', 'HampSubDivision');
+            libmei.AddAttribute(HampSubDivision, 'type', 'Division');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -1067,7 +1068,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
             //Put symbol in dir element
@@ -1099,7 +1100,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'diagonal');
 
             //Put symbol in dir element
@@ -1131,7 +1132,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'HampEndCycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
             //Put symbol in supplied element
@@ -1161,17 +1162,22 @@ function ProcessSymbol (sobj) {
             mlines.Push(dir._id);
         }
 
-        case ('Hamp Segno')
+        case ('[End cycle 2]')
         {
-            //HampSegno
-            HampSegno = libmei.Symbol();
+            //HampEndCycle Brackets
+            HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampSegno, 'type', 'HampSegno');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
+            libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
-            //Put symbol in dir element
+            //Put symbol in supplied element
+            supp = libmei.Supplied();
+            libmei.AddChild(supp, HampEndCycle);
+
+            //Put supplied into dir
             dir = libmei.Dir();
-            libmei.AddChild(dir, HampSegno);
+            libmei.AddChild(dir, supp);
 
             //Try to get note at position of bracket and put id
             obj = GetNoteObjectAtPosition(sobj);
@@ -1189,19 +1195,22 @@ function ProcessSymbol (sobj) {
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
-            mlines.Push(dir._id);  
+            mlines.Push(dir._id);
         }
 
-        case ('[Hamp Segno]')
+        case ('[Segno 1]')
         {
-            //[HampSegno]
+            //supplied Segno
             HampSegno = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampSegno, 'type', 'HampSegno');
+            libmei.AddAttribute(HampSegno, 'type', 'Segno 1');
 
             //Put symbol in dir element
             dir = libmei.Dir();
+            libmei.AddAttribute(dir,'type', 'Segno');
+
+            //Add supplied symbol
             supp = libmei.Supplied();
             libmei.AddChild(supp, HampSegno);
             libmei.AddChild(dir, supp);
@@ -1224,39 +1233,6 @@ function ProcessSymbol (sobj) {
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);  
         }
-
-        case ('Asterisk')
-        {
-            //Asterisk
-            Asterisk = libmei.Symbol();
-
-            //Add type of symbol
-            libmei.AddAttribute(Asterisk, 'type', 'Asterisk');
-
-            //Put symbol in dir element
-            dir = libmei.Dir();
-            libmei.AddChild(dir, Asterisk);
-
-            //Try to get note at position of bracket and put id
-            obj = GetNoteObjectAtPosition(sobj);
-
-            if (obj != null)
-            {
-                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
-            }
-
-            else
-            {
-                //Add bar object information for safety
-                dir = AddBarObjectInfoToElement(sobj, dir);
-            }
-
-            //Add element to measure
-            mlines = Self._property:MeasureLines;
-            mlines.Push(dir._id);  
-        }
-
-        
 
         case ('Prolongation')
         {
@@ -1352,6 +1328,17 @@ function ProcessSymbol (sobj) {
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);  
         }
+
+        case('Loop repeat')
+        {
+            return null;
+        }
+
+        case('Pincer')
+        {
+            return null;
+        }
+    }
 
     //Because we have a lot Segno symbols, it is much easier to solve this dynamically
     if(IsObjectInArray(segnos,sobj.Name))
