@@ -926,112 +926,7 @@ function ConvertText (textobj) {
             return tempo;
         }
 
-        case ('text.staff.plain.user.0000012')
-        {
-            //Line breaks
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','line break');
-            return text;
-        }
-
-        case ('text.staff.plain.user.0000016')
-        {
-            //Armenian letters
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Armenian letters');
-            return text;
-        }
-
-        case ('text.staff.plain.user.0000009')
-        {
-            //Hâne 
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Section');
-            return text;
-        }
-
-        //Miyân 
-        case ('text.staff.plain.user.0000032')
-        {
-            text = ConvertTextElement(textobj);
-            libmei.AddAttribute(text,'label','Section');
-            return text;
-        }
-
-        case ('text.staff.plain.user.0000020')
-        {
-            //editor initials
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Editor_Initials');
-            return text;
-        }
-
-        case ('text.staff.technique.user.0000008')
-        {
-            //Usûl name (beginning of staff 2)
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Usûl_name');
-            return text;
-        }
-
-        case ('text.system.page_aligned.subtitle.user.0000002')
-        {
-            //Makâm
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Makâm_subtitle');
-            return text;
-        }
-
-        case ('text.system.page_aligned.subtitle.user.0000003')
-        {
-            //Usûl
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Usûl_subtitle');
-            return text;   
-        }
-
-        case ('text.system.page_aligned.subtitle.user.0000004')
-        {
-            //Genre
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Genre_subtitle');
-            return text;
-        }
-
-        case ('text.system.page_aligned.composer.user.0000001')
-        {
-            //Source
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Source_subtitle');
-            return text;
-        }
-
-        case ('text.staff.plain.user.0000025')
-        {
-            //Mükerrer
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Mükerrer');
-            return text;
-        }
-
-        case ('text.staff.plain.user.0000024')
-        {
-            //Division number change
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Division number change');
-            return text;
-        }
+        
 
         case ('text.staff.plain.user.0000026')
         {
@@ -1062,18 +957,35 @@ function ConvertText (textobj) {
             return text;
         }
 
-        case ('text.system.page_aligned.composer.user.0000021')
-        {
-            //CMO Ref
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','CMO Ref');
-            return text;
-        }
-
         default
         {
-            return null;
+            //Treat user-defined text styles by their name
+            textStyle = MSplitString(textobj.StyleId, '.');
+
+            if(textStyle[4] = 'user')
+            {
+                styleName = textobj.StyleAsText;
+                styleNameList = MSplitString(_userTextStyleNames,';');
+
+                if(IsObjectInArray (styleNameList, styleName))
+                {
+                    //if text style is in the glogal list, create a text object and label it with the name of the text style
+                    text = ConvertTextElement(textobj);
+                    //text = AddBarObjectInfoToElement(textobj, text);
+                    libmei.AddAttribute(text,'label',styleName);
+                    return text;
+                }
+
+                else
+                {
+                    return null;
+                }
+            }
+
+            else
+            {
+                return null;
+            }
         }
     }
 }  //$end
