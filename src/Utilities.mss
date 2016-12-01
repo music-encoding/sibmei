@@ -316,3 +316,19 @@ function Log (message) {
     //$module(Utilities.mss)
     Sibelius.AppendLineToFile(LOGFILE, message, True);
 }  //$end
+
+function IsObjectInArray (sparseArray, checkObj) {
+    //$module(Utilities.mss)
+    
+    found = false;
+
+    for each obj in sparseArray 
+    {
+        if (obj = checkObj)
+        {
+            found = true;
+        }
+    }
+
+    return found;
+}  //$end

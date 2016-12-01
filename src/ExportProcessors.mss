@@ -584,6 +584,9 @@ function ProcessSymbol (sobj) {
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
 
+    //get list of Sgno symbols
+    segnos = MSplitString(_SegnoSymbols,';');
+
     switch (sobj.Index)
     {
         case ('32')
@@ -1348,6 +1351,38 @@ function ProcessSymbol (sobj) {
             //Add element to measure
             mlines = Self._property:MeasureLines;
             mlines.Push(dir._id);  
+        }
+
+    //Because we have a lot Segno symbols, it is much easier to solve this dynamically
+    if(IsObjectInArray(segnos,sobj.Name))
+    {
+        segnoSymbol = libmei.Symbol();
+
+        //Add name of symbol object as type
+        libmei.AddAttribute(segnoSymbol, 'type', sobj.Name);
+
+        //Put symbol in dir element
+        dir = libmei.Dir();
+        libmei.AddAttribute(dir, 'type','Segno');
+        libmei.AddChild(dir, segnoSymbol);
+
+        //Try to get note at position of bracket and put id
+        obj = GetNoteObjectAtPosition(sobj);
+
+        if (obj != null)
+        {
+            libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+        }
+
+        else
+        {
+            //Add bar object information for safety
+            dir = AddBarObjectInfoToElement(sobj, dir);
+        }
+
+        //Add element to measure
+        mlines = Self._property:MeasureLines;
+        mlines.Push(dir._id);  
         }
     }
 
