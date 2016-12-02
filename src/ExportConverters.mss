@@ -926,28 +926,6 @@ function ConvertText (textobj) {
             return tempo;
         }
 
-        
-
-        case ('text.staff.plain.user.0000026')
-        {
-            //Performance instruction
-            direction = libmei.Dir();
-            libmei.SetText(direction, lstrip(textobj.Text));
-            libmei.AddAttribute(direction,'label','Performance instruction');
-            libmei.AddAttribute(direction, 'staff', textobj.ParentBar.ParentStaff.StaffNum);
-            libmei.AddAttribute(direction, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
-            if (textobj.Dx != 0)
-            {
-                libmei.AddAttribute(direction, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
-            }
-
-            if (textobj.Dy != 0)
-            {
-                libmei.AddAttribute(direction, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
-            }
-            return direction;
-        }
-
         case ('text.staff.plain')
         {
             //Section label
@@ -959,27 +937,16 @@ function ConvertText (textobj) {
 
         default
         {
-            //Treat user-defined text styles by their name
-            textStyle = MSplitString(textobj.StyleId, '.');
+            styleName = textobj.StyleAsText;
+            styleNameList = MSplitString(_userTextStyleNames,';');
 
-            if(textStyle[4] = 'user')
+            if(IsObjectInArray (styleNameList, styleName))
             {
-                styleName = textobj.StyleAsText;
-                styleNameList = MSplitString(_userTextStyleNames,';');
-
-                if(IsObjectInArray (styleNameList, styleName))
-                {
-                    //if text style is in the glogal list, create a text object and label it with the name of the text style
-                    text = ConvertTextElement(textobj);
-                    //text = AddBarObjectInfoToElement(textobj, text);
-                    libmei.AddAttribute(text,'label',styleName);
-                    return text;
-                }
-
-                else
-                {
-                    return null;
-                }
+                //if text style is in the global list, create a text object and label it with the name of the text style
+                text = ConvertTextElement(textobj);
+                //text = AddBarObjectInfoToElement(textobj, text);
+                libmei.AddAttribute(text,'label',styleName);
+                return text;
             }
 
             else
