@@ -187,6 +187,10 @@ function GenerateMEIMusic () {
     numbars = numbars.Length;
     Self._property:BarMap = barmap;
 
+    //store current time signature to detect changes
+    timesig = score.SystemStaff.CurrentTimeSignature(1);
+    Self._property:TimeSignature = CreateSparseArray(timesig.Numerator, timesig.Denominator, timesig.Text);
+
     section = libmei.Section();
     libmei.AddChild(sco, section);
 
@@ -211,6 +215,20 @@ function GenerateMEIMusic () {
             pb = Self._property:PageBreak;
             libmei.AddChild(section, pb);
             Self._property:PageBreak = null;
+        }
+
+        //add changes of time signature
+        crntimesig = score.SystemStaff.CurrentTimeSignature(j);
+        currentTimeSignature = CreateSparseArray(crntimesig.Numerator, crntimesig.Denominator, crntimesig.Text);
+
+        if (currentTimeSignature != Self._property:TimeSignature)
+        {
+            newscd = GenerateUpdatedTimeSig(crntimesig);
+
+            //update stored time signature
+            Self._property:TimeSignature = currentTimeSignature;
+
+            libmei.AddChild(section,newscd);
         }
 
         if (ending != null)
@@ -1779,4 +1797,18 @@ function GenerateFormattedString (bobj) {
     }
 
     return ret;
+}  //$end
+
+function GenerateUpdatedTimeSig(timesig) {
+    //$module(ExportGenerators.mss)
+    /*
+        Generates a reduced scoreDef with updated time signature
+    */
+    newscd = libmei.ScoreDef();
+
+    libmei.AddAttribute(newscd, 'meter.count', timesig.Numerator);
+    libmei.AddAttribute(newscd, 'meter.unit', timesig.Denominator);
+    libmei.AddAttribute(newscd, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
+
+    return newscd;
 }  //$end
