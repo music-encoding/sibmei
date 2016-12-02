@@ -674,7 +674,7 @@ function ProcessSymbol (sobj) {
             //Add SMuFL glyph codepoint
             libmei.AddAttribute(startBracket, 'glyphnum', 'U+E1FE');
             //Add type of symbol
-            libmei.AddAttribute(startBracket, 'type', 'group_start');
+            libmei.AddAttribute(startBracket, 'label', 'Hampartsum group start');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -707,7 +707,7 @@ function ProcessSymbol (sobj) {
             // Add SMuFL glyph codepoint
             libmei.AddAttribute(endBracket, 'glyphnum', 'U+E200');
             //Add type of symbol
-            libmei.AddAttribute(endBracket, 'type', 'group_end');
+            libmei.AddAttribute(endBracket, 'label', 'Hampartsum group end');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -872,7 +872,7 @@ function ProcessSymbol (sobj) {
             // Add SMuFL glyph codepoint
             libmei.AddAttribute(hampRptStartBracket, 'glyphnum', 'U+E875');
             //Add type of symbol
-            libmei.AddAttribute(hampRptStartBracket, 'type', 'hampRptStartBracket');
+            libmei.AddAttribute(hampRptStartBracket, 'label', 'Ending start bracket');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -905,7 +905,7 @@ function ProcessSymbol (sobj) {
             // Add SMuFL glyph codepoint
             libmei.AddAttribute(hampRptEndBracket, 'glyphnum', 'U+E876');
             //Add type of symbol
-            libmei.AddAttribute(hampRptEndBracket, 'type', 'hampRptEndBracket');
+            libmei.AddAttribute(hampRptEndBracket, 'label', 'Ending end bracket');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -933,34 +933,28 @@ function ProcessSymbol (sobj) {
         case ('247')
         {
             //Comma
-            comma = libmei.Symbol();
+            comma = libmei.Breath();
 
-            //Add type of symbol
-            libmei.AddAttribute(comma, 'type', 'Comma');
             //Add SMuFL glyph codepoint
             libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
-
-            //Put symbol in dir element
-            dir = libmei.Dir();
-            libmei.AddChild(dir, comma);
 
             //Try to get note at position of bracket and put id
             obj = GetNoteObjectAtPosition(sobj);
 
             if (obj != null)
             {
-                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+                libmei.AddAttribute(comma, 'startid', '#' & obj._id);
             }
 
             else
             {
                 //Add bar object information for safety
-                dir = AddBarObjectInfoToElement(sobj, dir);
+                dir = AddBarObjectInfoToElement(sobj, comma);
             }
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
-            mlines.Push(dir._id);  
+            mlines.Push(comma._id);  
         }
 
         case ('322')
@@ -1068,7 +1062,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End_cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
             //Put symbol in dir element
@@ -1100,7 +1094,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End_cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'diagonal');
 
             //Put symbol in dir element
@@ -1132,7 +1126,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End_cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
             //Put symbol in supplied element
@@ -1168,7 +1162,7 @@ function ProcessSymbol (sobj) {
             HampEndCycle = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampEndCycle, 'type', 'End cycle');
+            libmei.AddAttribute(HampEndCycle, 'type', 'End_cycle');
             libmei.AddAttribute(HampEndCycle, 'subtype', 'vertical');
 
             //Put symbol in supplied element
@@ -1204,7 +1198,7 @@ function ProcessSymbol (sobj) {
             HampSegno = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(HampSegno, 'type', 'Segno 1');
+            libmei.AddAttribute(HampSegno, 'label', 'Segno 1');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -1240,7 +1234,7 @@ function ProcessSymbol (sobj) {
             Prolongation = libmei.Symbol();
 
             //Add type of symbol
-            libmei.AddAttribute(Prolongation, 'type', 'Prolongation');
+            libmei.AddAttribute(Prolongation, 'label', 'Prolongation');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -1269,7 +1263,7 @@ function ProcessSymbol (sobj) {
         {
             //Dot symbol with unclear meaning
             dot = libmei.Symbol();
-            libmei.AddAttribute(dot, 'type', 'dot');
+            libmei.AddAttribute(dot, 'label', 'dot');
 
             //Put symbol in dir element
             dir = libmei.Dir();
@@ -1296,19 +1290,46 @@ function ProcessSymbol (sobj) {
 
         case ('[Comma]')
         {
-            //Single stroke
-            comma = libmei.Symbol();
+            //Comma
+            comma = libmei.Breath();
 
-            //Add type of symbol
-            libmei.AddAttribute(comma, 'type', 'Comma');
             //Add SMuFL glyph codepoint
             libmei.AddAttribute(comma, 'glyphnum', 'U+E581');
 
-            //Put symbol in dir element
-            dir = libmei.Dir();
+            //Put breath mark in supplied element
             supp = libmei.Supplied();
             libmei.AddChild(supp,comma);
-            libmei.AddChild(dir, supp);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(comma, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, comma);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(supp._id);  
+        }
+
+        case('Loop repeat')
+        {
+            //Loop repeat sign
+            loop = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(loop, 'label', 'Loop repeat sign');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, loop);
 
             //Try to get note at position of bracket and put id
             obj = GetNoteObjectAtPosition(sobj);
@@ -1326,17 +1347,38 @@ function ProcessSymbol (sobj) {
 
             //Add element to measure
             mlines = Self._property:MeasureLines;
-            mlines.Push(dir._id);  
-        }
-
-        case('Loop repeat')
-        {
-            return null;
+            mlines.Push(dir._id);
         }
 
         case('Pincer')
         {
-            return null;
+            //Pincer sign
+            pincer = libmei.Symbol();
+
+            //Add type of symbol
+            libmei.AddAttribute(pincer, 'label', 'Pincer');
+
+            //Put symbol in dir element
+            dir = libmei.Dir();
+            libmei.AddChild(dir, pincer);
+
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
+
+            if (obj != null)
+            {
+                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
+            }
+
+            else
+            {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, dir);
+            }
+
+            //Add element to measure
+            mlines = Self._property:MeasureLines;
+            mlines.Push(dir._id);
         }
     }
 
@@ -1345,8 +1387,8 @@ function ProcessSymbol (sobj) {
     {
         segnoSymbol = libmei.Symbol();
 
-        //Add name of symbol object as type
-        libmei.AddAttribute(segnoSymbol, 'type', sobj.Name);
+        //Add name of symbol object as label
+        libmei.AddAttribute(segnoSymbol, 'label', sobj.Name);
 
         //Put symbol in dir element
         dir = libmei.Dir();
