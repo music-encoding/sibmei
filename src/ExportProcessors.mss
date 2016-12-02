@@ -93,7 +93,7 @@ function ProcessBeam (bobj, note, layer) {
             }
         }
 
-        if ((bobj.Beam = StartBeam or falseNegative = True) and ((nextNote != null and nextNote.Beam = ContinueBeam) or startGraceNoteBeam = true))
+        if ((bobj.Beam = StartBeam or falseNegative = True) and ((nextNote != null and (nextNote.Duration < 256 and nextNote.Beam = ContinueBeam)) or startGraceNoteBeam = true))
         {
             // if:
             //  - we have a start beam
