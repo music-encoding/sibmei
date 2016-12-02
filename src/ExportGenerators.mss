@@ -223,7 +223,7 @@ function GenerateMEIMusic () {
 
         if (currentTimeSignature != Self._property:TimeSignature)
         {
-            newscd = GenerateUpdatedTimeSig(crntimesig);
+            newscd = GenerateUpdatedTimeSig(crntimesig,j);
 
             //update stored time signature
             Self._property:TimeSignature = currentTimeSignature;
@@ -1799,12 +1799,15 @@ function GenerateFormattedString (bobj) {
     return ret;
 }  //$end
 
-function GenerateUpdatedTimeSig(timesig) {
+function GenerateUpdatedTimeSig(timesig,beamnum) {
     //$module(ExportGenerators.mss)
     /*
         Generates a reduced scoreDef with updated time signature
     */
     newscd = libmei.ScoreDef();
+
+    //put number of measure as @n to scoreDef for testing purposes
+    libmei.AddAttribute(newscd, 'n', beamnum);
 
     libmei.AddAttribute(newscd, 'meter.count', timesig.Numerator);
     libmei.AddAttribute(newscd, 'meter.unit', timesig.Denominator);
