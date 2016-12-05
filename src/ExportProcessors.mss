@@ -35,16 +35,24 @@ function ProcessBeam (bobj, note, layer) {
             return ret;
         }
 
+        prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
+        // if the current Note is a non-grace note but we have an active beam and the previous note is a grace note end the active beam
+        if (bobj.GraceNote = False and layer._property:ActiveBeamId != null and prev_obj != null and prev_obj.GraceNote = true)
+        {
+            layer._property:ActiveBeamId = null;
+        }
+
         // If we are in an active SubBeam and the note is no GraceNote end the active SubBeam
         if (bobj.GraceNote = False and layer._property:ActiveSubBeamId != null)
         {
             layer._property:ActiveSubBeamId = null;
         }
 
-        nextNote = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
-        while (nextNote != null and nextNote.GraceNote = True)
+        // Get the next Non-Grace Note
+        nextNonGraceNote = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+        while (nextNonGraceNote != null and nextNonGraceNote.GraceNote = True)
         {
-            nextNote = nextNote.NextItem(nextNote.VoiceNumber, 'NoteRest');
+            nextNonGraceNote = nextNonGraceNote.NextItem(nextNonGraceNote.VoiceNumber, 'NoteRest');
         }
 
         // If we have a Gracenote and an active Beam and no active SubBeam and the following
@@ -52,15 +60,14 @@ function ProcessBeam (bobj, note, layer) {
         if (bobj.GraceNote = True and layer._property:ActiveBeamId != null and layer._property:ActiveSubBeamId = null)
         {
             // if the previous Note is also a GraceNote and has a Beam do nothing
-            prevNote = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
-            if ((prevNote.GraceNote = True and prevNote.Beam = ContinueBeam and prevNote.Duration < 256) = False)
+            if ((prev_obj.GraceNote = True and prev_obj.Beam = ContinueBeam and prev_obj.Duration < 256) = False)
             {
-                if (nextNote != null and (nextNote.Duration >= 256 or nextNote.Beam = StartBeam))
+                if (nextNonGraceNote != null and (nextNonGraceNote.Duration >= 256 or nextNonGraceNote.Beam = StartBeam))
                 {
                     layer._property:ActiveBeamId = null;
                 }
             }
-        } 
+        }
 
         /*
             It's possible that Sibelius records a 'continue beam' at the start
@@ -75,7 +82,6 @@ function ProcessBeam (bobj, note, layer) {
         falseNegative = False;
         startGraceNoteBeam = False;
         next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
-        prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
 
         if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
         {
@@ -93,7 +99,7 @@ function ProcessBeam (bobj, note, layer) {
             }
         }
 
-        if ((bobj.Beam = StartBeam or falseNegative = True) and ((nextNote != null and (nextNote.Duration < 256 and nextNote.Beam = ContinueBeam)) or startGraceNoteBeam = true))
+        if ((bobj.Beam = StartBeam or falseNegative = True) and ((nextNonGraceNote != null and (nextNonGraceNote.Duration < 256 and nextNonGraceNote.Beam = ContinueBeam)) or startGraceNoteBeam = true))
         {
             // if:
             //  - we have a start beam
