@@ -26,18 +26,17 @@ function ProcessBeam (bobj, note, layer) {
 
     if (bobj.Duration < 256)
     {
-        // if this object is an eighth note but is not beamed, and if the
-        // active beam is set, null out the active beam and return null.
-        if (bobj.Beam = NoBeam and layer._property:ActiveBeamId != null)
+        prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
+
+        //get the penultimate note for special cases
+        penult_obj = null;
+        if (prev_obj != null)
         {
-            layer._property:ActiveBeamId = null;
-            layer._property:ActiveSubBeamId = null;
-            return ret;
+            penult_obj = prev_obj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
         }
 
-        prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
-        // if the current Note is a non-grace note but we have an active beam and the previous note is a grace note end the active beam
-        if (bobj.GraceNote = False and layer._property:ActiveBeamId != null and prev_obj != null and prev_obj.GraceNote = true)
+        // if the current Note is a non-grace note but we have an active beam without an active sub-beam and the previous as well as the prenultimate notes are grace notes end the active beam
+        if (bobj.GraceNote = False and layer._property:ActiveBeamId != null and layer._property:ActiveSubBeamId = null and prev_obj != null and prev_obj.GraceNote = true and penult_obj != null and penult_obj.GraceNote = true)
         {
             layer._property:ActiveBeamId = null;
         }
@@ -67,6 +66,15 @@ function ProcessBeam (bobj, note, layer) {
                     layer._property:ActiveBeamId = null;
                 }
             }
+        }
+
+        // if this object is an eighth note but is not beamed, and if the
+        // active beam is set, null out the active beam and return null.
+        if (bobj.Beam = NoBeam and layer._property:ActiveBeamId != null)
+        {
+            layer._property:ActiveBeamId = null;
+            layer._property:ActiveSubBeamId = null;
+            return ret;
         }
 
         /*
