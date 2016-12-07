@@ -1,4 +1,4 @@
-Version     "2.0.2"
+Version     "0.9.0"
 PluginName  "Sibelius to MEI Exporter (CMO Version)"
 Author      "Andrew Hankinson, Anna Plaksin"
 
@@ -17,4 +17,4 @@ _ObjectIsOnAnIllogicalObject "Bar %s, voice %s. %s is added to a %s object. This
 LOGFILE "/tmp/sibelius.log"
 
 _SegnoSymbols "Segno 1;Segno 2;Segno 3;Segno 4;Segno 5;Hash 1; Hash 2; Hash 3; Hash 4; Hash 5;Looped hash 1;Looped hash 2;Looped hash 3;Loop segno;X;X with 4 dots;Circle with dot;Arrow down;Cross 1;Cross 2;Cross 3;Cross 4;Asterisk 1;Asterisk 2;Asterisk 3;Circle with diagonal line 1;Circle with diagonal line 2;Circle with diagonal line, ‘2’ above;Circle with 2 diagonal lines;Circle with 2 diagonal lines 2"
-_userTextStyleNames "Section;Subsection;Grgnum;Mükerrer;Editor initials;Performance instruction;Usûl name;Source;CMO Ref;Makâm;Usûl;Genre;Darb"
+_userTextStyleNames "Section;Subsection;Grgnum;Mükerrer;Editor initials;Performance instruction;Usûl name;Source;CMO Ref;Makâm;Usûl;Genre;Line break;Column break;Page break"
