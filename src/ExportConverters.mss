@@ -918,6 +918,14 @@ function ConvertText (textobj) {
             libmei.AddAttribute(text,'label','composer');
             return text;
         }
+
+        case ('text.system.page_aligned.lyricist')
+        {
+            text = ConvertTextElement(textobj);
+            libmei.AddAttribute(text,'label','Lyricist');
+            return text;
+        }
+
         case ('text.system.tempo')
         {
             tempo = libmei.Tempo();
@@ -939,6 +947,7 @@ function ConvertText (textobj) {
         {
             styleName = textobj.StyleAsText;
             styleNameList = MSplitString(_userTextStyleNames,';');
+            dirNameList = MSplitString(_userTextDirections,';');
 
             if(IsObjectInArray (styleNameList, styleName))
             {
@@ -951,7 +960,26 @@ function ConvertText (textobj) {
 
             else
             {
-                return null;
+                if (IsObjectInArray (dirNameList, styleName)) 
+                {
+                    //if text style is in the global list of text direction styles, create a dir object and label it with the name of the text style
+                    dir = libmei.Dir();
+                    libmei.SetText(dir, lstrip(textobj.Text));
+                    libmei.AddAttribute(dir,'label',styleName);
+
+                    //set placement special performance instruction
+                    if (styleName = 'Performance instruction (above)')
+                    {
+                        libmei.AddAttribute(dir,'place','above');
+                    }
+
+                    return dir;
+                }
+
+                else
+                {
+                    return null;
+                }
             }
         }
     }
