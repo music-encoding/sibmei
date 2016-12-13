@@ -1069,7 +1069,7 @@ function GenerateNote (nobj) {
         }
     }
 
-    //Add Nim geveşt accidental
+    //Add special accidental symbols
     //looking for a previous symbol
     prev_symb = nobj.PreviousItem(nobj.VoiceNumber, 'SymbolItem');
 
@@ -1084,6 +1084,51 @@ function GenerateNote (nobj) {
 
                 //Add label
                 libmei.AddAttribute(child, 'label', 'Nim geveşt');
+
+                libmei.AddChild(n, child);
+            }
+
+            if (prev_symb.Name = 'Büyük mücenneb flat' and prev_symb.Hidden = False)
+            {
+                child = libmei.Accid();
+
+                //Add label
+                libmei.AddAttribute(child, 'label', 'Büyük mücenneb flat');
+
+                libmei.AddChild(n, child);
+            }
+
+            if (prev_symb.Name = '[Büyük mücenneb flat]' and prev_symb.Hidden = False)
+            {
+                child = libmei.Accid();
+
+                //Add label
+                libmei.AddAttribute(child, 'label', 'Büyük mücenneb flat');
+                //Add brackets
+                libmei.AddAttribute(child, 'enclose', 'paren');
+
+                libmei.AddChild(n, child);
+            }
+
+            if (prev_symb.Name = 'Büyük mücenneb sharp' and prev_symb.Hidden = False)
+            {
+                child = libmei.Accid();
+
+                //Add label
+                libmei.AddAttribute(child, 'label', 'Büyük mücenneb sharp');
+
+                libmei.AddChild(n, child);
+            }
+
+            if (prev_symb.Name = '[Büyük mücenneb sharp]' and prev_symb.Hidden = False)
+            {
+                child = libmei.Accid();
+
+                //Add label
+                libmei.AddAttribute(child, 'label', 'Büyük mücenneb sharp');
+                //Add brackets
+                libmei.AddAttribute(child, 'enclose', 'paren');
+
 
                 libmei.AddChild(n, child);
             }
