@@ -1486,9 +1486,27 @@ function GenerateLine (bobj) {
                         }
                     }
                 }
+
+                //dashed solid line
                 case ('vertical')
                 {
-                    line = libmei.BarLine();
+                    line = libmei.Line();
+                    libmei.AddAttribute(line,'form','solid');
+                    libmei.AddAttribute(line,'type','vertical');
+                }
+
+                //dashed vertical line
+                case ('dashed')
+                {
+                    if (linecomps.Length > 3)
+                    {
+                        if (linecomps[3] = 'vertical')
+                        {
+                            line = libmei.Line();
+                            libmei.AddAttribute(line,'form','dashed');
+                            libmei.AddAttribute(line,'type','vertical');
+                        }
+                    }
                 }
 
                 case ('vibrato')
@@ -1516,6 +1534,17 @@ function GenerateLine (bobj) {
 
     if (line != null)
         {
+            //store graphic offset
+            if (bobj.RhDx != 0)
+            {
+                libmei.AddAttribute(line, 'ho', ConvertOffsetsToMillimeters(bobj.RhDx));
+            }
+
+            if (bobj.RhDy != 0)
+            {
+                libmei.AddAttribute(line, 'vo', ConvertOffsetsToMillimeters(bobj.RhDy));
+            }
+
             //Try to get note at position of bracket and put id
             obj = GetNoteObjectAtPosition(bobj);
 
