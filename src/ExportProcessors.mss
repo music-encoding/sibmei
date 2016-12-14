@@ -38,6 +38,19 @@ function ProcessBeam (bobj, note, layer) {
 
     //Get the next note, to check for FalseNegative and the start of a new beam
     next_note = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+    
+    // Get the next Non-Grace Note
+    nextNonGraceNote = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+    while (nextNonGraceNote != null and nextNonGraceNote.GraceNote = True)
+    {
+        nextNonGraceNote = nextNonGraceNote.NextItem(nextNonGraceNote.VoiceNumber, 'NoteRest');
+    }
+
+    //Get previous note, to check if a beam should be started.
+    prev_note = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');    
+                
+                      
+                
 
     if (bobj.Duration < 256)
     {
@@ -51,14 +64,20 @@ function ProcessBeam (bobj, note, layer) {
         {
             //First, all conditions to null an active grace beam should be checked.
             //According to that, it will be decided, if a new beam should be started or not.
+
+            //Check if an active non-grace beam should be nulled
+            if (nextNonGraceNote.Beam = StartBeam and layer._property:ActiveBeamId != null)
+            {
+                layer._property:ActiveBeamId = null;
+            }
             
-            if (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam)
+            if (layer._property:ActiveGraceBeamId != null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
             {
                 //In most cases grace notes are ContinueBeam, even if they should start a grace note beam.
                 //Now we have to check, if there is a falseNegative according to the following note
                 //If the next note is a grace note and its duration is less than a quarter
 
-                if (next_note != null and (next_note.GraceNote = true and next_note.Duration < 256))
+                if (prev_note != null and (prev_note.GraceNote = false) and next_note != null and (next_note.GraceNote = true and next_note.Duration < 256))
                 {
                     falseNegative = true;
                 }
@@ -80,6 +99,16 @@ function ProcessBeam (bobj, note, layer) {
                 
                 graceBeam = libmei.Beam();
                 layer._property:ActiveGraceBeamId = graceBeam._id;
+
+                //if there is an active non-grace beam, add the new grace beam to the active beam
+                if (layer._property:ActiveBeamId != null)
+                {
+
+                    beamid = layer._property:ActiveBeamId;
+                    beam = libmei.getElementById(beamid);
+                    //Add grace beam to the active non-grace beam
+                    libmei.AddChild(beam,graceBeam);
+                }
             }
             
             //If a graceBeam is active, add the current note to the graceBeam.
@@ -99,10 +128,6 @@ function ProcessBeam (bobj, note, layer) {
                     // Always return the active non grace note beam if existing
                     beamid = layer._property:ActiveBeamId;
                     beam = libmei.getElementById(beamid);
-                    //Add grace beam to the active non-grace beam
-                    libmei.AddChild(beam,graceBeam);
-                    
-                    // Return the Beam
                     ret = beam;
                 }
                 else
@@ -148,9 +173,6 @@ function ProcessBeam (bobj, note, layer) {
             //Check for falseNegative
             if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
             {
-                //Get previous note, to check if a beam should be started.
-                prev_note = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');    
-                
                 // by all accounts this should be a beamed note, but we'll need to double-check.
                 if (prev_note != null and (prev_note.Duration >= 256 or prev_note.NoteCount = 0))
                 {
@@ -162,13 +184,6 @@ function ProcessBeam (bobj, note, layer) {
             //The current note must be a start beam or a falseNegative and the next non-grace note must be a note that could continue the beam
             if(bobj.Beam = StartBeam or falseNegative = True)
             {
-                // Get the next Non-Grace Note
-                nextNonGraceNote = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
-                while (nextNonGraceNote != null and nextNonGraceNote.GraceNote = True)
-                {
-                    nextNonGraceNote = nextNonGraceNote.NextItem(nextNonGraceNote.VoiceNumber, 'NoteRest');
-                }
-                
                 if (nextNonGraceNote != null and (nextNonGraceNote.Duration < 256 and nextNonGraceNote.Beam = ContinueBeam))
                 {
                     if(layer._property:ActiveBeamId != null)
