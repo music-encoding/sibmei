@@ -361,6 +361,7 @@ function ConvertAccidental (noteobj) {
     pname = Substring(noteobj.Name, 0, 1);  // captures first letter
     accid = Substring(noteobj.Name, 1);     // captures all other characters
 
+    //Cases with more than one letter have to be positioned before similar ones to prevent mismatches.
     switch(accid)
     {
         case('bb')
@@ -386,6 +387,14 @@ function ConvertAccidental (noteobj) {
                 ac = 'n';
             }
         }
+        case('#+')
+        {
+            ac = 'su';
+        }
+        case('##')
+        {
+            ac = 'ss';
+        }
         case('+')
         {
             ac = 'sd';
@@ -394,17 +403,9 @@ function ConvertAccidental (noteobj) {
         {
             ac = 's';
         }
-        case('#+')
-        {
-            ac = 'su';
-        }
         case('x')
         {
             ac = 'x';
-        }
-        case('##')
-        {
-            ac = 'ss';
         }
     }
 
