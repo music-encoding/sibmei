@@ -71,15 +71,25 @@ function ProcessBeam (bobj, note, layer) {
                 layer._property:ActiveBeamId = null;
             }
             
-            if (layer._property:ActiveGraceBeamId != null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
+            if (layer._property:ActiveGraceBeamId = null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
             {
                 //In most cases grace notes are ContinueBeam, even if they should start a grace note beam.
                 //Now we have to check, if there is a falseNegative according to the following note
-                //If the next note is a grace note and its duration is less than a quarter
+                //If the next note is a grace note and its duration is less than a quarter and with ContinueBeam
 
-                if (prev_note != null and (prev_note.GraceNote = false) and next_note != null and (next_note.GraceNote = true and next_note.Duration < 256))
+                if (next_note != null and (next_note.GraceNote = true and next_note.Duration < 256 and next_note.Beam = ContinueBeam))
                 {
-                    falseNegative = true;
+                    //If there is a previous non-grace note or no previous note, falseNegative becomes true, otherwise it stays false.
+                    //But it's easier to check for the reverse.
+                    if (prev_note != null and prev_note.GraceNote = true)
+                    {
+                        falseNegative = false;
+                    }
+                    //Either prev_note is null or prev_note.Grace = true
+                    else
+                    {
+                        falseNegative = true;
+                    }
                 }
             }
             
