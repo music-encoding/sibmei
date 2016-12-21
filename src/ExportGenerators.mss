@@ -885,6 +885,18 @@ function GenerateNoteRest (bobj, layer) {
 
                 libmei.AddChild(nr, doubleStroke);
             }
+
+            //Flatten
+            if (prev_symb.Index = '664' and prev_symb.Hidden = False) 
+            {
+                flatten = libmei.Artic();
+
+                //Add type of symbol
+                libmei.AddAttribute(flatten, 'label', 'flatten');
+                libmei.AddAttribute(flatten, 'glyphnum','U+EB64');
+
+                libmei.AddChild(nr, flatten);                
+            }
         }
         
         prev_symb = null;
@@ -1067,6 +1079,41 @@ function GenerateNote (nobj) {
                 libmei.AddAttribute(child, 'enclose', 'paren');
             }
         }
+    }
+
+    //Add special accidental symbols
+    //looking for a previous symbol
+    prev_symb = nobj.PreviousItem(nobj.VoiceNumber, 'SymbolItem');
+
+    if (prev_symb != null) 
+    {
+        if (prev_symb.Position = nobj.Position)
+        {
+            //Write áccidental
+            if (prev_symb.Name = 'Nim geveşt' and prev_symb.Hidden = False)
+            {
+                child = libmei.Accid();
+
+                //Add label
+                libmei.AddAttribute(child, 'label', 'Nim geveşt');
+
+                libmei.AddChild(n, child);
+            }
+
+            if (prev_symb.Name = '[Nim geveşt]' and prev_symb.Hidden = False)
+            {
+                child = libmei.Accid();
+
+                //Add label
+                libmei.AddAttribute(child, 'label', 'Nim geveşt');
+                //Add brackets
+                libmei.AddAttribute(child, 'enclose', 'paren');
+
+                libmei.AddChild(n, child);
+            }
+        }
+        
+        prev_symb = null;
     }
 
     tie_resolver = Self._property:TieResolver;
