@@ -862,8 +862,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'plop');
     }
 
-    // a tremolo is a parent of note or chord in MEI
-    if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = -1))
+    if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = ZOnStem))
     {
         // btrem = libmei.BTrem();
         // libmei.AddChild(btrem, nr);

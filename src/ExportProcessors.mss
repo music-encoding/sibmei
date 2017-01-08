@@ -300,6 +300,26 @@ function ProcessLyric (lyricobj, objectPositions) {
             }
         }
 
+        syltext = libmei.GetText(sylel);
+
+        if (utils.Pos('_', syltext) > -1)
+        {
+            // Syllable elision. split this syllable element by underscore.
+            syllables = MSplitString(syltext, '_');
+            sylarray = CreateSparseArray();
+
+            // reset the text of the first syllable element to the first half of the syllable. 
+            libmei.SetText(sylel, syllables[0]);
+            libmei.AddAttribute(sylel, 'con', 'b');
+
+            for s = 1 to syllables.Length
+            {
+                esyl = libmei.Syl();
+                libmei.SetText(esyl, syllables[s]);
+                libmei.AddChild(verse, esyl);
+            }
+        }
+
         obj = GetNoteObjectAtPosition(syl);
 
         if (obj != null)
@@ -319,6 +339,10 @@ function ProcessLyric (lyricobj, objectPositions) {
             }
 
             libmei.AddChild(obj, verse);
+        }
+        else
+        {
+            Log('Could not find note object for syl ' & syl);
         }
     }
 
@@ -463,10 +487,34 @@ function ProcessVolta (mnum) {
     return null;
 }  //$end
 
+function ProcessTremolo (bobj) {
+    //$module(ExportProcessors.mss)
+    if (bobj.DoubleTremolos = 0)
+    {
+        return null;
+    }
+
+    Log('Fingered tremolo: ' & bobj.DoubleTremolos);
+    tremEl = libmei.FTrem();
+    libmei.AddAttribute(tremEl, 'slash', bobj.DoubleTremolos);
+    libmei.AddAttribute(tremEl, 'measperf')
+    
+} //$end
+
 function ProcessSymbol (sobj) {
     //$module(ExportProcessors.mss)
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
+
+    voicenum = sobj.VoiceNumber;
+
+    if (voicenum = 0)
+    {
+        // assign it to the first voice, since we don't have any notes in voice/layer 0.
+        sobj.VoiceNumber = 1;
+        warnings = Self._property:warnings;
+        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Symbol'));
+    }
 
     switch (sobj.Index)
     {
@@ -515,11 +563,83 @@ function ProcessSymbol (sobj) {
             mlines = Self._property:MeasureObjects;
             mlines.Push(turn._id);
         }
+        case ('217')
+        {
+            // up-bow above
+            nobj = GetNoteObjectAtPosition(sobj);
 
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'upbow');
+                libmei.AddAttribute(artic, 'place', 'above');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('218')
+        {
+            // down-bow above
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'dnbow');
+                libmei.AddAttribute(artic, 'place', 'above');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('233')
+        {
+            // up-bow below
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'upbow');
+                libmei.AddAttribute(artic, 'place', 'below');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('234')
+        {
+            // down-bow below
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'dnbow');
+                libmei.AddAttribute(artic, 'place', 'below');
+                libmei.AddChild(nobj, artic);
+            }
+            else
+            {
+                warnings = Self._property:warnings;
+                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+            }
+        }
         case ('242')
         {
             // triple staccato
             return null;
+        }
+        case ('243')
+        {
+            // snap
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                libmei.AddAttributeValue(nobj, 'artic', 'snap');
+            }
+            else
+            {
+                warnings = Self._property:warnings;
+                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+            }
         }
     }
 }  //$end

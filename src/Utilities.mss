@@ -97,6 +97,7 @@ function GetNoteObjectAtPosition (bobj) {
     if (voiceObjectPositions = null)
     {
         // theres not much we can do here. Bail.
+        Log('Bailing due to insufficient voice information');
         return null;
     }
 
