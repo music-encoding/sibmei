@@ -58,12 +58,14 @@ function ProcessBeam (bobj, layer) {
             }
         }
 
-        if (next_obj != null and (bobj.Beam = StartBeam or falseNegative = True) and next_obj.Beam = ContinueBeam)
+        if (next_obj != null and (bobj.Beam = StartBeam or falseNegative = True) and next_obj.Beam = ContinueBeam and next_obj.Duration < 256)
         {
             // if:
             //  - we're not at the end of the bar
             //  - we have a start beam
             //  - the next note is a continue beam
+            //  - the next note is a beamable duration (safeguard against quarter and longer
+            //    notes with Beam = ContinueBeam, which for some reason can actually occur)
             beam = libmei.Beam();
             layer._property:ActiveBeamId = beam._id;
 
