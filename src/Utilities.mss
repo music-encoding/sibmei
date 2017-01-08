@@ -235,14 +235,17 @@ function TupletsEqual (t, t2) {
 
 function IsLastNoteInTuplet (bobj) {
     //$module(Utilities.mss)
-    if (bobj.ParentTupletIfAny = null or bobj.GraceNote = True)
+    next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+
+    if (next_obj = null)
     {
-        return false;
+        return true;
     }
 
     tuplet = bobj.ParentTupletIfAny;
+    next_obj_tuplet = next_obj.ParentTupletIfAny;
 
-    if (bobj.PositionInTuplet >= tuplet.Duration)
+    if (next_obj_tuplet = null or tuplet.Position != next_obj_tuplet.Position)
     {
         return true;
     }
