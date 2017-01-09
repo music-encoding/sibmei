@@ -683,9 +683,6 @@ function ProcessSymbol (sobj) {
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
 
-    //get list of Sgno symbols
-    segnos = MSplitString(_userSegnoSymbols,';');
-
     switch (sobj.Index)
     {
         case ('32')
@@ -764,76 +761,7 @@ function ProcessSymbol (sobj) {
             mlines = Self._property:MeasureLines;
             mlines.Push(fermata._id);
         }
-
-        
-    }
-
-    //Get user-defined by name because index position doesn't stay consistent
-    /*switch (sobj.Name)
-    {
-        case ('Division')
-        {
-            //HampSubDivision
-            HampSubDivision = libmei.Symbol();
-
-            //Add type of symbol
-            libmei.AddAttribute(HampSubDivision, 'type', 'Division');
-
-            //Put symbol in dir element
-            dir = libmei.Dir();
-            libmei.AddChild(dir, HampSubDivision);
-
-            //Try to get note at position of bracket and put id
-            obj = GetNoteObjectAtPosition(sobj);
-
-            if (obj != null)
-            {
-                libmei.AddAttribute(dir, 'startid', '#' & obj._id);
-            }
-
-            else
-            {
-                //Add bar object information for safety
-                dir = AddBarObjectInfoToElement(sobj, dir);
-            }
-
-            //Add element to measure
-            mlines = Self._property:MeasureLines;
-            mlines.Push(dir._id);    
-        }
-    }*/
-
-    //Because we have a lot Segno symbols, it is much easier to solve this dynamically
-    if(IsObjectInArray(segnos,sobj.Name))
-    {
-        segnoSymbol = libmei.Symbol();
-
-        //Add name of symbol object as label
-        libmei.AddAttribute(segnoSymbol, 'label', sobj.Name);
-
-        //Put symbol in dir element
-        dir = libmei.Dir();
-        libmei.AddAttribute(dir, 'type','Segno');
-        libmei.AddChild(dir, segnoSymbol);
-
-        //Try to get note at position of bracket and put id
-        obj = GetNoteObjectAtPosition(sobj);
-
-        if (obj != null)
-        {
-            libmei.AddAttribute(dir, 'startid', '#' & obj._id);
-        }
-
-        else
-        {
-            //Add bar object information for safety
-            dir = AddBarObjectInfoToElement(sobj, dir);
-        }
-
-        //Add element to measure
-        mlines = Self._property:MeasureLines;
-        mlines.Push(dir._id);  
-        }
+   
     }
 
 }  //$end

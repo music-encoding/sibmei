@@ -856,51 +856,6 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'plop');
     }
 
-    //Add articulations for user-defined symbols by looking for a previous symbol
-    /*prev_symb = bobj.PreviousItem(bobj.VoiceNumber, 'SymbolItem');
-
-    if (prev_symb != null) 
-    {
-        if (prev_symb.Position = bobj.Position)
-        {
-            //Write single stroke
-            if (prev_symb.Name = 'Single stroke' and prev_symb.Hidden = False)
-            {
-                singleStroke = libmei.Artic();
-
-                //Add type of symbol
-                libmei.AddAttribute(singleStroke, 'label', 'singleStroke');
-
-                libmei.AddChild(nr, singleStroke);
-            }
-
-            //Write double stroke
-           if (prev_symb.Name = 'Double stroke' and prev_symb.Hidden = False)
-            {
-                doubleStroke = libmei.Artic();
-
-                //Add type of symbol
-                libmei.AddAttribute(singleStroke, 'label', 'doubleStroke');
-
-                libmei.AddChild(nr, doubleStroke);
-            }
-
-            //Flatten
-            if (prev_symb.Index = '664' and prev_symb.Hidden = False) 
-            {
-                flatten = libmei.Artic();
-
-                //Add type of symbol
-                libmei.AddAttribute(flatten, 'label', 'flatten');
-                libmei.AddAttribute(flatten, 'glyphnum','U+EB64');
-
-                libmei.AddChild(nr, flatten);                
-            }
-        }
-        
-        prev_symb = null;
-    }*/
-
     // a tremolo is a parent of note or chord in MEI
     if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = -1))
     {
@@ -1079,43 +1034,6 @@ function GenerateNote (nobj) {
             }
         }
     }
-
-    //Add special accidental symbols
-    /*To handle these, it is either possible to do it here or to catch them in the ProcessSymbol(). 
-    To catch it here, is not consistent, but the handling in ProcessSymbol() needs a special GetNoteAtPosition(), 
-    because it would be wrong if the symbol would be added to a previous note. */
-    /*prev_symb = nobj.PreviousItem(nobj.VoiceNumber, 'SymbolItem');
-
-    if (prev_symb != null) 
-    {
-        if (prev_symb.Position = nobj.Position)
-        {
-            //Write accidental
-            if (prev_symb.Name = 'Nim geveşt' and prev_symb.Hidden = False)
-            {
-                child = libmei.Accid();
-
-                //Add label
-                libmei.AddAttribute(child, 'label', 'Nim geveşt');
-
-                libmei.AddChild(n, child);
-            }
-
-            if (prev_symb.Name = '[Nim geveşt]' and prev_symb.Hidden = False)
-            {
-                child = libmei.Accid();
-
-                //Add label
-                libmei.AddAttribute(child, 'label', 'Nim geveşt');
-                //Add brackets
-                libmei.AddAttribute(child, 'enclose', 'paren');
-
-                libmei.AddChild(n, child);
-            }
-        }
-        
-        prev_symb = null;
-    }*/
 
     tie_resolver = Self._property:TieResolver;
 

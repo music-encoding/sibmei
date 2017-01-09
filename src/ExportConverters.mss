@@ -945,11 +945,14 @@ function ConvertText (textobj) {
         }
 
         default
-        {
+          {
+            //Here a generic treatment of user-defined text styles are used.
             styleName = textobj.StyleAsText;
+            //The lists of text styles are two global variables. If a name of a text style is part of one of those lists, it will be treated as defined.
             styleNameList = MSplitString(_userTextStyleNames,';');
             dirNameList = MSplitString(_userTextDirections,';');
 
+            //Text styles from _userTextStyleNames will be exported as <anchoredText> elements with the name of the text style as @label
             if(IsObjectInArray (styleNameList, styleName))
             {
                 //if text style is in the global list, create a text object and label it with the name of the text style
@@ -961,18 +964,13 @@ function ConvertText (textobj) {
 
             else
             {
+              //Text styles from _userTextDirections will be exported as <dir> elements with the name of the text style as @label
                 if (IsObjectInArray (dirNameList, styleName)) 
                 {
                     //if text style is in the global list of text direction styles, create a dir object and label it with the name of the text style
                     dir = libmei.Dir();
                     libmei.SetText(dir, lstrip(textobj.Text));
                     libmei.AddAttribute(dir,'label',styleName);
-
-                    //set placement special performance instruction
-                    if (styleName = 'Performance instruction (above)')
-                    {
-                        libmei.AddAttribute(dir,'place','above');
-                    }
 
                     return dir;
                 }
