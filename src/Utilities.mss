@@ -97,6 +97,7 @@ function GetNoteObjectAtPosition (bobj) {
     if (voiceObjectPositions = null)
     {
         // theres not much we can do here. Bail.
+        Log('Bailing due to insufficient voice information');
         return null;
     }
 
@@ -162,15 +163,37 @@ function AddBarObjectInfoToElement (bobj, element) {
         }
     }
 
-    libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
 
-    if (bobj.Type = 'Line' or bobj.Type = 'Slur')
+    switch (bobj.Type)
     {
-        libmei.AddAttribute(element, 'tstamp2', ConvertPositionToTimestamp(bobj.EndPosition, bar));
+        case('Line')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('Slur')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('DiminuendoLine')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('CrescendoLine')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('GlissandoLine')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('Trill')
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
     }
 
     libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
-
     libmei.AddAttribute(element, 'layer', voicenum);
 
     if (bobj.Dx > 0)
@@ -213,14 +236,17 @@ function TupletsEqual (t, t2) {
 
 function IsLastNoteInTuplet (bobj) {
     //$module(Utilities.mss)
-    if (bobj.ParentTupletIfAny = null or bobj.GraceNote = True)
+    next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+
+    if (next_obj = null)
     {
-        return false;
+        return true;
     }
 
     tuplet = bobj.ParentTupletIfAny;
+    next_obj_tuplet = next_obj.ParentTupletIfAny;
 
-    if (bobj.PositionInTuplet >= tuplet.Duration)
+    if (next_obj_tuplet = null or tuplet.Position != next_obj_tuplet.Position)
     {
         return true;
     }

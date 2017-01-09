@@ -793,6 +793,26 @@ function ConvertPositionToTimestamp (position, bar) {
     return ret;
 }  //$end
 
+function ConvertPositionWithDurationToTimestamp (bobj) {
+    //$module(ExportConverters.mss)
+
+    /*
+        Like ConvertPositionToTimestamp, but suitable to filling out the tstamp2 parameter
+        with an object of a specific duration (such as a slur or hairpin), e.g., 1m+2
+
+        NB: Can only be used on objects with EndBarNumber and EndPosition attributes, like Lines.
+    */
+    startBar = bobj.ParentBar;
+    startBarNum = startBar.BarNumber;
+    endBarNum = bobj.EndBarNumber;
+    endBar = startBar.ParentStaff.NthBar(endBarNum);
+    endPosition = bobj.EndPosition;
+    measureDuration = endBarNum - startBarNum;
+    position = ConvertPositionToTimestamp(endPosition, endBar);
+
+    return measureDuration & 'm+' & position;
+} //$end
+
 function ConvertTupletStyle (tupletStyle) {
     //$module(ExportConverters.mss)
     switch (tupletStyle)

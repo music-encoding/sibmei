@@ -454,7 +454,7 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
-        line = null;
+        mobj = null;
         chordsym = null;
         parent = null;
         beam = null;
@@ -510,7 +510,7 @@ function GenerateLayers (staffnum, measurenum) {
                                             and queue it for addition to the measure.
                                         */
                                         tsobj._property:AddedToMeasure = True;
-                                        line = tsobj;
+                                        mobj = tsobj;
                                     }
 
                                 }
@@ -578,23 +578,27 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Slur')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('CrescendoLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
-            case('DimuendoLine')
+            case('DiminuendoLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('OctavaLine')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
+            }
+            case('GlissandoLine')
+            {
+                mobj = GenerateLine(bobj);
             }
             case('Trill')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -602,15 +606,19 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                line = GenerateLine(bobj);
+                mobj = GenerateLine(bobj);
+            }
+            case('Text')
+            {
+                mobj = ConvertText(bobj);
             }
         }
 
-        if (line != null)
+        if (mobj != null)
         {
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(line._id);
-            Self._property:MeasureObjects = mlines;
+            mobjs = Self._property:MeasureObjects;
+            mobjs.Push(mobj._id);
+            Self._property:MeasureObjects = mobjs;
         }
 
         // add chord symbols to the measure objects
@@ -799,6 +807,16 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'stacc');
     }
 
+    if (bobj.GetArticulation(TenutoArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'ten');
+    }
+
+    if (bobj.GetArticulation(MarcatoArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'marc');
+    }
+
     if (bobj.GetArticulation(DownBowArtic))
     {
         libmei.AddAttributeValue(nr, 'artic', 'dnbow');
@@ -809,24 +827,9 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'upbow');
     }
 
-    if (bobj.GetArticulation(MarcatoArtic))
-    {
-        libmei.AddAttributeValue(nr, 'artic', 'marc');
-    }
-
     if (bobj.GetArticulation(AccentArtic))
     {
         libmei.AddAttributeValue(nr, 'artic', 'acc');
-    }
-
-    if (bobj.GetArticulation(TenutoArtic))
-    {
-        libmei.AddAttributeValue(nr, 'artic', 'ten');
-    }
-
-    if (bobj.GetArticulation(StaccatissimoArtic))
-    {
-        libmei.AddAttributeValue(nr, 'artic', 'stacciss');
     }
 
     if (bobj.GetArticulation(StaccatissimoArtic))
@@ -837,6 +840,11 @@ function GenerateNoteRest (bobj, layer) {
     if (bobj.GetArticulation(PlusArtic))
     {
         libmei.AddAttributeValue(nr, 'artic', 'stop');
+    }
+
+    if (bobj.GetArticulation(HarmonicArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'harm');
     }
 
     if (bobj.FallType = FallTypeDoit)
@@ -854,8 +862,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'plop');
     }
 
-    // a tremolo is a parent of note or chord in MEI
-    if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = -1))
+    if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = ZOnStem))
     {
         // btrem = libmei.BTrem();
         // libmei.AddChild(btrem, nr);
@@ -932,6 +939,24 @@ function GenerateRest (bobj) {
 
 function GenerateNote (nobj) {
     //$module(ExportGenerators.mss)
+
+    // handle modifications to the gestural duration
+    // if this particular note is a member of a tuplet.
+    gesdur = null;
+    if (nobj.ParentNoteRest.ParentTupletIfAny != null)
+    {
+        dur = nobj.ParentNoteRest.Duration;
+        ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
+        pnum = ptuplet.Left;
+        pden = ptuplet.Right;
+        floatgesdur = (pnum & '.0' / pden & '.0') * dur;
+        gesdur = Round(floatgesdur);
+    }
+    else
+    {
+        gesdur = nobj.ParentNoteRest.Duration;
+    }
+
     dur = nobj.ParentNoteRest.Duration;
     meidur = ConvertDuration(dur);
     pos = nobj.ParentNoteRest.Position;
@@ -987,7 +1012,7 @@ function GenerateNote (nobj) {
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
     libmei.AddAttribute(n, 'dur', meidur[0]);
-    libmei.AddAttribute(n, 'dur.ges', dur & 'p');
+    libmei.AddAttribute(n, 'dur.ges', gesdur & 'p');
     libmei.AddAttribute(n, 'dots', meidur[1]);
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
@@ -1316,7 +1341,7 @@ function GenerateLine (bobj) {
             line = libmei.Hairpin();
             libmei.AddAttribute(line, 'form', 'cres');
         }
-        case ('DimuendoLine')
+        case ('DiminuendoLine')
         {
             line = libmei.Hairpin();
             libmei.AddAttribute(line, 'form', 'dim');
@@ -1327,6 +1352,10 @@ function GenerateLine (bobj) {
             octrend = ConvertOctava(bobj.StyleId);
             libmei.AddAttribute(line, 'dis', octrend[0]);
             libmei.AddAttribute(line, 'dis.place', octrend[1]);
+        }
+        case ('GlissandoLine')
+        {
+            line = libmei.Gliss();
         }
         case ('Trill')
         {
