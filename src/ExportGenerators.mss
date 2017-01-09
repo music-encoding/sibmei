@@ -856,9 +856,8 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'plop');
     }
 
-    //Add Comma
-    //looking for a previous symbol
-    prev_symb = bobj.PreviousItem(bobj.VoiceNumber, 'SymbolItem');
+    //Add articulations for user-defined symbols by looking for a previous symbol
+    /*prev_symb = bobj.PreviousItem(bobj.VoiceNumber, 'SymbolItem');
 
     if (prev_symb != null) 
     {
@@ -900,7 +899,7 @@ function GenerateNoteRest (bobj, layer) {
         }
         
         prev_symb = null;
-    }
+    }*/
 
     // a tremolo is a parent of note or chord in MEI
     if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = -1))
@@ -1082,14 +1081,16 @@ function GenerateNote (nobj) {
     }
 
     //Add special accidental symbols
-    //looking for a previous symbol
-    prev_symb = nobj.PreviousItem(nobj.VoiceNumber, 'SymbolItem');
+    /*To handle these, it is either possible to do it here or to catch them in the ProcessSymbol(). 
+    To catch it here, is not consistent, but the handling in ProcessSymbol() needs a special GetNoteAtPosition(), 
+    because it would be wrong if the symbol would be added to a previous note. */
+    /*prev_symb = nobj.PreviousItem(nobj.VoiceNumber, 'SymbolItem');
 
     if (prev_symb != null) 
     {
         if (prev_symb.Position = nobj.Position)
         {
-            //Write áccidental
+            //Write accidental
             if (prev_symb.Name = 'Nim geveşt' and prev_symb.Hidden = False)
             {
                 child = libmei.Accid();
@@ -1114,7 +1115,7 @@ function GenerateNote (nobj) {
         }
         
         prev_symb = null;
-    }
+    }*/
 
     tie_resolver = Self._property:TieResolver;
 
