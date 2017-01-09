@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{4932E344-4710-47F4-B1A8-B6D9AC43677A}"
+	ProjectSection(SolutionItems) = preProject
+		..\src\ExportConverters.mss = ..\src\ExportConverters.mss
+		..\src\ExportGenerators.mss = ..\src\ExportGenerators.mss
+		..\src\ExportProcessors.mss = ..\src\ExportProcessors.mss
+		..\src\GLOBALS.mss = ..\src\GLOBALS.mss
+		..\src\Initialize.mss = ..\src\Initialize.mss
+		..\src\Run.mss = ..\src\Run.mss
+		..\src\Utilities.mss = ..\src\Utilities.mss
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM = Debug|ARM
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|ARM = Release|ARM
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
