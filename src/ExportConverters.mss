@@ -884,102 +884,60 @@ function ConvertText (textobj) {
     styleid = textobj.StyleId;
     switch (styleid)
     {
-        case ('text.staff.expression')
+      case ('text.staff.expression')
         {
-            dynam = libmei.Dynam();
-            libmei.SetText(dynam, lstrip(textobj.Text));
-            libmei.AddAttribute(dynam, 'staff', textobj.ParentBar.ParentStaff.StaffNum);
-            libmei.AddAttribute(dynam, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
+          dynam = libmei.Dynam();
+          libmei.SetText(dynam, lstrip(textobj.Text));
+          libmei.AddAttribute(dynam, 'staff', textobj.ParentBar.ParentStaff.StaffNum);
+          libmei.AddAttribute(dynam, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
 
-            if (textobj.Dx != 0)
-            {
-                libmei.AddAttribute(dynam, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
-            }
-
-            if (textobj.Dy != 0)
-            {
-                libmei.AddAttribute(dynam, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
-            }
-            return dynam;
-        }
-        case ('text.system.page_aligned.title')
-        {
-            text = ConvertSubstitution(textobj.Text);
-            atext = libmei.AnchoredText();
-            title = libmei.Title();
-
-            libmei.AddChild(atext, title);
-            libmei.SetText(title, text);
-
-            return atext;
-        }
-        case ('text.system.page_aligned.composer')
-        {
-            text = ConvertTextElement(textobj);
-            libmei.AddAttribute(text,'label','composer');
-            return text;
-        }
-
-        case ('text.system.page_aligned.lyricist')
-        {
-            text = ConvertTextElement(textobj);
-            libmei.AddAttribute(text,'label','Lyricist');
-            return text;
-        }
-
-        case ('text.system.tempo')
-        {
-            tempo = libmei.Tempo();
-            atext = ConvertTextElement(textobj);
-            libmei.AddChild(tempo, atext);
-            return tempo;
-        }
-
-        case ('text.staff.plain')
-        {
-            //Section label
-            text = ConvertTextElement(textobj);
-            //text = AddBarObjectInfoToElement(textobj, text);
-            libmei.AddAttribute(text,'label','Subsection');
-            return text;
-        }
-
-        default
+          if (textobj.Dx != 0)
           {
-            //Here a generic treatment of user-defined text styles are used.
-            styleName = textobj.StyleAsText;
-            //The lists of text styles are two global variables. If a name of a text style is part of one of those lists, it will be treated as defined.
-            styleNameList = MSplitString(_userTextStyleNames,';');
-            dirNameList = MSplitString(_userTextDirections,';');
+            libmei.AddAttribute(dynam, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
+          }
 
-            //Text styles from _userTextStyleNames will be exported as <anchoredText> elements with the name of the text style as @label
-            if(IsObjectInArray (styleNameList, styleName))
-            {
-                //if text style is in the global list, create a text object and label it with the name of the text style
-                text = ConvertTextElement(textobj);
-                //text = AddBarObjectInfoToElement(textobj, text);
-                libmei.AddAttribute(text,'label',styleName);
-                return text;
-            }
+          if (textobj.Dy != 0)
+          {
+            libmei.AddAttribute(dynam, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
+          }
+          return dynam;
+        }
+      case ('text.system.page_aligned.title')
+        {
+          text = ConvertSubstitution(textobj.Text);
+          atext = libmei.AnchoredText();
+          title = libmei.Title();
 
-            else
-            {
-              //Text styles from _userTextDirections will be exported as <dir> elements with the name of the text style as @label
-                if (IsObjectInArray (dirNameList, styleName)) 
-                {
-                    //if text style is in the global list of text direction styles, create a dir object and label it with the name of the text style
-                    dir = libmei.Dir();
-                    libmei.SetText(dir, lstrip(textobj.Text));
-                    libmei.AddAttribute(dir,'label',styleName);
+          libmei.AddChild(atext, title);
+          libmei.SetText(title, text);
 
-                    return dir;
-                }
+          return atext;
+        }
+      case ('text.system.page_aligned.composer')
+        {
+          text = ConvertTextElement(textobj);
+          libmei.AddAttribute(text,'label','composer');
+          return text;
+        }
 
-                else
-                {
-                    return null;
-                }
-            }
+      case ('text.system.page_aligned.lyricist')
+        {
+          text = ConvertTextElement(textobj);
+          libmei.AddAttribute(text,'label','Lyricist');
+          return text;
+        }
+
+      case ('text.system.tempo')
+        {
+          tempo = libmei.Tempo();
+          atext = ConvertTextElement(textobj);
+          libmei.AddChild(tempo, atext);
+          return tempo;
+        }
+
+      default
+        {
+          return null;
         }
     }
 }  //$end
