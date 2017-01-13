@@ -508,7 +508,7 @@ function GenerateLayers (staffnum, measurenum) {
 
                     if (beam != null)
                     {
-                        libmei.AddChild(beam, note);
+                        //libmei.AddChild(beam, note);
 
                         if (tuplet != null)
                         {

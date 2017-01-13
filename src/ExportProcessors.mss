@@ -20,76 +20,255 @@ function ProcessScore () {
 
 }  //$end
 
-function ProcessBeam (bobj, layer) {
-    //$module(ExportProcessors.mss)
-    ret = null;
+function ProcessBeam (bobj, note, layer) {
+  //$module(ExportProcessors.mss)
+    
+  // The method distinguishes first the duration of the current note and then if it is a grace note or a non-grace note.
+  // Check, if current note has to end an active beam.
+  // Then it will be decided, if the current note should start a (grace note) beam.
+  // If there is an active beam, add the current note to the beam and check what to be returned.
+  //  Returned will be either:
+  //    - nothing, if no beam is active,
+  //    - a beam of grace notes, if there are beamed grace notes, directly within the layer
+  //    - a beam of non grace notes, if there are beamed non-grace notes in the layer
+  //       - if there are beamed grace notes within a beam of non-grace notes,
+  //         the non-grace beam will be modified and returned
+    
+  ret = null;
 
-    if (bobj.Duration < 256)
-    {
-        // if this object is an eighth note but is not beamed, and if the
-        // active beam is set, null out the active beam and return null.
-        if (bobj.Beam = NoBeam and layer._property:ActiveBeamId != null)
-        {
+  //Get the next note, to check for FalseNegative and the start of a new beam
+  next_note = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+    
+  // Get the next Non-Grace Note
+  nextNonGraceNote = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+  while (nextNonGraceNote != null and nextNonGraceNote.GraceNote = True)
+  {
+    nextNonGraceNote = nextNonGraceNote.NextItem(nextNonGraceNote.VoiceNumber, 'NoteRest');
+  }
+
+  //Get previous note, to check if a beam should be started.
+  prev_note = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');    
+                
+  if (bobj.Duration < 256)
+  {
+      // It's possible that Sibelius records a 'continue beam' at the start of a beamed group.
+      // We have to check, if a beam has to be started anyway.
+      // If falseNegative becomes true, a beam should be started even if the condition is ContinueBeam.
+      falseNegative = null;
+        
+      if (bobj.GraceNote = true)
+      {
+          //First, all conditions to null an active grace beam should be checked.
+          //According to that, it will be decided, if a new beam should be started or not.
+
+          //Check if an active non-grace beam should be nulled
+          if (nextNonGraceNote.Beam = StartBeam and layer._property:ActiveBeamId != null)
+          {
             layer._property:ActiveBeamId = null;
-            return ret;
-        }
-
-        /*
-            It's possible that Sibelius records a 'continue beam' at the start
-            of a beamed group. Visually, this doesn't look out of place if the previous
-            note was a quarter note or higher. 
+          }
             
-            The first check we do is if the note has a 'continue beam' attribute and
-            the previous note has a duration higher than 256 (quarter) then we probably have
-            a false negative (i.e., there is the start of a beam, but it isn't necessarily
-            encoded correctly).
-        */
-        falseNegative = False;
-        next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
+          if (layer._property:ActiveGraceBeamId = null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
+          {
+              //In most cases grace notes are ContinueBeam, even if they should start a grace note beam.
+              //Now we have to check, if there is a falseNegative according to the following note
+              //If the next note is a grace note and its duration is less than a quarter and with ContinueBeam
 
-        if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
-        {
-            // by all accounts this should be a beamed note, but we'll need to double-check.
-            prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
+              if (next_note != null and (next_note.GraceNote = true and next_note.Duration < 256 and next_note.Beam = ContinueBeam))
+              {
+                  //If there is a previous non-grace note or no previous note, falseNegative becomes true, otherwise it stays false.
+                  //But it's easier to check for the reverse.
+                  if (prev_note != null and prev_note.GraceNote = true)
+                  {
+                    falseNegative = false;
+                  }
+                  //Either prev_note is null or prev_note.Grace = true
+                  else
+                  {
+                      falseNegative = true;
+                  }
+              }
+          }
+            
+          // if this object is an eighth note but is not beamed, and if the active grace beam is set, null out the active grace beam
+          if (bobj.Beam = NoBeam and layer._property:ActiveGraceBeamId != null)
+          {
+              layer._property:ActiveGraceBeamId = null;
+          }
+            
+          //If a grace note has a StartBeam condition, end the active grace beam and start a new one
+          if (bobj.Beam = StartBeam or falseNegative = true)
+          {
+              if (layer._property:ActiveGraceBeamId != null)
+              {
+                  layer._property:ActiveGraceBeamId = null;
+              }
+                
+              graceBeam = libmei.Beam();
+              layer._property:ActiveGraceBeamId = graceBeam._id;
 
-            if (prev_obj != null and (prev_obj.Duration >= 256))
-            {
-                falseNegative = True;
-            }
-        }
+              //if there is an active non-grace beam, add the new grace beam to the active beam
+              if (layer._property:ActiveBeamId != null)
+              {
 
-        if (next_obj != null and (bobj.Beam = StartBeam or falseNegative = True) and next_obj.Beam = ContinueBeam and next_obj.Duration < 256)
-        {
-            // if:
-            //  - we're not at the end of the bar
-            //  - we have a start beam
-            //  - the next note is a continue beam
-            //  - the next note is a beamable duration (safeguard against quarter and longer
-            //    notes with Beam = ContinueBeam, which for some reason can actually occur)
-            beam = libmei.Beam();
-            layer._property:ActiveBeamId = beam._id;
+                  beamid = layer._property:ActiveBeamId;
+                  beam = libmei.getElementById(beamid);
+                  //Add grace beam to the active non-grace beam
+                  libmei.AddChild(beam,graceBeam);
+              }
+          }
+            
+          //If a graceBeam is active, add the current note to the graceBeam.
+          //Then, we have to check,what should be returned, either a grace note beam, a non-grace beam, or no beam at all.
+          if (layer._property:ActiveGraceBeamId != null)
+          {
+              //If there is an active graceBeam, put the current grace note into that beam
+              graceBeamID = layer._property:ActiveGraceBeamId;
+              graceBeam = libmei.getElementById(graceBeamID);
 
-            // return the beam so that we can add it to the tree.
-            ret = beam;
-        }
-
-        if (layer._property:ActiveBeamId != null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
-        {
-            beamid = layer._property:ActiveBeamId;
-            beam = libmei.getElementById(beamid);
-            ret = beam;
-        }
-    }
-    else
-    {
-        if (layer._property:ActiveBeamId != null)
-        {
-            // this is a break in any active beam, so register it as such.
+              //Add current grace note to the beam
+              libmei.AddChild(graceBeam, note);
+                
+              //Always the beam of the higher priority should be returned, check for it
+              if (layer._property:ActiveBeamId != null)
+              {
+                  // Always return the active non grace note beam if existing
+                  beamid = layer._property:ActiveBeamId;
+                  beam = libmei.getElementById(beamid);
+                  ret = beam;
+              }
+              else
+              {
+                  //If there is no active non-grace beam, return the active graceBeam.
+                  ret = graceBeam;
+              }
+          }
+          else
+          {
+              if (layer._property:ActiveBeamId != null)
+              {
+                beamid = layer._property:ActiveBeamId;
+                beam = libmei.getElementById(beamid);
+                    
+                //Add note to the active beam, because it is a non-beamed grace note while another non-grace beam is active.
+                libmei.AddChild(beam,note);
+                    
+                // Return the Beam
+                ret = beam;
+              }
+                
+          //Otherwise the current note is an independent grace note and will be a child of the layer.
+          }
+      }
+      
+      // bobj is not a grace note
+      else
+      {
+          //If current note is not a grace note, but there is a grace note beam active, end this beam
+          if (layer._property:ActiveGraceBeamId != null)
+          {
+            layer._property:ActiveGraceBeamId = null;
+          }
+            
+          // if this object is an eighth note but is not beamed, and if the
+          // active beam is set, null out the active beam and return null.
+          if (bobj.Beam = NoBeam and layer._property:ActiveBeamId != null)
+          {
             layer._property:ActiveBeamId = null;
-        }
-    }
+          }
+            
+          //Check for falseNegative
+          if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
+          {
+              // by all accounts this should be a beamed note, but we'll need to double-check.
+              if (prev_note != null and (prev_note.Duration >= 256 or prev_note.NoteCount = 0))
+              {
+                  falseNegative = True;
+              }
+          }
+            
+          //Start a new beam if necessary
+          //The current note must be a start beam or a falseNegative and the next non-grace note must be a note that could continue the beam
+          if(bobj.Beam = StartBeam or falseNegative = True)
+          {
+              if (nextNonGraceNote != null and (nextNonGraceNote.Duration < 256 and nextNonGraceNote.Beam = ContinueBeam))
+              {
+                  if(layer._property:ActiveBeamId != null)
+                  {
+                    layer._property:ActiveBeamId = null;
+                  }
+                    
+                  beam = libmei.Beam();
+                  layer._property:ActiveBeamId = beam._id;
+              }
+          }
+            
+          //If a beam is active, add the current note to the beam.
+          //Then, we have to check,what should be returned, either a grace note beam, a non-grace beam, or no beam at all.
+          if (layer._property:ActiveBeamId != null)
+          {
+              beamid = layer._property:ActiveBeamId;
+              beam = libmei.getElementById(beamid);
+                
+              //Add current grace note to the beam
+              libmei.AddChild(beam, note);
+                
+              ret = beam;
+          }   
+      }
+  }
 
-    return ret;
+  //Duration of current note is at least a quarter note.
+  else
+  {
+      //This is always a break in the current active beam, so register it as such.
+      //It is also possible to have grace notes with a duration of a least a quarter.
+      //If they occur in an active beam of non-grace notes, don't break that beam, but any existing grace note beam.
+        
+      if (bobj.GraceNote = true and next_note != null)
+      {
+          //This case ends every active grace note beam
+          if (layer._property:ActiveGraceBeamId != null)
+          {
+              layer._property:ActiveGraceBeamId = null;
+          }
+            
+          //If there is (still) an active non-grace beam, it depends on the next note, if it should be nulled.
+          if (layer._property:ActiveBeamId != null)
+          {
+              //if the following note is another grace note, there is no decision about that beam possible
+              //if next note is a non-grace note, it must be at least an eighth note with ContinueBeam to continue the active beam
+              //add the current note to the active non-grace beam
+
+              if (next_note.GraceNote = true or (next_note.Duration < 256 and next_note.Beam = ContinueBeam))
+              {
+                    beamid = layer._property:ActiveBeamId;
+                    beam = libmei.getElementById(beamid);
+                    libmei.AddChild(beam, note);
+                    ret = beam;
+              }
+               //in all other cases break the beam
+              else
+              {
+                    layer._property:ActiveBeamId = null;
+              }
+          }
+      }
+      //If the current note is not a grace note or doesn't have a following note, end every beam...
+      //At least it is not possible to put grace notes at the end of a bar in Sibelius.
+      else
+      {
+          if (layer._property:ActiveBeamId != null)
+          {
+              layer._property:ActiveBeamId = null;
+          }
+          if (layer._property:ActiveGraceBeamId != null)
+          {
+              layer._property:ActiveGraceBeamId = null;
+          }
+      }
+  }
+
+  return ret;
 }  //$end
 
 function ProcessTuplet (bobj, meielement, layer) {
