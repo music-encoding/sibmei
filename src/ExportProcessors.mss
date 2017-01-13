@@ -709,7 +709,7 @@ function ProcessTremolo (bobj) {
     
 } //$end
 
-function ProcessSymbol (sobj) {
+function ProcessSymbol (sobj, barnum) {
     //$module(ExportProcessors.mss)
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
@@ -721,7 +721,7 @@ function ProcessSymbol (sobj) {
         // assign it to the first voice, since we don't have any notes in voice/layer 0.
         sobj.VoiceNumber = 1;
         warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Symbol'));
+        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, barnum, voicenum, 'Symbol'));
     }
 
     switch (sobj.Index)
@@ -800,26 +800,26 @@ function ProcessSymbol (sobj) {
         }
         case ('221')
         {
-              //Fermata (D.C.)
-              fermata = libmei.Fermata();
-              libmei.AddAttribute(fermata, 'type','D.C.');
+            //Fermata (D.C.)
+            fermata = libmei.Fermata();
+            libmei.AddAttribute(fermata, 'type','D.C.');
 
-              //Try to get note at position of bracket and put id
-              obj = GetNoteObjectAtPosition(sobj);
+            //Try to get note at position of bracket and put id
+            obj = GetNoteObjectAtPosition(sobj);
 
-              if (obj != null)
-              {
+            if (obj != null)
+            {
                 libmei.AddAttribute(fermata, 'startid', '#' & obj._id);
-              }
-              else
-              {
+            }
+            else
+            {
                 //Add bar object information for safety
                 dir = AddBarObjectInfoToElement(sobj, fermata);
-              }
+            }
 
-              //Add element to measure
-              mlines = Self._property:MeasureLines;
-              mlines.Push(fermata._id);
+            //Add element to measure
+            mlines = Self._property:MeasureObjects;
+            mlines.Push(fermata._id);
         }
         case ('233')
         {
@@ -849,7 +849,7 @@ function ProcessSymbol (sobj) {
             else
             {
                 warnings = Self._property:warnings;
-                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barnum, voicenum, sobj.Name));
             }
         }
         case ('242')
@@ -869,7 +869,7 @@ function ProcessSymbol (sobj) {
             else
             {
                 warnings = Self._property:warnings;
-                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barnum, voicenum, sobj.Name));
             }
         }
     }

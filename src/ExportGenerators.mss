@@ -682,7 +682,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each SymbolItem sobj in bar
     {
-        ProcessSymbol(sobj);
+        ProcessSymbol(sobj, bar.BarNumber);
     }
 
     return layers;
