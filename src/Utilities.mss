@@ -137,6 +137,37 @@ function GetNoteObjectAtPosition (bobj) {
     return null;
 }  //$end
 
+function GetNoteObjectAtEndPosition (bobj) {
+  //$module(Utilities.mss)
+  // takes a dictionary of {pos:id} mappings for a given
+  // voice, and returns the NoteRest object.
+
+  objectPositions = Self._property:ObjectPositions;
+  staff_num = bobj.ParentBar.ParentStaff.StaffNum;
+  bar_num = bobj.ParentBar.BarNumber;
+  voice_num = bobj.VoiceNumber;
+
+  staffObjectPositions = objectPositions[staff_num];
+  barObjectPositions = staffObjectPositions[bar_num];
+  voiceObjectPositions = barObjectPositions[voice_num];
+
+  if (voiceObjectPositions = null)
+  {
+    // theres not much we can do here. Bail.
+    Log('Bailing due to insufficient voice information');
+    return null;
+  }
+
+  if (voiceObjectPositions.PropertyExists(bobj.EndPosition))
+  {
+    obj_id = voiceObjectPositions[bobj.EndPosition];
+    obj = libmei.getElementById(obj_id);
+    return obj;
+  }
+
+return null;
+}  //$end
+
 function AddBarObjectInfoToElement (bobj, element) {
     //$module(Utilities.mss)
     /*

@@ -1457,7 +1457,54 @@ function GenerateLine (bobj) {
         return null;
     }
 
-    line = AddBarObjectInfoToElement(bobj, line);
+    if (line != null)
+    {
+        //store graphic offset
+        if (bobj.RhDx != 0)
+        {
+            libmei.AddAttribute(line, 'ho', ConvertOffsetsToMillimeters(bobj.RhDx));
+        }
+
+        if (bobj.RhDy != 0)
+        {
+            libmei.AddAttribute(line, 'vo', ConvertOffsetsToMillimeters(bobj.RhDy));
+        }
+
+        //Try to get note at position of bracket and put id
+        obj = GetNoteObjectAtPosition(bobj);
+
+        if (obj != null)
+        {
+            libmei.AddAttribute(line, 'startid', '#' & obj._id);
+
+            //Try to get note at end position
+            end_obj = GetNoteObjectAtEndPosition(bobj);
+
+            if (end_obj != null) 
+            {
+                libmei.AddAttribute(line, 'endid', '#' & end_obj._id);
+            }
+            else
+            {
+                dur = bobj.Duration;
+
+                if (dur > 0)
+                {
+                    meidur = ConvertDuration(dur);
+                    libmei.AddAttribute(line, 'dur', meidur[0]);
+                    libmei.AddAttribute(line, 'dur.ges', dur & 'p');
+                }
+                else
+                {
+                    libmei.AddAttribute(line, 'endid', '#' & obj._id);
+                }                  
+            }
+        }
+        else
+        {
+            line = AddBarObjectInfoToElement(bobj, line);
+        }
+    }
 
     return line;
 }  //$end
