@@ -592,6 +592,29 @@ function ProcessSymbol (sobj) {
             }
 
         }
+        case ('221')
+        {
+              //Fermata (D.C.)
+              fermata = libmei.Fermata();
+              libmei.AddAttribute(fermata, 'type','D.C.');
+
+              //Try to get note at position of bracket and put id
+              obj = GetNoteObjectAtPosition(sobj);
+
+              if (obj != null)
+              {
+                libmei.AddAttribute(fermata, 'startid', '#' & obj._id);
+              }
+              else
+              {
+                //Add bar object information for safety
+                dir = AddBarObjectInfoToElement(sobj, fermata);
+              }
+
+              //Add element to measure
+              mlines = Self._property:MeasureLines;
+              mlines.Push(fermata._id);
+        }
         case ('233')
         {
             // up-bow below
