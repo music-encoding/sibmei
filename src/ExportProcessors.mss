@@ -256,11 +256,21 @@ function ProcessLyric (lyricobj, objectPositions) {
 
         if (j = 0)
         {
-            libmei.AddAttribute(sylel, 'wordpos', 'i'); // 'initial'
-
+            //add a wordpos only for partial words
             if (lyric_word.Length > 1)
             {
-                libmei.AddAttribute(sylel, 'con', 'd');
+                libmei.AddAttribute(sylel, 'wordpos', 'i'); // 'initial'
+
+                libmei.AddAttribute(sylel, 'con', 'd'); //dash syllable connector
+            }
+
+            //it is also possible, that an initial syllable has an underscore as an extender, if it is the only syllable of a word
+            if (lyric_word.Length = 1)
+            {
+                if (syl.NumNotes > 1)
+                {
+                    libmei.AddAttribute(sylel, 'con', 'u'); // 'underscore'
+                }
             }
         }
         else
