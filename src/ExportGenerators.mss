@@ -133,6 +133,9 @@ function GenerateMEIMusic () {
     Self._property:VoltaBars = CreateDictionary();
     Self._property:ActiveVolta = null;
     Self._property:VoltaElement = null;
+    
+    //Track SystemSymbolItems
+    Self._property:SystemSymbolItems = CreateDictionary();
 
     // track page numbers
     Self._property:CurrentPageNumber = null;
@@ -365,7 +368,21 @@ function GenerateMeasure (num) {
         }
     }
 
-    
+    //Handle Symbols on system staff
+    sysSymb = Self._property:SystemSymbolItems;
+
+    if (sysSymb.PropertyExists(num))
+    {
+        symbs = sysSymb[num];
+
+        for each symb in symbs
+        {
+            if (symb != null) 
+            {
+                libmei.AddChild(m,symb);
+            }
+        }
+    }
 
     systemtext = Self._property:SystemText;
 

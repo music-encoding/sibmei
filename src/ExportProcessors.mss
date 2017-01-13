@@ -360,42 +360,59 @@ function ProcessSystemStaff (score) {
     {
         for each bobj in bar
         {
-            switch (bobj.Type)
+            if (bobj.Hidden = False) 
             {
-                case ('SpecialBarline')
+                switch (bobj.Type)
                 {
-                    spclbarlines = Self._property:SpecialBarlines;
-                    if (spclbarlines.PropertyExists(bar.BarNumber) = False)
+                    case ('SpecialBarline')
                     {
-                        spclbarlines[bar.BarNumber] = CreateSparseArray();
-                    }
+                        spclbarlines = Self._property:SpecialBarlines;
+                        if (spclbarlines.PropertyExists(bar.BarNumber) = False)
+                        {
+                            spclbarlines[bar.BarNumber] = CreateSparseArray();
+                        }
 
-                    spclbarlines[bar.BarNumber].Push(ConvertBarline(bobj.BarlineInternalType));
-                }
-                case ('SystemTextItem')
-                {
-                    if (bobj.OnNthBlankPage < 0)
+                        spclbarlines[bar.BarNumber].Push(ConvertBarline(bobj.BarlineInternalType));
+                    }
+                    case ('SystemTextItem')
                     {
-                        ProcessFrontMatter(bobj);
+                        if (bobj.OnNthBlankPage < 0)
+                        {
+                            ProcessFrontMatter(bobj);
+                        }
+
+                        systemtext = Self._property:SystemText;
+
+                        if (systemtext.PropertyExists(bar.BarNumber) = False)
+                        {
+                            systemtext[bar.BarNumber] = CreateSparseArray();
+                        }
+
+                        systemtext[bar.BarNumber].Push(bobj);
                     }
-
-                    systemtext = Self._property:SystemText;
-
-                    if (systemtext.PropertyExists(bar.BarNumber) = False)
+                    case ('Graphic')
                     {
-                        systemtext[bar.BarNumber] = CreateSparseArray();
+                        Log('Found a graphic!');
+                        Log('is object? ' & IsObject(bobj));
                     }
-
-                    systemtext[bar.BarNumber].Push(bobj);
-                }
-                case ('Graphic')
-                {
-                    Log('Found a graphic!');
-                    Log('is object? ' & IsObject(bobj));
-                }
-                case ('RepeatTimeLine')
-                {
-                    RegisterVolta(bobj);
+                    case ('RepeatTimeLine')
+                    {
+                        RegisterVolta(bobj);
+                    }
+                    case ('SystemSymbolItem')
+                    {
+                          sysSymb = Self._property:SystemSymbolItems;
+                          if (sysSymb.PropertyExists(bar.BarNumber) = False)
+                          {
+                              sysSymb[bar.BarNumber] = CreateSparseArray();
+                          }
+                        
+                          //Get symbol converted
+                          symbol = ProcessSystemSymbol(bobj);
+                        
+                          //Add element to dictionary
+                          sysSymb[bar.BarNumber].Push(symbol);
+                    }
                 }
             }
         }
@@ -667,4 +684,37 @@ function ProcessSymbol (sobj) {
             }
         }
     }
+}  //$end
+
+function ProcessSystemSymbol(sobj) {
+  //$module(ExportProcessors.mss)
+
+  switch (sobj.Index)
+  {
+      case (2)
+      {
+          //Coda
+          dir = libmei.Dir();
+          coda = libmei.Symbol();
+
+          //Add SMuFL glyph codepoint
+          libmei.AddAttribute(coda, 'glyphnum', 'U+E048');
+          //Add type of symbol
+          libmei.AddAttribute(coda, 'type', 'Coda');
+
+          //Add tstamp to dir
+          libmei.AddAttribute(dir, 'tstamp', ConvertPositionToTimestamp(sobj.Position, sobj.ParentBar));
+
+          //Add Coda to dir
+          libmei.AddChild(dir, coda);
+
+          return dir;
+      }
+
+      default
+      {
+          return null;
+      }
+  }
+
 }  //$end
