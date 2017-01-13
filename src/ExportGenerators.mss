@@ -1507,10 +1507,61 @@ function GenerateLine (bobj) {
                             libmei.AddAttribute(line, 'subtype', 'end');
                         }
                     }
+                    if (linecomps.Length > 3)
+                    {
+                        if (linecomps[3] = 'vertical')
+                        {
+                            libmei.AddAttribute(line, 'subtype', 'vertical');
+
+                            //Add direction of bracket
+                            if (linecomps > 4) 
+                            {   
+                                if (linecomps[4] = '2') 
+                                {
+                                    libmei.AddAttribute(line, 'label', 'start');
+                                }
+                            }
+
+                            else
+                            {
+                                libmei.AddAttribute(line, 'label', 'end');
+                            }
+                        }
+                    }
                 }
+                //solid vertical line
                 case ('vertical')
                 {
-                    line = libmei.BarLine();
+                    line = libmei.Line();
+                    libmei.AddAttribute(line,'form','solid');
+                    libmei.AddAttribute(line,'type','vertical');
+                }
+                //dashed vertical line
+                case ('dashed')
+                {
+                    if (linecomps.Length > 3)
+                    {
+                        if (linecomps[3] = 'vertical')
+                        {
+                            line = libmei.Line();
+                            libmei.AddAttribute(line,'form','dashed');
+                            libmei.AddAttribute(line,'type','vertical');
+                        }
+                    }
+                }
+                case ('vibrato')
+                {
+                    line = libmei.Line();
+                    libmei.AddAttribute(line, 'type', 'vibrato');
+                    libmei.AddAttribute(line, 'form', 'wavy');
+                    libmei.AddAttribute(line, 'place', 'above');
+
+                }
+
+                //To catch diverse line types, set a default
+                default
+                {
+                    line = libmei.Line();
                 }
             }
         }
