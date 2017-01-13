@@ -933,9 +933,18 @@ function ConvertText (textobj) {
             return atext;
         }
         case ('text.system.page_aligned.composer')
-        {
-            return ConvertTextElement(textobj);
-        }
+          {
+            text = ConvertTextElement(textobj);
+            libmei.AddAttribute(text,'label','Composer');
+            return text;
+          }
+
+        case ('text.system.page_aligned.lyricist')
+          {
+            text = ConvertTextElement(textobj);
+            libmei.AddAttribute(text,'label','Lyricist');
+            return text;
+          }
         case ('text.system.tempo')
         {
             tempo = libmei.Tempo();
