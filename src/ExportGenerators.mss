@@ -301,6 +301,15 @@ function GenerateMeasure (num) {
     // since so much metadata about the staff and other context
     // is available on the bar that should now be on the measure, go through the bars
     // and try to extract it.
+    
+    systf = score.SystemStaff;
+    currTimeS = systf.CurrentTimeSignature(num);
+    sysBar = systf[num];
+    
+    if (sysBar.Length != (currTimeS.Numerator * 1024 / currTimeS.Denominator))
+    {
+        libmei.AddAttribute(m, 'metcon', 'false');
+    }
 
     for i = 1 to staves.Length + 1
     {
