@@ -52,7 +52,7 @@ function ProcessBeam (bobj, layer) {
             // by all accounts this should be a beamed note, but we'll need to double-check.
             prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
 
-            if (prev_obj != null and (prev_obj.Duration >= 256))
+            if (prev_obj != null and (prev_obj.Duration >= 256 or prev_obj.NoteCount = 0))
             {
                 falseNegative = True;
             }
