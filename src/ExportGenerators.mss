@@ -137,6 +137,7 @@ function GenerateMEIMusic () {
     // track page numbers
     Self._property:CurrentPageNumber = null;
     Self._property:PageBreak = null;
+    Self._property:SystemBreak = null;
     Self._property:FrontMatter = CreateDictionary();
 
     // grab some global markers from the system staff
@@ -216,6 +217,13 @@ function GenerateMEIMusic () {
 
         currTimeS = systf.CurrentTimeSignature(j);
         currKeyS = systf.CurrentKeySignature(j);
+
+        if (Self._property:SystemBreak != null)
+        {
+            sb = Self._property:SystemBreak;
+            libmei.AddChild(section, sb);
+            Self._property:SystemBreak = null;
+        }
 
         // Do not try to get the signatures for bar 0 -- will not work
         if (j > 1)
@@ -301,6 +309,14 @@ function GenerateMeasure (num) {
     // since so much metadata about the staff and other context
     // is available on the bar that should now be on the measure, go through the bars
     // and try to extract it.
+
+    systf = score.SystemStaff;
+    sysBar = systf[num];
+    
+    if (sysBar.NthBarInSystem = 0)
+    {
+        Self._property:SystemBreak = libmei.Sb();
+    }
 
     for i = 1 to staves.Length + 1
     {
