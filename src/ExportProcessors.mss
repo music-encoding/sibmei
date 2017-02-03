@@ -505,10 +505,10 @@ function ProcessTremolo (bobj) {
 
 function ProcessSymbol (sobj) {
     //$module(ExportProcessors.mss)
-    Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
-    Log(sobj.VoiceNumber);
-
+    // Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
+    // Log(sobj.VoiceNumber);
     voicenum = sobj.VoiceNumber;
+    bar = sobj.ParentBar;
 
     if (voicenum = 0)
     {
