@@ -1227,7 +1227,9 @@ function GenerateScoreDef (score) {
 
     libmei.AddAttribute(scoredef, 'music.name', score.MainMusicFontName);
     libmei.AddAttribute(scoredef, 'text.name', score.MainTextFontName);
-    libmei.AddAttribute(scoredef, 'lyric.name', score.MusicTextFontName);
+    // We should read out the lyrics font styles here (e.g. `text.staff.space.hypen.lyrics.verse1`),
+    // but the styles properties don't seem to be easily accessible.
+    libmei.AddAttribute(scoredef, 'lyric.name', score.MainTextFontName);
 
     systf = score.SystemStaff;
     timesig = systf.CurrentTimeSignature(1);
