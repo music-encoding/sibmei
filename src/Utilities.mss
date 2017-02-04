@@ -140,7 +140,7 @@ function GetNoteObjectAtPosition (bobj) {
 function AddBarObjectInfoToElement (bobj, element) {
     //$module(Utilities.mss)
     /*
-        adds timing and position info (startids, endids, tstamps, etc.) to an element
+        adds timing and position info (tstamps, etc.) to an element.
         This info is mostly derived from the base BarObject class.
     */
     voicenum = bobj.VoiceNumber;
