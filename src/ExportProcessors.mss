@@ -92,83 +92,67 @@ function ProcessBeam (bobj, layer) {
     return ret;
 }  //$end
 
-function ProcessTuplet (bobj, meielement, layer) {
+function ProcessTuplet (noteRest, meielement, layer) {
     //$module(ExportProcessors.mss)
-    if (bobj.ParentTupletIfAny = null)
+    if (noteRest.ParentTupletIfAny = null)
     {
         return null;
     }
-
-    if (layer._property:ActiveTupletId = null)
+    
+    /*
+       We encode inner tuplets of nested tuplet structures as <tupletSpan>s.
+       Therefore we always return the outermost MEI tuplet for content to be added.
+       Still, we need to keep track of the inner tuplets to assign the @endid.
+       layer._property:ActiveMeiTuplet always points to the innermost tuplet.
+    */
+    
+    activeMeiTuplet = layer._property:ActiveMeiTuplet;
+    
+    tupletIsContinued = activeMeiTuplet != null and TupletsEqual(noteRest.ParentTupletIfAny, activeMeiTuplet._property:SibTuplet);
+    
+    if (not(tupletIsContinued))
     {
-        tupletObject = bobj.ParentTupletIfAny;
-
-        tuplet = libmei.Tuplet();
-
-        layer._property:ActiveTupletObject = tupletObject;
-        layer._property:ActiveTupletId = tuplet._id;
-
-        if (libmei.GetName(meielement) = 'beam')
+        // New tuplets need to be added
+        noteRestTupletStack = GetTupletStack(noteRest);
+        sibTuplet = null;
+        meiTupletDepth = GetMeiTupletDepth(layer);
+      
+        for i = meiTupletDepth to noteRestTupletStack.Length
         {
-            // get the first child
-            startid = meielement.children[0];
-        }
-        else
-        {
-            startid = meielement._id;
-        }
-
-        libmei.AddAttribute(tuplet, 'startid', '#' & startid);
-        libmei.AddAttribute(tuplet, 'num', tupletObject.Left);
-        libmei.AddAttribute(tuplet, 'numbase', tupletObject.Right);
-
-        tupletStyle = tupletObject.Style;
-
-        switch (tupletStyle)
-        {
-            case(TupletNoNumber)
+            sibTuplet = noteRestTupletStack[i];
+            nextActiveMeiTuplet = GenerateTuplet(sibTuplet);
+            if (meiTupletDepth > 0 or i > meiTupletDepth)
             {
-                libmei.AddAttribute(tuplet, 'dur.visible', 'false');
+                // We have an inner tuplet that we encode as <tupletSpan>
+                nextActiveMeiTuplet = ShiftTupletToTupletSpan(nextActiveMeiTuplet, layer);
             }
-            case(TupletLeft)
-            {
-                libmei.AddAttribute(tuplet, 'num.format', 'count');
-            }
-            case(TupletLeftRight)
-            {
-                libmei.AddAttribute(tuplet, 'num.format', 'ratio');
-            }
+            libmei.AddAttribute(nextActiveMeiTuplet, 'startid', '#' & meielement._id);
+            // We basically create a linked list of tuplets
+            nextActiveMeiTuplet._property:ParentTuplet = activeMeiTuplet;
+            nextActiveMeiTuplet._property:SibTuplet = sibTuplet;
+            activeMeiTuplet = nextActiveMeiTuplet;
         }
-
-        tupletBracket = tupletObject.Bracket;
-
-        switch(tupletBracket)
-        {
-            case(TupletBracketOff)
-            {
-                libmei.AddAttribute(tuplet, 'bracket.visible', 'false');
-            }
-        }
-
-        return tuplet;
+        layer._property:ActiveMeiTuplet = activeMeiTuplet;
     }
-    else
+
+    meiTuplet = activeMeiTuplet;
+    for i = 0 to CountTupletsEndingAtNoteRest(noteRest)
     {
-        tid = layer._property:ActiveTupletId;
-        t = libmei.getElementById(tid);
-
-        if (IsLastNoteInTuplet(bobj))
-        {
-            libmei.AddAttribute(t, 'endid', '#' & meielement._id);
-            layer._property:ActiveTupletObject = null;
-            layer._property:ActiveTupletId = null;
-        }
-
-        return t;
+        libmei.AddAttribute(meiTuplet, 'endid', '#' & meielement._id);
+        meiTuplet = meiTuplet._property:ParentTuplet;
     }
+    layer._property:ActiveMeiTuplet = meiTuplet;
+    
+    
+    outermostMeiTuplet = activeMeiTuplet;
+    while (outermostMeiTuplet._property:ParentTuplet)
+    {
+        outermostMeiTuplet = outermostMeiTuplet._property:ParentTuplet;
+    }
+    return outermostMeiTuplet;
 }  //$end
 
-function ShiftTupletToTupletSpan (tuplet, layer) {
+function ShiftTupletToTupletSpan (tuplet) {
     //$module(ExportProcessors.mss)
     /*
         Shifts the tuplet object to a tupletSpan object. This is
@@ -185,9 +169,6 @@ function ShiftTupletToTupletSpan (tuplet, layer) {
 
     tupletSpan = libmei.TupletSpan();
     libmei.SetAttributes(tupletSpan, tuplet.attrs);
-    tupletSpan._property:AddedToMeasure = False;
-
-    layer._property:ActiveTupletId = tupletSpan._id;
 
     if (tuplet._parent != null)
     {
@@ -199,6 +180,12 @@ function ShiftTupletToTupletSpan (tuplet, layer) {
         libmei.RemoveChild(pobj, tuplet);
         tuplet._parent = null;
     }
+
+    mobjs = Self._property:MeasureObjects;
+    mobjs.Push(tupletSpan._id);
+    Self._property:MeasureObjects = mobjs;
+    
+    return tupletSpan;
 }  //$end
 
 function ProcessLyric (lyricobj, objectPositions) {

@@ -515,20 +515,6 @@ function GenerateLayers (staffnum, measurenum) {
                                 if (tuplet.name != 'tupletSpan')
                                 {
                                     ShiftTupletToTupletSpan(tuplet, l);
-                                    tsid = l._property:ActiveTupletId;
-                                    tsobj = libmei.getElementById(tsid);
-
-                                    if (tsobj._parent = null and tsobj._property:AddedToMeasure = False)
-                                    {
-                                        /*
-                                            The measure lines get added to the measure object
-                                            so pretend this tuplet span object is a line
-                                            and queue it for addition to the measure.
-                                        */
-                                        tsobj._property:AddedToMeasure = True;
-                                        mobj = tsobj;
-                                    }
-
                                 }
                             }
                             else
@@ -1339,6 +1325,46 @@ function GenerateStaffGroups (score) {
         
     }
     return parentstgrp;
+}  //$end
+
+function GenerateTuplet(tupletObj) {
+    //$module(ExportGenerators.mss)
+    tuplet = libmei.Tuplet();
+  
+    libmei.AddAttribute(tuplet, 'num', tupletObj.Left);
+    libmei.AddAttribute(tuplet, 'numbase', tupletObj.Right);
+
+    tupletStyle = tupletObj.Style;
+
+    switch (tupletStyle)
+    {
+        case(TupletNoNumber)
+        {
+            libmei.AddAttribute(tuplet, 'dur.visible', 'false');
+        }
+        case(TupletLeft)
+        {
+            libmei.AddAttribute(tuplet, 'num.format', 'count');
+        }
+        case(TupletLeftRight)
+        {
+            libmei.AddAttribute(tuplet, 'num.format', 'ratio');
+        }
+    }
+
+    tupletBracket = tupletObj.Bracket;
+
+    switch(tupletBracket)
+    {
+        case(TupletBracketOff)
+        {
+            libmei.AddAttribute(tuplet, 'bracket.visible', 'false');
+        }
+    }
+    
+    tuplet._property:SibTuplet = tupletObj;
+
+    return tuplet;
 }  //$end
 
 function GenerateLine (bobj) {
