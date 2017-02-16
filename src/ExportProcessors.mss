@@ -20,76 +20,65 @@ function ProcessScore () {
 
 }  //$end
 
-function ProcessBeam (bobj, layer) {
+function ProcessBeam (bobj, layer, normalizedBeamProp) {
     //$module(ExportProcessors.mss)
-    ret = null;
-
-    if (bobj.Duration < 256)
+    /*
+        Returns the active beam, if any, and creates new beam elements
+        at the start of a beam.
+    */
+    switch (normalizedBeamProp)
     {
-        // if this object is an eighth note but is not beamed, and if the
-        // active beam is set, null out the active beam and return null.
-        if (bobj.Beam = NoBeam and layer._property:ActiveBeamId != null)
+        case (NoBeam)
         {
-            layer._property:ActiveBeamId = null;
-            return ret;
-        }
-
-        /*
-            It's possible that Sibelius records a 'continue beam' at the start
-            of a beamed group. Visually, this doesn't look out of place if the previous
-            note was a quarter note or higher. 
-            
-            The first check we do is if the note has a 'continue beam' attribute and
-            the previous note has a duration higher than 256 (quarter) then we probably have
-            a false negative (i.e., there is the start of a beam, but it isn't necessarily
-            encoded correctly).
-        */
-        falseNegative = False;
-        next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
-
-        if ((bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam) and layer._property:ActiveBeamId = null)
-        {
-            // by all accounts this should be a beamed note, but we'll need to double-check.
-            prev_obj = bobj.PreviousItem(bobj.VoiceNumber, 'NoteRest');
-
-            if (prev_obj != null and (prev_obj.Duration >= 256 or prev_obj.NoteCount = 0))
+            if (bobj.GraceNote)
             {
-                falseNegative = True;
+                if (layer._property:ActiveGraceBeam != null)
+                {
+                    layer._property:ActiveGraceBeam = null;
+                }
+                // If there is an active non-grace beam, we have a normal beam spanning
+                // over a non-beamed grace note that will be added as a child of that beam.
+                return GetNongraceParentBeam(bobj, layer);
+            }
+            else
+            {
+                if (layer._property:ActiveBeam != null)
+                {
+                    layer._property:ActiveBeam = null;
+                }
+                return null;
             }
         }
-
-        if (next_obj != null and (bobj.Beam = StartBeam or falseNegative = True) and next_obj.Beam = ContinueBeam and next_obj.Duration < 256)
+        case (StartBeam)
         {
-            // if:
-            //  - we're not at the end of the bar
-            //  - we have a start beam
-            //  - the next note is a continue beam
-            //  - the next note is a beamable duration (safeguard against quarter and longer
-            //    notes with Beam = ContinueBeam, which for some reason can actually occur)
-            beam = libmei.Beam();
-            layer._property:ActiveBeamId = beam._id;
-
-            // return the beam so that we can add it to the tree.
-            ret = beam;
+            newBeam = libmei.Beam();
+            if (bobj.GraceNote)
+            {
+                layer._property:ActiveGraceBeam = newBeam;
+                nonGraceParentBeam = GetNongraceParentBeam(bobj, layer);
+                if (nonGraceParentBeam != null)
+                {
+                    newBeam._property:ParentBeam = nonGraceParentBeam;
+                }
+            }
+            else
+            {
+                layer._property:ActiveBeam = newBeam;
+            }
+            return newBeam;
         }
-
-        if (layer._property:ActiveBeamId != null and (bobj.Beam = ContinueBeam or bobj.Beam = SingleBeam))
-        {
-            beamid = layer._property:ActiveBeamId;
-            beam = libmei.getElementById(beamid);
-            ret = beam;
+        default {
+            // ContinueBeam and SingleBeam
+            if (bobj.GraceNote)
+            {
+                return layer._property:ActiveGraceBeam;
+            }
+            else
+            {
+                return layer._property:ActiveBeam;
+            }
         }
     }
-    else
-    {
-        if (layer._property:ActiveBeamId != null)
-        {
-            // this is a break in any active beam, so register it as such.
-            layer._property:ActiveBeamId = null;
-        }
-    }
-
-    return ret;
 }  //$end
 
 function ProcessTuplet (bobj, meielement, layer) {
