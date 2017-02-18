@@ -234,25 +234,84 @@ function TupletsEqual (t, t2) {
 
 }  //$end
 
-function IsLastNoteInTuplet (bobj) {
+function CountTupletsEndingAtNoteRest(noteRest) {
     //$module(Utilities.mss)
-    next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
-
-    if (next_obj = null)
+    tuplet = noteRest.ParentTupletIfAny;
+  
+    if (tuplet = null)
     {
-        return true;
+        return 0;
     }
+  
+    nextNoteRest = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
 
-    tuplet = bobj.ParentTupletIfAny;
-    next_obj_tuplet = next_obj.ParentTupletIfAny;
-
-    if (next_obj_tuplet = null or tuplet.Position != next_obj_tuplet.Position)
+    if (nextNoteRest = null or nextNoteRest.ParentTupletIfAny = null)
     {
-        return true;
+        return GetSibTupletDepth(noteRest);
     }
+    
+    if (TupletsEqual(tuplet, nextNoteRest.ParentTupletIfAny))
+    {
+        return 0;
+    }
+    
+    tupletDepth = GetSibTupletDepth(noteRest);
+    nextTupletDepth = GetSibTupletDepth(nextNoteRest);
+    nextTuplet = nextNoteRest.ParentTupletIfAny;
+    numberOfEndingTuplets = 0;
+    
+    // We need to check to which depth the tuplets are equal.
+    // First of all, we have to make sure we are starting at the same depth if
+    // depths are note equal.
+    if (tupletDepth > nextTupletDepth)
+    {
+        for i = nextTupletDepth to tupletDepth
+        {
+            tuplet = tuplet.ParentTupletIfAny;
+        }
+        numberOfEndingTuplets = tupletDepth - nextTupletDepth;
+    }
+    else
+    {
+        for i = tupletDepth to nextTupletDepth
+        {
+            nextTuplet = nextTuplet.ParentTupletIfAny;
+        }
+    }
+    
+    // We are looking for the highest index where both stacks are identical.
+    while ((tuplet != null) and not(TupletsEqual(tuplet, nextTuplet)))
+    {
+        numberOfEndingTuplets = numberOfEndingTuplets + 1;
+        tuplet = tuplet.ParentTupletIfAny;
+        nextTuplet = nextTuplet.ParentTupletIfAny;
+    }
+    
+    return numberOfEndingTuplets;
+}  //$end
 
-    return false;
+function GetMeiTupletDepth (layer) {
+    //$module(Utilities.mss)
+    depth = 0;
+    tuplet = layer._property:ActiveMeiTuplet;
+    while (tuplet != null)
+    {
+        depth = depth + 1;
+        tuplet = tuplet._property:ParentTuplet;
+    }
+    return depth;
+}  //$end
 
+function GetSibTupletDepth (noteRest) {
+    //$module(Utilities.mss)
+    depth = 0;
+    tuplet = noteRest.ParentTupletIfAny;
+    while (tuplet != null)
+    {
+        depth = depth + 1;
+        tuplet = tuplet.ParentTupletIfAny;
+    }
+    return depth;
 }  //$end
 
 function lstrip (str) {
