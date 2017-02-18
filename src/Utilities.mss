@@ -283,3 +283,142 @@ function Log (message) {
     //$module(Utilities.mss)
     Sibelius.AppendLineToFile(LOGFILE, message, True);
 }  //$end
+
+function NormalizedBeamProp (noteRest) {
+    //$module(Utilities.mss)
+    /*
+        Sibelius' Beam properties can't be trusted. We need to look at the context,
+        check whether they make sense and if they don't, find out the value we'd expect.
+        Problems can e.g. be that Sibelius reports
+         * a ContinueBeam at the start of a beam (we'd expect StartBeam)
+         * a property other than NoBeam on a quarter or longer un-beamable duration
+           (we'd expect NoBeam)
+         * ... (almost any combinations imaginable)
+    */
+    if (noteRest.Beam = NoBeam or noteRest.Duration >= 256)
+    {
+        return NoBeam;
+    }
+    
+    // At this point, we're only dealing with ContinueBeam and SingleBeam.
+    // We need to look at the preceding note to see whether there's any
+    // beam to continue.
+
+    if (noteRest.Beam != StartBeam)
+    {
+        prev_obj = PrevNormalOrGrace(noteRest, noteRest.GraceNote);
+        
+        if (prev_obj != null and prev_obj.Beam != NoBeam and prev_obj.Duration < 256)
+        {
+            // We actually have a beam we can continue.
+            if (noteRest.Beam = SingleBeam and noteRest.Duration < 128 and prev_obj.Duration < 128)
+            {
+                // SingleBeam only makes sense if we actually have secondary beams between the 
+                // previous note and the current note.
+                return SingleBeam;
+            }
+            return ContinueBeam;
+        }
+    }
+    
+    // At this point, we know there is no previous beam we can continue because we have a
+    // StartBeam or the above test for a previous beam failed.
+    // We still need to check whether there is a following note that we can beam to.
+    
+    next_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote);
+    if (next_obj != null and next_obj.Duration < 256 and (next_obj.Beam = ContinueBeam or next_obj.Beam = SingleBeam))
+    {
+        return StartBeam;
+    }
+    else
+    {
+        return NoBeam;
+    }
+}  //$end
+
+function NextNormalOrGrace (noteRest, grace) {
+    //$module(Utilities.mss)
+    /*
+        When given a 'normal' NoteRest, this function returns the next 'normal' NoteRest
+        in the same voice.
+        When given a grace NoteRest, this function returns the immediately adjacent 
+        following grace NoteRest, if existant.
+        This function is basically a duplicate of PrevNormalOrGrace() with 
+        'Previous' replaced by 'Next'.
+    */
+    next_obj = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
+    if (grace)
+    {
+        // There mustn't be any intermitting 'normal' notes between grace notes.
+        if (next_obj != null and not(next_obj.GraceNote))
+        {
+            next_obj = null;
+        }
+    }
+    else
+    {
+        // If noteRest isn't a grace note, we skip all grace notes as their beams
+        // can be nested inside normal beams.
+        while (next_obj != null and next_obj.GraceNote)
+        {
+            next_obj = next_obj.NextItem(noteRest.VoiceNumber, 'NoteRest');
+        }
+    }
+    return next_obj;
+}  //$end
+
+function PrevNormalOrGrace (noteRest, grace) {
+    //$module(Utilities.mss)
+    /*
+        For a description, see NextNormalOrGrace().
+        This function is basically a duplicate of PrevNormalOrGrace() with 
+        'Next' replaced by 'Previous'.
+    */
+    prev_obj = noteRest.PreviousItem(noteRest.VoiceNumber, 'NoteRest');
+    if (grace)
+    {
+        // There mustn't be any intermitting 'normal' notes between grace notes.
+        if (prev_obj != null and not(prev_obj.GraceNote))
+        {
+            prev_obj = null;
+        }
+    }
+    else
+    {
+        // If noteRest isn't a grace note, we skip all grace notes as their beams
+        // can be nested inside normal beams.
+        while (prev_obj and prev_obj.GraceNote)
+        {
+            prev_obj = prev_obj.NextItem(noteRest.VoiceNumber, 'NoteRest');
+        }
+    }
+    return prev_obj;
+}  //$end
+
+function GetNongraceParentBeam (noteRest, layer) {
+    //$module(Utilities.mss)
+    /*
+       This function is used to find out whether a non-grace beam spans over a grace
+       NoteRest that is either unbeamed or at the start of a grace beam.
+    */
+    if (layer._property:ActiveBeam != null)
+    {
+        // Only if the active non-grace beam continues to the next normal note, the
+        // grace note is truly placed under the non-grace beam.
+        nextNongraceNoteRest = NextNormalOrGrace(noteRest, false);
+        if (nextNongraceNoteRest != null)
+        {
+            nextNormalBeamProp = NormalizedBeamProp(nextNongraceNoteRest);
+        }
+        else
+        {
+            nextNormalBeamProp = NoBeam;
+        }
+        if (nextNormalBeamProp = ContinueBeam or nextNormalBeamProp = SingleBeam)
+        {
+            return layer._property:ActiveBeam;
+        }
+    }
+    return null;
+}  //$end
+

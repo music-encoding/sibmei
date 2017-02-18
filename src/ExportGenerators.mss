@@ -502,8 +502,25 @@ function GenerateLayers (staffnum, measurenum) {
                     objVoice = barObjectPositions[voicenumber];
                     objVoice[bobj.Position] = note._id;
 
+                    normalizedBeamProp = NormalizedBeamProp(bobj);
+                  
+                    if (normalizedBeamProp = SingleBeam)
+                    {
+                        if (bobj.GraceNote)
+                        {
+                            prevNote = l._property:PrevGraceNote;
+                        }
+                        else
+                        {
+                            prevNote = l._property:PrevNote;
+                        }
+                        // prevNote is not null here - unless we have a bug in NormalizeBeamProp()
+                        // or the registration of previous notes.
+                        libmei.AddAttribute(prevNote, 'breaksec', '1');
+                    }
+                    
                     // fetch or create the active beam object (if any)
-                    beam = ProcessBeam(bobj, l);
+                    beam = ProcessBeam(bobj, l, normalizedBeamProp);
 
                     // fetch or create the active tuplet object (if any)
                     tuplet = ProcessTuplet(bobj, note, l);
@@ -555,9 +572,14 @@ function GenerateLayers (staffnum, measurenum) {
                         }
                         else
                         {
-                            if (beam._parent != l._id)
+                            parent = beam._property:ParentBeam;
+                            if (parent = null)
                             {
-                                libmei.AddChild(l, beam);
+                                parent = l;
+                            }
+                            if (beam._parent != parent._id)
+                            {
+                                libmei.AddChild(parent, beam);
                             }
                         }
                     }
@@ -586,6 +608,14 @@ function GenerateLayers (staffnum, measurenum) {
                             libmei.AddChild(l, note);
                         }
                     }
+                }
+                if (bobj.GraceNote)
+                {
+                    l._property:PrevGraceNote = note;
+                }
+                else
+                {
+                    l._property:PrevNote = note;
                 }
             }
             case('BarRest')
