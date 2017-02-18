@@ -505,8 +505,8 @@ function ProcessTremolo (bobj) {
 
 function ProcessSymbol (sobj) {
     //$module(ExportProcessors.mss)
-    // Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
-    // Log(sobj.VoiceNumber);
+    Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
+    Log(sobj.VoiceNumber);
     voicenum = sobj.VoiceNumber;
     bar = sobj.ParentBar;
 
@@ -533,6 +533,7 @@ function ProcessSymbol (sobj) {
             // inverted mordent
             mordent = libmei.Mordent();
             libmei.AddAttribute(mordent, 'form', 'inv');
+            mordent = AddBarObjectInfoToElement(sobj, mordent);
             mlines = Self._property:MeasureObjects;
             mlines.Push(mordent._id);
         }
@@ -542,6 +543,7 @@ function ProcessSymbol (sobj) {
             // mordent
             mordent = libmei.Mordent();
             libmei.AddAttribute(mordent, 'form', 'norm');
+            mordent = AddBarObjectInfoToElement(sobj, mordent);
             mlines = Self._property:MeasureObjects;
             mlines.Push(mordent._id);
         }
@@ -564,6 +566,135 @@ function ProcessSymbol (sobj) {
             turn = AddBarObjectInfoToElement(sobj, turn);
             mlines = Self._property:MeasureObjects;
             mlines.Push(turn._id);
+        }
+        case ('52')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'heel');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('53')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'heel');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('54')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'toe');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('55')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'toe');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('160')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'stop');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('162')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'open');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('163')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'damp');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('164')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'damp');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('165')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'damp');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('166')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'damp');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('212')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'ten');
+                libmei.AddAttribute(artic, 'place', 'above');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('214')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttribute(artic, 'artic', 'marc');
+                libmei.AddAttribute(artic, 'place', 'above');
+                libmei.AddChild(nobj, artic);
+            }
         }
         case ('217')
         {
@@ -623,9 +754,19 @@ function ProcessSymbol (sobj) {
                 warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
             }
         }
-        case ('242')
+        case ('240')
+        {
+            // double staccato
+            return null;
+        }
+        case ('241')
         {
             // triple staccato
+            return null;
+        }
+        case ('242')
+        {
+            // quadruple staccato
             return null;
         }
         case ('243')
@@ -635,7 +776,9 @@ function ProcessSymbol (sobj) {
 
             if (nobj != null)
             {
-                libmei.AddAttributeValue(nobj, 'artic', 'snap');
+                artic = libmei.Artic();
+                libmei.AddAttributeValue(artic, 'artic', 'snap');
+                libmei.AddChild(nobj, artic);
             }
             else
             {
@@ -643,5 +786,65 @@ function ProcessSymbol (sobj) {
                 warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
             }
         }
+        case ('480')
+        {
+            //scoop
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttributeValue(artic, 'artic', 'scoop');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('481')
+        {
+            //fall
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttributeValue(artic, 'artic', 'fall');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('490')
+        {
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttributeValue(artic, 'artic', 'fingernail');
+                libmei.AddChild(nobj, artic);
+            }
+        }
+        case ('494')
+        {
+            //doit
+            nobj = GetNoteObjectAtPosition(sobj);
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttributeValue(artic, 'artic', 'doit');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+        case ('495')
+        {
+            //plop
+            nobj = GetNoteObjectAtPosition(sobj);
+
+            if (nobj != null)
+            {
+                artic = libmei.Artic();
+                libmei.AddAttributeValue(artic, 'artic', 'plop');
+                libmei.AddChild(nobj, artic);
+            }
+
+        }
+
     }
 }  //$end
