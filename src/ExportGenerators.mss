@@ -818,43 +818,15 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'grace', 'acc');
     }
 
-    if (bobj.GetArticulation(PauseArtic))
+    if (bobj.GetArticulation(PauseArtic) or bobj.GetArticulation(TriPauseArtic) or bobj.GetArticulation(SquarePauseArtic))
     {
-        fermata = libmei.Fermata();
-        libmei.AddAttribute(fermata, 'form', 'norm');
-        libmei.AddAttribute(fermata, 'shape', 'curved');
-        libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
-        libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
-        libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
-
-        mlines = Self._property:MeasureObjects;
-        mlines.Push(fermata._id);
-    }
-
-    if (bobj.GetArticulation(TriPauseArtic))
-    {
-        fermata = libmei.Fermata();
-        libmei.AddAttribute(fermata, 'form', 'norm');
-        libmei.AddAttribute(fermata, 'shape', 'angular');
-        libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
-        libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
-        libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
-
-        mlines = Self._property:MeasureObjects;
-        mlines.Push(fermata._id);
-    }
-
-    if (bobj.GetArticulation(SquarePauseArtic))
-    {
-        fermata = libmei.Fermata();
-        libmei.AddAttribute(fermata, 'form', 'norm');
-        libmei.AddAttribute(fermata, 'shape', 'square');
-        libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
-        libmei.AddAttribute(fermata, 'layer', bobj.VoiceNumber);
-        libmei.AddAttribute(fermata, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
-
-        mlines = Self._property:MeasureObjects;
-        mlines.Push(fermata._id);
+        fermata = GenerateFermata(bobj);
+        if (fermata != null)
+        {
+            libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
+            measureObjs = Self._property:MeasureObjects;
+            measureObjs.Push(fermata._id);
+        }
     }
 
     if (bobj.GetArticulation(StaccatoArtic))
@@ -1215,6 +1187,14 @@ function GenerateBarRest (bobj) {
             return null;
         }
     }
+    
+    fermata = GenerateFermata(bobj);
+    if (fermata != null)
+    {
+        libmei.AddAttribute(fermata, 'startid', '#' & obj._id);
+        measureObjs = Self._property:MeasureObjects;
+        measureObjs.Push(fermata._id);
+    }
 
     if (bobj.Hidden = true)
     {
@@ -1480,6 +1460,67 @@ function GenerateTrill (bobj) {
     trill = AddBarObjectInfoToElement(bobj, trill);
 
     return trill;
+}  //$end
+
+
+function GenerateFermata (bobj) {
+    //$module(ExportGenerators.mss)
+    /* Note rests can have multiple fermatas in Sibelius, 
+        but this is currently not supported.
+        Also, fermatas added as symbols are not yet handled.
+    */
+    shape = null;
+
+    switch (bobj.Type)
+    {
+        case('NoteRest')
+        {
+            if (bobj.GetArticulation(PauseArtic))
+            {
+                shape = 'curved';
+            }
+            if (bobj.GetArticulation(TriPauseArtic))
+            {
+                shape = 'angular';
+            }
+            if (bobj.GetArticulation(SquarePauseArtic))
+            {
+                shape = 'square';
+            }
+        }
+        case('BarRest')
+        {
+            switch (bobj.PauseType)
+            {
+                case(PauseTypeRound)
+                {
+                    shape = 'curved';
+                }
+                case(PauseTypeTriangular)
+                {
+                    shape = 'angular';
+                }
+                case(PauseTypeSquare)
+                {
+                    shape = 'square';
+                }
+            }
+        }
+    }
+    
+    if (shape = null)
+    {
+        return null;
+    }
+        
+    fermata = libmei.Fermata();
+    
+    libmei.AddAttribute(fermata, 'form', 'norm');
+    libmei.AddAttribute(fermata, 'shape', shape);
+    
+    fermata = AddBarObjectInfoToElement(bobj, fermata);
+    
+    return fermata;
 }  //$end
 
 function GenerateChordSymbol (bobj) {
