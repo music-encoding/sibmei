@@ -234,25 +234,65 @@ function TupletsEqual (t, t2) {
 
 }  //$end
 
-function IsLastNoteInTuplet (bobj) {
+function GetTupletStack (bobj) {
     //$module(Utilities.mss)
-    next_obj = bobj.NextItem(bobj.VoiceNumber, 'NoteRest');
-
-    if (next_obj = null)
+    tupletStack = CreateSparseArray();
+    parentTuplet = bobj.ParentTupletIfAny;
+    while (parentTuplet != null)
     {
-        return true;
+        tupletStack.Push(parentTuplet);
+        parentTuplet = parentTuplet.ParentTupletIfAny;
     }
+    tupletStack.Reverse();
+    return tupletStack;
+}  //$end
 
-    tuplet = bobj.ParentTupletIfAny;
-    next_obj_tuplet = next_obj.ParentTupletIfAny;
-
-    if (next_obj_tuplet = null or tuplet.Position != next_obj_tuplet.Position)
+function CountTupletsEndingAtNoteRest(noteRest) {
+    //$module(Utilities.mss)
+    tuplet = noteRest.ParentTupletIfAny;
+  
+    if (tuplet = null)
     {
-        return true;
+        return 0;
     }
+  
+    nextNoteRest = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
 
-    return false;
+    if (nextNoteRest = null or nextNoteRest.ParentTupletIfAny = null)
+    {
+        tupletStack = GetTupletStack(noteRest);
+        return tupletStack.Length;
+    }
+    
+    if (TupletsEqual(tuplet, nextNoteRest.ParentTupletIfAny))
+    {
+        return 0;
+    }
+    
+    tupletStack = GetTupletStack(noteRest);
+    nextTupletStack = GetTupletStack(nextNoteRest);
+    
+    // We are looking for the highest index where both stacks are identical.
+    index = utils.min(tupletStack.Length, nextTupletStack.Length) - 1;
+    
+    while (index >= 0 and not(TupletsEqual(tupletStack[index], nextTupletStack[index])))
+    {
+        index = index - 1;
+    }
+    
+    return tupletStack.Length - 1 - index;
+}  //$end
 
+function GetMeiTupletDepth (layer) {
+    //$module(Utilities.mss)
+    depth = 0;
+    tuplet = layer._property:ActiveMeiTuplet;
+    while (tuplet)
+    {
+        depth = depth + 1;
+        tuplet = tuplet._property:ParentTuplet;
+    }
+    return depth;
 }  //$end
 
 function lstrip (str) {
