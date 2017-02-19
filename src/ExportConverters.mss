@@ -194,8 +194,8 @@ function ConvertOffsetsToMillimeters (offset) {
     //$module(ExportConverters.mss)
 
     /*
-     This function will convert the 1/32 unit 
-     Sibelius offsets into a millimeter measurement as required by the 
+     This function will convert the 1/32 unit
+     Sibelius offsets into a millimeter measurement as required by the
      data.MEASUREMENT datatype used by MEI.
 
     The `StaffHeight` property always returns the staff height in millimeters.
@@ -323,7 +323,7 @@ function PitchesInKeySignature (keysig) {
 
     // keysig is 7 >= 0 >= -7, for the number of sharps (negative is flats)
     ac = CreateSparseArray('F', 'C', 'G', 'D', 'A', 'E', 'B');
-    
+
     // key of C, or atonal. All notes are natural.
     if (keysig = 0 or keysig = -8)
     {
@@ -347,7 +347,7 @@ function ConvertAccidental (noteobj) {
     // If accidentals are audible, but not visible, you get @accid.ges
     // If accidentals are both audible and visible, you get @accid
     // is_visible is not to be confused with hidden accidentals! is_visible
-    // just determines whether an accidental is shown or not based on 
+    // just determines whether an accidental is shown or not based on
     // the rules of CMN.
 
     // Returns a tuple [0 => accid (string), 1 => is_visible (bool)]
@@ -542,7 +542,7 @@ function HasVisibleAccidental (noteobj) {
     {
         return True;
     }
-    
+
     if (has_prev_pitch_with_accidental = True and accid = '')
     {
         // this is the corresponding return value for special cased naturals.
@@ -653,7 +653,7 @@ function ConvertNoteStyle (style) {
         case (CrossOrDiamondNoteStyle)
         {
             // Sibelius uses this for percussion
-            // and does not differentiate in the 
+            // and does not differentiate in the
             // head style, so we have to choose one
             // or the other.
             noteStyle = 'cross';

@@ -8,7 +8,7 @@ function GenerateMEIHeader () {
     titleS = libmei.TitleStmt();
     libmei.AddChild(header, fileD);
     libmei.AddChild(fileD, titleS);
-    
+
     workDesc = libmei.WorkDesc();
     wd_work = libmei.Work();
     wd_titleStmt = libmei.TitleStmt();
@@ -18,7 +18,7 @@ function GenerateMEIHeader () {
     libmei.AddChild(wd_titleStmt, wd_respStmt);
     libmei.AddChild(wd_work, wd_titleStmt);
     libmei.AddChild(workDesc, wd_work);
-    
+
     title = libmei.Title();
     libmei.AddChild(titleS, title);
 
@@ -79,7 +79,7 @@ function GenerateMEIHeader () {
     libmei.AddChild(respS, persN);
     pubS = libmei.PubStmt();
     libmei.AddChild(fileD, pubS);
-    
+
     avail = libmei.Availability();
     ur = libmei.UseRestrict();
     libmei.AddChild(avail, ur);
@@ -110,7 +110,7 @@ function GenerateMEIHeader () {
     libmei.SetId(plgapp, 'sibmei');
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
-    
+
     libmei.AddChild(header, workDesc);
 
     return header;
@@ -126,7 +126,7 @@ function GenerateMEIMusic () {
     Self._property:SystemText = CreateDictionary();
     Self._property:LayerObjectPositions = null;
     Self._property:ObjectPositions = CreateDictionary();
-    
+
     // the section parent is used in case we need to inject
     // a new parent later (e.g., for endings)
     Self._property:SectionParent = null;
@@ -151,7 +151,7 @@ function GenerateMEIMusic () {
 
     if (frontpages.Length > 0)
     {
-        // sort the front pages 
+        // sort the front pages
         // Log('front: ' & frontmatter);
 
         sorted_front = utils.SortArray(frontpages, False);
@@ -309,11 +309,11 @@ function GenerateMeasure (num) {
     // since so much metadata about the staff and other context
     // is available on the bar that should now be on the measure, go through the bars
     // and try to extract it.
-    
+
     systf = score.SystemStaff;
     currTimeS = systf.CurrentTimeSignature(num);
     sysBar = systf[num];
-    
+
     if (sysBar.Length != (currTimeS.Numerator * 1024 / currTimeS.Denominator))
     {
         libmei.AddAttribute(m, 'metcon', 'false');
@@ -321,7 +321,7 @@ function GenerateMeasure (num) {
 
     systf = score.SystemStaff;
     sysBar = systf[num];
-    
+
     if (sysBar.NthBarInSystem = 0)
     {
         Self._property:SystemBreak = libmei.Sb();
@@ -503,7 +503,7 @@ function GenerateLayers (staffnum, measurenum) {
                     objVoice[bobj.Position] = note._id;
 
                     normalizedBeamProp = NormalizedBeamProp(bobj);
-                  
+
                     if (normalizedBeamProp = SingleBeam)
                     {
                         if (bobj.GraceNote)
@@ -518,7 +518,7 @@ function GenerateLayers (staffnum, measurenum) {
                         // or the registration of previous notes.
                         libmei.AddAttribute(prevNote, 'breaksec', '1');
                     }
-                    
+
                     // fetch or create the active beam object (if any)
                     beam = ProcessBeam(bobj, l, normalizedBeamProp);
 
@@ -533,7 +533,7 @@ function GenerateLayers (staffnum, measurenum) {
                         {
                             if (beam._parent = l._id)
                             {
-                                /* 
+                                /*
                                    If the beam has been previously added to the layer but now
                                    finds itself part of a tuplet, shift the tuplet to a tupletSpan. This
                                    effectively just replaces the active tuplet with a tupletSpan element
@@ -915,7 +915,7 @@ function GenerateRest (bobj) {
     libmei.AddAttribute(r, 'dur', meidur[0]);
     libmei.AddAttribute(r, 'dur.ges', dur & 'p');
     libmei.AddAttribute(r, 'dots', meidur[1]);
-    
+
     if (bobj.Dx != 0 and name != 'space')
     {
         libmei.AddAttribute(r, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
@@ -1089,7 +1089,7 @@ function GenerateNote (nobj) {
     }
 
     /*
-        If we have an unresolved tie with the same pitch number from the previous bar, 
+        If we have an unresolved tie with the same pitch number from the previous bar,
         assume that it stretches to this bar. Look backwards to see if this is the case
         and set it as the end of the tie.
     */
@@ -1173,7 +1173,7 @@ function GenerateBarRest (bobj) {
             return null;
         }
     }
-    
+
     fermata = GenerateFermata(bobj);
     if (fermata != null)
     {
@@ -1264,7 +1264,7 @@ function GenerateStaffGroups (score) {
         libmei.AddAttribute(std, 'n', s.StaffNum);
         libmei.AddAttribute(std, 'label', s.FullInstrumentName);
         libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
-        
+
         clefinfo = ConvertClef(s.InitialClefStyleId);
         libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
         libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
@@ -1341,7 +1341,7 @@ function GenerateStaffGroups (score) {
         {
             libmei.AddChild(parentstgrp, staffdict[j]);
         }
-        
+
     }
     return parentstgrp;
 }  //$end
@@ -1349,7 +1349,7 @@ function GenerateStaffGroups (score) {
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
     tuplet = libmei.Tuplet();
-  
+
     libmei.AddAttribute(tuplet, 'num', tupletObj.Left);
     libmei.AddAttribute(tuplet, 'numbase', tupletObj.Right);
 
@@ -1380,7 +1380,7 @@ function GenerateTuplet(tupletObj) {
             libmei.AddAttribute(tuplet, 'bracket.visible', 'false');
         }
     }
-    
+
     tuplet._property:SibTuplet = tupletObj;
 
     return tuplet;
@@ -1428,7 +1428,7 @@ function GenerateLine (bobj) {
         }
         case ('Line')
         {
-            // a generic line element. 
+            // a generic line element.
             linecomps = MSplitString(bobj.StyleId, '.');
             switch(linecomps[2])
             {
@@ -1471,7 +1471,7 @@ function GenerateLine (bobj) {
 
 function GenerateTrill (bobj) {
     //$module(ExportGenerators.mss)
-    /* There are two types of trills in Sibelius: A line object and a 
+    /* There are two types of trills in Sibelius: A line object and a
         symbol object. This method normalizes both of these.
     */
     trill = libmei.Trill();
@@ -1491,7 +1491,7 @@ function GenerateTrill (bobj) {
 
 function GenerateFermata (bobj) {
     //$module(ExportGenerators.mss)
-    /* Note rests can have multiple fermatas in Sibelius, 
+    /* Note rests can have multiple fermatas in Sibelius,
         but this is currently not supported.
         Also, fermatas added as symbols are not yet handled.
     */
@@ -1533,19 +1533,19 @@ function GenerateFermata (bobj) {
             }
         }
     }
-    
+
     if (shape = null)
     {
         return null;
     }
-        
+
     fermata = libmei.Fermata();
-    
+
     libmei.AddAttribute(fermata, 'form', 'norm');
     libmei.AddAttribute(fermata, 'shape', shape);
-    
+
     fermata = AddBarObjectInfoToElement(bobj, fermata);
-    
+
     return fermata;
 }  //$end
 
@@ -1567,7 +1567,7 @@ function GenerateFormattedString (bobj) {
     //$module(ExportGenerators.mss)
     /*
         Returns an array containing at least one paragraph
-        tag, formatted with the <rend> element. 
+        tag, formatted with the <rend> element.
 
         Multiple paragraph tags may be returned if the formatting string contains
         a '\n\' (new paragraph)
@@ -1757,7 +1757,7 @@ function GenerateFormattedString (bobj) {
 
                         case ('f')
                         {
-                            // our info block should either contain 
+                            // our info block should either contain
                             // a font name or an underscore to switch
                             // back to the default font.
                             // Log('Font: ' & activeinfo);
@@ -1784,7 +1784,7 @@ function GenerateFormattedString (bobj) {
         }
     }
 
-    // 
+    //
     if (ctx = TEXTSTR and activetext != '')
     {
         // if we end the text on a text string, append it to the active paragraph element.

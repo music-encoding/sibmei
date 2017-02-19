@@ -87,25 +87,25 @@ function ProcessTuplet (noteRest, meielement, layer) {
     {
         return null;
     }
-    
+
     /*
        We encode inner tuplets of nested tuplet structures as <tupletSpan>s.
        Therefore we always return the outermost MEI tuplet for content to be added.
        Still, we need to keep track of the inner tuplets to assign the @endid.
        layer._property:ActiveMeiTuplet always points to the innermost tuplet.
     */
-    
+
     activeMeiTuplet = layer._property:ActiveMeiTuplet;
-    
+
     tupletIsContinued = activeMeiTuplet != null and TupletsEqual(noteRest.ParentTupletIfAny, activeMeiTuplet._property:SibTuplet);
-    
+
     if (not(tupletIsContinued))
     {
         // New tuplets need to be added
         noteRestTupletStack = GetTupletStack(noteRest);
         sibTuplet = null;
         meiTupletDepth = GetMeiTupletDepth(layer);
-      
+
         for i = meiTupletDepth to noteRestTupletStack.Length
         {
             sibTuplet = noteRestTupletStack[i];
@@ -131,8 +131,7 @@ function ProcessTuplet (noteRest, meielement, layer) {
         meiTuplet = meiTuplet._property:ParentTuplet;
     }
     layer._property:ActiveMeiTuplet = meiTuplet;
-    
-    
+
     outermostMeiTuplet = activeMeiTuplet;
     while (outermostMeiTuplet._property:ParentTuplet)
     {
@@ -147,10 +146,10 @@ function ShiftTupletToTupletSpan (tuplet) {
         Shifts the tuplet object to a tupletSpan object. This is
         useful if we need to define a tuplet outside of a hierarchy;
         for example, if a tuplet is only on part of a beam group.
-        
+
         A tupletSpan supports many of the same attributes as a tuplet
         object, so we can copy the attributes verbatim. Functionally,
-        it should behave the same way as a tuplet, except that it 
+        it should behave the same way as a tuplet, except that it
         takes no child elements and the parent element is the measure,
         not the layer. These two things get handled higher up the
         processing chain, however, so we don't have to worry about them here.
@@ -173,7 +172,7 @@ function ShiftTupletToTupletSpan (tuplet) {
     mobjs = Self._property:MeasureObjects;
     mobjs.Push(tupletSpan._id);
     Self._property:MeasureObjects = mobjs;
-    
+
     return tupletSpan;
 }  //$end
 
@@ -286,7 +285,7 @@ function ProcessLyric (lyricobj, objectPositions) {
             syllables = MSplitString(syltext, '_');
             sylarray = CreateSparseArray();
 
-            // reset the text of the first syllable element to the first half of the syllable. 
+            // reset the text of the first syllable element to the first half of the syllable.
             libmei.SetText(sylel, syllables[0]);
             libmei.AddAttribute(sylel, 'con', 'b');
 
@@ -443,7 +442,7 @@ function ProcessVolta (mnum) {
     {
         if (Self._property:ActiveVolta != null)
         {
-            // we have an unresolved volta, so 
+            // we have an unresolved volta, so
             // we'll keep the previous parentElement
             // active.
             activeVolta = Self._property:ActiveVolta;
@@ -476,7 +475,7 @@ function ProcessTremolo (bobj) {
     tremEl = libmei.FTrem();
     libmei.AddAttribute(tremEl, 'slash', bobj.DoubleTremolos);
     libmei.AddAttribute(tremEl, 'measperf')
-    
+
 } //$end
 
 function ProcessSymbol (sobj) {
