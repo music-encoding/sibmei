@@ -1,1 +1,3 @@
 *.plg diff=sibeliusplugin
+*.mss linguist-vendored
+*.plg linguist-vendored
