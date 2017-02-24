@@ -287,7 +287,7 @@ function GetMeiTupletDepth (layer) {
     //$module(Utilities.mss)
     depth = 0;
     tuplet = layer._property:ActiveMeiTuplet;
-    while (tuplet)
+    while (tuplet != null)
     {
         depth = depth + 1;
         tuplet = tuplet._property:ParentTuplet;
