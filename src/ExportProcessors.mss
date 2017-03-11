@@ -184,6 +184,12 @@ function ProcessLyric (lyricobj, objectPositions) {
         syllables in an array until we reach the end of the word, and then
         attach them to the notes.
     */
+  
+    if (lyricobj.Text = '')
+    {
+        return null;
+    }
+  
     styleparts = MSplitString(lyricobj.StyleId, '.');
     verse_id = styleparts[5];
     verse_id_arr = MSplitString(verse_id, false);
