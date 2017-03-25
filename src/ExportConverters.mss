@@ -806,7 +806,7 @@ function ConvertPositionWithDurationToTimestamp (bobj) {
     startBarNum = startBar.BarNumber;
     endBarNum = bobj.EndBarNumber;
     endBar = startBar.ParentStaff.NthBar(endBarNum);
-    endPosition = bobj.EndPosition;
+    endPosition = NormalizedEndPosition(bobj);
     measureDuration = endBarNum - startBarNum;
     position = ConvertPositionToTimestamp(endPosition, endBar);
 

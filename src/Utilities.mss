@@ -89,6 +89,7 @@ function GetNoteObjectAtPosition (bobj) {
     staff_num = bobj.ParentBar.ParentStaff.StaffNum;
     bar_num = bobj.ParentBar.BarNumber;
     voice_num = bobj.VoiceNumber;
+    position = bobj.Position;
 
     staffObjectPositions = objectPositions[staff_num];
     barObjectPositions = staffObjectPositions[bar_num];
@@ -101,9 +102,9 @@ function GetNoteObjectAtPosition (bobj) {
         return null;
     }
 
-    if (voiceObjectPositions.PropertyExists(bobj.Position))
+    if (voiceObjectPositions.PropertyExists(position))
     {
-        obj_id = voiceObjectPositions[bobj.Position];
+        obj_id = voiceObjectPositions[position];
         obj = libmei.getElementById(obj_id);
         return obj;
     }
@@ -140,7 +141,7 @@ function GetNoteObjectAtPosition (bobj) {
 function AddBarObjectInfoToElement (bobj, element) {
     //$module(Utilities.mss)
     /*
-        adds timing and position info (tstamps, etc.) to an element.
+        adds timing and position info (startids, endids, tstamps, etc.) to an element.
         This info is mostly derived from the base BarObject class.
     */
     voicenum = bobj.VoiceNumber;
@@ -154,47 +155,15 @@ function AddBarObjectInfoToElement (bobj, element) {
         warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
     }
 
-    if (bobj.Type = 'Line')
-    {
-        // lines have durations, but symbols do not.
-        if (bobj.Duration > 0)
-        {
-            libmei.AddAttribute(element, 'dur.ges', bobj.Duration & 'p');
-        }
-    }
-
     libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
-
-    switch (bobj.Type)
-    {
-        case('Line')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('Slur')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('DiminuendoLine')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('CrescendoLine')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('GlissandoLine')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('Trill')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-    }
-
     libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
     libmei.AddAttribute(element, 'layer', voicenum);
+
+    startNote = GetNoteObjectAtPosition(bobj);
+    if (startNote != null)
+    {
+        libmei.AddAttribute(element, 'startid', '#' & startNote._id);
+    }
 
     if (bobj.Dx > 0)
     {
@@ -462,3 +431,115 @@ function GetNongraceParentBeam (noteRest, layer) {
     return null;
 }  //$end
 
+function SpannerAppliesToBobj (spanner, bobj) {
+    //$module(Utilities.mss)
+    spannerVoiceNum = spanner.VoiceNumber;
+    if ((spannerVoiceNum != 0) and (spannerVoiceNum != bobj.VoiceNumber))
+    {
+        return false;
+    }
+    bobjBar = bobj.ParentBar;
+    bobjBarNum = bobjBar.BarNumber;
+    startBar = spanner.ParentBar;
+    startBarNum = startBar.BarNumber;
+    endBarNum = spanner.EndBarNumber;
+    if ((bobjBarNum > endBarNum) or (bobjBarNum < startBarNum)) 
+    {
+        return false;
+    }
+    bobjStaff = bobjBar.ParentStaff;
+    spannerStaff = startBar.ParentStaff;
+    if (bobjStaff.StaffNum != spannerStaff.StaffNum)
+    {
+        return false;
+    }
+    
+    startPos = spanner.Position;
+    bobjPos = bobj.Position;
+    if ((bobjBarNum = startBarNum) and (bobjPos < startPos))
+    {
+        return false;
+    }
+
+    if (bobjBarNum = endBarNum)
+    {
+        endPos = NormalizedEndPosition(spanner);
+
+        if (bobj.Type = 'OctavaLine') 
+        {
+            // Sibelius does not consider a note at the EndPosition of an
+            // ottava line to be part of the ottava. This becomes clear
+            //  * when creating an ottava for a single note (will stretch
+            //    until the Position of the next note - and visually beyond)
+            //  * when exporting MIDI (the note at the EndPosition will not
+            //    be transposed)
+            // Other lines might behave similarly and will have to be added.
+            appliesToEndPosition = false;
+        }
+        else
+        {
+            appliesToEndPosition = true;
+        }
+
+        if (appliesToEndPosition)
+        {
+            return bobjPos < endPos;
+        }
+        else
+        {
+            return bobjPos <= endPos;
+        }
+    }
+    return true;
+}  //$end
+
+function NormalizedEndPosition (bobj) {
+    //$module(Utilities.mss)
+    /*
+      When spanners like octava lines are spanning until the end of a 
+      measure, they by default get their EndBarNumber set to the next 
+      bar and EndPosition set to 0.  However, if they end at the end of
+      the last bar, EndBarNumber is set to this last bar and 
+      EndPosition is set to 0, i.e. it looks as if it ended at the
+      beginning, not the end, of the last measure.
+
+      To tell apart whether a spanner ends at the beginning or the end
+      of the last measure, we also need to take into account Duration.
+      If Duration indicates that the spanner continues to the end of
+      the measure, we return the Length of the measure as EndPosition,
+      e.g. 1024 in 4/4 time. Sibelius would never return this value
+      (it would use values from 0 to 1023), but this value is very
+      sensible when calculating a @tstamp2 in MEI. (1024 in 4/4 would
+      translate to the 5th beat, which in MEI means attachment to the
+      ending barline.)
+    */
+    endPosition = bobj.EndPosition;
+    if (endPosition = 0)
+    {
+        bar = bobj.ParentBar;
+        staff = bar.ParentStaff;
+        barCount = staff.BarCount;
+        if (bobj.EndBarNumber = barCount)
+        {
+            if (bar.BarNumber = barCount)
+            {
+                return bobj.Duration;
+            }
+            else
+            {
+                durationSum = bar.Length - bobj.Position;
+                for n = bar.BarNumber + 1 to barCount
+                {
+                    nthBar = staff.NthBar(n);
+                    durationSum = durationSum + nthBar.Length;
+                }
+                if (bobj.Duration > durationSum)
+                {
+                    bar = staff.NthBar(barCount);
+                    return bar.Length;
+                }
+            }
+        }
+    }
+    return endPosition;
+}  //$end
