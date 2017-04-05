@@ -769,14 +769,9 @@ function ConvertPositionToTimestamp (position, bar) {
         To convert Sibelius ticks to musical timestamps
         we use the formula:
 
-        tstamp = (notePosition / (barLength / beatsInBar))
+        tstamp = (notePosition / beatDuration)
     */
 
-    // make sure we're working with floating point numbers
-    // and yes, this makes me feel very, very dirty in case
-    // you were wondering, but this is the only way ManuScript
-    // can cast to floating point...
-    barlength = bar.Length;
     timesignature = Sibelius.ActiveScore.SystemStaff.CurrentTimeSignature(bar.BarNumber);
 
     if (position = 0)
@@ -784,11 +779,9 @@ function ConvertPositionToTimestamp (position, bar) {
         return 1;
     }
 
-    barlen = barlength & '.0';
-    pos = position & '.0';
-    beats = timesignature.Numerator & '.0';
-    unit = (barlen / beats);
-    ret = (pos / unit) + 1;
+    // Make sure we're working with floating point numbers with '.0'
+    beatDuration = 1024.0 / timesignature.Denominator;
+    ret = (position / beatDuration) + 1;
 
     return ret;
 }  //$end
