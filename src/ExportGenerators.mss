@@ -140,6 +140,9 @@ function GenerateMEIMusic () {
     Self._property:SystemBreak = null;
     Self._property:FrontMatter = CreateDictionary();
 
+    // Track active spanners staff by staff
+    Self._property:ActiveSpannerByStaff = CreateSparseArray();
+
     // grab some global markers from the system staff
     // This will store it for later use.
     ProcessSystemStaff(score);
@@ -287,6 +290,9 @@ function GenerateMEIMusic () {
             libmei.AddChild(section, m);
         }
     }
+
+    // End any remaining active spanners
+    ProcessActiveSpanners(null, null);
 
     return music;
 }  //$end
@@ -892,6 +898,8 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', stemmod);
     }
 
+    ProcessActiveSpanners(bobj, nr._id);
+
     return nr;
 }  //$end
 
@@ -1422,9 +1430,8 @@ function GenerateLine (bobj) {
         }
         case ('Trill')
         {
-            line = GenerateTrill(bobj);
-            // NB: Return here since the trill already has its properties set.
-            return line;
+            line = libmei.Trill();
+            libmei.AddAttribute(line, 'extender', 'true');
         }
         case ('Line')
         {
@@ -1463,29 +1470,17 @@ function GenerateLine (bobj) {
         return null;
     }
 
-    line = AddBarObjectInfoToElement(bobj, line);
+    bobj._property:Plist = CreateSparseArray();
+
+    // We add this spanner to the linked list of active spanners
+    staffNum = bobj.ParentBar.ParentStaff.StaffNum;
+    activeSpannerByStaff = Self._property:ActiveSpannerByStaff;
+    bobj._property:NextActiveSpanner = activeSpannerByStaff[staffNum];
+    activeSpannerByStaff[staffNum] = bobj;
+
+    bobj._property:MeiElement = line;
 
     return line;
-}  //$end
-
-
-function GenerateTrill (bobj) {
-    //$module(ExportGenerators.mss)
-    /* There are two types of trills in Sibelius: A line object and a
-        symbol object. This method normalizes both of these.
-    */
-    trill = libmei.Trill();
-    bar = bobj.ParentBar;
-    obj = GetNoteObjectAtPosition(bobj);
-
-    if (obj != null)
-    {
-        libmei.AddAttribute(trill, 'startid', '#' & obj._id);
-    }
-
-    trill = AddBarObjectInfoToElement(bobj, trill);
-
-    return trill;
 }  //$end
 
 
