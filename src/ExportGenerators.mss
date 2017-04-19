@@ -644,6 +644,13 @@ function GenerateLayers (staffnum, measurenum) {
                 {
                     l._property:PrevNote = note;
                 }
+
+                if (bobj.ArpeggioType != ArpeggioTypeNone) {
+                    arpeg = GenerateArpeggio(bobj);
+                    mobjs = Self._property:MeasureObjects;
+                    mobjs.Push(arpeg._id);
+                    Self._property:MeasureObjects = mobjs;
+                }
             }
             case('BarRest')
             {
@@ -681,6 +688,10 @@ function GenerateLayers (staffnum, measurenum) {
             case('Trill')
             {
                 mobj = GenerateLine(bobj);
+            }
+            case('ArpeggioLine')
+            {
+                mobj = GenerateArpeggio(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -1513,6 +1524,70 @@ function GenerateLine (bobj) {
     line = AddBarObjectInfoToElement(bobj, line);
 
     return line;
+}  //$end
+
+
+function GenerateArpeggio (bobj) {
+    //$module(ExportGenerators.mss)
+    arpeg = libmei.Arpeg();
+    orientation = null;
+
+    switch (bobj.Type)
+    {
+        case ('NoteRest')
+        {
+            switch (bobj.ArpeggioType)
+            {
+                case (ArpeggioTypeUp)
+                {
+                    orientation = 1;
+                }
+                case (ArpeggioTypeDown)
+                {
+                    orientation = -1;
+                }
+            }
+            if (bobj.ArpeggioBottomDy > bobj.ArpeggioTopDy)
+            {
+                // Arpeggio was manipulated to be upside down
+                orientation = -1 * orientation;
+            }
+        }
+        case ('ArpeggioLine')
+        {
+            if (bobj.StyleId != 'line.staff.arpeggio') {
+                // This means:  Line style is line.staff.arpeggio.up or
+                // line.staff.arpeggio.down.
+                // Strangely, the line style does not really matter for the
+                // visual orientation of the arpeggio.  As long as RhDy and
+                // and Dy properties are identical, arpeggios look the same,
+                // independant of the two line styles with arrowheads.
+                orientation = bobj.RhDy - bobj.Dy;
+            }
+        }
+    }
+
+    if (orientation = null)
+    {
+        libmei.AddAttribute(arpeg, 'arrow', 'false');
+    }
+    else
+    {
+        libmei.AddAttribute(arpeg, 'arrow', 'true');
+
+        if (orientation > 0)
+        {
+            libmei.AddAttribute(arpeg, 'order', 'up');
+        }
+        else
+        {
+            libmei.AddAttribute(arpeg, 'order', 'down');
+        }
+    }
+
+    arpeg = AddBarObjectInfoToElement(bobj, arpeg);
+
+    return arpeg;
 }  //$end
 
 
