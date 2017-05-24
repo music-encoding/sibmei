@@ -462,3 +462,100 @@ function GetNongraceParentBeam (noteRest, layer) {
     return null;
 }  //$end
 
+function InitFigbassCharMap () {
+    //$module(Utilities.mss)
+    map = CreateDictionary(
+        '§', '♮',
+        '#', '♯',
+        '!', '♭',
+        '?', '𝄪',
+        '%', '𝄫',
+        'a', '(2)',
+        'i', '[2]',
+        'w', '2♮',
+        's', '2♯',
+        'x', '2♭',
+        'W', '♮2',
+        'S', '♯2',
+        'X', '♭2',
+        'k', '2+',
+        'p', '(3)',
+        'q', '[3]',
+        'e', '3♮',
+        'd', '3♯',
+        'c', '3♭',
+        'E', '♮3',
+        'D', '♯3',
+        'C', '♭3',
+        'z', '3+',
+        'A', '(4)',
+        'I', '[4]',
+        'r', '4♮',
+        'f', '4♯',
+        'v', '4♭',
+        'R', '♮4',
+        'F', '♯4',
+        'V', '♭4',
+        'K', '4+',
+        'P', '(5)',
+        'Q', '[5]',
+        't', '5♮',
+        'g', '5♯',
+        'b', '5♭',
+        'T', '♮5',
+        'G', '♯5',
+        'B', '♭5',
+        'Z', '5+',
+        '$', '(6)',
+        '¨', '[6]',
+        'y', '6♮',
+        'h', '6♯',
+        'n', '6♭',
+        'Y', '♮6',
+        'H', '♯6',
+        'N', '♭6',
+        ',', '6+',
+        'Â', '(7)',
+        ';', '[7]',
+        'u', '7♮',
+        'j', '7♯',
+        'm', '7♭',
+        'U', '♮7',
+        'J', '♯7',
+        'M', '♭7',
+        '<', '7+',
+        '>', '+7',
+        '=', '(8)',
+        'Ö', '[8]',
+        'À', '(9)',
+        '{', '[9]',
+        'o', '9♮',
+        'l', '9♯',
+        'ë', '9♭',
+        'O', '♮9',
+        'L', '♯9',
+        ':', '♭9',
+        '}', '9+',
+        'Å', '|',
+        'ü', '_',
+        '©', CreateSparseArray('2♯', 'U+EA53'), // 2 with slashed foot
+        'Ä', CreateSparseArray('4♯', 'U+EA56'), // 4 with slashed horizontal line
+        'Ë', CreateSparseArray('5♯', 'U+EA58'), // 5 with straight slash through head
+        'Ï', CreateSparseArray('5♯', 'U+EA59'), // 5 with angled slash through head
+        'ï', CreateSparseArray('5♯', 'U+EA5A'), // 5 with slashed foot
+        '´', CreateSparseArray('6♯', 'U+EA6F'), // 6 with slashed head
+        'ä', CreateSparseArray('7♯', 'U+EA5E'), // 7 with slashed head
+        '&', CreateSparseArray('7♯', 'U+EA5F'), // 7 with slashed stem
+        // (Sibelius/Opus and SMuFL/Bravura don't match 100% for the slashed 9:
+        // Opus slashes the stem, Bravura the head)
+        'ö', CreateSparseArray('9#', 'U+EA62')  // slashed 9
+    );
+    literalChars = '0123456789[]_-+.';
+    for i = 0 to Length(literalChars)
+    {
+        char = CharAt(literalChars, i);
+        map[char] = char;
+    }
+
+    return map;
+}  //$end
