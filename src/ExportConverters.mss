@@ -985,6 +985,7 @@ function ConvertFbFigures (fb, bobj) {
 
     n = 1;
     currentLine = '';
+    altsym = null;
     components = bobj.TextWithFormatting;
 
     // Strangely, components.Length is null, so we can't use a for loop.
@@ -1004,6 +1005,11 @@ function ConvertFbFigures (fb, bobj) {
                 libmei.SetText(f, currentLine);
                 libmei.AddAttribute(f, 'n', n);
                 libmei.AddChild(fb, f);
+                if (altsym != null)
+                {
+                    libmei.AddAttribute(f, 'altsym', altsym);
+                    altsym = null;
+                }
             }
             n = n + 1;
             currentLine = '';
@@ -1031,6 +1037,7 @@ function ConvertFbFigures (fb, bobj) {
                             // with two entries: The normalized format and the SMuFL
                             // codepoint.
                             currentLine = currentLine & outputChar[0];
+                            altsym = GenerateSmuflAltsym(outputChar[1], outputChar[2]);
                         }
                         else
                         {
