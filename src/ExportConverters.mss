@@ -933,6 +933,15 @@ function ConvertText (textobj) {
             libmei.AddChild(tempo, atext);
             return tempo;
         }
+        case ('text.staff.space.figuredbass')
+        {
+            harm = libmei.Harm();
+            harm = AddBarObjectInfoToElement(textobj, harm);
+            fb = libmei.Fb();
+            libmei.AddChild(harm, fb);
+            ConvertFbFigures(fb, textobj);
+            return harm;
+        }
         default
         {
             return null;
@@ -959,6 +968,86 @@ function ConvertTextElement (textobj) {
     }
 
     return obj;
+}  //$end
+
+function ConvertFbFigures (fb, bobj) {
+    //$module(ExportConverters)
+    if (Self._property:FigbassCharMap = null)
+    {
+        Self._property:FigbassCharMap = InitFigbassCharMap();
+    }
+    if (Self._property:FigbassSmuflMap = null)
+    {
+        Self._property:FigbassSmuflMap = CreateDictionary();
+    }
+    figbassCharMap = Self._property:FigbassCharMap;
+    figbassSmuflMap = Self._property:FigbassSmuflMap;
+
+    n = 1;
+    currentLine = '';
+    altsym = null;
+    components = bobj.TextWithFormatting;
+
+    // Strangely, components.Length is null, so we can't use a for loop.
+    // We want one more iteration than we have components, hence we start at
+    // -1.
+    i = -1;
+    while ((i = -1) or (component != null))
+    {
+        i = i + 1;
+        component = components[i];
+        if ((component = null) or (component = '\\n\\'))
+        {
+            // We reached a linebreak or the last component
+            if (currentLine != '')
+            {
+                f = libmei.F();
+                libmei.SetText(f, currentLine);
+                libmei.AddAttribute(f, 'n', n);
+                libmei.AddChild(fb, f);
+                if (altsym != null)
+                {
+                    libmei.AddAttribute(f, 'altsym', altsym);
+                    altsym = null;
+                }
+            }
+            n = n + 1;
+            currentLine = '';
+        }
+        else
+        {
+            if (CharAt(component, 0) != '\\')
+            {
+                // We ignore formatting, i.e. text that is encoded with leading '\'
+                for j = 0 to Length(component)
+                {
+                    sibChar = CharAt(component, j);
+                    outputChar = figbassCharMap[sibChar];
+                    if (outputChar = null)
+                    {
+                        // Char is not in map => Convert literally
+                        currentLine = currentLine & sibChar;
+                    }
+                    else
+                    {
+                        if (IsObject(outputChar))
+                        {
+                            // This is a special char that we output in normalized form
+                            // with a reference to a SMuFL glyph. outputChar is an array
+                            // with two entries: The normalized format and the SMuFL
+                            // codepoint.
+                            currentLine = currentLine & outputChar[0];
+                            altsym = GenerateSmuflAltsym(outputChar[1], outputChar[2]);
+                        }
+                        else
+                        {
+                            currentLine = currentLine & outputChar;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }  //$end
 
 function ConvertEndingValues (styleid) {

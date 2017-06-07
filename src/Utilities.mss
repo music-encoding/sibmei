@@ -48,7 +48,7 @@ function PrevPow2 (val) {
     val = utils.bwOR(val, utils.shr(val, 4));
     val = utils.bwOR(val, utils.shr(val, 8));
     val = utils.bwOR(val, utils.shr(val, 16));
-    // this might be a hack, but I wrote it in 
+    // this might be a hack, but I wrote it in
     // a power outage with no internet.
     // we get the next power of two, and then
     // divide by two to get the previous one.
@@ -58,7 +58,7 @@ function PrevPow2 (val) {
 
 function SimpleNoteHash (nobj) {
     //$module(Utilities.mss)
-    /* 
+    /*
         Generate a simple note hash. Not guaranteed to be unique given
         any suitably large sample of notes, but should be unique enough for quick
         checks.
@@ -250,12 +250,12 @@ function GetTupletStack (bobj) {
 function CountTupletsEndingAtNoteRest(noteRest) {
     //$module(Utilities.mss)
     tuplet = noteRest.ParentTupletIfAny;
-  
+
     if (tuplet = null)
     {
         return 0;
     }
-  
+
     nextNoteRest = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
 
     if (nextNoteRest = null or nextNoteRest.ParentTupletIfAny = null)
@@ -263,23 +263,23 @@ function CountTupletsEndingAtNoteRest(noteRest) {
         tupletStack = GetTupletStack(noteRest);
         return tupletStack.Length;
     }
-    
+
     if (TupletsEqual(tuplet, nextNoteRest.ParentTupletIfAny))
     {
         return 0;
     }
-    
+
     tupletStack = GetTupletStack(noteRest);
     nextTupletStack = GetTupletStack(nextNoteRest);
-    
+
     // We are looking for the highest index where both stacks are identical.
     index = utils.min(tupletStack.Length, nextTupletStack.Length) - 1;
-    
+
     while (index >= 0 and not(TupletsEqual(tupletStack[index], nextTupletStack[index])))
     {
         index = index - 1;
     }
-    
+
     return tupletStack.Length - 1 - index;
 }  //$end
 
@@ -339,7 +339,7 @@ function NormalizedBeamProp (noteRest) {
     {
         return NoBeam;
     }
-    
+
     // At this point, we're only dealing with ContinueBeam and SingleBeam.
     // We need to look at the preceding note to see whether there's any
     // beam to continue.
@@ -347,24 +347,24 @@ function NormalizedBeamProp (noteRest) {
     if (noteRest.Beam != StartBeam)
     {
         prev_obj = PrevNormalOrGrace(noteRest, noteRest.GraceNote);
-        
+
         if (prev_obj != null and prev_obj.Beam != NoBeam and prev_obj.Duration < 256)
         {
             // We actually have a beam we can continue.
             if (noteRest.Beam = SingleBeam and noteRest.Duration < 128 and prev_obj.Duration < 128)
             {
-                // SingleBeam only makes sense if we actually have secondary beams between the 
+                // SingleBeam only makes sense if we actually have secondary beams between the
                 // previous note and the current note.
                 return SingleBeam;
             }
             return ContinueBeam;
         }
     }
-    
+
     // At this point, we know there is no previous beam we can continue because we have a
     // StartBeam or the above test for a previous beam failed.
     // We still need to check whether there is a following note that we can beam to.
-    
+
     next_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote);
     if (next_obj != null and next_obj.Duration < 256 and (next_obj.Beam = ContinueBeam or next_obj.Beam = SingleBeam))
     {
@@ -381,9 +381,9 @@ function NextNormalOrGrace (noteRest, grace) {
     /*
         When given a 'normal' NoteRest, this function returns the next 'normal' NoteRest
         in the same voice.
-        When given a grace NoteRest, this function returns the immediately adjacent 
+        When given a grace NoteRest, this function returns the immediately adjacent
         following grace NoteRest, if existant.
-        This function is basically a duplicate of PrevNormalOrGrace() with 
+        This function is basically a duplicate of PrevNormalOrGrace() with
         'Previous' replaced by 'Next'.
     */
     next_obj = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
@@ -411,7 +411,7 @@ function PrevNormalOrGrace (noteRest, grace) {
     //$module(Utilities.mss)
     /*
         For a description, see NextNormalOrGrace().
-        This function is basically a duplicate of PrevNormalOrGrace() with 
+        This function is basically a duplicate of PrevNormalOrGrace() with
         'Next' replaced by 'Previous'.
     */
     prev_obj = noteRest.PreviousItem(noteRest.VoiceNumber, 'NoteRest');
@@ -462,3 +462,100 @@ function GetNongraceParentBeam (noteRest, layer) {
     return null;
 }  //$end
 
+function InitFigbassCharMap () {
+    //$module(Utilities.mss)
+    map = CreateDictionary(
+        '§', '♮',
+        '#', '♯',
+        '!', '♭',
+        '?', '𝄪',
+        '%', '𝄫',
+        'a', '(2)',
+        'i', '[2]',
+        'w', '2♮',
+        's', '2♯',
+        'x', '2♭',
+        'W', '♮2',
+        'S', '♯2',
+        'X', '♭2',
+        'k', '2+',
+        'p', '(3)',
+        'q', '[3]',
+        'e', '3♮',
+        'd', '3♯',
+        'c', '3♭',
+        'E', '♮3',
+        'D', '♯3',
+        'C', '♭3',
+        'z', '3+',
+        'A', '(4)',
+        'I', '[4]',
+        'r', '4♮',
+        'f', '4♯',
+        'v', '4♭',
+        'R', '♮4',
+        'F', '♯4',
+        'V', '♭4',
+        'K', '4+',
+        'P', '(5)',
+        'Q', '[5]',
+        't', '5♮',
+        'g', '5♯',
+        'b', '5♭',
+        'T', '♮5',
+        'G', '♯5',
+        'B', '♭5',
+        'Z', '5+',
+        '$', '(6)',
+        '¨', '[6]',
+        'y', '6♮',
+        'h', '6♯',
+        'n', '6♭',
+        'Y', '♮6',
+        'H', '♯6',
+        'N', '♭6',
+        ',', '6+',
+        'Â', '(7)',
+        ';', '[7]',
+        'u', '7♮',
+        'j', '7♯',
+        'm', '7♭',
+        'U', '♮7',
+        'J', '♯7',
+        'M', '♭7',
+        '<', '7+',
+        '>', '+7',
+        '=', '(8)',
+        'Ö', '[8]',
+        'À', '(9)',
+        '{', '[9]',
+        'o', '9♮',
+        'l', '9♯',
+        'ë', '9♭',
+        'O', '♮9',
+        'L', '♯9',
+        ':', '♭9',
+        '}', '9+',
+        'Å', '|',
+        'ü', '_',
+        '©', CreateSparseArray('2♯', 'U+EA53', 'figbass2Raised' ), // 2 with slashed foot
+        'Ä', CreateSparseArray('4♯', 'U+EA56', 'figbass4Raised' ), // 4 with slashed horizontal line
+        'Ë', CreateSparseArray('5♯', 'U+EA58', 'figbass5Raised1'), // 5 with straight slash through head
+        'Ï', CreateSparseArray('5♯', 'U+EA59', 'figbass5Raised2'), // 5 with angled slash through head
+        'ï', CreateSparseArray('5♯', 'U+EA5A', 'figbass5Raised3'), // 5 with slashed foot
+        '´', CreateSparseArray('6♯', 'U+EA6F', 'figbass6Raised' ), // 6 with slashed head
+        'ä', CreateSparseArray('7♯', 'U+EA5E', 'figbass7Raised1'), // 7 with slashed head
+        '&', CreateSparseArray('7♯', 'U+EA5F', 'figbass8Raised2'), // 7 with slashed stem
+        // (Sibelius/Opus and SMuFL/Bravura don't match 100% for the slashed 9:
+        // Opus slashes the stem, Bravura the head)
+        'ö', CreateSparseArray('9#', 'U+EA62', 'figbass9Raised')   // slashed 9
+    );
+    literalChars = '0123456789[]_-+.';
+    for i = 0 to Length(literalChars)
+    {
+        char = CharAt(literalChars, i);
+        map[char] = char;
+    }
+
+    return map;
+}  //$end

@@ -178,6 +178,7 @@ function GenerateMEIMusic () {
     libmei.AddChild(mdiv, sco);
 
     scd = sibmei2.GenerateScoreDef(score);
+    Self._property:MainScoreDef = scd;
     libmei.AddChild(sco, scd);
 
     barmap = ConvertSibeliusStructure(score);
@@ -1802,4 +1803,38 @@ function GenerateFormattedString (bobj) {
     }
 
     return ret;
+}  //$end
+
+function GenerateSmuflAltsym (glyphnum, glyphname) {
+    //$module(ExportGenerators.mss)
+    if (Self._property:SmuflSymbolIds = null)
+    {
+        Self._property:SmuflSymbolIds = CreateDictionary();
+    }
+    symbolIds = Self._property:SmuflSymbolIds;
+
+    if (symbolIds[glyphnum] = null)
+    {
+        if (Self._property:SymbolTable = null)
+        {
+            symbolTable = libmei.SymbolTable();
+            libmei.AddChild(Self._property:MainScoreDef, symbolTable);
+            Self._property:SymbolTable = symbolTable;
+        }
+        symbolTable = Self._property:SymbolTable;
+
+        symbolDef = libmei.SymbolDef();
+        libmei.AddChild(symbolTable, symbolDef);
+        anchoredText = libmei.AnchoredText();
+        libmei.AddChild(symbolDef, anchoredText);
+        symbol = libmei.Symbol();
+        libmei.AddChild(anchoredText, symbol);
+        libmei.AddAttribute(symbol, 'authority', 'SMuFL');
+        libmei.AddAttribute(symbol, 'glyphnum', glyphnum);
+        libmei.AddAttribute(symbol, 'glyphname', glyphname);
+
+        symbolIds[glyphnum] = symbolDef._id;
+    }
+
+    return '#' & symbolIds[glyphnum];
 }  //$end
