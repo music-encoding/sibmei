@@ -446,6 +446,7 @@ function GenerateLayers (staffnum, measurenum) {
     score = Self._property:ActiveScore;
     this_staff = score.NthStaff(staffnum);
     bar = this_staff[measurenum];
+    l = null;
 
     for each bobj in bar
     {
@@ -464,7 +465,7 @@ function GenerateLayers (staffnum, measurenum) {
         }
         else
         {
-            if (voicenumber != 0)
+            if (voicenumber != 0 or (l = null and bobj.Type = 'Clef'))
             {
                 l = libmei.Layer();
                 layers.Push(l._id);
@@ -476,6 +477,19 @@ function GenerateLayers (staffnum, measurenum) {
 
                 layerdict[voicenumber] = l;
                 libmei.AddAttribute(l, 'n', voicenumber);
+
+                if (bobj.Type = 'Clef' and bobj.Position > 0)
+                {
+                    /* 
+                       Clefs on voice 0 without preceding content are most likely the only
+                       element in a staff cell that is otherwise empty (except for cross-
+                       staff content). Therefore we add a <space> element before it.
+                    */
+                    space = libmei.Space();
+                    meidur = ConvertDuration(bobj.Position);
+                    libmei.AddAttribute(space, 'dur', meidur[0]);
+                    libmei.AddChild(l, space);
+                }
             }
         }
 
