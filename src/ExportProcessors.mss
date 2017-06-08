@@ -484,7 +484,7 @@ function ProcessTremolo (bobj) {
 
 } //$end
 
-function ProcessSymbol (sobj) {
+function ProcessSymbol (sobj, bar) {
     //$module(ExportProcessors.mss)
     Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
     Log(sobj.VoiceNumber);
