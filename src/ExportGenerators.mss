@@ -18,6 +18,7 @@ function GenerateMEIHeader () {
     libmei.AddChild(wd_titleStmt, wd_respStmt);
     libmei.AddChild(wd_work, wd_titleStmt);
     libmei.AddChild(workDesc, wd_work);
+    libmei.AddChild(header, workDesc);
 
     title = libmei.Title();
     libmei.AddChild(titleS, title);
@@ -110,8 +111,6 @@ function GenerateMEIHeader () {
     libmei.SetId(plgapp, 'sibmei');
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
-
-    libmei.AddChild(header, workDesc);
 
     return header;
 }  //$end
