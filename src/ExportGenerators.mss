@@ -126,12 +126,13 @@ function GenerateMEIMusic () {
     Self._property:LayerObjectPositions = null;
     Self._property:ObjectPositions = CreateDictionary();
 
-    // the section parent is used in case we need to inject
-    // a new parent later (e.g., for endings)
-    Self._property:SectionParent = null;
     Self._property:VoltaBars = CreateDictionary();
     Self._property:ActiveVolta = null;
     Self._property:VoltaElement = null;
+
+    Self._property:BodyElement = null;
+    Self._property:MDivElement = null;
+    Self._property:SectionElement = null;
 
     // track page numbers
     Self._property:CurrentPageNumber = null;
@@ -152,7 +153,6 @@ function GenerateMEIMusic () {
     {
         // sort the front pages
         // Log('front: ' & frontmatter);
-
         sorted_front = utils.SortArray(frontpages, False);
         frontEl = libmei.Front();
         for each pnum in sorted_front
@@ -169,24 +169,16 @@ function GenerateMEIMusic () {
     }
 
     body = libmei.Body();
-    mdiv = libmei.Mdiv();
-    sco = libmei.Score();
-
     libmei.AddChild(music, body);
-    libmei.AddChild(body, mdiv);
-    libmei.AddChild(mdiv, sco);
+    Self._property:BodyElement = body;
 
-    scd = sibmei2.GenerateScoreDef(score);
-    Self._property:MainScoreDef = scd;
-    libmei.AddChild(sco, scd);
+    mdiv = sibmei2.GenerateMDiv();
+    libmei.AddChild(body, mdiv);
 
     barmap = ConvertSibeliusStructure(score);
     numbars = barmap.GetPropertyNames();
     numbars = numbars.Length;
     Self._property:BarMap = barmap;
-
-    section = libmei.Section();
-    libmei.AddChild(sco, section);
 
     systf = score.SystemStaff;
 
@@ -198,6 +190,7 @@ function GenerateMEIMusic () {
         // to inject a new parent in the hierarchy.
         progressMsg = utils.Format(_ExportingBars, j, numbars);
         cont = Sibelius.UpdateProgressDialog(j, progressMsg);
+        section = Self._property:SectionElement;
 
         // if the user has clicked cancel, stop the plugin.
         if (cont = 0)
@@ -291,6 +284,28 @@ function GenerateMEIMusic () {
     return music;
 }  //$end
 
+function GenerateMDiv () {
+    //$module(ExportGenerators.mss)
+    // Add the first mdiv; Movements will add new ones.
+    score = Self._property:ActiveScore;
+
+    mdiv = libmei.Mdiv();
+    Self._property:MDivElement = mdiv;
+
+    sco = libmei.Score();
+    libmei.AddChild(mdiv, sco);
+
+    scd = sibmei2.GenerateScoreDef(score);
+    Self._property:MainScoreDef = scd;
+    libmei.AddChild(sco, scd);
+
+    section = libmei.Section();
+    Self._property:SectionElement = section;
+    libmei.AddChild(sco, section);
+
+    return mdiv;
+} //$end
+
 function GenerateMeasure (num) {
     //$module(ExportGenerators.mss)
 
@@ -309,7 +324,6 @@ function GenerateMeasure (num) {
     // since so much metadata about the staff and other context
     // is available on the bar that should now be on the measure, go through the bars
     // and try to extract it.
-
     systf = score.SystemStaff;
     currTimeS = systf.CurrentTimeSignature(num);
     sysBar = systf[num];
@@ -400,6 +414,14 @@ function GenerateMeasure (num) {
                 libmei.AddChild(m, text);
             }
         }
+    }
+
+    // If we've reached the end of the section, swap out the mdiv to a new one.
+    if (sysBar.SectionEnd = true)
+    {
+        body = Self._property:BodyElement;
+        newMdiv = GenerateMDiv();
+        libmei.AddChild(body, newMdiv);
     }
 
     return m;

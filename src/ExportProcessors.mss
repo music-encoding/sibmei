@@ -94,7 +94,6 @@ function ProcessTuplet (noteRest, meielement, layer) {
        Still, we need to keep track of the inner tuplets to assign the @endid.
        layer._property:ActiveMeiTuplet always points to the innermost tuplet.
     */
-
     activeMeiTuplet = layer._property:ActiveMeiTuplet;
 
     tupletIsContinued = activeMeiTuplet != null and TupletsEqual(noteRest.ParentTupletIfAny, activeMeiTuplet._property:SibTuplet);
