@@ -136,7 +136,8 @@ function GenerateMEIMusic () {
 
     // track page numbers
     Self._property:CurrentPageNumber = null;
-    Self._property:PageBreak = null;
+    // We start the first page with a <pb> (good practice and helps Verovio)
+    Self._property:PageBreak = libmei.Pb();
     Self._property:SystemBreak = null;
     Self._property:FrontMatter = CreateDictionary();
 
