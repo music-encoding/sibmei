@@ -321,7 +321,7 @@ function rstrip (str) {
 
 function Log (message) {
     //$module(Utilities.mss)
-    Sibelius.AppendLineToFile(LOGFILE, message, True);
+    Sibelius.AppendLineToFile(Self._property:Logfile, message, True);
 }  //$end
 
 function NormalizedBeamProp (noteRest) {
@@ -460,6 +460,26 @@ function GetNongraceParentBeam (noteRest, layer) {
         }
     }
     return null;
+}  //$end
+
+function GetTempDir () {
+    //$module(Utilities.mss)
+    if (utils.IsMac())
+    {
+        return '/tmp/';
+    }
+    else
+    {
+        documentsFolder = Sibelius.GetDocumentsFolder();
+        // documentsFolder looks like C:\Users\USERNAME\Documents\
+        // We strip the trailing bit until the second to last backslash
+        i = Length(documentsFolder) - 2;
+        while (i > 0 and CharAt(documentsFolder, i) != '\\')
+        {
+            i = i - 1;
+        }
+        return Substring(documentsFolder, 0, i) & '\\AppData\\Local\\Temp\\';
+    }
 }  //$end
 
 function InitFigbassCharMap () {
