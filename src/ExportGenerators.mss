@@ -962,7 +962,7 @@ function GenerateNote (nobj) {
         ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
         pnum = ptuplet.Left;
         pden = ptuplet.Right;
-        floatgesdur = (pnum & '.0' / pden & '.0') * dur;
+        floatgesdur = (pden & '.0' / pnum & '.0') * dur;
         gesdur = Round(floatgesdur);
     }
     else
