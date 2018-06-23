@@ -78,11 +78,73 @@ function SimpleNoteHash (nobj) {
 
 }  //$end
 
+function GetNoteObjectAtEndPosition (bobj) {
+    //$module(Utilities.mss)
+    // takes a bar object, and returns the NoteRest object closest to the end position.
+    // If one isn't found exactly at the end position, it will first look back (previous)
+    // and then look forward, for candidate objects.
+    // NB: This will probably only work for line objects, since they are the only ones with the EndPosition attribute.
+    // Returns the MEI element closest to that position.
+
+    objectPositions = Self._property:ObjectPositions;
+    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
+    // bar_num = bobj.ParentBar.BarNumber;
+    bar_num = bobj.EndBarNumber;
+    Log('bar_num: ' & bar_num);
+    voice_num = bobj.VoiceNumber;
+
+    staffObjectPositions = objectPositions[staff_num];
+    barObjectPositions = staffObjectPositions[bar_num];
+    voiceObjectPositions = barObjectPositions[voice_num];
+
+    if (voiceObjectPositions = null)
+    {
+        // theres not much we can do here. Bail.
+        Log('Bailing due to insufficient voice information');
+        return null;
+    }
+
+    if (voiceObjectPositions.PropertyExists(bobj.EndPosition))
+    {
+        obj_id = voiceObjectPositions[bobj.EndPosition];
+        obj = libmei.getElementById(obj_id);
+        return obj;
+    }
+    else
+    {
+        // if we can't find anything at this position,
+        // find the previous and subsequent objects, and align the
+        // lyrics with them.
+        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+
+        if (prev_obj != null)
+        {
+            // there should be an object registered here
+            obj_id = voiceObjectPositions[prev_obj.Position];
+            obj = libmei.getElementById(obj_id);
+            return obj;
+        }
+        else
+        {
+            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+
+            if (next_obj != null)
+            {
+                obj_id = voiceObjectPositions[next_obj.Position];
+                obj = libmei.getElementById(obj_id);
+                return obj;
+            }
+        }
+    }
+
+    return null;
+} //$end
+
+
 function GetNoteObjectAtPosition (bobj) {
     //$module(Utilities.mss)
-    // takes a dictionary of {pos:id} mappings for a given
-    // voice, and returns the NoteRest object. If one isn't found
-    // exactly at `position`, it will first look back (previous)
+    // takes a bar object, and returns the NoteRest object closest to its position.
+    // If one isn't found exactly at the end position, it will first look back (previous)
     // and then look forward, for candidate objects.
 
     objectPositions = Self._property:ObjectPositions;
@@ -112,22 +174,22 @@ function GetNoteObjectAtPosition (bobj) {
         // if we can't find anything at this position,
         // find the previous and subsequent objects, and align the
         // lyrics with them.
-        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+        next_obj = bobj.NextItem(voice_num, 'NoteRest');
 
-        if (prev_obj != null)
+        if (next_obj != null)
         {
-            // there should be an object registered here
-            obj_id = voiceObjectPositions[prev_obj.Position];
+            obj_id = voiceObjectPositions[next_obj.Position];
             obj = libmei.getElementById(obj_id);
             return obj;
         }
         else
         {
-            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+            prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
 
-            if (next_obj != null)
+            if (prev_obj != null)
             {
-                obj_id = voiceObjectPositions[next_obj.Position];
+                // there should be an object registered here
+                obj_id = voiceObjectPositions[prev_obj.Position];
                 obj = libmei.getElementById(obj_id);
                 return obj;
             }
@@ -173,7 +235,19 @@ function AddBarObjectInfoToElement (bobj, element) {
         }
         case('Slur')
         {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+            // libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+            start_obj = GetNoteObjectAtPosition(bobj);
+            end_obj = GetNoteObjectAtEndPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+
+            if (end_obj != null)
+            {
+                libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
+            }
+
         }
         case('DiminuendoLine')
         {
