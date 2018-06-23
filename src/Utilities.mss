@@ -395,7 +395,8 @@ function rstrip (str) {
 
 function Log (message) {
     //$module(Utilities.mss)
-    Sibelius.AppendLineToFile(LOGFILE, message, True);
+    result = Sibelius.AppendLineToFile(Self._property:Logfile, message, True);
+    Trace(Self._property:Logfile & ' ' & result);
 }  //$end
 
 function NormalizedBeamProp (noteRest) {
@@ -534,6 +535,32 @@ function GetNongraceParentBeam (noteRest, layer) {
         }
     }
     return null;
+}  //$end
+
+function GetTempDir () {
+    //$module(Utilities.mss)
+    if (Sibelius.PathSeparator = '/')
+    {
+        tempFolder = '/tmp/';
+    }
+    else
+    {
+        appDataFolder = Sibelius.GetUserApplicationDataFolder();
+        // appDataFolder usually looks like C:\Users\{username}\AppData\Roaming\
+        // We strip the trailing bit until the second to last backslash
+        i = Length(appDataFolder) - 2;
+        while (i >= 0 and CharAt(appDataFolder, i) != '\\')
+        {
+            i = i - 1;
+        }
+        // tempFolder usually looks like C:\Users\USERNAME\AppData\Local\Temp\
+        // So we replace the trailing 'Roaming' with 'Local\Temp'
+        tempFolder = Substring(appDataFolder, 0, i) & '\\Local\\Temp\\';
+    }
+    if (Sibelius.FolderExists(tempFolder))
+    {
+        return tempFolder;
+    }
 }  //$end
 
 function InitFigbassCharMap () {
