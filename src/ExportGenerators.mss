@@ -3,13 +3,19 @@ function GenerateMEIHeader () {
     // takes in a Sibelius Score object
     // returns a libmei tree (i.e., nested objects and arrays) with a MEI header with metadata
     score = Self._property:ActiveScore;
+    
+
     header = libmei.MeiHead();
+    Self._property:HeaderElement = header;
+
     fileD = libmei.FileDesc();
     titleS = libmei.TitleStmt();
     libmei.AddChild(header, fileD);
     libmei.AddChild(fileD, titleS);
 
     workDesc = libmei.WorkDesc();
+    Self._property:WorkDescElement = workDesc;
+
     wd_work = libmei.Work();
     wd_titleStmt = libmei.TitleStmt();
     wd_title = libmei.Title();
@@ -173,7 +179,9 @@ function GenerateMEIMusic () {
     libmei.AddChild(music, body);
     Self._property:BodyElement = body;
 
-    mdiv = sibmei2.GenerateMDiv();
+    // start with the first bar.
+    FIRST_BAR = 1;
+    mdiv = sibmei2.GenerateMDiv(FIRST_BAR);
     libmei.AddChild(body, mdiv);
 
     barmap = ConvertSibeliusStructure(score);
@@ -285,7 +293,7 @@ function GenerateMEIMusic () {
     return music;
 }  //$end
 
-function GenerateMDiv () {
+function GenerateMDiv (barnum) {
     //$module(ExportGenerators.mss)
     // Add the first mdiv; Movements will add new ones.
     score = Self._property:ActiveScore;
@@ -293,10 +301,15 @@ function GenerateMDiv () {
     mdiv = libmei.Mdiv();
     Self._property:MDivElement = mdiv;
 
+    ano = libmei.Annot();
+    libmei.AddAttribute(ano, 'type', 'duration');
+    libmei.SetText(ano, ConvertTimeStamp(score.ScoreDuration));
+
     sco = libmei.Score();
     libmei.AddChild(mdiv, sco);
+    libmei.AddChild(mdiv, ano);
 
-    scd = sibmei2.GenerateScoreDef(score);
+    scd = GenerateScoreDef(score, barnum);
     Self._property:MainScoreDef = scd;
     libmei.AddChild(sco, scd);
 
@@ -421,8 +434,13 @@ function GenerateMeasure (num) {
     if (sysBar.SectionEnd = true)
     {
         body = Self._property:BodyElement;
-        newMdiv = GenerateMDiv();
+        // create the mdiv for the next bar.
+        newMdiv = GenerateMDiv(num + 1);
         libmei.AddChild(body, newMdiv);
+        // a new section end means a new entry in the header.
+        workDesc = Self._property:WorkDescElement;
+        workEl = libmei.Work();
+        libmei.AddChild(workDesc, workEl);
     }
 
     return m;
@@ -915,6 +933,8 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', stemmod);
     }
 
+    libmei.AddAttribute(nr, 'tstamp.ges', ConvertTimeStamp(bobj.Time));
+
     return nr;
 }  //$end
 
@@ -1210,10 +1230,12 @@ function GenerateBarRest (bobj) {
         libmei.AddAttribute(obj, 'visible', 'false');
     }
 
+    libmei.AddAttribute(obj, 'tstamp.ges', ConvertTimeStamp(bobj.Time));
+
     return obj;
 }  //$end
 
-function GenerateScoreDef (score) {
+function GenerateScoreDef (score, barnum) {
     //$module(ExportGenerators.mss)
     scoredef = libmei.ScoreDef();
     docSettings = score.DocumentSetup;
@@ -1267,13 +1289,13 @@ function GenerateScoreDef (score) {
     libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    staffgrp = GenerateStaffGroups(score);
+    staffgrp = GenerateStaffGroups(score, barnum);
     libmei.AddChild(scoredef, staffgrp);
 
     return scoredef;
 }  //$end
 
-function GenerateStaffGroups (score) {
+function GenerateStaffGroups (score, barnum) {
     //$module(ExportGenerators.mss)
     staffdict = CreateDictionary();
     parentstgrp = libmei.StaffGrp();
@@ -1293,9 +1315,11 @@ function GenerateStaffGroups (score) {
         libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
         libmei.AddAttribute(std, 'clef.dis', clefinfo[2]);
         libmei.AddAttribute(std, 'clef.dis.place', clefinfo[3]);
-        libmei.AddAttribute(std, 'key.sig', ConvertKeySignature(s.InitialKeySignature.Sharps));
 
-        if (s.InitialKeySignature.Major)
+        keysig = s.CurrentKeySignature(barnum);
+        libmei.AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
+
+        if (keysig.Major)
         {
             libmei.AddAttribute(std, 'key.mode', 'major');
         }

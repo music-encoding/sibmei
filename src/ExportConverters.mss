@@ -1117,6 +1117,15 @@ function ConvertDate (datetime) {
     return isodate;
 }  //$end
 
+function ConvertTimeStamp (time) {
+    //$module(ExportConverters.mss)
+    // Converts a timestamp in milliseconds to a
+    // string suitable for use in @tstamp.ges
+    t = time / 1000.0;
+    return t & 's';
+}  //$end
+
+
 function ConvertSubstitution (string) {
     //$module(ExportConverters.mss)
     // if the string does not start with a substitution, send back the original string.
