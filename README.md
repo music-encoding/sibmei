@@ -20,6 +20,20 @@ $> cd sibmei            // cd into the sibmei source directory
 $> npm install          // installs the packages listed in the sibmei package.json directory
 ```
 
+You need to create a symbolic link from the Sibelius plugin folder to the build folder in the sibmei directory. The paths are system dependent.
+
+Example for Mac:
+
+````
+$> ln -s "~/Library/Application Support/Avid/Sibelius 7.5/Plugins/MEI Export" "~/path/to/sibmei/build/MEI Export"
+````
+
+Example for Windows (run as administrator):
+
+````
+> mklink %APPDATA%\Avid\Sibelius\Plugins\MEI Export" "%HOMEPATH%\path\to\sibmei\build\MEI Export"
+````
+
 Then, to start developing the plugin, you should run `gulp develop`. This will watch the folder for changes, build, and deploy the plugin. **To make your changes active, you will need to "unload" and "reload" the plugin in Sibelius.**
 
 ## Unit tests
