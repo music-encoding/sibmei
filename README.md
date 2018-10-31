@@ -38,4 +38,9 @@ Then, to start developing the plugin, you should run `gulp develop`. This will w
 
 ## Unit tests
 
-The unit tests use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first, and then you can run the unit tests by running the `testsibmei.plg` plugin.
+The unit tests use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first. Test can be run either by
+
+* starting `testsibmei.plg` from the plugin editing window or
+* starting Sibmei Test Runner from the menu/ribbon.
+
+The former has the advantage that you don't have to open and close the "Edit Plugins" window between tests, the latter has the advantage of closing all test files after completed tests.

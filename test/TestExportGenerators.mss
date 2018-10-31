@@ -45,7 +45,7 @@ function TestGenerateMEIHeader (assert, plugin) {
 
     libmei.destroy();
 
-    Sibelius.CloseWindow(False);
+    CloseActiveScore();
 }  //$end
 
 function TestGenerateMEIMusic (assert, plugin) {
@@ -128,6 +128,8 @@ function TestGenerateMEIMusic (assert, plugin) {
     e = libmei.meiDocumentToFile(d, '/tmp/testmusic.mei');
     libmei.destroy();
 
+    CloseActiveScore();
+
     //assert.OK(e, 'The file /tmp/testmusic.mei was successfully generated');
 }  //$end
 
@@ -179,6 +181,8 @@ function TestGenerateMusicWithLyrics (assert, plugin) {
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/testlyrics.mei');
     libmei.destroy();
+
+    CloseActiveScore();
 
 }  //$end
 
@@ -232,6 +236,8 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/testendings.mei');
     libmei.destroy();
+
+    CloseActiveScore();
 }  //$end
 
 function TestGenerateStaffGroups (assert, plugin) {
@@ -253,6 +259,8 @@ function TestGenerateStaffGroups (assert, plugin) {
     assert.OK(e, 'The file /tmp/staffgroups.mei was successfully generated');
 
     libmei.destroy();
+
+    CloseActiveScore();
 }  //$end
 
 // function TestRandomIDGenerator (assert, plugin) {

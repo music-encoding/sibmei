@@ -1,4 +1,4 @@
-﻿function Run() {
+function Run() {
   plugins = Sibelius.Plugins;
 
   if (not (plugins.Contains('Test'))) {
@@ -6,7 +6,7 @@
     ExitPlugin();
   }
 
-  pluginDir = GetPluginFolder('sibmei2.plg');
+  Self._property:pluginDir = GetPluginFolder('sibmei2.plg');
   Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs'
       & Sibelius.PathSeparator;
 
@@ -26,6 +26,7 @@
 }  //$end
 
 function GetPluginFolder(plgName) {
+  //$module(Run.mss)
   plgNameLength = Length(plgName);
 
   for each plugin in Sibelius.Plugins
@@ -44,6 +45,22 @@ function GetPluginFolder(plgName) {
   Sibelius.MessageBox(plgName & ' was not found');
   ExitPlugin();
 }  //$end
+
+
+function CloseActiveScore() {
+    //$module(Run.mss)
+    filePath = Sibelius.ActiveScore.FileName;
+    pathComponents = SplitString(filePath, Sibelius.PathSeparator);
+    if (pathComponents.NumChildren = 1)
+    {
+      // If there's no path separator in the file name, we have a new file that
+      // has not been saved yet. In that case, Sibelius.CloseWindow() will not
+      // close the file properly, so we have to save it first.
+      Sibelius.ActiveScore.Save(pluginDir & '_tmp.sib');
+    }
+    Sibelius.CloseWindow(False);
+}  //$end
+
 
 function RunLibmeiTests () {
   suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei2);

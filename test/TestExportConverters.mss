@@ -137,7 +137,7 @@ function TestAccidentalConverter (assert, plugin) {
     assert.NotOK(output[1], 'The B double-flat has already been shown, so it should not be visible');
 
     // close the active score
-    Sibelius.CloseWindow(False);
+    CloseActiveScore();
 }  //$end
 
 function TestHasVisibleAccidentalConverter (assert, plugin) {
@@ -208,7 +208,7 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     output = sibmei2.HasVisibleAccidental(note10);
     assert.OK(output, 'The 2nd note in the 7th bar has a visible F natural');
     // close the active score
-    Sibelius.CloseWindow(False);
+    CloseActiveScore();
 }  //$end
 
 function TestOctavaConverter (assert, plugin) {
