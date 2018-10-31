@@ -13,7 +13,7 @@ var config = {
   importDir:      './import',
   buildDir:       './build',
   srcDir:         './src',
-  testDir:        './test',
+  testDir:        './test/sib-test',
   libDir:         './lib',
 };
 

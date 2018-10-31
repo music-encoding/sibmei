@@ -2,14 +2,26 @@
 {
     Initialize "()
     {
-        AddToPluginsMenu(_PluginMenuName,'Run'); 
+        AddToPluginsMenu(_PluginMenuName,'Run');
     }"
 
     Run "()
     {
         folder = Sibelius.SelectFolder();
-        
-        if (IsObject(folder))
+        if (null != folder)
+        {
+            ConvertFolder(folder);
+        }
+    }"
+
+    ConvertFolder "(folder)
+    {
+
+        if (not IsObject(folder))
+        {
+          Sibelius.MessageBox('Not a folder object: ' & folder);
+        }
+        else
         {
             // count files for progress dialog
             numFiles = folder.FileCount('SIB');

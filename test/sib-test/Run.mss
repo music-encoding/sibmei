@@ -23,6 +23,8 @@ function Run() {
 
   suite.Run();
 
+  sibmei_batch_sib.ConvertFolder(Sibelius.GetFolder(_SibTestFileDirectory));
+  Trace('Run `npm test` to test output written to ' & _SibTestFileDirectory);
 }  //$end
 
 function GetPluginFolder(plgName) {
