@@ -35,8 +35,9 @@ gulp.task('develop:build', function(callback)
     });
 
     l.info(c.blue('Copying test data'));
-    gulp.src('test/sibmeiTestSibs')
-        .pipe(gulp.dest(plgconf.plgPath + '/' + plgconf.plgCategory));
+    const destPath = plgconf.plgPath + '/' + plgconf.plgCategory + '/sibmeiTestSibs';
+    gulp.src('test/sibmeiTestSibs/*.sib', {base: 'test/sibmeiTestSibs'})
+        .pipe(gulp.dest(destPath));
 
     return deferred.promise;
 });
