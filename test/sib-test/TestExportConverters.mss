@@ -13,7 +13,7 @@ function TestExportConverters (suite) {
         .Add('TestKeySignatureConverter')
         .Add('TestClefConverter')
         .Add('TestBracketConverter')
-        .Add('TestPositionToTimestampConverter')
+        //.Add('TestPositionToTimestampConverter')
         ;
 } //$end
 
@@ -41,7 +41,7 @@ function TestDiatonicPitchConverter(assert, plugin) {
 
 function TestOffsetConverter(assert, plugin) {
     //$module(TestNoteNameConverter)
-    output = sibmei2.ConvertOffsets(100);
+    output = sibmei2.ConvertOffsetsToMillimeters(100);
     assert.Equal(output, '5.4688mm', 'Offset of 100 1/32nds of a space is 5mm');
 }  //$end
 
@@ -91,7 +91,8 @@ function TestAccidentalConverter (assert, plugin) {
     fe = Sibelius.FileExists(_SibTestFileDirectory & 'accidentals.sib');
     if (fe = False)
     {
-        trace('Cannot find accidentals.sib. Skipping test.');
+        trace('Cannot find ' & _SibTestFileDirectory & 'accidentals.sib. Skipping test.');
+        return null;
     }
 
     Sibelius.Open(_SibTestFileDirectory & 'accidentals.sib', True);
@@ -102,13 +103,13 @@ function TestAccidentalConverter (assert, plugin) {
     note1 = noterest1[0];
     output = sibmei2.ConvertAccidental(note1);
     assert.Equal(output[0], 'f', 'The note is a B flat.');
-    assert.True(output[1], 'The 2nd note in the 1st bar has a visible B flat');
+    assert.OK(output[1], 'The 2nd note in the 1st bar has a visible B flat');
 
     noterest2 = bar1.NthBarObject(1);
     note2 = noterest2[0];
     output = sibmei2.ConvertAccidental(note2);
     assert.Equal(output[0], 'n', 'The note is a B natural');
-    assert.True(output[1], 'The 2nd note in the 1st bar has a visible B natural');
+    assert.OK(output[1], 'The 2nd note in the 1st bar has a visible B natural');
 
     noterest3 = bar1.NthBarObject(2);
     note3 = noterest3[0];
@@ -127,7 +128,7 @@ function TestAccidentalConverter (assert, plugin) {
     note5 = noterest5[0];
     output = sibmei2.ConvertAccidental(note5);
     assert.Equal(output[0], 'ff', 'The note is a B double-flat');
-    assert.True(output[1], 'The B double-flat should be visible');
+    assert.OK(output[1], 'The B double-flat should be visible');
 
     noterest6 = bar2.NthBarObject(1);
     note6 = noterest6[0];
@@ -136,7 +137,7 @@ function TestAccidentalConverter (assert, plugin) {
     assert.NotOK(output[1], 'The B double-flat has already been shown, so it should not be visible');
 
     // close the active score
-    Sibelius.CloseWindow(False);
+    CloseActiveScore();
 }  //$end
 
 function TestHasVisibleAccidentalConverter (assert, plugin) {
@@ -145,6 +146,7 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     if (fe = False)
     {
         trace('Cannot find accidentals.sib. Skipping test.');
+        return null;
     }
 
     Sibelius.Open(_SibTestFileDirectory & 'accidentals.sib', True);
@@ -154,59 +156,59 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     noterest1 = bar1.NthBarObject(0);
     note1 = noterest1[0];
     output = sibmei2.HasVisibleAccidental(note1);
-    assert.True(output, 'The 1st note in the 1st bar has a visible B flat');
+    assert.OK(output, 'The 1st note in the 1st bar has a visible B flat');
 
     noterest2 = bar1.NthBarObject(1);
     note2 = noterest2[0];
     output = sibmei2.HasVisibleAccidental(note2);
-    assert.True(output, 'The 2nd note in the 1st bar has a visible B natural');
+    assert.OK(output, 'The 2nd note in the 1st bar has a visible B natural');
 
     bar5 = staff[5];
     noterest3 = bar5.NthBarObject(0);
     note3 = noterest3[0];
     output = sibmei2.HasVisibleAccidental(note3);
-    assert.False(output, 'The 1st note in the 5th bar does not have a visible accidental');
+    assert.NotOK(output, 'The 1st note in the 5th bar does not have a visible accidental');
 
     noterest4 = bar5.NthBarObject(2);
     note4 = noterest4[0];
     output = sibmei2.HasVisibleAccidental(note4);
-    assert.False(output, 'The 3rd note in the 5th bar does not have a visible accidental');
+    assert.NotOK(output, 'The 3rd note in the 5th bar does not have a visible accidental');
 
     bar2 = staff[2];
     noterest5 = bar2.NthBarObject(1);
     note5 = noterest5[0];
     output = sibmei2.HasVisibleAccidental(note5);
-    assert.False(output, 'The 2nd note in the 2nd bar does not have a visible accidental');
+    assert.NotOK(output, 'The 2nd note in the 2nd bar does not have a visible accidental');
 
     bar3 = staff[3];
     noterest6 = bar3.NthBarObject(0);
     note6 = noterest6[0];
     output = sibmei2.HasVisibleAccidental(note6);
-    assert.True(output, 'The 1st note in the 3rd bar has a visible natural.');
+    assert.OK(output, 'The 1st note in the 3rd bar has a visible natural.');
 
     noterest7 = bar5.NthBarObject(3);
     note7 = noterest7[0];
     output = sibmei2.HasVisibleAccidental(note7);
-    assert.True(output, 'The 3rd note in the 5th bar has a visible B quarter-flat.');
+    assert.OK(output, 'The 3rd note in the 5th bar has a visible B quarter-flat.');
 
     bar6 = staff[6];
     noterest8 = bar6.NthBarObject(0);
     note8 = noterest8[0];
     output = sibmei2.HasVisibleAccidental(note8);
-    assert.True(output, 'The 1st note in the 6th bar has a visible C double-sharp.');
+    assert.OK(output, 'The 1st note in the 6th bar has a visible C double-sharp.');
 
     noterest9 = bar6.NthBarObject(3);
     note9 = noterest9[0];
     output = sibmei2.HasVisibleAccidental(note9);
-    assert.False(output, 'The 3rd note in the 6th bar does not have a visible C quarter-sharp.');
+    assert.NotOK(output, 'The 3rd note in the 6th bar does not have a visible C quarter-sharp.');
 
     bar7 = staff[7];
     noterest10 = bar7.NthBarObject(1);
     note10 = noterest10[0];
     output = sibmei2.HasVisibleAccidental(note10);
-    assert.True(output, 'The 2nd note in the 7th bar has a visible F natural');
+    assert.OK(output, 'The 2nd note in the 7th bar has a visible F natural');
     // close the active score
-    Sibelius.CloseWindow(False);
+    CloseActiveScore();
 }  //$end
 
 function TestOctavaConverter (assert, plugin) {
@@ -320,4 +322,3 @@ function TestBracketConverter (assert, plugin) {
 //     assert.Equal(tstamp, 4, 'A note in position 384 is on beat 3 in 12/8');
 
 // }  //$end
-

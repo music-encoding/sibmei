@@ -20,8 +20,27 @@ $> cd sibmei            // cd into the sibmei source directory
 $> npm install          // installs the packages listed in the sibmei package.json directory
 ```
 
+You need to create a symbolic link from the Sibelius plugin folder to the build folder in the sibmei directory. The paths are system dependent.
+
+Example for Mac:
+
+````
+$> ln -s "~/path/to/sibmei/build/MEI Export" "~/Library/Application Support/Avid/Sibelius 7.5/Plugins/MEI Export"
+````
+
+Example for Windows (run as administrator):
+
+````
+> mklink %APPDATA%\Avid\Sibelius\Plugins\MEI Export" "%HOMEPATH%\path\to\sibmei\build\MEI Export"
+````
+
 Then, to start developing the plugin, you should run `gulp develop`. This will watch the folder for changes, build, and deploy the plugin. **To make your changes active, you will need to "unload" and "reload" the plugin in Sibelius.**
 
 ## Unit tests
 
-The unit tests use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first, and then you can run the unit tests by running the `testsibmei.plg` plugin.
+The unit tests use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first. Test can be run either by
+
+* starting `testsibmei.plg` from the plugin editing window or
+* starting Sibmei Test Runner from the menu/ribbon.
+
+The former has the advantage that you don't have to open and close the "Edit Plugins" window between tests, the latter has the advantage of closing all test files after completed tests.
