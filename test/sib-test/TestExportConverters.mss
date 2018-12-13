@@ -207,6 +207,10 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     note10 = noterest10[0];
     output = sibmei2.HasVisibleAccidental(note10);
     assert.OK(output, 'The 2nd note in the 7th bar has a visible F natural');
+    noterest11 = bar7.NthBarObject(2);
+    note11 = noterest11[0];
+    output = sibmei2.HasVisibleAccidental(note11);
+    assert.NotOK(output, 'The 3rd note in the 7th bar has a hidden C sharp');
     // close the active score
     CloseActiveScore();
 }  //$end
