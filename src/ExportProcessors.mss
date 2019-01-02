@@ -12,10 +12,10 @@ function ProcessScore () {
     libmei.AddAttribute(mei, 'xmlns', 'http://www.music-encoding.org/ns/mei');
     libmei.AddAttribute(mei, 'meiversion', '3.0.0');
 
-    header = sibmei2.GenerateMEIHeader();
+    header = GenerateMEIHeader();
     libmei.AddChild(mei, header);
 
-    music = sibmei2.GenerateMEIMusic();
+    music = GenerateMEIMusic();
     libmei.AddChild(mei, music);
 
 }  //$end
@@ -183,12 +183,12 @@ function ProcessLyric (lyricobj, objectPositions) {
         syllables in an array until we reach the end of the word, and then
         attach them to the notes.
     */
-  
+
     if (lyricobj.Text = '')
     {
         return null;
     }
-  
+
     styleparts = MSplitString(lyricobj.StyleId, '.');
     verse_id = styleparts[5];
     verse_id_arr = MSplitString(verse_id, false);
@@ -489,7 +489,7 @@ function ProcessTremolo (bobj) {
     Log('Fingered tremolo: ' & bobj.DoubleTremolos);
     tremEl = libmei.FTrem();
     libmei.AddAttribute(tremEl, 'slash', bobj.DoubleTremolos);
-    libmei.AddAttribute(tremEl, 'measperf')
+    libmei.AddAttribute(tremEl, 'measperf');
 
 } //$end
 
