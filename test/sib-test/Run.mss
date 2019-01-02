@@ -9,6 +9,7 @@ function Run() {
   Self._property:pluginDir = GetPluginFolder('sibmei2.plg');
   Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs'
       & Sibelius.PathSeparator;
+  Self._property:discardFilePath = pluginDir & '_discard.sib';
 
   suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei2);
 
@@ -57,8 +58,11 @@ function CloseActiveScore() {
     {
       // If there's no path separator in the file name, we have a new file that
       // has not been saved yet. In that case, Sibelius.CloseWindow() will not
-      // close the file properly, so we have to save it first.
-      Sibelius.ActiveScore.Save(pluginDir & '_tmp.sib');
+      // close the file properly, so we save to a 'discard' file first.
+      // We also have to delete any pre-existing discard file because Sib 2018
+      // would otherwise crash.
+      Sibelius.GetFile(discardFilePath).Delete();
+      Sibelius.ActiveScore.Save(discardFilePath);
     }
     Sibelius.CloseWindow(False);
 }  //$end
