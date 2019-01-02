@@ -3,7 +3,7 @@ function GenerateMEIHeader () {
     // takes in a Sibelius Score object
     // returns a libmei tree (i.e., nested objects and arrays) with a MEI header with metadata
     score = Self._property:ActiveScore;
-    
+
 
     header = libmei.MeiHead();
     Self._property:HeaderElement = header;
@@ -181,7 +181,7 @@ function GenerateMEIMusic () {
 
     // start with the first bar.
     FIRST_BAR = 1;
-    mdiv = sibmei2.GenerateMDiv(FIRST_BAR);
+    mdiv = GenerateMDiv(FIRST_BAR);
     libmei.AddChild(body, mdiv);
 
     barmap = ConvertSibeliusStructure(score);
