@@ -18,14 +18,18 @@ describe("Lyrics", () => {
   const syls = xpath.evaluateXPath('//*:syl', mei);
 
   describe("writes an elision", () => {
-    const elisionSyls = xpath.evaluateXPathToNodes('(//*:note)[1]//*:syl', mei);
+    const note1 = xpath.evaluateXPathToNodes('(//*:note)[1]', mei)[0];
+    const note1Syls = xpath.evaluateXPathToNodes('.//*:syl', note1);
     it("exports 2 syllables for elisions", () =>
-      assert.strictEqual(elisionSyls.length, 2)
+      assert.strictEqual(note1Syls.length, 2)
     );
     it("sets @con='b' on first syl, but not any others", () => {
-      assert.strictEqual(elisionSyls[0].getAttribute('con'), 'b');
-      const sylsWithCon = xpath.evaluateXPathToNodes('//*:syl[@con="b"]', mei);
+      assert.strictEqual(note1Syls[0].getAttribute('con'), 'b');
+      const sylsWithCon = xpath.evaluateXPathToNodes('.//*:syl[@con="b"]', note1);
       assert.strictEqual(sylsWithCon.length, 1);
+    });
+    it("creates correct character entities on elisions", function() {
+      assert.strictEqual(syls[13].firstChild._data, "n'u");
     });
   });
 

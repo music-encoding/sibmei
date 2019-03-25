@@ -292,12 +292,10 @@ function ProcessLyric (lyricobj, objectPositions) {
             }
         }
 
-        syltext = libmei.GetText(sylel);
-
-        if (utils.Pos('_', syltext) > -1)
+        if (utils.Pos('_', syl.Text) > -1)
         {
             // Syllable elision. split this syllable element by underscore.
-            syllables = MSplitString(syltext, '_');
+            syllables = MSplitString(syl.Text, '_');
             sylarray = CreateSparseArray();
 
             // reset the text of the first syllable element to the first half of the syllable.
