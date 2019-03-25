@@ -8,21 +8,24 @@ describe("Arpeggios", () => {
   const mei = utils.getTestMeiDom('arpeggios.mei');
 
   it("writes 3 arpeggios in each of the 3 measures", () => {
-    assert.strictEqual(9, xpath.evaluateXPath('//*:arpeg', mei).length);
+    assert.strictEqual(xpath.evaluateXPath('//*:arpeg', mei).length, 9);
   });
   it("writes arpeggios with up arrow on beat 2 of each measure", () => {
-    assert.strictEqual(3, xpath.evaluateXPath(
+    const upArpeggiosOnBeat2 = xpath.evaluateXPath(
       '//*:arpeg[@arrow="true"][@tstamp="2"][@order="up"]', mei
-    ).length);
+    );
+    assert.strictEqual(upArpeggiosOnBeat2.length, 3);
   });
   it("writes arpeggios with down arrow on beat 3 of each measure", () => {
-    assert.strictEqual(3, xpath.evaluateXPath(
+    const downArpeggiosOnBeat3 = xpath.evaluateXPath(
       '//*:arpeg[@arrow="true"][@tstamp="3"][@order="down"]', mei
-    ).length);
+    );
+    assert.strictEqual(downArpeggiosOnBeat3.length, 3);
   });
   it("writes arrowless arpeggios on beat 4 of each measures", () => {
-    assert.strictEqual(3, xpath.evaluateXPath(
+    const arrowlessArpeggionsOnBeat4 = xpath.evaluateXPath(
       '//*:arpeg[@arrow="false"][@tstamp="4"][not(@order)]', mei
-    ).length);
+    )
+    assert.strictEqual(arrowlessArpeggionsOnBeat4.length, 3);
   });
 });

@@ -7,7 +7,7 @@ const utils = require('./utils');
 function assertAttrOnElements(elements, indices, attName, attValue) {
   for (const i of indices) {
     assert.strictEqual(
-      attValue, elements[i].getAttribute(attName),
+      elements[i].getAttribute(attName), attValue,
       'failed on element index ' + i + ' ("' + elements[i].innerHTML + '")'
     );
   }
@@ -20,13 +20,12 @@ describe("Lyrics", () => {
   describe("writes an elision", () => {
     const elisionSyls = xpath.evaluateXPathToNodes('(//*:note)[1]//*:syl', mei);
     it("exports 2 syllables for elisions", () =>
-      assert.strictEqual(2, elisionSyls.length)
+      assert.strictEqual(elisionSyls.length, 2)
     );
     it("sets @con='b' on first syl, but not any others", () => {
-      assert.strictEqual('b', elisionSyls[0].getAttribute('con'));
-      assert.strictEqual(1, xpath.evaluateXPathToNodes(
-        '//*:syl[@con="b"]', mei
-      ).length);
+      assert.strictEqual(elisionSyls[0].getAttribute('con'), 'b');
+      const sylsWithCon = xpath.evaluateXPathToNodes('//*:syl[@con="b"]', mei);
+      assert.strictEqual(sylsWithCon.length, 1);
     });
   });
 
