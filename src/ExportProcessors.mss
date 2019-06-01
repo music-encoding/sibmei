@@ -94,7 +94,6 @@ function ProcessTuplet (noteRest, meielement, layer) {
        Still, we need to keep track of the inner tuplets to assign the @endid.
        layer._property:ActiveMeiTuplet always points to the innermost tuplet.
     */
-
     activeMeiTuplet = layer._property:ActiveMeiTuplet;
 
     tupletIsContinued = activeMeiTuplet != null and TupletsEqual(noteRest.ParentTupletIfAny, activeMeiTuplet._property:SibTuplet);
@@ -184,6 +183,12 @@ function ProcessLyric (lyricobj, objectPositions) {
         syllables in an array until we reach the end of the word, and then
         attach them to the notes.
     */
+  
+    if (lyricobj.Text = '')
+    {
+        return null;
+    }
+  
     styleparts = MSplitString(lyricobj.StyleId, '.');
     verse_id = styleparts[5];
     verse_id_arr = MSplitString(verse_id, false);
