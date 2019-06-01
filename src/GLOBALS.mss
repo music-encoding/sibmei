@@ -1,4 +1,4 @@
-Version     "2.1.0"
+Version     "2.1.1-beta"
 PluginName  "Sibelius to MEI Exporter"
 Author      "Andrew Hankinson"
 
@@ -15,4 +15,4 @@ _ObjectHasNoMEISupport "%s is not supported by MEI at this time."
 _ObjectIsOnAnIllogicalObject "Bar %s, voice %s. %s is added to a %s object. This will create invalid MEI. You should fix this in your Sibelius file if possible, or edit your MEI file after export."
 _ObjectCouldNotFindAttachment "Bar %s, voice %s. %s could not be attached to a Note object, so it will not appear in the output."
 
-LOGFILE "/tmp/sibelius.log"
+LOGFILE "sibelius.log"
