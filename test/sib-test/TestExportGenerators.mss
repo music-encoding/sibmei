@@ -30,7 +30,7 @@ function TestGenerateMEIHeader (assert, plugin) {
     score.ComposerDates = '1900-1910';
     score.YearOfComposition = '2015';
     score.OtherInformation = 'Hello World!';
-    
+
     sibmei2._property:ActiveScore = score;
 
     m = sibmei2.GenerateMEIHeader();
@@ -41,11 +41,11 @@ function TestGenerateMEIHeader (assert, plugin) {
 
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/header.mei');
-    assert.True(e, 'The file /tmp/header.mei was successfully generated');
+    assert.OK(e, 'The file /tmp/header.mei was successfully generated');
 
     libmei.destroy();
 
-    Sibelius.CloseWindow(False);
+    CloseActiveScore();
 }  //$end
 
 function TestGenerateMEIMusic (assert, plugin) {
@@ -127,8 +127,10 @@ function TestGenerateMEIMusic (assert, plugin) {
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/testmusic.mei');
     libmei.destroy();
-    
-    //assert.True(e, 'The file /tmp/testmusic.mei was successfully generated');
+
+    CloseActiveScore();
+
+    //assert.OK(e, 'The file /tmp/testmusic.mei was successfully generated');
 }  //$end
 
 function TestGenerateMusicWithLyrics (assert, plugin) {
@@ -179,6 +181,8 @@ function TestGenerateMusicWithLyrics (assert, plugin) {
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/testlyrics.mei');
     libmei.destroy();
+
+    CloseActiveScore();
 
 }  //$end
 
@@ -232,6 +236,8 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/testendings.mei');
     libmei.destroy();
+
+    CloseActiveScore();
 }  //$end
 
 function TestGenerateStaffGroups (assert, plugin) {
@@ -240,7 +246,7 @@ function TestGenerateStaffGroups (assert, plugin) {
 
     score = Sibelius.New('Orchestral/Orchestra, Romantic');
     sibmei2._property:ActiveScore = score;
-    staffgroups = sibmei2.GenerateStaffGroups(score);
+    staffgroups = sibmei2.GenerateStaffGroups(score, 1);
 
     // this is not valid MEI, but it should render correctly.
     m = libmei.Mei();
@@ -250,9 +256,11 @@ function TestGenerateStaffGroups (assert, plugin) {
 
     d = libmei.getDocument();
     e = libmei.meiDocumentToFile(d, '/tmp/staffgroups.mei');
-    assert.True(e, 'The file /tmp/staffgroups.mei was successfully generated');
+    assert.OK(e, 'The file /tmp/staffgroups.mei was successfully generated');
 
     libmei.destroy();
+
+    CloseActiveScore();
 }  //$end
 
 // function TestRandomIDGenerator (assert, plugin) {

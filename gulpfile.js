@@ -6,6 +6,7 @@ var child = require('child_process');
 var c = require('ansi-colors');
 var l = require('fancy-log');
 var Q = require('q');
+var plgconf = require('./plgconfig');
 
 gulp.task('develop:build', function(callback)
 {
@@ -32,7 +33,12 @@ gulp.task('develop:build', function(callback)
         l.info(c.blue('Output: ') + '\n' + stdout);
         deferred.resolve();
     });
-    
+
+    l.info(c.blue('Copying test data'));
+    const destPath = plgconf.plgPath + '/' + plgconf.plgCategory + '/sibmeiTestSibs';
+    gulp.src('test/sibmeiTestSibs/*.sib', {base: 'test/sibmeiTestSibs'})
+        .pipe(gulp.dest(destPath));
+
     return deferred.promise;
 });
 
