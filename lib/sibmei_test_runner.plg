@@ -1,0 +1,12 @@
+
+{
+  Initialize "()
+  {
+    AddToPluginsMenu('Sibmei Test Runner', 'Run');
+  }"
+
+  Run "()
+  {
+    Testsibmei2.Run();
+  }"
+}

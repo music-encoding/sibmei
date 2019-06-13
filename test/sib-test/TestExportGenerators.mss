@@ -13,7 +13,7 @@ function TestGenerateMEIHeader (assert, plugin) {
     //$module(TestExportGenerators.mss)
     libmei.destroy();
 
-    score = Sibelius.New('Blank');
+    score = CreateEmptyTestScore(1, 1);
     score.Title = 'My great title';
     score.PartName = 'A part name';
     score.Subtitle = 'A subtitle';
@@ -30,7 +30,7 @@ function TestGenerateMEIHeader (assert, plugin) {
     score.ComposerDates = '1900-1910';
     score.YearOfComposition = '2015';
     score.OtherInformation = 'Hello World!';
-    
+
     sibmei2._property:ActiveScore = score;
 
     m = sibmei2.GenerateMEIHeader();
@@ -40,28 +40,19 @@ function TestGenerateMEIHeader (assert, plugin) {
     libmei.AddChild(mei, m);
 
     d = libmei.getDocument();
-    e = libmei.meiDocumentToFile(d, '/tmp/header.mei');
-    assert.True(e, 'The file /tmp/header.mei was successfully generated');
+    filePath = Self._property:tempDir & 'header.mei';
+    e = libmei.meiDocumentToFile(d, filePath);
+    assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
     libmei.destroy();
-
-    Sibelius.CloseWindow(False);
 }  //$end
 
 function TestGenerateMEIMusic (assert, plugin) {
     //$module(TestExportGenerators.mss)
     libmei.destroy();
 
-    score = Sibelius.New('Treble Staff');
+    score = CreateEmptyTestScore(1, 10);
     staff = score.NthStaff(1);
-    barCount = staff.BarCount;
-
-    counter = 0;
-    for j = 0 to barCount - 11
-    {
-        extrabar = staff.NthBar(10);
-        extrabar.Delete();
-    }
 
     bar = staff.NthBar(1);
     // middle C
@@ -125,26 +116,19 @@ function TestGenerateMEIMusic (assert, plugin) {
     libmei.setDocumentRoot(m);
 
     d = libmei.getDocument();
-    e = libmei.meiDocumentToFile(d, '/tmp/testmusic.mei');
+    filePath = Self._property:tempFile & 'testmusic.mei';
+    e = libmei.meiDocumentToFile(d, filePath);
+    assert.OK(e, 'The file ' & filePath & ' was successfully generated');
+
     libmei.destroy();
-    
-    //assert.True(e, 'The file /tmp/testmusic.mei was successfully generated');
 }  //$end
 
 function TestGenerateMusicWithLyrics (assert, plugin) {
     //$module(TestExportGenerators.mss)
     libmei.destroy();
 
-    score = Sibelius.New('Treble Staff');
+    score = CreateEmptyTestScore(1, 10);
     staff = score.NthStaff(1);
-    barCount = staff.BarCount;
-
-    counter = 0;
-    for j = 0 to barCount - 11
-    {
-        extrabar = staff.NthBar(10);
-        extrabar.Delete();
-    }
 
     bar = staff.NthBar(1);
     n1 = bar.AddNote(0, 60, 256);
@@ -177,18 +161,17 @@ function TestGenerateMusicWithLyrics (assert, plugin) {
     libmei.setDocumentRoot(m);
 
     d = libmei.getDocument();
-    e = libmei.meiDocumentToFile(d, '/tmp/testlyrics.mei');
+    filePath = Self._property:tempDir & 'testlyrics.mei';
+    e = libmei.meiDocumentToFile(d, filePath);
     libmei.destroy();
-
 }  //$end
 
 function TestGenerateMusicWithEndings (assert, plugin) {
     //$module(TextExportGenerators.mss)
     libmei.destroy();
 
-    score = Sibelius.New('Solo Instruments/Piano');
+    score = CreateEmptyTestScore(1, 8);
     staff = score.NthStaff(1);
-    barCount = staff.BarCount;
 
     bar = staff.NthBar(1);
     n1 = bar.AddNote(0, 72, 1024);
@@ -230,7 +213,8 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     libmei.setDocumentRoot(m);
 
     d = libmei.getDocument();
-    e = libmei.meiDocumentToFile(d, '/tmp/testendings.mei');
+    filePath = Self._property:tempDir & 'testendings.mei';
+    e = libmei.meiDocumentToFile(d, filePath);
     libmei.destroy();
 }  //$end
 
@@ -238,9 +222,52 @@ function TestGenerateStaffGroups (assert, plugin) {
     //$module(TestExportGenerators.mss)
     libmei.destroy();
 
-    score = Sibelius.New('Orchestral/Orchestra, Romantic');
+    score = Sibelius.New();
+    // Sibelius adds brackets and braces according to instrument groups
+    // automatically
+    instrumentIDs = CreateSparseArray(
+      'instrument.wind.piccolo',
+      'instrument.wind.flute',
+      'instrument.wind.oboe',
+      'instrument.wind.coranglais',
+      'instrument.wind.clarinet.eflat',
+      'instrument.wind.clarinet.bflat',
+      'instrument.wind.clarinet.bass.bflat.bassclef',
+      'instrument.wind.bassoon',
+      'instrument.wind.bassoon.contrabassoon',
+      'instrument.brass.horn.f',
+      'instrument.brass.horn.f',
+      'instrument.brass.tuba.wagner.bflat',
+      'instrument.brass.trumpet.bflat',
+      'instrument.brass.trumpet.bflat',
+      'instrument.brass.trombone',
+      'instrument.brass.trombone.bass',
+      'instrument.brass.tuba',
+      'instrument.pitchedpercussion.timpani.nokeysig',
+      'instrument.unpitched.drums.1line',
+      'instrument.unpitched.drums.1line',
+      'instrument.pitchedpercussion.bells.tubular',
+      'instrument.pitchedpercussion.glockenspiel',
+      'instrument.pitchedpercussion.xylophone',
+      'instrument.keyboard.celesta',
+      'instrument.keyboard.celesta',
+      'instrument.keyboard.piano',
+      'instrument.keyboard.piano',
+      'instrument.pitchedpercussion.harp',
+      'instrument.pitchedpercussion.harp',
+      'instrument.pitchedpercussion.harp',
+      'instrument.pitchedpercussion.harp',
+      'instrument.strings.violin.I',
+      'instrument.strings.violin.ii',
+      'instrument.strings.viola',
+      'instrument.strings.violoncello',
+      'instrument.strings.contrabass.double-bass'
+    );
+    for each instrumentID in instrumentIDs {
+      score.CreateInstrumentAtBottom(instrumentID);
+    }
     sibmei2._property:ActiveScore = score;
-    staffgroups = sibmei2.GenerateStaffGroups(score);
+    staffgroups = sibmei2.GenerateStaffGroups(score, 1);
 
     // this is not valid MEI, but it should render correctly.
     m = libmei.Mei();
@@ -249,14 +276,9 @@ function TestGenerateStaffGroups (assert, plugin) {
     libmei.setDocumentRoot(m);
 
     d = libmei.getDocument();
-    e = libmei.meiDocumentToFile(d, '/tmp/staffgroups.mei');
-    assert.True(e, 'The file /tmp/staffgroups.mei was successfully generated');
+    filePath = Self._property:filePath & 'staffgroups.mei';
+    e = libmei.meiDocumentToFile(d, filePath);
+    assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
     libmei.destroy();
 }  //$end
-
-// function TestRandomIDGenerator (assert, plugin) {
-//     //$module(TestExportGenerators.mss)
-//     randomnum = sibmei2.GenerateRandomID();
-//     assert.Equal(randomnum.Length, 14, 'MEI Short IDs are 14 characters long.');
-// }  //$end

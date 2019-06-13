@@ -395,8 +395,7 @@ function rstrip (str) {
 
 function Log (message) {
     //$module(Utilities.mss)
-    result = Sibelius.AppendLineToFile(Self._property:Logfile, message, True);
-    Trace(Self._property:Logfile & ' ' & result);
+    Sibelius.AppendLineToFile(Self._property:Logfile, message, True);
 }  //$end
 
 function NormalizedBeamProp (noteRest) {
