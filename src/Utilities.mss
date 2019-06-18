@@ -48,7 +48,7 @@ function PrevPow2 (val) {
     val = utils.bwOR(val, utils.shr(val, 4));
     val = utils.bwOR(val, utils.shr(val, 8));
     val = utils.bwOR(val, utils.shr(val, 16));
-    // this might be a hack, but I wrote it in 
+    // this might be a hack, but I wrote it in
     // a power outage with no internet.
     // we get the next power of two, and then
     // divide by two to get the previous one.
@@ -58,7 +58,7 @@ function PrevPow2 (val) {
 
 function SimpleNoteHash (nobj) {
     //$module(Utilities.mss)
-    /* 
+    /*
         Generate a simple note hash. Not guaranteed to be unique given
         any suitably large sample of notes, but should be unique enough for quick
         checks.
@@ -78,11 +78,73 @@ function SimpleNoteHash (nobj) {
 
 }  //$end
 
+function GetNoteObjectAtEndPosition (bobj) {
+    //$module(Utilities.mss)
+    // takes a bar object, and returns the NoteRest object closest to the end position.
+    // If one isn't found exactly at the end position, it will first look back (previous)
+    // and then look forward, for candidate objects.
+    // NB: This will probably only work for line objects, since they are the only ones with the EndPosition attribute.
+    // Returns the MEI element closest to that position.
+
+    objectPositions = Self._property:ObjectPositions;
+    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
+    // bar_num = bobj.ParentBar.BarNumber;
+    bar_num = bobj.EndBarNumber;
+    Log('bar_num: ' & bar_num);
+    voice_num = bobj.VoiceNumber;
+
+    staffObjectPositions = objectPositions[staff_num];
+    barObjectPositions = staffObjectPositions[bar_num];
+    voiceObjectPositions = barObjectPositions[voice_num];
+
+    if (voiceObjectPositions = null)
+    {
+        // theres not much we can do here. Bail.
+        Log('Bailing due to insufficient voice information');
+        return null;
+    }
+
+    if (voiceObjectPositions.PropertyExists(bobj.EndPosition))
+    {
+        obj_id = voiceObjectPositions[bobj.EndPosition];
+        obj = libmei.getElementById(obj_id);
+        return obj;
+    }
+    else
+    {
+        // if we can't find anything at this position,
+        // find the previous and subsequent objects, and align the
+        // lyrics with them.
+        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+
+        if (prev_obj != null)
+        {
+            // there should be an object registered here
+            obj_id = voiceObjectPositions[prev_obj.Position];
+            obj = libmei.getElementById(obj_id);
+            return obj;
+        }
+        else
+        {
+            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+
+            if (next_obj != null)
+            {
+                obj_id = voiceObjectPositions[next_obj.Position];
+                obj = libmei.getElementById(obj_id);
+                return obj;
+            }
+        }
+    }
+
+    return null;
+} //$end
+
+
 function GetNoteObjectAtPosition (bobj) {
     //$module(Utilities.mss)
-    // takes a dictionary of {pos:id} mappings for a given
-    // voice, and returns the NoteRest object. If one isn't found
-    // exactly at `position`, it will first look back (previous)
+    // takes a bar object, and returns the NoteRest object closest to its position.
+    // If one isn't found exactly at the end position, it will first look back (previous)
     // and then look forward, for candidate objects.
 
     objectPositions = Self._property:ObjectPositions;
@@ -112,22 +174,22 @@ function GetNoteObjectAtPosition (bobj) {
         // if we can't find anything at this position,
         // find the previous and subsequent objects, and align the
         // lyrics with them.
-        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+        next_obj = bobj.NextItem(voice_num, 'NoteRest');
 
-        if (prev_obj != null)
+        if (next_obj != null)
         {
-            // there should be an object registered here
-            obj_id = voiceObjectPositions[prev_obj.Position];
+            obj_id = voiceObjectPositions[next_obj.Position];
             obj = libmei.getElementById(obj_id);
             return obj;
         }
         else
         {
-            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+            prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
 
-            if (next_obj != null)
+            if (prev_obj != null)
             {
-                obj_id = voiceObjectPositions[next_obj.Position];
+                // there should be an object registered here
+                obj_id = voiceObjectPositions[prev_obj.Position];
                 obj = libmei.getElementById(obj_id);
                 return obj;
             }
@@ -173,7 +235,19 @@ function AddBarObjectInfoToElement (bobj, element) {
         }
         case('Slur')
         {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+            // libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+            start_obj = GetNoteObjectAtPosition(bobj);
+            end_obj = GetNoteObjectAtEndPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+
+            if (end_obj != null)
+            {
+                libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
+            }
+
         }
         case('DiminuendoLine')
         {
@@ -250,12 +324,12 @@ function GetTupletStack (bobj) {
 function CountTupletsEndingAtNoteRest(noteRest) {
     //$module(Utilities.mss)
     tuplet = noteRest.ParentTupletIfAny;
-  
+
     if (tuplet = null)
     {
         return 0;
     }
-  
+
     nextNoteRest = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
 
     if (nextNoteRest = null or nextNoteRest.ParentTupletIfAny = null)
@@ -263,23 +337,23 @@ function CountTupletsEndingAtNoteRest(noteRest) {
         tupletStack = GetTupletStack(noteRest);
         return tupletStack.Length;
     }
-    
+
     if (TupletsEqual(tuplet, nextNoteRest.ParentTupletIfAny))
     {
         return 0;
     }
-    
+
     tupletStack = GetTupletStack(noteRest);
     nextTupletStack = GetTupletStack(nextNoteRest);
-    
+
     // We are looking for the highest index where both stacks are identical.
     index = utils.min(tupletStack.Length, nextTupletStack.Length) - 1;
-    
+
     while (index >= 0 and not(TupletsEqual(tupletStack[index], nextTupletStack[index])))
     {
         index = index - 1;
     }
-    
+
     return tupletStack.Length - 1 - index;
 }  //$end
 
@@ -287,7 +361,7 @@ function GetMeiTupletDepth (layer) {
     //$module(Utilities.mss)
     depth = 0;
     tuplet = layer._property:ActiveMeiTuplet;
-    while (tuplet)
+    while (tuplet != null)
     {
         depth = depth + 1;
         tuplet = tuplet._property:ParentTuplet;
@@ -321,7 +395,7 @@ function rstrip (str) {
 
 function Log (message) {
     //$module(Utilities.mss)
-    Sibelius.AppendLineToFile(LOGFILE, message, True);
+    Sibelius.AppendLineToFile(Self._property:Logfile, message, True);
 }  //$end
 
 function NormalizedBeamProp (noteRest) {
@@ -339,7 +413,7 @@ function NormalizedBeamProp (noteRest) {
     {
         return NoBeam;
     }
-    
+
     // At this point, we're only dealing with ContinueBeam and SingleBeam.
     // We need to look at the preceding note to see whether there's any
     // beam to continue.
@@ -347,24 +421,24 @@ function NormalizedBeamProp (noteRest) {
     if (noteRest.Beam != StartBeam)
     {
         prev_obj = PrevNormalOrGrace(noteRest, noteRest.GraceNote);
-        
+
         if (prev_obj != null and prev_obj.Beam != NoBeam and prev_obj.Duration < 256)
         {
             // We actually have a beam we can continue.
             if (noteRest.Beam = SingleBeam and noteRest.Duration < 128 and prev_obj.Duration < 128)
             {
-                // SingleBeam only makes sense if we actually have secondary beams between the 
+                // SingleBeam only makes sense if we actually have secondary beams between the
                 // previous note and the current note.
                 return SingleBeam;
             }
             return ContinueBeam;
         }
     }
-    
+
     // At this point, we know there is no previous beam we can continue because we have a
     // StartBeam or the above test for a previous beam failed.
     // We still need to check whether there is a following note that we can beam to.
-    
+
     next_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote);
     if (next_obj != null and next_obj.Duration < 256 and (next_obj.Beam = ContinueBeam or next_obj.Beam = SingleBeam))
     {
@@ -381,9 +455,9 @@ function NextNormalOrGrace (noteRest, grace) {
     /*
         When given a 'normal' NoteRest, this function returns the next 'normal' NoteRest
         in the same voice.
-        When given a grace NoteRest, this function returns the immediately adjacent 
+        When given a grace NoteRest, this function returns the immediately adjacent
         following grace NoteRest, if existant.
-        This function is basically a duplicate of PrevNormalOrGrace() with 
+        This function is basically a duplicate of PrevNormalOrGrace() with
         'Previous' replaced by 'Next'.
     */
     next_obj = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
@@ -411,7 +485,7 @@ function PrevNormalOrGrace (noteRest, grace) {
     //$module(Utilities.mss)
     /*
         For a description, see NextNormalOrGrace().
-        This function is basically a duplicate of PrevNormalOrGrace() with 
+        This function is basically a duplicate of PrevNormalOrGrace() with
         'Next' replaced by 'Previous'.
     */
     prev_obj = noteRest.PreviousItem(noteRest.VoiceNumber, 'NoteRest');
@@ -462,3 +536,126 @@ function GetNongraceParentBeam (noteRest, layer) {
     return null;
 }  //$end
 
+function GetTempDir () {
+    //$module(Utilities.mss)
+    if (Sibelius.PathSeparator = '/')
+    {
+        tempFolder = '/tmp/';
+    }
+    else
+    {
+        appDataFolder = Sibelius.GetUserApplicationDataFolder();
+        // appDataFolder usually looks like C:\Users\{username}\AppData\Roaming\
+        // We strip the trailing bit until the second to last backslash
+        i = Length(appDataFolder) - 2;
+        while (i >= 0 and CharAt(appDataFolder, i) != '\\')
+        {
+            i = i - 1;
+        }
+        // tempFolder usually looks like C:\Users\USERNAME\AppData\Local\Temp\
+        // So we replace the trailing 'Roaming' with 'Local\Temp'
+        tempFolder = Substring(appDataFolder, 0, i) & '\\Local\\Temp\\';
+    }
+    if (Sibelius.FolderExists(tempFolder))
+    {
+        return tempFolder;
+    }
+}  //$end
+
+function InitFigbassCharMap () {
+    //$module(Utilities.mss)
+    map = CreateDictionary(
+        '§', '♮',
+        '#', '♯',
+        '!', '♭',
+        '?', '𝄪',
+        '%', '𝄫',
+        'a', '(2)',
+        'i', '[2]',
+        'w', '2♮',
+        's', '2♯',
+        'x', '2♭',
+        'W', '♮2',
+        'S', '♯2',
+        'X', '♭2',
+        'k', '2+',
+        'p', '(3)',
+        'q', '[3]',
+        'e', '3♮',
+        'd', '3♯',
+        'c', '3♭',
+        'E', '♮3',
+        'D', '♯3',
+        'C', '♭3',
+        'z', '3+',
+        'A', '(4)',
+        'I', '[4]',
+        'r', '4♮',
+        'f', '4♯',
+        'v', '4♭',
+        'R', '♮4',
+        'F', '♯4',
+        'V', '♭4',
+        'K', '4+',
+        'P', '(5)',
+        'Q', '[5]',
+        't', '5♮',
+        'g', '5♯',
+        'b', '5♭',
+        'T', '♮5',
+        'G', '♯5',
+        'B', '♭5',
+        'Z', '5+',
+        '$', '(6)',
+        '¨', '[6]',
+        'y', '6♮',
+        'h', '6♯',
+        'n', '6♭',
+        'Y', '♮6',
+        'H', '♯6',
+        'N', '♭6',
+        ',', '6+',
+        'Â', '(7)',
+        ';', '[7]',
+        'u', '7♮',
+        'j', '7♯',
+        'm', '7♭',
+        'U', '♮7',
+        'J', '♯7',
+        'M', '♭7',
+        '<', '7+',
+        '>', '+7',
+        '=', '(8)',
+        'Ö', '[8]',
+        'À', '(9)',
+        '{', '[9]',
+        'o', '9♮',
+        'l', '9♯',
+        'ë', '9♭',
+        'O', '♮9',
+        'L', '♯9',
+        ':', '♭9',
+        '}', '9+',
+        'Å', '|',
+        'ü', '_',
+        '©', CreateSparseArray('2♯', 'U+EA53', 'figbass2Raised' ), // 2 with slashed foot
+        'Ä', CreateSparseArray('4♯', 'U+EA56', 'figbass4Raised' ), // 4 with slashed horizontal line
+        'Ë', CreateSparseArray('5♯', 'U+EA58', 'figbass5Raised1'), // 5 with straight slash through head
+        'Ï', CreateSparseArray('5♯', 'U+EA59', 'figbass5Raised2'), // 5 with angled slash through head
+        'ï', CreateSparseArray('5♯', 'U+EA5A', 'figbass5Raised3'), // 5 with slashed foot
+        '´', CreateSparseArray('6♯', 'U+EA6F', 'figbass6Raised' ), // 6 with slashed head
+        'ä', CreateSparseArray('7♯', 'U+EA5E', 'figbass7Raised1'), // 7 with slashed head
+        '&', CreateSparseArray('7♯', 'U+EA5F', 'figbass8Raised2'), // 7 with slashed stem
+        // (Sibelius/Opus and SMuFL/Bravura don't match 100% for the slashed 9:
+        // Opus slashes the stem, Bravura the head)
+        'ö', CreateSparseArray('9#', 'U+EA62', 'figbass9Raised')   // slashed 9
+    );
+    literalChars = '0123456789[]_-+.';
+    for i = 0 to Length(literalChars)
+    {
+        char = CharAt(literalChars, i);
+        map[char] = char;
+    }
+
+    return map;
+}  //$end

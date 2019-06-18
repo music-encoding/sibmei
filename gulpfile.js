@@ -3,13 +3,15 @@
 
 var gulp = require('gulp');
 var child = require('child_process');
-var gutil = require('gulp-util');
+var c = require('ansi-colors');
+var l = require('fancy-log');
 var Q = require('q');
+var plgconf = require('./plgconfig');
 
 gulp.task('develop:build', function(callback)
 {
     var deferred = Q.defer();
-    gutil.log(gutil.colors.blue('Copying "linked" libraries'));
+    l.info(c.blue('Copying "linked" libraries'));
     gulp.src('lib/*.plg')
         .pipe(gulp.dest('build/'));
 
@@ -17,21 +19,26 @@ gulp.task('develop:build', function(callback)
     {
         if (err)
         {
-            gutil.log(gutil.colors.red("Build failed with error code: " + err.code));
+            l.error(c.red("Build failed with error code: " + err.code));
         }
-        gutil.log(gutil.colors.blue('Output: ') + '\n' + stdout);
+        l.info(c.blue('Output: ') + '\n' + stdout);
     });
 
     var buildTest = child.exec('buildPlg test', function(err, stdout, stderr)
     {
         if (err)
         {
-            gutil.log(gutil.colors.red("Test Build failed with error code: " + err.code));
+            l.error(c.red("Test Build failed with error code: " + err.code));
         }
-        gutil.log(gutil.colors.blue('Output: ') + '\n' + stdout);
+        l.info(c.blue('Output: ') + '\n' + stdout);
         deferred.resolve();
     });
-    
+
+    l.info(c.blue('Copying test data'));
+    const destPath = plgconf.plgPath + '/' + plgconf.plgCategory + '/sibmeiTestSibs';
+    gulp.src('test/sibmeiTestSibs/*.sib', {base: 'test/sibmeiTestSibs'})
+        .pipe(gulp.dest(destPath));
+
     return deferred.promise;
 });
 
@@ -41,9 +48,9 @@ gulp.task('develop:deploy', ['develop:build'], function()
     {
         if (err)
         {
-            gutil.log(gutil.colors.red("Deploy failed with error code: " + err.code));
+            l.error(c.red("Deploy failed with error code: " + err.code));
         }
-        gutil.log(gutil.colors.blue('Output: ') + '\n' + stdout);
+        l.info(c.blue('Output: ') + '\n' + stdout);
     });
 });
 
