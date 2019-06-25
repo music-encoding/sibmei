@@ -265,6 +265,14 @@ function AddBarObjectInfoToElement (bobj, element) {
         {
             libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
         }
+        case('SymbolItem') 
+        {
+            start_obj = GetNoteObjectAtPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+        }
     }
 
     libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
