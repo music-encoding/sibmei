@@ -6,6 +6,7 @@ function TestExportGenerators (suite) {
         .Add('TestGenerateMusicWithLyrics')
         .Add('TestGenerateMusicWithEndings')
         .Add('TestGenerateStaffGroups')
+        .Add('TestGenerateLine')
         ;
 } //$end
 
@@ -281,4 +282,25 @@ function TestGenerateStaffGroups (assert, plugin) {
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
     libmei.destroy();
+}  //$end
+
+
+function TestGenerateLine (assert, plugin) {
+    score = CreateEmptyTestScore(1, 2);
+    staff = score.NthStaff(1);
+    // Fill the bars with quarter notes
+    for barNumber = 1 to staff.BarCount + 1 {
+        bar = staff.NthBar(barNumber);
+        for noteNumber = 0 to 4 {
+            bar.AddNote(noteNumber * 256, 60, 256);
+        }
+    }
+
+    // A short slur
+    slur1 = staff.NthBar(1).AddLine(0, 512, 'line.staff.slur.down');
+    // A slur across bars
+    slur2 = staff.NthBar(1).AddLine(512, 1024, 'line.staff.slur.down');
+
+    sibmei2._property:ActiveScore = score;
+    sibmei2.GenerateMEIMusic();
 }  //$end
