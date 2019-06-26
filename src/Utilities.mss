@@ -95,6 +95,11 @@ function GetNoteObjectAtEndPosition (bobj) {
 
     staffObjectPositions = objectPositions[staff_num];
     barObjectPositions = staffObjectPositions[bar_num];
+    if (null = barObjectPositions) {
+        // TODO: We have a line that continues into a 'future' bar. Track these
+        // lines and add IDs when we've reached the end NoteRest and know its ID
+        return null;
+    }
     voiceObjectPositions = barObjectPositions[voice_num];
 
     if (voiceObjectPositions = null)
@@ -235,7 +240,7 @@ function AddBarObjectInfoToElement (bobj, element) {
         }
         case('Slur')
         {
-            // libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
             start_obj = GetNoteObjectAtPosition(bobj);
             end_obj = GetNoteObjectAtEndPosition(bobj);
             if (start_obj != null)
