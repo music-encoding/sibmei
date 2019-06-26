@@ -13,7 +13,7 @@ function TestExportConverters (suite) {
         .Add('TestKeySignatureConverter')
         .Add('TestClefConverter')
         .Add('TestBracketConverter')
-        //.Add('TestPositionToTimestampConverter')
+        .Add('TestPositionToTimestampConverter')
         ;
 } //$end
 
@@ -41,6 +41,7 @@ function TestDiatonicPitchConverter(assert, plugin) {
 
 function TestOffsetConverter(assert, plugin) {
     //$module(TestNoteNameConverter)
+    EnsureActiveScoreExists();
     output = sibmei2.ConvertOffsetsToMillimeters(100);
     assert.Equal(output, '5.4688mm', 'Offset of 100 1/32nds of a space is 5mm');
 }  //$end
@@ -95,8 +96,8 @@ function TestAccidentalConverter (assert, plugin) {
         return null;
     }
 
-    Sibelius.Open(_SibTestFileDirectory & 'accidentals.sib', True);
-    staff = Sibelius.ActiveScore.NthStaff(1);
+    score = OpenSibFile(_SibTestFileDirectory & 'accidentals.sib', True);
+    staff = score.NthStaff(1);
     bar1 = staff[1];
 
     noterest1 = bar1.NthBarObject(0);
@@ -135,22 +136,14 @@ function TestAccidentalConverter (assert, plugin) {
     output = sibmei2.ConvertAccidental(note6);
     assert.Equal(output[0], 'ff', 'The note is a B double-flat');
     assert.NotOK(output[1], 'The B double-flat has already been shown, so it should not be visible');
-
-    // close the active score
-    CloseActiveScore();
 }  //$end
 
 function TestHasVisibleAccidentalConverter (assert, plugin) {
     //$module(TestExportConverters.mss)
-    fe = Sibelius.FileExists(_SibTestFileDirectory & 'accidentals.sib');
-    if (fe = False)
-    {
-        trace('Cannot find accidentals.sib. Skipping test.');
-        return null;
-    }
+    filePath = _SibTestFileDirectory & 'accidentals.sib';
+    score = OpenSibFile(filePath, True);
 
-    Sibelius.Open(_SibTestFileDirectory & 'accidentals.sib', True);
-    staff = Sibelius.ActiveScore.NthStaff(1);
+    staff = score.NthStaff(1);
     bar1 = staff[1];
 
     noterest1 = bar1.NthBarObject(0);
@@ -211,8 +204,6 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     note11 = noterest11[0];
     output = sibmei2.HasVisibleAccidental(note11);
     assert.NotOK(output, 'The 3rd note in the 7th bar has a hidden C sharp');
-    // close the active score
-    CloseActiveScore();
 }  //$end
 
 function TestOctavaConverter (assert, plugin) {
@@ -288,41 +279,33 @@ function TestBracketConverter (assert, plugin) {
     assert.Equal(line, 'line', 'Should convert a sub-bracket to a line.');
 }  //$end
 
-// function TestPositionToTimestampConverter (assert, plugin) {
-//     //$module(TestExportConverters.mss)
-//     position = 256;
-//     timesig = CreateDictionary();
-//     timesig._property:Denominator = 4;
-//     timesig._property:Numerator = 4;
-//     barlen = 1024;
+function TestPositionToTimestampConverter (assert, plugin) {
+    //$module(TestExportConverters.mss)
+    score = CreateEmptyTestScore(1, 3);
 
-//     tstamp = sibmei2.ConvertPositionToTimestamp(position);
-//     assert.Equal(tstamp, 2, 'The note is on the second beat in 4/4');
+    bar1 = score.SystemStaff.NthBar(1);
+    bar1.AddTimeSignature(4, 4, false, false);
+    position = 256;
+    tstamp = sibmei2.ConvertPositionToTimestamp(position, bar1);
+    assert.Equal(tstamp, 2, 'The note is on the second beat in 4/4');
 
-//     position = 128;
-//     timesig = CreateDictionary();
-//     timesig._property:Denominator = 8;
-//     timesig._property:Numerator = 6;
-//     barlen = 768;
+    bar2 = score.SystemStaff.NthBar(2);
+    bar2.AddTimeSignature(6, 8, false, false);
+    position = 128;
+    tstamp = sibmei2.ConvertPositionToTimestamp(position, bar2);
+    assert.Equal(tstamp, 2, 'A note in position 128 is on the second beat in 6/8');
 
-//     tstamp = sibmei2.ConvertPositionToTimestamp(position, timesig, barlen);
-//     assert.Equal(tstamp, 2, 'A note in position 128 is on the second beat in 6/8');
+    tstamp = sibmei2.ConvertPositionToTimestamp(64, bar2);
+    assert.Equal(tstamp, 1.5, 'A note in position 64 is on beat 1.5 in 6/8.');
 
-//     position = 64;
-//     tstamp = sibmei2.ConvertPositionToTimestamp(position, timesig, barlen);
-//     assert.Equal(tstamp, 1.5, 'A note in position 64 is on beat 1.5 in 6/8.');
+    position = 0;
+    tstamp = sibmei2.ConvertPositionToTimestamp(0, bar2);
+    assert.Equal(tstamp, 1, 'A note in position 0 is on beat 1 in 6/8');
 
-//     position = 0;
-//     tstamp = sibmei2.ConvertPositionToTimestamp(position, timesig, barlen);
-//     assert.Equal(tstamp, 1, 'A note in position 0 is on beat 1 in 6/8');
+    bar3 = score.SystemStaff.NthBar(3);
+    bar3.AddTimeSignature(12, 8, false, false);
 
-//     timesig = CreateDictionary();
-//     timesig._property:Denominator = 8;
-//     timesig._property:Numerator = 12;
-//     barlen = 1536;
-
-//     position = 384;
-//     tstamp = sibmei2.ConvertPositionToTimestamp(position, timesig, barlen);
-//     assert.Equal(tstamp, 4, 'A note in position 384 is on beat 3 in 12/8');
-
-// }  //$end
+    position = 384;
+    tstamp = sibmei2.ConvertPositionToTimestamp(position, bar3);
+    assert.Equal(tstamp, 4, 'A note in position 384 is on beat 3 in 12/8');
+}  //$end

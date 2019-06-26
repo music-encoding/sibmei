@@ -166,9 +166,10 @@ function TestMEIFileWriting (assert, plugin) {
     libmei.AddChild(mei, music);
 
     d = libmei.getDocument();
-    m = libmei.meiDocumentToFile(d, '/tmp/foo.mei');
+    filePath = Self._property:tempDir & 'foo.mei';
+    m = libmei.meiDocumentToFile(d, filePath);
 
-    assert.OK(m, 'The MEI File was successfully written to /tmp/foo.mei.');
+    assert.OK(m, 'The MEI File was successfully written to ' & filePath);
 
     libmei.destroy();
 }  //$end
