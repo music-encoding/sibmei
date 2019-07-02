@@ -251,17 +251,38 @@ function ProcessLyric (lyricobj, objectPositions) {
         verse = libmei.Verse();
         libmei.AddAttribute(verse, 'n', verse_num);
         sylel = libmei.Syl();
+        // In the case of elisions, we create multiple syl elements from one
+        // LyricItem. We have to distinguish between the first and the last syl
+        // element we created. In the common, simple case, both are identical.
+        sylel_last = sylel;
         libmei.SetText(sylel, syl.Text);
         libmei.AddChild(verse, sylel);
+
+        if (utils.Pos('_', syl.Text) > -1)
+        {
+            // Syllable elision. split this syllable element by underscore.
+            syllables = MSplitString(syl.Text, '_');
+
+            // reset the text of the first syllable element to the first half of the syllable.
+            libmei.SetText(sylel, syllables[0]);
+            libmei.AddAttribute(sylel, 'con', 'b');
+
+            for s = 1 to syllables.Length
+            {
+                sylel_last = libmei.Syl();
+                libmei.SetText(sylel_last, syllables[s]);
+                libmei.AddChild(verse, sylel_last);
+            }
+        }
 
         if (j = 0)
         {
             //add a wordpos only for partial words
             if (lyric_word.Length > 1)
             {
-                libmei.AddAttribute(sylel, 'wordpos', 'i'); // 'initial'
+                libmei.AddAttribute(sylel_last, 'wordpos', 'i'); // 'initial'
 
-                libmei.AddAttribute(sylel, 'con', 'd'); //dash syllable connector
+                libmei.AddAttribute(sylel_last, 'con', 'd'); //dash syllable connector
             }
 
             //it is also possible, that an initial syllable has an underscore as an extender, if it is the only syllable of a word
@@ -269,7 +290,7 @@ function ProcessLyric (lyricobj, objectPositions) {
             {
                 if (syl.NumNotes > 1)
                 {
-                    libmei.AddAttribute(sylel, 'con', 'u'); // 'underscore'
+                    libmei.AddAttribute(sylel_last, 'con', 'u'); // 'underscore'
                 }
             }
         }
@@ -289,24 +310,6 @@ function ProcessLyric (lyricobj, objectPositions) {
             {
                 libmei.AddAttribute(sylel, 'wordpos', 'm'); // medial
                 libmei.AddAttribute(sylel, 'con', 'd');
-            }
-        }
-
-        if (utils.Pos('_', syl.Text) > -1)
-        {
-            // Syllable elision. split this syllable element by underscore.
-            syllables = MSplitString(syl.Text, '_');
-            sylarray = CreateSparseArray();
-
-            // reset the text of the first syllable element to the first half of the syllable.
-            libmei.SetText(sylel, syllables[0]);
-            libmei.AddAttribute(sylel, 'con', 'b');
-
-            for s = 1 to syllables.Length
-            {
-                esyl = libmei.Syl();
-                libmei.SetText(esyl, syllables[s]);
-                libmei.AddChild(verse, esyl);
             }
         }
 
