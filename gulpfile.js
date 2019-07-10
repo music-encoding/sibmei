@@ -42,7 +42,7 @@ gulp.task('develop:build', function(callback)
     return deferred.promise;
 });
 
-gulp.task('develop:deploy', ['develop:build'], function()
+gulp.task('develop:deploy', function()
 {
     var deploy = child.exec('deployPlg', function(err, stdout, stderr)
     {
@@ -56,7 +56,7 @@ gulp.task('develop:deploy', ['develop:build'], function()
 
 gulp.task('develop', function()
 {
-    gulp.watch(['src/**/*', 'test/**/*', 'lib/**/*.plg'], ['develop:build', 'develop:deploy'])
+    gulp.watch(['src/**/*', 'test/**/*', 'lib/**/*.plg'], gulp.series('develop:build', 'develop:deploy'))
 });
 
 gulp.task('default', function()
