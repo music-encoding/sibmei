@@ -32,7 +32,7 @@ describe("Lyrics", () => {
       assert.strictEqual(sylsWithCon.length, 1);
     });
     it("creates correct character entities on elisions", function() {
-      assert.strictEqual(syls[13].firstChild._data, "n'u");
+      assert.strictEqual(syls[13].textContent, "n'u");
     });
   });
 
