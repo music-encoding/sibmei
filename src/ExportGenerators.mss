@@ -723,7 +723,7 @@ function GenerateLayers (staffnum, measurenum) {
 
                     if (obj != null)
                     {
-                        libmei.AddAttribute(text, 'startid', '#' & obj._id);
+                        libmei.AddAttribute(mobj, 'startid', '#' & obj._id);
                     }
                 }
             }
