@@ -1,6 +1,6 @@
 
 {
-    
+
     _License "() {
     return 'Copyright (c) 2011-2015 Andrew Hankinson, Alastair Porter, and Others
 
@@ -24,9 +24,13 @@
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.';
     }"
 
-    
+
 Arpeg "() {
     CreateElement('arpeg', null);
+}"
+
+Attacca "() {
+    CreateElement('attacca', null);
 }"
 
 BTrem "() {
@@ -49,6 +53,10 @@ Bend "() {
     CreateElement('bend', null);
 }"
 
+BracketSpan "() {
+    CreateElement('bracketSpan', null);
+}"
+
 Breath "() {
     CreateElement('breath', null);
 }"
@@ -65,6 +73,10 @@ Gliss "() {
     CreateElement('gliss', null);
 }"
 
+GraceGrp "() {
+    CreateElement('graceGrp', null);
+}"
+
 Hairpin "() {
     CreateElement('hairpin', null);
 }"
@@ -75,6 +87,14 @@ HalfmRpt "() {
 
 HarpPedal "() {
     CreateElement('harpPedal', null);
+}"
+
+Lv "() {
+    CreateElement('lv', null);
+}"
+
+MNum "() {
+    CreateElement('mNum', null);
 }"
 
 MRest "() {
@@ -111,6 +131,14 @@ MultiRest "() {
 
 MultiRpt "() {
     CreateElement('multiRpt', null);
+}"
+
+OLayer "() {
+    CreateElement('oLayer', null);
+}"
+
+OStaff "() {
+    CreateElement('oStaff', null);
 }"
 
 Octave "() {
@@ -173,6 +201,14 @@ Rdg "() {
     CreateElement('rdg', null);
 }"
 
+Sp "() {
+    CreateElement('sp', null);
+}"
+
+StageDir "() {
+    CreateElement('stageDir', null);
+}"
+
 Abbr "() {
     CreateElement('abbr', null);
 }"
@@ -187,6 +223,10 @@ Choice "() {
 
 Corr "() {
     CreateElement('corr', null);
+}"
+
+CpMark "() {
+    CreateElement('cpMark', null);
 }"
 
 Damage "() {
@@ -207,6 +247,10 @@ Gap "() {
 
 HandShift "() {
     CreateElement('handShift', null);
+}"
+
+MetaMark "() {
+    CreateElement('metaMark', null);
 }"
 
 Orig "() {
@@ -277,8 +321,12 @@ Tr "() {
     CreateElement('tr', null);
 }"
 
-ComponentGrp "() {
-    CreateElement('componentGrp', null);
+Fing "() {
+    CreateElement('fing', null);
+}"
+
+FingGrp "() {
+    CreateElement('fingGrp', null);
 }"
 
 Expression "() {
@@ -297,16 +345,20 @@ ItemList "() {
     CreateElement('itemList', null);
 }"
 
-Relation "() {
-    CreateElement('relation', null);
+Manifestation "() {
+    CreateElement('manifestation', null);
 }"
 
-RelationList "() {
-    CreateElement('relationList', null);
+ManifestationList "() {
+    CreateElement('manifestationList', null);
 }"
 
-Barre "() {
-    CreateElement('barre', null);
+GenDesc "() {
+    CreateElement('genDesc', null);
+}"
+
+GenState "() {
+    CreateElement('genState', null);
 }"
 
 ChordDef "() {
@@ -337,8 +389,8 @@ AccessRestrict "() {
     CreateElement('accessRestrict', null);
 }"
 
-AcqSource "() {
-    CreateElement('acqSource', null);
+Acquisition "() {
+    CreateElement('acquisition', null);
 }"
 
 AltId "() {
@@ -353,12 +405,24 @@ Application "() {
     CreateElement('application', null);
 }"
 
+AttUsage "() {
+    CreateElement('attUsage', null);
+}"
+
 Audience "() {
     CreateElement('audience', null);
 }"
 
 Availability "() {
     CreateElement('availability', null);
+}"
+
+Bifolium "() {
+    CreateElement('bifolium', null);
+}"
+
+Byline "() {
+    CreateElement('byline', null);
 }"
 
 CaptureMode "() {
@@ -369,6 +433,14 @@ CarrierForm "() {
     CreateElement('carrierForm', null);
 }"
 
+CatRel "() {
+    CreateElement('catRel', null);
+}"
+
+Category "() {
+    CreateElement('category', null);
+}"
+
 Change "() {
     CreateElement('change', null);
 }"
@@ -377,12 +449,16 @@ ChangeDesc "() {
     CreateElement('changeDesc', null);
 }"
 
-ClassCode "() {
-    CreateElement('classCode', null);
+ClassDecls "() {
+    CreateElement('classDecls', null);
 }"
 
 Classification "() {
     CreateElement('classification', null);
+}"
+
+ComponentList "() {
+    CreateElement('componentList', null);
 }"
 
 Condition "() {
@@ -405,8 +481,16 @@ Correction "() {
     CreateElement('correction', null);
 }"
 
-Dimensions "() {
-    CreateElement('dimensions', null);
+Cutout "() {
+    CreateElement('cutout', null);
+}"
+
+Dedication "() {
+    CreateElement('dedication', null);
+}"
+
+DomainsDecl "() {
+    CreateElement('domainsDecl', null);
 }"
 
 EditionStmt "() {
@@ -421,20 +505,12 @@ EncodingDesc "() {
     CreateElement('encodingDesc', null);
 }"
 
-Ensemble "() {
-    CreateElement('ensemble', null);
-}"
-
-Event "() {
-    CreateElement('event', null);
-}"
-
-EventList "() {
-    CreateElement('eventList', null);
-}"
-
 ExhibHist "() {
     CreateElement('exhibHist', null);
+}"
+
+ExtMeta "() {
+    CreateElement('extMeta', null);
 }"
 
 FileChar "() {
@@ -447,6 +523,14 @@ FileDesc "() {
 
 Fingerprint "() {
     CreateElement('fingerprint', null);
+}"
+
+FoliaDesc "() {
+    CreateElement('foliaDesc', null);
+}"
+
+Folium "() {
+    CreateElement('folium', null);
 }"
 
 Hand "() {
@@ -471,18 +555,6 @@ IncipText "() {
 
 Inscription "() {
     CreateElement('inscription', null);
-}"
-
-InstrVoice "() {
-    CreateElement('instrVoice', null);
-}"
-
-InstrVoiceGrp "() {
-    CreateElement('instrVoiceGrp', null);
-}"
-
-Instrumentation "() {
-    CreateElement('instrumentation', null);
 }"
 
 Interpretation "() {
@@ -513,6 +585,10 @@ Meter "() {
     CreateElement('meter', null);
 }"
 
+Namespace "() {
+    CreateElement('namespace', null);
+}"
+
 Normalization "() {
     CreateElement('normalization', null);
 }"
@@ -525,8 +601,24 @@ OtherChar "() {
     CreateElement('otherChar', null);
 }"
 
+Patch "() {
+    CreateElement('patch', null);
+}"
+
+PerfDuration "() {
+    CreateElement('perfDuration', null);
+}"
+
 PerfMedium "() {
     CreateElement('perfMedium', null);
+}"
+
+PerfRes "() {
+    CreateElement('perfRes', null);
+}"
+
+PerfResList "() {
+    CreateElement('perfResList', null);
 }"
 
 PhysDesc "() {
@@ -605,12 +697,16 @@ SysReq "() {
     CreateElement('sysReq', null);
 }"
 
-TapeConfig "() {
-    CreateElement('tapeConfig', null);
+TagUsage "() {
+    CreateElement('tagUsage', null);
 }"
 
-Term "() {
-    CreateElement('term', null);
+TagsDecl "() {
+    CreateElement('tagsDecl', null);
+}"
+
+Taxonomy "() {
+    CreateElement('taxonomy', null);
 }"
 
 TermList "() {
@@ -619,6 +715,10 @@ TermList "() {
 
 TitleStmt "() {
     CreateElement('titleStmt', null);
+}"
+
+TrackConfig "() {
+    CreateElement('trackConfig', null);
 }"
 
 TreatHist "() {
@@ -645,24 +745,20 @@ Work "() {
     CreateElement('work', null);
 }"
 
-WorkDesc "() {
-    CreateElement('workDesc', null);
+WorkList "() {
+    CreateElement('workList', null);
 }"
 
-Timeline "() {
-    CreateElement('timeline', null);
-}"
-
-When "() {
-    CreateElement('when', null);
-}"
-
-Lyrics "() {
-    CreateElement('lyrics', null);
+Refrain "() {
+    CreateElement('refrain', null);
 }"
 
 Verse "() {
     CreateElement('verse', null);
+}"
+
+Volta "() {
+    CreateElement('volta', null);
 }"
 
 Ligature "() {
@@ -745,12 +841,160 @@ Vel "() {
     CreateElement('vel', null);
 }"
 
+AccMat "() {
+    CreateElement('accMat', null);
+}"
+
+AddDesc "() {
+    CreateElement('addDesc', null);
+}"
+
+Binding "() {
+    CreateElement('binding', null);
+}"
+
+BindingDesc "() {
+    CreateElement('bindingDesc', null);
+}"
+
+Catchwords "() {
+    CreateElement('catchwords', null);
+}"
+
+Collation "() {
+    CreateElement('collation', null);
+}"
+
+Colophon "() {
+    CreateElement('colophon', null);
+}"
+
+DecoDesc "() {
+    CreateElement('decoDesc', null);
+}"
+
+DecoNote "() {
+    CreateElement('decoNote', null);
+}"
+
+Explicit "() {
+    CreateElement('explicit', null);
+}"
+
+Foliation "() {
+    CreateElement('foliation', null);
+}"
+
+Heraldry "() {
+    CreateElement('heraldry', null);
+}"
+
+Layout "() {
+    CreateElement('layout', null);
+}"
+
+LayoutDesc "() {
+    CreateElement('layoutDesc', null);
+}"
+
+Locus "() {
+    CreateElement('locus', null);
+}"
+
+LocusGrp "() {
+    CreateElement('locusGrp', null);
+}"
+
+Rubric "() {
+    CreateElement('rubric', null);
+}"
+
+ScriptDesc "() {
+    CreateElement('scriptDesc', null);
+}"
+
+ScriptNote "() {
+    CreateElement('scriptNote', null);
+}"
+
+Seal "() {
+    CreateElement('seal', null);
+}"
+
+SealDesc "() {
+    CreateElement('sealDesc', null);
+}"
+
+SecFolio "() {
+    CreateElement('secFolio', null);
+}"
+
+Signatures "() {
+    CreateElement('signatures', null);
+}"
+
+Stamp "() {
+    CreateElement('stamp', null);
+}"
+
+Support "() {
+    CreateElement('support', null);
+}"
+
+SupportDesc "() {
+    CreateElement('supportDesc', null);
+}"
+
+TypeDesc "() {
+    CreateElement('typeDesc', null);
+}"
+
+TypeNote "() {
+    CreateElement('typeNote', null);
+}"
+
+AddName "() {
+    CreateElement('addName', null);
+}"
+
+Bloc "() {
+    CreateElement('bloc', null);
+}"
+
 CorpName "() {
     CreateElement('corpName', null);
 }"
 
+Country "() {
+    CreateElement('country', null);
+}"
+
+District "() {
+    CreateElement('district', null);
+}"
+
+FamName "() {
+    CreateElement('famName', null);
+}"
+
+ForeName "() {
+    CreateElement('foreName', null);
+}"
+
+GenName "() {
+    CreateElement('genName', null);
+}"
+
+GeogFeat "() {
+    CreateElement('geogFeat', null);
+}"
+
 GeogName "() {
     CreateElement('geogName', null);
+}"
+
+NameLink "() {
+    CreateElement('nameLink', null);
 }"
 
 PeriodName "() {
@@ -761,20 +1005,76 @@ PersName "() {
     CreateElement('persName', null);
 }"
 
+PostBox "() {
+    CreateElement('postBox', null);
+}"
+
+PostCode "() {
+    CreateElement('postCode', null);
+}"
+
+Region "() {
+    CreateElement('region', null);
+}"
+
+RoleName "() {
+    CreateElement('roleName', null);
+}"
+
+Settlement "() {
+    CreateElement('settlement', null);
+}"
+
+Street "() {
+    CreateElement('street', null);
+}"
+
 StyleName "() {
     CreateElement('styleName', null);
 }"
 
-Ineume "() {
-    CreateElement('ineume', null);
+Episema "() {
+    CreateElement('episema', null);
+}"
+
+HispanTick "() {
+    CreateElement('hispanTick', null);
+}"
+
+Liquescent "() {
+    CreateElement('liquescent', null);
+}"
+
+Nc "() {
+    CreateElement('nc', null);
+}"
+
+NcGrp "() {
+    CreateElement('ncGrp', null);
+}"
+
+Neume "() {
+    CreateElement('neume', null);
+}"
+
+Oriscus "() {
+    CreateElement('oriscus', null);
+}"
+
+Quilisma "() {
+    CreateElement('quilisma', null);
+}"
+
+SignifLet "() {
+    CreateElement('signifLet', null);
+}"
+
+Strophicus "() {
+    CreateElement('strophicus', null);
 }"
 
 Syllable "() {
     CreateElement('syllable', null);
-}"
-
-Uneume "() {
-    CreateElement('uneume', null);
 }"
 
 AvFile "() {
@@ -791,6 +1091,10 @@ Performance "() {
 
 Recording "() {
     CreateElement('recording', null);
+}"
+
+When "() {
+    CreateElement('when', null);
 }"
 
 Ptr "() {
@@ -815,6 +1119,18 @@ AddrLine "() {
 
 Address "() {
     CreateElement('address', null);
+}"
+
+AmbNote "() {
+    CreateElement('ambNote', null);
+}"
+
+Ambitus "() {
+    CreateElement('ambitus', null);
+}"
+
+Analytic "() {
+    CreateElement('analytic', null);
 }"
 
 Annot "() {
@@ -849,8 +1165,16 @@ BiblScope "() {
     CreateElement('biblScope', null);
 }"
 
+BiblStruct "() {
+    CreateElement('biblStruct', null);
+}"
+
 Body "() {
     CreateElement('body', null);
+}"
+
+Caesura "() {
+    CreateElement('caesura', null);
 }"
 
 Caption "() {
@@ -869,6 +1193,10 @@ CastList "() {
     CreateElement('castList', null);
 }"
 
+Cb "() {
+    CreateElement('cb', null);
+}"
+
 Chord "() {
     CreateElement('chord', null);
 }"
@@ -881,8 +1209,16 @@ ClefGrp "() {
     CreateElement('clefGrp', null);
 }"
 
+ColLayout "() {
+    CreateElement('colLayout', null);
+}"
+
 Composer "() {
     CreateElement('composer', null);
+}"
+
+Contributor "() {
+    CreateElement('contributor', null);
 }"
 
 Creation "() {
@@ -897,12 +1233,36 @@ Date "() {
     CreateElement('date', null);
 }"
 
+Dedicatee "() {
+    CreateElement('dedicatee', null);
+}"
+
+Depth "() {
+    CreateElement('depth', null);
+}"
+
+Desc "() {
+    CreateElement('desc', null);
+}"
+
+Dim "() {
+    CreateElement('dim', null);
+}"
+
+Dimensions "() {
+    CreateElement('dimensions', null);
+}"
+
 Dir "() {
     CreateElement('dir', null);
 }"
 
 Distributor "() {
     CreateElement('distributor', null);
+}"
+
+Div "() {
+    CreateElement('div', null);
 }"
 
 Dot "() {
@@ -925,6 +1285,14 @@ Ending "() {
     CreateElement('ending', null);
 }"
 
+Event "() {
+    CreateElement('event', null);
+}"
+
+EventList "() {
+    CreateElement('eventList', null);
+}"
+
 Expansion "() {
     CreateElement('expansion', null);
 }"
@@ -937,10 +1305,6 @@ Funder "() {
     CreateElement('funder', null);
 }"
 
-Fw "() {
-    CreateElement('fw', null);
-}"
-
 Genre "() {
     CreateElement('genre', null);
 }"
@@ -951,6 +1315,14 @@ Group "() {
 
 GrpSym "() {
     CreateElement('grpSym', null);
+}"
+
+Head "() {
+    CreateElement('head', null);
+}"
+
+Height "() {
+    CreateElement('height', null);
 }"
 
 Identifier "() {
@@ -977,6 +1349,10 @@ Label "() {
     CreateElement('label', null);
 }"
 
+LabelAbbr "() {
+    CreateElement('labelAbbr', null);
+}"
+
 Layer "() {
     CreateElement('layer', null);
 }"
@@ -987,6 +1363,10 @@ LayerDef "() {
 
 Lb "() {
     CreateElement('lb', null);
+}"
+
+Lg "() {
+    CreateElement('lg', null);
 }"
 
 Librettist "() {
@@ -1005,6 +1385,10 @@ Mei "() {
     CreateElement('mei', null);
 }"
 
+Monogr "() {
+    CreateElement('monogr', null);
+}"
+
 Music "() {
     CreateElement('music', null);
 }"
@@ -1019,6 +1403,10 @@ Note "() {
 
 Num "() {
     CreateElement('num', null);
+}"
+
+Ornam "() {
+    CreateElement('ornam', null);
 }"
 
 P "() {
@@ -1085,6 +1473,14 @@ RelatedItem "() {
     CreateElement('relatedItem', null);
 }"
 
+Relation "() {
+    CreateElement('relation', null);
+}"
+
+RelationList "() {
+    CreateElement('relationList', null);
+}"
+
 Rend "() {
     CreateElement('rend', null);
 }"
@@ -1137,6 +1533,10 @@ Space "() {
     CreateElement('space', null);
 }"
 
+Speaker "() {
+    CreateElement('speaker', null);
+}"
+
 Sponsor "() {
     CreateElement('sponsor', null);
 }"
@@ -1161,8 +1561,16 @@ Syl "() {
     CreateElement('syl', null);
 }"
 
+Symbol "() {
+    CreateElement('symbol', null);
+}"
+
 Tempo "() {
     CreateElement('tempo', null);
+}"
+
+Term "() {
+    CreateElement('term', null);
 }"
 
 TextLang "() {
@@ -1177,28 +1585,40 @@ TitlePage "() {
     CreateElement('titlePage', null);
 }"
 
+TitlePart "() {
+    CreateElement('titlePart', null);
+}"
+
+Width "() {
+    CreateElement('width', null);
+}"
+
+Barre "() {
+    CreateElement('barre', null);
+}"
+
+Argument "() {
+    CreateElement('argument', null);
+}"
+
 Back "() {
     CreateElement('back', null);
 }"
 
-Div "() {
-    CreateElement('div', null);
+Epigraph "() {
+    CreateElement('epigraph', null);
 }"
 
 Front "() {
     CreateElement('front', null);
 }"
 
-Head "() {
-    CreateElement('head', null);
+Imprimatur "() {
+    CreateElement('imprimatur', null);
 }"
 
 L "() {
     CreateElement('l', null);
-}"
-
-Lg "() {
-    CreateElement('lg', null);
 }"
 
 Li "() {
@@ -1209,8 +1629,16 @@ List "() {
     CreateElement('list', null);
 }"
 
+Q "() {
+    CreateElement('q', null);
+}"
+
 Quote "() {
     CreateElement('quote', null);
+}"
+
+Seg "() {
+    CreateElement('seg', null);
 }"
 
 AnchoredText "() {
@@ -1225,8 +1653,24 @@ Line "() {
     CreateElement('line', null);
 }"
 
-Symbol "() {
-    CreateElement('symbol', null);
+Mapping "() {
+    CreateElement('mapping', null);
+}"
+
+PropName "() {
+    CreateElement('propName', null);
+}"
+
+PropValue "() {
+    CreateElement('propValue', null);
+}"
+
+SymName "() {
+    CreateElement('symName', null);
+}"
+
+SymProp "() {
+    CreateElement('symProp', null);
 }"
 
 SymbolDef "() {
@@ -1237,7 +1681,7 @@ SymbolTable "() {
     CreateElement('symbolTable', null);
 }"
 
-    
+
 Initialize "() {
         tree_doc = CreateSparseArray();
         flat_doc = CreateDictionary();
@@ -1254,6 +1698,7 @@ Initialize "() {
     commentObj.text = comment;
     return commentObj;
 }"
+
 CreateElement "(tagname, orig_id) {
     element = CreateDictionary(
         'name', tagname,
@@ -1278,6 +1723,7 @@ CreateElement "(tagname, orig_id) {
 
     return element;
 }"
+
 GetChildren "(element) {
         c = CreateSparseArray();
         for each child_id in element.children {
@@ -1286,14 +1732,17 @@ GetChildren "(element) {
         }
         return c;
 }"
+
 SetChildren "(element, childarr) {
         element.children = childarr;
 }"
+
 AddChild "(element, child) {
         cid = child._id;
         child._parent = element._id;
         element.children.Push(cid);
 }"
+
 RemoveChild "(element, child) {
     newarr = CreateSparseArray();
 
@@ -1321,15 +1770,18 @@ GetChildById "(element, childid) {
 
     return False;
 }"
+
 GetAttributes "(element) {
     return element.attrs;
 }"
+
 AddAttribute "(element, attrname, attrval) {
     a = element.attrs;
     // check and replace any newlines
     val = _encodeEntities(attrval);
     a[attrname] = val;
 }"
+
 AddAttributeValue "(element, attrname, attrval) {
     // appends a value to an existing attribute. Used, for example,
     // in appending multiple articulations to @artic on note.
@@ -1348,6 +1800,7 @@ AddAttributeValue "(element, attrname, attrval) {
 
     element.attrs[attrname] = val;
 }"
+
 GetAttribute "(element, attrname) {
         attrs = element.attrs;
         if (attrs.PropertyExists(attrname))
@@ -1359,6 +1812,7 @@ GetAttribute "(element, attrname) {
             return False;
         }
 }"
+
 SetAttributes "(element, new_attrs) {
     //sets all attributes, wiping out any previous ones
     element.attrs = CreateDictionary();
@@ -1369,9 +1823,11 @@ SetAttributes "(element, new_attrs) {
         libmei.AddAttribute(element, a.Name, a.Value);
     }
 }"
+
 GetId "(element) {
         return element._id;
 }"
+
 SetId "(element, value) {
         olddict = Self._property:MEIFlattened;
         oldid = element._id;
@@ -1392,21 +1848,25 @@ RemoveAttribute "(element, attrname) {
 GetName "(element) {
     return element.name;
 }"
+
 SetText "(element, val) {
     element.text = _encodeEntities(val);
 }"
+
 GetText "(element) {
     return element.text;
 }"
+
 SetTail "(element, val) {
     element.tail = _encodeEntities(val);
 }"
+
 GetTail "(element) {
     return element.tail;
 }"
 
     destroy "() {
-        // cleans up 
+        // cleans up
         Self._property:MEIFlattened = CreateDictionary();
         Self._property:MEIDocument = CreateSparseArray();
         Self._property:XMLIdToObjectMap = CreateDictionary();
@@ -1627,6 +2087,7 @@ GetTail "(element) {
 
     return res;
 }"
+
     popMode "(arr) {
     if (arr.Length > 0) {
         return arr.Pop();
@@ -1635,6 +2096,7 @@ GetTail "(element) {
         return 15;
     }
 }"
+
     _encodeEntities "(string)
     {
         /*
@@ -1662,6 +2124,7 @@ GetTail "(element) {
 
         return string;
     }"
+
     _xmlImport "(filename) {
     /*
         Based on the Quick-n-Dirty XML parser at
@@ -2067,6 +2530,5 @@ removeKeyFromDictionary "(dict, key) {
 
     return newdict;
 }"
-}
 
 }
