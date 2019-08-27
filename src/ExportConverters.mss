@@ -930,6 +930,7 @@ function ConvertText (textobj) {
         {
             tempo = libmei.Tempo();
             atext = ConvertTextElement(textobj);
+            libmei.AddAttribute(tempo, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
             libmei.AddChild(tempo, atext);
             return tempo;
         }
