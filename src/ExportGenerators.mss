@@ -13,18 +13,21 @@ function GenerateMEIHeader () {
     libmei.AddChild(header, fileD);
     libmei.AddChild(fileD, titleS);
 
-    workDesc = libmei.WorkDesc();
-    Self._property:WorkDescElement = workDesc;
+    //encodingDesc must preceed workList in MEI 4.0
+    encodingD = libmei.EncodingDesc();
+    libmei.AddChild(header, encodingD);
+    appI = GenerateApplicationInfo();
+    libmei.AddChild(encodingD, appI);
+
+    //generate workList
+    workList = libmei.WorkList();
+    Self._property:WorkListElement = workList;
 
     wd_work = libmei.Work();
-    wd_titleStmt = libmei.TitleStmt();
     wd_title = libmei.Title();
-    wd_respStmt = libmei.RespStmt();
-    libmei.AddChild(wd_titleStmt, wd_title);
-    libmei.AddChild(wd_titleStmt, wd_respStmt);
-    libmei.AddChild(wd_work, wd_titleStmt);
-    libmei.AddChild(workDesc, wd_work);
-    libmei.AddChild(header, workDesc);
+    libmei.AddChild(wd_work, wd_title);
+    libmei.AddChild(workList, wd_work);
+    libmei.AddChild(header, workList);
 
     title = libmei.Title();
     libmei.AddChild(titleS, title);
@@ -46,30 +49,27 @@ function GenerateMEIHeader () {
         composer = libmei.Composer();
         libmei.AddChild(titleS, composer);
         libmei.SetText(composer, score.Composer);
-        wd_composer = libmei.PersName();
-        libmei.AddAttribute(wd_composer, 'role', 'composer');
+        wd_composer = libmei.Composer();
         libmei.SetText(wd_composer, score.Composer);
-        libmei.AddChild(wd_respStmt, wd_composer);
+        libmei.AddChild(wd_work, wd_composer);
     }
     if (score.Lyricist != '')
     {
         lyricist = libmei.Lyricist();
         libmei.AddChild(titleS, lyricist);
         libmei.SetText(lyricist, score.Lyricist);
-        wd_lyricist = libmei.PersName();
-        libmei.AddAttribute(wd_lyricist, 'role', 'lyricist');
+        wd_lyricist = libmei.Lyricist();
         libmei.SetText(wd_lyricist, score.Lyricist);
-        libmei.AddChild(wd_respStmt, wd_lyricist);
+        libmei.AddChild(wd_work, wd_lyricist);
     }
     if (score.Arranger != '')
     {
         arranger = libmei.Arranger();
         libmei.AddChild(titleS, arranger);
         libmei.SetText(arranger, score.Arranger);
-        wd_arranger = libmei.PersName();
-        libmei.AddAttribute(wd_arranger, 'role', 'arranger');
+        wd_arranger = libmei.Arranger();
         libmei.SetText(wd_arranger, score.Arranger);
-        libmei.AddChild(wd_respStmt, wd_arranger);
+        libmei.AddChild(wd_work, wd_arranger);
     }
     if (score.OtherInformation != '')
     {
@@ -93,10 +93,13 @@ function GenerateMEIHeader () {
     libmei.AddChild(pubS, avail);
     libmei.SetText(ur, score.Copyright);
 
-    encodingD = libmei.EncodingDesc();
-    libmei.AddChild(header, encodingD);
+    return header;
+}  //$end
+
+function GenerateApplicationInfo () {
+    //$module(ExportGenerators.mss)
+
     appI = libmei.AppInfo();
-    libmei.AddChild(encodingD, appI);
 
     applic = libmei.Application();
     libmei.SetId(applic, 'sibelius');
@@ -118,8 +121,9 @@ function GenerateMEIHeader () {
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
 
-    return header;
-}  //$end
+    return appI;
+
+}   //$end
 
 function GenerateMEIMusic () {
     //$module(ExportGenerators.mss)
@@ -308,7 +312,6 @@ function GenerateMDiv (barnum) {
 
     sco = libmei.Score();
     libmei.AddChild(mdiv, sco);
-    libmei.AddChild(mdiv, ano);
 
     scd = GenerateScoreDef(score, barnum);
     Self._property:MainScoreDef = scd;
@@ -317,6 +320,9 @@ function GenerateMDiv (barnum) {
     section = libmei.Section();
     Self._property:SectionElement = section;
     libmei.AddChild(sco, section);
+
+    //annot is valid as a child of score
+    libmei.AddChild(sco, ano);
 
     return mdiv;
 } //$end
@@ -439,9 +445,9 @@ function GenerateMeasure (num) {
         newMdiv = GenerateMDiv(num + 1);
         libmei.AddChild(body, newMdiv);
         // a new section end means a new entry in the header.
-        workDesc = Self._property:WorkDescElement;
+        workList = Self._property:WorkListElement;
         workEl = libmei.Work();
-        libmei.AddChild(workDesc, workEl);
+        libmei.AddChild(workList, workEl);
     }
 
     return m;
