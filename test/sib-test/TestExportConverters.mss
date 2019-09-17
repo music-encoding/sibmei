@@ -14,6 +14,7 @@ function TestExportConverters (suite) {
         .Add('TestClefConverter')
         .Add('TestBracketConverter')
         .Add('TestPositionToTimestampConverter')
+        .Add('TestConvertTimeStamp')
         ;
 } //$end
 
@@ -309,3 +310,28 @@ function TestPositionToTimestampConverter (assert, plugin) {
     tstamp = sibmei2.ConvertPositionToTimestamp(position, bar3);
     assert.Equal(tstamp, 4, 'A note in position 384 is on beat 3 in 12/8');
 }  //$end
+
+function TestConvertTimeStamp (assert, plugin) {
+    //$module(TestExportConverters.mss)
+
+    //Case 1: only seconds with milliseconds
+    time1 = 4500;
+    tstamp1 = sibmei2.ConvertTimeStamp(time1);
+    assert.Equal(tstamp1, '00:00:04.5', '4500 milliseconds are 4.5 seconds');
+
+    //Case 2: minutes, seconds with milliseconds
+    time2 = 75200;
+    tstamp2 = sibmei2.ConvertTimeStamp(time2);
+    assert.Equal(tstamp2, '00:01:15.2', '75200 milliseconds are should be converted to 00:01:15.2');
+
+    //Case 3: hours, minutes, seconds with milliseconds
+    time3 = 3845800;
+    tstamp3 = sibmei2.ConvertTimeStamp(time3);
+    assert.Equal(tstamp3, '01:04:05.8', '3845800 milliseconds are should be converted to 01:04:05.8');
+
+    //Case 4: a very long piece (over 10 hours)
+    time4 = 39634700;
+    tstamp4 = sibmei2.ConvertTimeStamp(time4);
+    assert.Equal(tstamp4, '11:00:34.7', '39634700 milliseconds are should be converted to 11:00:34.7');
+
+}   //$end

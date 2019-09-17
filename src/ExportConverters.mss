@@ -1120,10 +1120,40 @@ function ConvertDate (datetime) {
 
 function ConvertTimeStamp (time) {
     //$module(ExportConverters.mss)
-    // Converts a timestamp in milliseconds to a
-    // string suitable for use in @tstamp.ges
-    t = time / 1000.0;
-    return t & 's';
+    // Converts a timestamp in milliseconds to an
+    // isotime (hh:mm:ss.s) suitable for use in @tstamp.real
+
+    mins = utils.GetMinutesFromTime(time);
+
+    secs = time % 60000.0 / 1000.0;
+    // We need to ensure that values always have two digits
+    if (secs < 10.0)
+    {
+        secs = '0' & secs;
+    }
+
+    hours = 0;
+    if (mins > 60)
+    {
+        rem = mins % 60;
+        hours = (mins - rem) / 60;
+        mins = rem;
+
+        // Only if mins > 60 we need to make sure, that there are two digits
+        if (mins < 10)
+        {
+            mins = '0' & mins;
+        }
+    }
+
+    // In the case of a very long score, we need to make sure, that there are always two digits
+    if (hours < 10)
+    {
+        hours = '0' & hours;
+    }
+
+    isodate = utils.Format('%s:%s:%s', hours, mins, secs);
+    return isodate;
 }  //$end
 
 
