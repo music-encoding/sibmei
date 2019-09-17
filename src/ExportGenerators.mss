@@ -857,7 +857,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.CueSize = true and libmei.GetName(nr) != 'space')
     {
-        libmei.AddAttribute(nr, 'size', 'cue');
+        libmei.AddAttribute(nr, 'fontsize', 'small');
     }
 
     if (bobj.Hidden = true and libmei.GetName(nr) != 'space')
@@ -980,7 +980,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', stemmod);
     }
 
-    libmei.AddAttribute(nr, 'tstamp.ges', ConvertTimeStamp(bobj.Time));
+    libmei.AddAttribute(nr, 'tstamp.real', ConvertTimeStamp(bobj.Time));
 
     return nr;
 }  //$end
@@ -1003,7 +1003,7 @@ function GenerateRest (bobj) {
 
     name = libmei.GetName(r);
     libmei.AddAttribute(r, 'dur', meidur[0]);
-    libmei.AddAttribute(r, 'dur.ges', dur & 'p');
+    libmei.AddAttribute(r, 'dur.ppq', dur);
     libmei.AddAttribute(r, 'dots', meidur[1]);
 
     if (bobj.Dx != 0 and name != 'space')
@@ -1018,7 +1018,7 @@ function GenerateRest (bobj) {
 
     if (bobj.CueSize = true and name != 'space')
     {
-        libmei.AddAttribute(r, 'size', 'cue');
+        libmei.AddAttribute(r, 'fontsize', 'small');
     }
 
     if (bobj.Hidden = true and name != 'space')
@@ -1115,7 +1115,7 @@ function GenerateNote (nobj) {
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
     libmei.AddAttribute(n, 'dur', meidur[0]);
-    libmei.AddAttribute(n, 'dur.ges', gesdur & 'p');
+    libmei.AddAttribute(n, 'dur.ppq', gesdur);
     libmei.AddAttribute(n, 'dots', meidur[1]);
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
@@ -1223,7 +1223,7 @@ function GenerateChord (bobj) {
     meidur = ConvertDuration(dur);
 
     libmei.AddAttribute(n, 'dur', meidur[0]);
-    libmei.AddAttribute(n, 'dur.ges', dur & 'p');
+    libmei.AddAttribute(n, 'dur.ppq', dur);
     libmei.AddAttribute(n, 'dots', meidur[1]);
 
     for each note in bobj
@@ -1277,7 +1277,7 @@ function GenerateBarRest (bobj) {
         libmei.AddAttribute(obj, 'visible', 'false');
     }
 
-    libmei.AddAttribute(obj, 'tstamp.ges', ConvertTimeStamp(bobj.Time));
+    libmei.AddAttribute(obj, 'tstamp.real', ConvertTimeStamp(bobj.Time));
 
     return obj;
 }  //$end

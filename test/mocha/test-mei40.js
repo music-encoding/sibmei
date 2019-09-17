@@ -7,6 +7,7 @@ const utils = require('./utils');
 
 const meiHead = utils.getTestMeiDom('header.mei');
 const meiMdivs = utils.getTestMeiDom('mdivs.mei');
+const meiNRsmall = utils.getTestMeiDom('nrsmall.mei');
 
 describe("Head 4.0", () => {
   it("correct meiversion is set", () => {
@@ -53,3 +54,34 @@ describe("Mdiv", () => {
     assert.strictEqual(mdivs.length, workEls.length);
   });
 });
+
+const notes = xpath.evaluateXPath('//*[local-name()!="chord"]/*:note', meiNRsmall);
+const rests = xpath.evaluateXPath('//*:rest', meiNRsmall);
+const chords = xpath.evaluateXPath('//*:chord', meiNRsmall);
+
+const nrs = [notes, rests, chords];
+const smallnrs = [[1, 10], [1], [1]];
+const elnames = ["note", "rest", "chord"];
+
+for(let i = 0; i < nrs.length; i++) {
+  describe(elnames[i] + " attributes 4.0", () => {
+    it("has @dur.ppq attribute", () => {
+      utils.assertHasAttr(nrs[i], 'dur.ppq');
+    });
+    it("value of @dur.ppq is a number", () => {
+      utils.assertAttrValueFormat(nrs[i], 'dur.ppq', /^[0-9]*$/);
+    });
+    it("has @tstamp.real attribute", () => {
+      utils.assertHasAttr(nrs[i], 'tstamp.real');
+    });
+    it("value of @tstamp.real is isotime", () => {
+      utils.assertAttrValueFormat(nrs[i], 'tstamp.real', /[0-9][0-9]:[0-9][0-9]:[0-9][0-9](\.?[0-9]*)?/);
+    });
+    it("has @fontsize", () => {
+      utils.assertElsHasAttr(nrs[i], smallnrs[i], 'fontsize');
+    });
+    it("value of @fontsize is 'small'", () => {
+      utils.assertAttrOnElements(nrs[i], smallnrs[i], 'fontsize', 'small');
+    });
+  });
+}
