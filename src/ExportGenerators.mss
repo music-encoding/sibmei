@@ -1258,9 +1258,9 @@ function GenerateBarRest (bobj) {
         }
         case (FourBarRepeat)
         {
-            warnings = Self._property:warnings;
-            warnings.Push(utils.Format(_ObjectHasNoMEISupport, 'A four-bar repeat'));
-            return null;
+            // MEI now supports a four-bar repeat
+            obj = libmei.MultiRpt();
+            libmei.AddAttribute(obj, 'num', '4');
         }
     }
 

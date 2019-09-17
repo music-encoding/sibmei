@@ -8,6 +8,7 @@ const utils = require('./utils');
 const meiHead = utils.getTestMeiDom('header.mei');
 const meiMdivs = utils.getTestMeiDom('mdivs.mei');
 const meiNRsmall = utils.getTestMeiDom('nrsmall.mei');
+const meiBarRests = utils.getTestMeiDom('barrests.mei');
 
 describe("Head 4.0", () => {
   it("correct meiversion is set", () => {
@@ -85,3 +86,21 @@ for(let i = 0; i < nrs.length; i++) {
     });
   });
 }
+
+describe("Measure rests and repeats", () => {
+  it("First measure has <mRest>." ,() => {
+    assert.strictEqual(xpath.evaluateXPath('//*:measure[@n="1"]//*:layer/*', meiBarRests).localName, 'mRest');
+  });
+  it("Third measure has <mRpt>", () => {
+    assert.strictEqual(xpath.evaluateXPath('//*:measure[@n="3"]//*:layer/*', meiBarRests).localName, 'mRpt');
+  });
+  it("Fifth measure has <mRpt2>", () => {
+    assert.strictEqual(xpath.evaluateXPath('//*:measure[@n="5"]//*:layer/*', meiBarRests).localName, 'mRpt2');
+  });
+  it("Eighth measure has <multiRpt>", () => {
+    assert.strictEqual(xpath.evaluateXPath('//*:measure[@n="8"]//*:layer/*', meiBarRests).localName, 'multiRpt');
+  });
+  it("<multiRpt> has num='4'", () => {
+    assert.strictEqual(xpath.evaluateXPath('//*:measure[@n="8"]//*:multiRpt', meiBarRests).getAttribute('num'), '4');
+  });
+});
