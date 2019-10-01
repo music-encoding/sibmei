@@ -20,11 +20,11 @@ function TestExportConverters (suite) {
 
 function TestSlurValueConverter (assert, plugin) {
     //$module(TestExportConverters)
-    output = sibmei2.ConvertSlur('line.staff.slur.up.dotted');
+    output = sibmei2.ConvertSlurStyle('line.staff.slur.up.dotted');
     assert.Equal(output[0], 'above', 'Direction should be up');
     assert.Equal(output[1], 'dotted', 'Style should be dotted');
 
-    output = sibmei2.ConvertSlur('line.staff.slur.down');
+    output = sibmei2.ConvertSlurStyle('line.staff.slur.down');
     assert.Equal(output[0], 'below', 'Direction should be down');
     assert.Equal(output[1], ' ', 'Style should be empty');
 } //$end
