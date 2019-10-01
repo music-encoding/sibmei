@@ -142,44 +142,6 @@ function ConvertOctava (octava_id) {
     return CreateSparseArray(dis, place);
 }  //$end
 
-function ConvertSlur (slur_value) {
-    //$module(ExportConverters.mss)
-    slurparts = MSplitString(slur_value, '.');
-    direction = ' ';
-    style = ' ';
-    switch(slurparts[3])
-    {
-        case ('up')
-        {
-            direction = 'above';
-        }
-        case ('down')
-        {
-            direction = 'below';
-        }
-        default
-        {
-            direction = ' ';
-        }
-    }
-    switch(slurparts[4])
-    {
-        case ('dashed')
-        {
-            style = 'dashed';
-        }
-        case ('dotted')
-        {
-            style = 'dotted';
-        }
-        default
-        {
-            style = ' ';
-        }
-    }
-    return CreateSparseArray(direction, style);
-}  //$end
-
 function ConvertDiatonicPitch (diatonic_pitch) {
     //$module(ExportConverters)
     octv = (diatonic_pitch / 7) - 1;
