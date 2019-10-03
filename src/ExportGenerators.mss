@@ -848,12 +848,13 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.IsAppoggiatura = True)
     {
-        libmei.AddAttribute(nr, 'grace', 'unacc');
+        libmei.AddAttribute(nr, 'grace', 'acc');
     }
 
     if (bobj.IsAcciaccatura = True)
     {
-        libmei.AddAttribute(nr, 'grace', 'acc');
+        libmei.AddAttribute(nr, 'grace', 'unacc');
+        libmei.AddAttribute(nr, 'stem.mod', '1slash');
     }
 
     if (bobj.GetArticulation(PauseArtic) or bobj.GetArticulation(TriPauseArtic) or bobj.GetArticulation(SquarePauseArtic))
