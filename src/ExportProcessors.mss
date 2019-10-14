@@ -838,4 +838,24 @@ function ProcessSymbol (sobj) {
         }
 
     }
+} //$end
+
+function ProcessEndingSlurs (bar) {
+    //$module(ExportProcessors.mss)
+    slur_resolver = Self._property:SlurResolver;
+    for voiceNumber = 1 to 5
+    {
+        endingSlurs = slur_resolver[LayerHash(bar, voiceNumber)];
+        if (endingSlurs != null)
+        {
+            for each slur in endingSlurs
+            {
+                end_obj = GetNoteObjectAtEndPosition(slur);
+                if (end_obj != null)
+                {
+                    libmei.AddAttribute(slur._property:mobj, 'endid', '#' & end_obj._id);
+                }
+            }
+        }
+    }
 }  //$end
