@@ -489,8 +489,8 @@ function ProcessTremolo (bobj) {
 
     Log('Fingered tremolo: ' & bobj.DoubleTremolos);
     tremEl = libmei.FTrem();
-    libmei.AddAttribute(tremEl, 'slash', bobj.DoubleTremolos);
-    libmei.AddAttribute(tremEl, 'measperf');
+    libmei.AddAttribute(tremEl, 'beams', bobj.DoubleTremolos);
+    libmei.AddAttribute(tremEl, 'unitdur');
 
 } //$end
 
