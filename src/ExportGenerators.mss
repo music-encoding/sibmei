@@ -2037,9 +2037,9 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
         libmei.AddChild(symbolDef, anchoredText);
         symbol = libmei.Symbol();
         libmei.AddChild(anchoredText, symbol);
-        libmei.AddAttribute(symbol, 'authority', 'SMuFL');
-        libmei.AddAttribute(symbol, 'glyphnum', glyphnum);
-        libmei.AddAttribute(symbol, 'glyphname', glyphname);
+        libmei.AddAttribute(symbol, 'glyph.auth', 'smufl');
+        libmei.AddAttribute(symbol, 'glyph.num', glyphnum);
+        libmei.AddAttribute(symbol, 'glyph.name', glyphname);
 
         symbolIds[glyphnum] = symbolDef._id;
     }
