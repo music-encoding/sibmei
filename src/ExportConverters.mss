@@ -603,7 +603,7 @@ function ConvertNoteStyle (style) {
     {
         case (CrossNoteStyle)
         {
-            noteStyle = 'cross';
+            noteStyle = 'x';
         }
         case (DiamondNoteStyle)
         {
@@ -615,18 +615,21 @@ function ConvertNoteStyle (style) {
             // and does not differentiate in the
             // head style, so we have to choose one
             // or the other.
-            noteStyle = 'cross';
+            noteStyle = 'x';
         }
         case (BlackAndWhiteDiamondNoteStyle)
         {
+            // There is not filled diamond in data.HEADSHAPE.list
             noteStyle = 'filldiamond';
         }
         case (SlashedNoteStyle)
         {
+            // There is only an unfilled slash in data.HEADSHAPE.list, no added slash
             noteStyle = 'addslash';
         }
         case (BackSlashedNoteStyle)
         {
+            // There is only an unfilled backslash in data.HEADSHAPE.list, no added slash
             noteStyle = 'addbackslash';
         }
         case (ArrowDownNoteStyle)
@@ -671,8 +674,8 @@ function ConvertNoteStyle (style) {
         }
         case (ShapedNote6NoteStyle)
         {
-            // there is no square in MEI...
-            noteStyle = ' ';
+            // In MEI 4.0, there is a square in data.HEADSHAPE.list
+            noteStyle = 'square';
         }
         case (ShapedNote7NoteStyle)
         {
