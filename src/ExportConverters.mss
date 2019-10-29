@@ -362,7 +362,14 @@ function ConvertAccidental (noteobj) {
         }
         case('x')
         {
-            ac = 'x';
+            if (is_visible = True)
+            {
+                ac = 'x';
+            }
+            else
+            {
+                ac = 'ss';
+            }
         }
         case('##')
         {

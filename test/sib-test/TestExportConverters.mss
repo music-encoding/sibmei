@@ -137,6 +137,19 @@ function TestAccidentalConverter (assert, plugin) {
     output = sibmei2.ConvertAccidental(note6);
     assert.Equal(output[0], 'ff', 'The note is a B double-flat');
     assert.NotOK(output[1], 'The B double-flat has already been shown, so it should not be visible');
+
+    bar4 = staff[4];
+    noterest7 = bar4.NthBarObject(2);
+    note7 = noterest7[0];
+    output = sibmei2.ConvertAccidental(note7);
+    assert.Equal(output[0], 'x', 'The note is a G double-sharp (croix)');
+    assert.OK(output[1], 'The croix should be visible');
+
+    noterest8 = bar4.NthBarObject(3);
+    note8 = noterest8[0];
+    output = sibmei2.ConvertAccidental(note8);
+    assert.Equal(output[0], 'ss', 'The note is an invisible G double-sharp. There is no croix for invisible accidentals');
+    assert.NotOK(output[1], 'The G double-sharp has already been shown, so it should not be visible');
 }  //$end
 
 function TestHasVisibleAccidentalConverter (assert, plugin) {
