@@ -293,7 +293,7 @@ function AddBarObjectInfoToElement (bobj, element) {
         // lines have durations, but symbols do not.
         if (bobj.Duration > 0)
         {
-            libmei.AddAttribute(element, 'dur.ges', bobj.Duration & 'p');
+            libmei.AddAttribute(element, 'dur.ppq', bobj.Duration);
         }
     }
 
