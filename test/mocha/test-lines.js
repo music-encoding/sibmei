@@ -32,14 +32,23 @@ describe("Lines", () => {
     assert.strictEqual(lines[11].getAttribute('form'),'solid','Penultimate line has no @form=solid!');
     assert.strictEqual(lines[12].getAttribute('form'),'dashed','Last line has no @form=dashed!');
   });
+  it("Brackets have a line start and a line end symbol", () => {
+    const brackets = [lines[4],lines[6],lines[9],lines[10]];
+    const startBracktes = [lines[3],lines[5]];
+    const endBracktes = [lines[7],lines[8]];
+    utils.assertHasAttr(brackets, "startsym");
+    utils.assertHasAttr(brackets, "endsym");
+    utils.assertHasAttr(startBracktes, "startsym");
+    utils.assertHasAttr(endBracktes, "endsym");
+  });
   it("Horizontal lines has @dur.ppq", () => {
     utils.assertElsHasAttr(lines, [0,1,2,3,4,5,6,7,8], 'dur.ppq');
   });
   it("value of @dur.ppq is a number", () => {
-    const horizontalLines = lines.length = 9;
+    var horizontalLines = lines;
+    horizontalLines = horizontalLines.length = 9;
     utils.assertAttrValueFormat(horizontalLines, 'dur.ppq', /^[0-9]*$/);
   });
   //it("Horizontal lines have @tstamp or @endid", () => {});
-  //it("Brackets have a line start and a line end symbol", () => {});
   //it("Vertical lines have offset", () => {});
 });

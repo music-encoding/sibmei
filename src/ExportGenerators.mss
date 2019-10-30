@@ -1526,44 +1526,92 @@ function GenerateLine (bobj) {
             linecomps = MSplitString(bobj.StyleId, '.');
             switch(linecomps[2])
             {
+                //brackets
                 case ('bracket')
                 {
                     line = libmei.Line();
-                    libmei.AddAttribute(line, 'type', 'bracket');
+                    bracketType = 'bracket';
 
-                    if (linecomps.Length > 4)
+                    //horizontal brackets
+                    if (linecomps.Length >= 3)
                     {
-                        if (linecomps[4] = 'start')
+                        //brackets above
+                        if (linecomps[3] = 'above')
                         {
-                            libmei.AddAttribute(line, 'subtype', 'start');
-                        }
+                            libmei.AddAttribute(line, 'place', 'above');
 
-                        if (linecomps[4] = 'end')
-                        {
-                            libmei.AddAttribute(line, 'subtype', 'end');
+                            if (linecomps.Length > 4)
+                            {
+                                if (linecomps[4] = 'start')
+                                {
+                                    bracketType = bracketType & ' start';
+                                    libmei.AddAttribute(line, 'startsym', 'angleup');
+                                }
+
+                                if (linecomps[4] = 'end')
+                                {
+                                    bracketType = bracketType & ' end';
+                                    libmei.AddAttribute(line, 'endsym', 'angleup');
+                                }
+                            }
+                            else
+                            {
+                              libmei.AddAttribute(line, 'startsym', 'angleup');
+                              libmei.AddAttribute(line, 'endsym', 'angleup');
+                            }
                         }
-                    }
-                    if (linecomps.Length > 3)
-                    {
+                        //brackets below
+                        if (linecomps[3] = 'below')
+                        {
+                            libmei.AddAttribute(line, 'place', 'below');
+
+                            if (linecomps.Length > 4)
+                            {
+                                if (linecomps[4] = 'start')
+                                {
+                                    bracketType = bracketType & ' start';
+                                    libmei.AddAttribute(line, 'startsym', 'angledown');
+                                }
+
+                                if (linecomps[4] = 'end')
+                                {
+                                    bracketType = bracketType & ' end';
+                                    libmei.AddAttribute(line, 'endsym', 'angledown');
+                                }
+                            }
+                            else
+                            {
+                                libmei.AddAttribute(line, 'startsym', 'angledown');
+                                libmei.AddAttribute(line, 'endsym', 'angledown');
+                            }
+                        }
+                        //vertical bracktes
                         if (linecomps[3] = 'vertical')
                         {
-                            libmei.AddAttribute(line, 'subtype', 'vertical');
+                            bracketType = bracketType & ' vertical';
 
-                            //Add direction of bracket
+                            //Add direction of bracket: line.staff.bracket.vertical.2 opens to the right, line.staff.bracket.vertical opens to the left
                             if (linecomps > 4)
                             {
                                 if (linecomps[4] = '2')
                                 {
-                                    libmei.AddAttribute(line, 'label', 'start');
+                                    bracketType = bracketType & ' start';
+                                    libmei.AddAttribute(line, 'startsym', 'angleright');
+                                    libmei.AddAttribute(line, 'endsym', 'angleright');
                                 }
                             }
 
                             else
                             {
-                                libmei.AddAttribute(line, 'label', 'end');
+                                bracketType = bracketType & ' end';
+                                libmei.AddAttribute(line, 'startsym', 'angleleft');
+                                libmei.AddAttribute(line, 'endsym', 'angleleft');
                             }
                         }
                     }
+
+                    //add types of bracktes
+                    libmei.AddAttribute(line, 'type', bracketType);
                 }
                 //solid vertical line
                 case ('vertical')
