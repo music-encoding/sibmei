@@ -23,11 +23,20 @@ describe("Lines", () => {
   it("Second trill has @tstamp2", () => {
     assert.notEqual(trills[1].getAttribute('tstamp2'), null, 'element misses attribute @' + 'tstamp2');
   });*/
+  it("First three <line> elements have form: solid, dashed, dotted", () =>{
+    assert.strictEqual(lines[0].getAttribute('form'),'solid','First line has no @form=solid!');
+    assert.strictEqual(lines[1].getAttribute('form'),'dashed','First line has no @form=dashed!');
+    assert.strictEqual(lines[2].getAttribute('form'),'dotted','First line has no @form=dotted!');
+  });
+  it("Last two <line> elements have form: solid, dashed", () =>{
+    assert.strictEqual(lines[11].getAttribute('form'),'solid','Penultimate line has no @form=solid!');
+    assert.strictEqual(lines[12].getAttribute('form'),'dashed','Last line has no @form=dashed!');
+  });
   it("Horizontal lines has @dur.ppq", () => {
-    utils.assertElsHasAttr(lines, [0,1,2,3,4,5,6,7], 'dur.ppq');
+    utils.assertElsHasAttr(lines, [0,1,2,3,4,5,6,7,8], 'dur.ppq');
   });
   it("value of @dur.ppq is a number", () => {
-    const horizontalLines = lines.length = 8;
+    const horizontalLines = lines.length = 9;
     utils.assertAttrValueFormat(horizontalLines, 'dur.ppq', /^[0-9]*$/);
   });
   //it("Horizontal lines have @tstamp or @endid", () => {});

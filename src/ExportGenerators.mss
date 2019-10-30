@@ -1572,9 +1572,10 @@ function GenerateLine (bobj) {
                     libmei.AddAttribute(line,'form','solid');
                     libmei.AddAttribute(line,'type','vertical');
                 }
-                //dashed vertical line
+                //dashed lines
                 case ('dashed')
                 {
+                    //dashed vertical line
                     if (linecomps.Length > 3)
                     {
                         if (linecomps[3] = 'vertical')
@@ -1584,6 +1585,24 @@ function GenerateLine (bobj) {
                             libmei.AddAttribute(line,'type','vertical');
                         }
                     }
+                    //dashed horizontal line
+                    else
+                    {
+                      line = libmei.Line();
+                      libmei.AddAttribute(line,'form','dashed');
+                    }
+                }
+                //dotted horizontal line
+                case('dotted')
+                {
+                  line = libmei.Line();
+                  libmei.AddAttribute(line,'form','dotted');
+                }
+                //solid horizontal line
+                case('plain')
+                {
+                  line = libmei.Line();
+                  libmei.AddAttribute(line,'form','solid');
                 }
                 case ('vibrato')
                 {
