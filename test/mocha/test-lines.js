@@ -11,7 +11,7 @@ const trills = xpath.evaluateXPath('//*:trill', meiLines);
 const lines = xpath.evaluateXPath('//*:line', meiLines);
 
 describe("Lines", () => {
-  /*it("First Octava line has @endid", () => {
+  it("First Octava line has @endid", () => {
     assert.notEqual(octavaLines[0].getAttribute('endid'), null, 'element misses attribute @' + 'endid');
   });
   it("Second Octava line has @tstamp2", () => {
@@ -22,7 +22,7 @@ describe("Lines", () => {
   });
   it("Second trill has @tstamp2", () => {
     assert.notEqual(trills[1].getAttribute('tstamp2'), null, 'element misses attribute @' + 'tstamp2');
-  });*/
+  });
   it("First three <line> elements have form: solid, dashed, dotted", () =>{
     assert.strictEqual(lines[0].getAttribute('form'),'solid','First line has no @form=solid!');
     assert.strictEqual(lines[1].getAttribute('form'),'dashed','First line has no @form=dashed!');
@@ -49,6 +49,8 @@ describe("Lines", () => {
     horizontalLines = horizontalLines.length = 9;
     utils.assertAttrValueFormat(horizontalLines, 'dur.ppq', /^[0-9]*$/);
   });
-  //it("Horizontal lines have @tstamp or @endid", () => {});
-  //it("Vertical lines have offset", () => {});
+  it("Lines have @startid and @endid", () => {
+    utils.assertHasAttr(lines, "startid");
+    utils.assertHasAttr(lines, "endid");
+  });
 });

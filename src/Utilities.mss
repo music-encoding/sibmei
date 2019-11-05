@@ -301,41 +301,44 @@ function AddBarObjectInfoToElement (bobj, element) {
 
     switch (bobj.Type)
     {
-        case('Line')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('Slur')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-            start_obj = GetNoteObjectAtPosition(bobj);
-            if (start_obj != null)
-            {
-                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
-            }
-        }
-        case('DiminuendoLine')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('CrescendoLine')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('GlissandoLine')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
-        case('Trill')
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        }
         case('SymbolItem')
         {
             start_obj = GetNoteObjectAtPosition(bobj);
             if (start_obj != null)
             {
                 libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+        }
+        case('NoteRest')
+        {
+            start_obj = GetNoteObjectAtPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+        }
+        case('ArpeggioLine')
+        {
+            start_obj = GetNoteObjectAtPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+        }
+        // at default add tstamp2 and try to find startid and endid
+        default
+        {
+            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+            start_obj = GetNoteObjectAtPosition(bobj);
+            end_obj = GetNoteObjectAtEndPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+
+            if (end_obj != null)
+            {
+                libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
             }
         }
     }
