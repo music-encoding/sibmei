@@ -8,7 +8,7 @@ var l = require('fancy-log');
 var Q = require('q');
 var plgconf = require('./plgconfig');
 
-gulp.task('develop:build', function(callback)
+function build()
 {
     var deferred = Q.defer();
     l.info(c.blue('Copying "linked" libraries'));
@@ -40,9 +40,9 @@ gulp.task('develop:build', function(callback)
         .pipe(gulp.dest(destPath));
 
     return deferred.promise;
-});
+};
 
-gulp.task('develop:deploy', ['develop:build'], function()
+function deploy (cb)
 {
     var deploy = child.exec('deployPlg', function(err, stdout, stderr)
     {
@@ -52,14 +52,11 @@ gulp.task('develop:deploy', ['develop:build'], function()
         }
         l.info(c.blue('Output: ') + '\n' + stdout);
     });
-});
+    cb();
+};
 
-gulp.task('develop', function()
-{
-    gulp.watch(['src/**/*', 'test/**/*', 'lib/**/*.plg'], ['develop:build', 'develop:deploy'])
-});
+function develop() {
+  gulp.watch(['src/**/*', 'test/**/*', 'lib/**/*.plg'], gulp.series(build, deploy))
+}
 
-gulp.task('default', function()
-{
-    gulp.start('develop')
-});
+exports.develop = develop;

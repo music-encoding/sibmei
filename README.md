@@ -31,7 +31,7 @@ $> ln -s "~/path/to/sibmei/build/MEI Export" "~/Library/Application Support/Avid
 Example for Windows (run as administrator):
 
 ````
-> mklink %APPDATA%\Avid\Sibelius\Plugins\MEI Export" "%HOMEPATH%\path\to\sibmei\build\MEI Export"
+> mklink /D "%APPDATA%\Avid\Sibelius\Plugins\MEI Export" "%HOMEPATH%\path\to\sibmei\build\MEI Export"
 ````
 
 Then, to start developing the plugin, you should run `gulp develop`. This will watch the folder for changes, build, and deploy the plugin. **To make your changes active, you will need to "unload" and "reload" the plugin in Sibelius.**

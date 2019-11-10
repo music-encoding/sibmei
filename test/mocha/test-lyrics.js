@@ -4,12 +4,15 @@ const assert = require('assert');
 const xpath = require('fontoxpath');
 const utils = require('./utils');
 
-function assertAttrOnElements(elements, indices, attName, attValue) {
-  for (const i of indices) {
-    assert.strictEqual(
-      elements[i].getAttribute(attName), attValue,
-      'failed on element index ' + i + ' ("' + elements[i].innerHTML + '")'
-    );
+function assertAttrOnElements(elements, indices, attName, expectedValue) {
+  for (let i = 0; i < elements.length; i += 1) {
+    const actualValue = elements[i].getAttribute(attName);
+    const elementDescription = 'element index ' + i + ' ("' + elements[i].innerHTML + '")';
+    if (indices.indexOf(i) >= 0) {
+      assert.strictEqual(actualValue, expectedValue, 'value not found on ' + elementDescription);
+    } else {
+      assert.notEqual(actualValue, expectedValue, 'value unexpectedly found on ' + elementDescription);
+    }
   }
 }
 
@@ -29,7 +32,7 @@ describe("Lyrics", () => {
       assert.strictEqual(sylsWithCon.length, 1);
     });
     it("creates correct character entities on elisions", function() {
-      assert.strictEqual(syls[13].firstChild._data, "n'u");
+      assert.strictEqual(syls[13].textContent, "n'u");
     });
   });
 
@@ -44,7 +47,7 @@ describe("Lyrics", () => {
       assertAttrOnElements(syls, [3, 6, 9, 12], 'wordpos', 't');
     });
     it("handles single syllable words (omit @wordpos)", () => {
-      assertAttrOnElements(syls, [0, 4, 10], 'wordpos', null);
+      assertAttrOnElements(syls, [0, 4, 10, 13, 14], 'wordpos', null);
     });
   });
 
@@ -56,7 +59,7 @@ describe("Lyrics", () => {
       assertAttrOnElements(syls, [10, 12], 'con', 'u');
     });
     it("marks syllable elisions (breve, @con='b')", () => {
-      assertAttrOnElements(syls, [0], 'con', 'b');
+      assertAttrOnElements(syls, [0, 13], 'con', 'b');
     });
   });
 });

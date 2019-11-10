@@ -14,11 +14,11 @@
   "devDependencies": {
     "ansi-colors": "^2.0.5",
     "fancy-log": "^1.3.2",
-    "gulp": "^3.9.1",
-    "gulp-spawn": "^0.3.0",
-    "q": "^1.5.1",
     "fontoxpath": "^2.12.1",
-    "slimdom-sax-parser": "^1.1.3",
-    "mocha": "^5.2.0"
+    "gulp": "^4.0.2",
+    "gulp-spawn": "^0.3.0",
+    "mocha": "^5.2.0",
+    "q": "^1.5.1",
+    "slimdom-sax-parser": "^1.1.3"
   }
 }

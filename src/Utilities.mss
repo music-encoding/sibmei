@@ -78,6 +78,73 @@ function SimpleNoteHash (nobj) {
 
 }  //$end
 
+function LayerHash (barInfo, voiceInfo) {
+    //$module(Utilities.mss)
+    // `barInfo` is either a bar number or a `Bar` object.
+    // `voiceInfo` is either a voice number or a `BarObject` from which the
+    // `VoiceNumber` info would be used.
+    // At least one of the two arguments must be an object.
+    //
+    // Calculates a numeric identifier from the implied bar number, voice number
+    // and staff number.
+    // `barInfo` is needed because we might either want the hash of the layer an
+    // objects starts in, or the hash of the layer it ends in (where we'd supply
+    // bobj.EndBarNumber).
+    //
+    // We call the generated number 'Layer'Hash because it is unique to each
+    // MEI `<layer>` element that will aggregate all elements originating from a
+    // specific staff, bar and voice.
+
+    staff = null;
+    if (IsObject(voiceInfo))
+    {
+        voiceNumber = voiceInfo.VoiceNumber;
+        staff = voiceInfo.ParentBar.ParentStaff;
+    }
+    else
+    {
+        voiceNumber = voiceInfo;
+    }
+
+    if (IsObject(barInfo))
+    {
+        barNumber = barInfo.BarNumber;
+        staff = barInfo.ParentStaff;
+    }
+    else
+    {
+        barNumber = barInfo;
+    }
+    if (staff = null) {
+        Trace('At least one of the arguments to LayerHash() must be an object');
+        ExitPlugin();
+    }
+
+    hash = staff.StaffNum;
+    // For each addition, we multiply by the maximum value to make enough space
+    // in the 'lower digits' so that the hash actually is unique and we could
+    // in principle invert the calculation.
+    hash = (staff.BarCount + 1) * hash + barNumber;
+    hash = 5 * hash + voiceNumber;
+    return hash;
+}  //$end
+
+function PushToHashedLayer (hashedLayers, bar, bobj) {
+    //$module(Utilities.mss)
+    // hashedLayers is a SparseArray where indices are hashes for layers
+    // calculated by LayerHash(). Under each hash, there is a SparseArray where
+    // objects associated with the layer can be added by this function.
+    // Argument `bar` can be either a bar number or a Bar object.
+    hash = LayerHash(bar, bobj);
+    layerArray = hashedLayers[hash];
+    if (layerArray = null)
+    {
+        layerArray = CreateSparseArray();
+        hashedLayers[hash] = layerArray;
+    }
+    layerArray.Push(bobj);
+}  //$end
+
 function GetNoteObjectAtEndPosition (bobj) {
     //$module(Utilities.mss)
     // takes a bar object, and returns the NoteRest object closest to the end position.
@@ -95,7 +162,7 @@ function GetNoteObjectAtEndPosition (bobj) {
 
     staffObjectPositions = objectPositions[staff_num];
     barObjectPositions = staffObjectPositions[bar_num];
-    if (null = barObjectPositions) {
+    if (barObjectPositions = null) {
         // TODO: We have a line that continues into a 'future' bar. Track these
         // lines and add IDs when we've reached the end NoteRest and know its ID
         return null;
@@ -242,17 +309,10 @@ function AddBarObjectInfoToElement (bobj, element) {
         {
             libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
             start_obj = GetNoteObjectAtPosition(bobj);
-            end_obj = GetNoteObjectAtEndPosition(bobj);
             if (start_obj != null)
             {
                 libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
             }
-
-            if (end_obj != null)
-            {
-                libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
-            }
-
         }
         case('DiminuendoLine')
         {
@@ -269,6 +329,14 @@ function AddBarObjectInfoToElement (bobj, element) {
         case('Trill')
         {
             libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        }
+        case('SymbolItem')
+        {
+            start_obj = GetNoteObjectAtPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
         }
     }
 
