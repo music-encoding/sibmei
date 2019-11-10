@@ -117,7 +117,7 @@ function TestGenerateMEIMusic (assert, plugin) {
     libmei.setDocumentRoot(m);
 
     d = libmei.getDocument();
-    filePath = Self._property:tempFile & 'testmusic.mei';
+    filePath = Self._property:tempDir & 'testmusic.mei';
     e = libmei.meiDocumentToFile(d, filePath);
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
@@ -277,7 +277,7 @@ function TestGenerateStaffGroups (assert, plugin) {
     libmei.setDocumentRoot(m);
 
     d = libmei.getDocument();
-    filePath = Self._property:filePath & 'staffgroups.mei';
+    filePath = Self._property:tempDir & 'staffgroups.mei';
     e = libmei.meiDocumentToFile(d, filePath);
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
