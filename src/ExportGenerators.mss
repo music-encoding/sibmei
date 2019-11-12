@@ -1336,8 +1336,11 @@ function GenerateScoreDef (score, barnum) {
     libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    staffgrp = GenerateStaffGroups(score, barnum);
-    libmei.AddChild(scoredef, staffgrp);
+    if (score.StaffCount > 0)
+    {
+        staffgrp = GenerateStaffGroups(score, barnum);
+        libmei.AddChild(scoredef, staffgrp);
+    }
 
     return scoredef;
 }  //$end
