@@ -846,7 +846,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.Dx != 0)
     {
-        libmei.AddAttribute(nr, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
+        libmei.AddAttribute(nr, 'ho', ConvertOffsetsToMEI(bobj.Dx));
     }
 
     if (bobj.CueSize = true and libmei.GetName(nr) != 'space')
