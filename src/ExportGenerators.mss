@@ -1112,6 +1112,17 @@ function GenerateNote (nobj) {
     libmei.AddAttribute(n, 'dur.ges', gesdur & 'p');
     libmei.AddAttribute(n, 'dots', meidur[1]);
 
+    if (nobj.Dx != 0)
+    {
+        libmei.AddAttribute(n, 'ho', ConvertOffsetsToMEI(nobj.Dx));
+    }
+
+    if (nobj.Color != 0)
+    {
+        note_color = ConvertColor(bobj);
+        libmei.AddAttribute(n, 'color', note_color);
+    }
+
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
     layer = nobj.ParentNoteRest.VoiceNumber;
 
