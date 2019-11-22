@@ -325,12 +325,6 @@ function ProcessLyric (lyricobj, objectPositions) {
                 warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, bar_num, voicenum, 'Lyric', 'rest'));
             }
 
-            if (name = 'chord')
-            {
-                warnings = Self._property:warnings;
-                warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, bar_num, voicenum, 'Lyric', 'chord'));
-            }
-
             libmei.AddChild(obj, verse);
         }
         else
