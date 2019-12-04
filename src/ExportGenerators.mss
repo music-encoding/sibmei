@@ -1117,9 +1117,9 @@ function GenerateNote (nobj) {
         libmei.AddAttribute(n, 'ho', ConvertOffsetsToMEI(nobj.Dx));
     }
 
-    if (nobj.Color != 0)
+    if (nobj.Color != bobj.ParentNoteRest.Color)
     {
-        note_color = ConvertColor(bobj);
+        note_color = ConvertColor(nobj);
         libmei.AddAttribute(n, 'color', note_color);
     }
 
