@@ -308,8 +308,13 @@ function ProcessLyric (lyricobj, objectPositions) {
             }
             else
             {
-                libmei.AddAttribute(sylel, 'wordpos', 'm'); // medial
-                libmei.AddAttribute(sylel, 'con', 'd');
+                // Make sure, this is no elision in the middle of lyric_word
+                if (utils.Pos('_', syl.Text) <= -1)
+                {
+                    // There is no elision hidden, process syllable as middle of word
+                    libmei.AddAttribute(sylel, 'wordpos', 'm'); // medial
+                    libmei.AddAttribute(sylel, 'con', 'd');
+                }
             }
         }
 
