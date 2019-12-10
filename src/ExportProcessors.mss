@@ -315,6 +315,16 @@ function ProcessLyric (lyricobj, objectPositions) {
                     libmei.AddAttribute(sylel, 'wordpos', 'm'); // medial
                     libmei.AddAttribute(sylel, 'con', 'd');
                 }
+                else
+                {
+                    // There is an elision, sylel is the end of a word and sylel_last is the start of a new word
+                    libmei.AddAttribute(sylel, 'wordpos', 't'); // terminal
+                    // connector for sylel is already set
+
+                    // Modify sylel_last
+                    libmei.AddAttribute(sylel_last, 'wordpos', 'i'); //initial
+                    libmei.AddAttribute(sylel_last, 'con', 'd');
+                }
             }
         }
 
