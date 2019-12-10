@@ -49,4 +49,4 @@ These unit tests are primarily used to test specific Sibmei functions.  They use
 
 ### mocha
 
-Mocha is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), run `npm test` from the root directory of this git repository.
+[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), run `npm test` from the root directory of this git repository.
