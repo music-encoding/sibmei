@@ -771,6 +771,32 @@ function ProcessSymbol (sobj) {
                 warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
             }
         }
+        case ('404')
+        {
+            // starting tuplet bracket
+            dir = libmei.Dir();
+            bracket = libmei.Symbol();
+            libmei.AddAttribute(bracket, 'glyph.auth','smufl');
+            libmei.AddAttribute(bracket, 'glyph.name', 'textTupletBracketStartLongStem');
+            libmei.AddAttribute(bracket, 'glyph.num', 'U+E201');
+            libmei.AddChild(dir,bracket);
+            dir = AddBarObjectInfoToElement(sobj, dir);
+            mlines = Self._property:MeasureObjects;
+            mlines.Push(dir._id);
+        }
+        case ('405')
+        {
+            // ending tuplet bracket
+            dir = libmei.Dir();
+            bracket = libmei.Symbol();
+            libmei.AddAttribute(bracket, 'glyph.auth','smufl');
+            libmei.AddAttribute(bracket, 'glyph.name', 'textTupletBracketEndLongStem');
+            libmei.AddAttribute(bracket, 'glyph.num', 'U+E203');
+            libmei.AddChild(dir,bracket);
+            dir = AddBarObjectInfoToElement(sobj, dir);
+            mlines = Self._property:MeasureObjects;
+            mlines.Push(dir._id);
+        }
         case ('480')
         {
             //scoop
