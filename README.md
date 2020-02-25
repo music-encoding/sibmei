@@ -38,9 +38,15 @@ Then, to start developing the plugin, you should run `gulp develop`. This will w
 
 ## Unit tests
 
-The unit tests use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first. Test can be run either by
+There are two kinds of tests in two subfolders of the `test` folder:
 
-* starting `testsibmei.plg` from the plugin editing window or
-* starting Sibmei Test Runner from the menu/ribbon.
+### sib-test
 
-The former has the advantage that you don't have to open and close the "Edit Plugins" window between tests, the latter has the advantage of closing all test files after completed tests.
+These unit tests are primarily used to test specific Sibmei functions.  They use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first. After unloading and reloading the Testsibmei plugin (as described above), tests can be run by either
+
+* starting Testsibmei from the plugin editing window or
+* starting "Sibmei Test Runner" from the menu/ribbon.
+
+### mocha
+
+[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), run `npm test` from the root directory of this git repository.
