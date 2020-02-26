@@ -62,4 +62,11 @@ describe("Lyrics", () => {
       assertAttrOnElements(syls, [0, 13], 'con', 'b');
     });
   });
+
+  describe("chords", () => {
+    it("adds <syl> to <chord>s", () => {
+      assert.strictEqual(syls[4].parentNode.nodeName, 'verse');
+      assert.strictEqual(syls[4].parentNode.parentNode.nodeName, 'chord');
+    });
+  });
 });

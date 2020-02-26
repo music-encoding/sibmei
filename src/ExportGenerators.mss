@@ -846,7 +846,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.Dx != 0)
     {
-        libmei.AddAttribute(nr, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
+        libmei.AddAttribute(nr, 'ho', ConvertOffsetsToMEI(bobj.Dx));
     }
 
     if (bobj.CueSize = true and libmei.GetName(nr) != 'space')
@@ -1002,12 +1002,12 @@ function GenerateRest (bobj) {
 
     if (bobj.Dx != 0 and name != 'space')
     {
-        libmei.AddAttribute(r, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
+        libmei.AddAttribute(r, 'ho', ConvertOffsetsToMEI(bobj.Dx));
     }
 
     if (bobj.Dy != 0 and name != 'space')
     {
-        libmei.AddAttribute(r, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
+        libmei.AddAttribute(r, 'vo', ConvertOffsetsToMEI(bobj.Dy));
     }
 
     if (bobj.CueSize = true and name != 'space')
@@ -1111,6 +1111,17 @@ function GenerateNote (nobj) {
     libmei.AddAttribute(n, 'dur', meidur[0]);
     libmei.AddAttribute(n, 'dur.ges', gesdur & 'p');
     libmei.AddAttribute(n, 'dots', meidur[1]);
+
+    if (nobj.Dx != 0)
+    {
+        libmei.AddAttribute(n, 'ho', ConvertOffsetsToMEI(nobj.Dx));
+    }
+
+    if (nobj.Color != nobj.ParentNoteRest.Color)
+    {
+        note_color = ConvertColor(nobj);
+        libmei.AddAttribute(n, 'color', note_color);
+    }
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
     layer = nobj.ParentNoteRest.VoiceNumber;

@@ -190,6 +190,26 @@ function ConvertDiatonicPitch (diatonic_pitch) {
     return CreateSparseArray(pname, octv);
 }  //$end
 
+function ConvertOffsetsToMEI (offset) {
+    //$module(ExportConverters.mss)
+
+    /*
+     This function will convert the 1/32 unit
+     Sibelius offsets into the MEI virtual units as required by the
+     data.MEASUREMENTREL datatype used by MEI.
+
+    The `StaffHeight` property always returns the staff height in millimeters.
+
+    Most offsets are given in Sibelius Units, which
+    are defined as 1/32 of a space. A space is 1/4 of the staff height.
+
+    MEI virtual unit (vu) is defined as half the distance between the vertical
+    center point of a staff line and that of an adjacent staff line.
+    */
+    retval = (offset / 16.0);
+    return retval & 'vu';
+}  //$end
+
 function ConvertOffsetsToMillimeters (offset) {
     //$module(ExportConverters.mss)
 
@@ -902,12 +922,12 @@ function ConvertText (textobj) {
 
             if (textobj.Dx != 0)
             {
-                libmei.AddAttribute(dynam, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
+                libmei.AddAttribute(dynam, 'ho', ConvertOffsetsToMEI(textobj.Dx));
             }
 
             if (textobj.Dy != 0)
             {
-                libmei.AddAttribute(dynam, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
+                libmei.AddAttribute(dynam, 'vo', ConvertOffsetsToMEI(textobj.Dy));
             }
             return dynam;
         }
@@ -960,12 +980,12 @@ function ConvertTextElement (textobj) {
 
     if (textobj.Dx != 0)
     {
-        libmei.AddAttribute(obj, 'ho', ConvertOffsetsToMillimeters(textobj.Dx));
+        libmei.AddAttribute(obj, 'ho', ConvertOffsetsToMEI(textobj.Dx));
     }
 
     if (textobj.Dy != 0)
     {
-        libmei.AddAttribute(obj, 'vo', ConvertOffsetsToMillimeters(textobj.Dy));
+        libmei.AddAttribute(obj, 'vo', ConvertOffsetsToMEI(textobj.Dy));
     }
 
     return obj;
