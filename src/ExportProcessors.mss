@@ -255,77 +255,40 @@ function ProcessLyric (lyricobj, objectPositions) {
         // LyricItem. We have to distinguish between the first and the last syl
         // element we created. In the common, simple case, both are identical.
         sylel_last = sylel;
-        libmei.SetText(sylel, syl.Text);
         libmei.AddChild(verse, sylel);
 
-        if (utils.Pos('_', syl.Text) > -1)
+        // Split syllable text by underscore, in case there is an elision
+        syllables = MSplitString(syl.Text, '_');
+        libmei.SetText(sylel, syllables[0]);
+
+        // Handle any found elisions
+        for s = 1 to syllables.Length
         {
-            // Syllable elision. split this syllable element by underscore.
-            syllables = MSplitString(syl.Text, '_');
-
-            // reset the text of the first syllable element to the first half of the syllable.
-            libmei.SetText(sylel, syllables[0]);
-            libmei.AddAttribute(sylel, 'con', 'b');
-
-            for s = 1 to syllables.Length
-            {
-                sylel_last = libmei.Syl();
-                libmei.SetText(sylel_last, syllables[s]);
-                libmei.AddChild(verse, sylel_last);
-            }
+            libmei.AddAttribute(sylel_last, 'con', 'b');
+            sylel_last = libmei.Syl();
+            libmei.SetText(sylel_last, syllables[s]);
+            libmei.AddChild(verse, sylel_last);
         }
 
-        if (j = 0)
+        if (syl.SyllableType = MiddleOfWord)
         {
-            //add a wordpos only for partial words
-            if (lyric_word.Length > 1)
+            libmei.AddAttribute(sylel_last, 'con', 'd'); //dash syllable connector
+
+            // New word starts at the first syllable in the lyric_word or after an elision
+            if (j = 0 or syllables.Length > 1)
             {
                 libmei.AddAttribute(sylel_last, 'wordpos', 'i'); // 'initial'
-
-                libmei.AddAttribute(sylel_last, 'con', 'd'); //dash syllable connector
-            }
-
-            //it is also possible, that an initial syllable has an underscore as an extender, if it is the only syllable of a word
-            if (lyric_word.Length = 1)
-            {
-                if (syl.NumNotes > 1)
-                {
-                    libmei.AddAttribute(sylel_last, 'con', 'u'); // 'underscore'
-                }
-            }
-        }
-        else
-        {
-            if (syl.SyllableType = EndOfWord)
-            {
-                libmei.AddAttribute(sylel, 'wordpos', 't'); // 'terminal'
-
-                if (syl.NumNotes > 1)
-                {
-                    libmei.AddAttribute(sylel, 'con', 'u'); // 'underscore'
-                }
-
             }
             else
             {
-                // Make sure, this is no elision in the middle of lyric_word
-                if (utils.Pos('_', syl.Text) <= -1)
-                {
-                    // There is no elision hidden, process syllable as middle of word
-                    libmei.AddAttribute(sylel, 'wordpos', 'm'); // medial
-                    libmei.AddAttribute(sylel, 'con', 'd');
-                }
-                else
-                {
-                    // There is an elision, sylel is the end of a word and sylel_last is the start of a new word
-                    libmei.AddAttribute(sylel, 'wordpos', 't'); // terminal
-                    // connector for sylel is already set
-
-                    // Modify sylel_last
-                    libmei.AddAttribute(sylel_last, 'wordpos', 'i'); //initial
-                    libmei.AddAttribute(sylel_last, 'con', 'd');
-                }
+                libmei.AddAttribute(sylel_last, 'wordpos', 'm'); // 'medial'
             }
+        }
+
+        // Word ends at EndOfWord or before an elision (if there are syllables before the elision)
+        if (j > 0 and (syl.SyllableType = EndOfWord or syllables.Length > 1))
+        {
+            libmei.AddAttribute(sylel, 'wordpos', 't'); // 'terminal'
         }
 
         obj = GetNoteObjectAtPosition(syl);
@@ -346,6 +309,12 @@ function ProcessLyric (lyricobj, objectPositions) {
         {
             Log('Could not find note object for syl ' & syl);
         }
+    }
+
+    // Check if the last syllable is melismatic
+    if (syl.NumNotes > 1)
+    {
+        libmei.AddAttribute(sylel_last, 'con', 'u'); // 'underscore'
     }
 
     // now reset the syllable array for this voice
