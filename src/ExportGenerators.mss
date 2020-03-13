@@ -493,6 +493,7 @@ function GenerateLayers (staffnum, measurenum) {
     score = Self._property:ActiveScore;
     this_staff = score.NthStaff(staffnum);
     bar = this_staff[measurenum];
+    l = null;
 
     mobjs = Self._property:MeasureObjects;
 
@@ -513,7 +514,7 @@ function GenerateLayers (staffnum, measurenum) {
         }
         else
         {
-            if (voicenumber != 0)
+            if (voicenumber != 0 or (l = null and bobj.Type = 'Clef'))
             {
                 l = libmei.Layer();
                 layers.Push(l._id);
@@ -525,6 +526,8 @@ function GenerateLayers (staffnum, measurenum) {
 
                 layerdict[voicenumber] = l;
                 libmei.AddAttribute(l, 'n', voicenumber);
+
+                l._property:CurrentPos = 0;
             }
         }
 
@@ -538,8 +541,49 @@ function GenerateLayers (staffnum, measurenum) {
         {
             case('Clef')
             {
+                // Clefs are placed inside the musical flow like notes.  Hence we also need to find
+                // out whether they are part of beams or tuplets.
                 clef = GenerateClef(bobj);
-                libmei.AddChild(l, clef);
+
+                prevNoteRest = PrevNormalOrGrace(bobj, false);
+
+                if (prevNoteRest != null)
+                {
+                    prevBeamProp = NormalizedBeamProp(prevNoteRest);
+
+                    switch (prevBeamProp)
+                    {
+                        case ('StartBeam')
+                        {
+                            beam = l._property:ActiveBeam;
+                        }
+                        case ('NoBeam')
+                        {
+                            beam = null;
+                        }
+                        default
+                        {
+                            // ContinueBeam and SingleBeam
+                            nextNoteRest = NextNormalOrGrace(bobj, false);
+                            if (nextNoteRest != null)
+                            {
+                                nextBeamProp = NormalizedBeamProp(nextNoteRest);
+                                if ((nextBeamProp = ContinueBeam) or (nextBeamProp = SingleBeam))
+                                {
+                                    beam = l._property:ActiveBeam;
+                                }
+                            }
+                        }
+                    }
+
+                    tuplet = l._property:ActiveMeiTuplet;
+                    while (tuplet != null and tuplet._property:ParentTuplet != null)
+                    {
+                        tuplet = tuplet._property:ParentTuplet;
+                    }
+                }
+
+                AppendToLayer(clef, l, beam, tuplet);
             }
             case('NoteRest')
             {
@@ -574,83 +618,16 @@ function GenerateLayers (staffnum, measurenum) {
                     // fetch or create the active tuplet object (if any)
                     tuplet = ProcessTuplet(bobj, note, l);
 
-                    if (beam != null)
+                    if (bobj.GraceNote)
                     {
-                        libmei.AddChild(beam, note);
-
-                        if (tuplet != null)
-                        {
-                            if (beam._parent = l._id)
-                            {
-                                /*
-                                   If the beam has been previously added to the layer but now
-                                   finds itself part of a tuplet, shift the tuplet to a tupletSpan. This
-                                   effectively just replaces the active tuplet with a tupletSpan element
-                                */
-                                if (tuplet.name != 'tupletSpan')
-                                {
-                                    ShiftTupletToTupletSpan(tuplet, l);
-                                }
-                            }
-                            else
-                            {
-                                if (beam._parent != tuplet._id)
-                                {
-                                    libmei.AddChild(tuplet, beam);
-                                }
-
-                                if (tuplet._parent != l._id)
-                                {
-                                    libmei.AddChild(l, tuplet);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            parent = beam._property:ParentBeam;
-                            if (parent = null)
-                            {
-                                parent = l;
-                            }
-                            if (beam._parent != parent._id)
-                            {
-                                libmei.AddChild(parent, beam);
-                            }
-                        }
+                        l._property:PrevGraceNote = note;
                     }
                     else
                     {
-                        if (tuplet != null)
-                        {
-                            tname = libmei.GetName(tuplet);
-
-                            if (tname != 'tupletSpan')
-                            {
-                                libmei.AddChild(tuplet, note);
-                            }
-                            else
-                            {
-                                libmei.AddChild(l, note);
-                            }
-
-                            if (tuplet._parent != l._id)
-                            {
-                                libmei.AddChild(l, tuplet);
-                            }
-                        }
-                        else
-                        {
-                            libmei.AddChild(l, note);
-                        }
+                        l._property:PrevNote = note;
                     }
-                }
-                if (bobj.GraceNote)
-                {
-                    l._property:PrevGraceNote = note;
-                }
-                else
-                {
-                    l._property:PrevNote = note;
+
+                    AppendToLayer(note, l, beam, tuplet);
                 }
 
                 if (bobj.ArpeggioType != ArpeggioTypeNone) {
