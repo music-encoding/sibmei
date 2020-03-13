@@ -814,39 +814,14 @@ function GenerateNoteRest (bobj, layer) {
     if (bobj.NoteCount > 0)
     {
         // notes and chords, not rests.
-        switch (bobj.Stemweight)
+        // If the stemweight is less than zero, the stem will point up, otherwise it will point down.
+        if (bobj.Stemweight < 0)
         {
-            case (StemweightUp)
-            {
-                libmei.AddAttribute(nr, 'stem.dir', 'up');
-            }
-            case (StemweightDown)
-            {
-                libmei.AddAttribute(nr, 'stem.dir', 'down');
-            }
-            case (StemweightFlipUp)
-            {
-                libmei.AddAttribute(nr, 'stem.dir', 'up');
-            }
-            case (StemweightFlipDown)
-            {
-                libmei.AddAttribute(nr, 'stem.dir', 'down');
-            }
-            default
-            {
-                // Handle other values.
-                // If the stemweight is less than zero, the stem will point up, otherwise it will point down.
-                if (bobj.Stemweight < 0)
-                {
-                    libmei.AddAttribute(nr, 'stem.dir', 'up');
-                }
-
-                // it seems that 0-weight stems are assumed to be down
-                if (bobj.Stemweight >= 0)
-                {
-                    libmei.AddAttribute(nr, 'stem.dir', 'down');
-                }
-            }
+            libmei.AddAttribute(nr, 'stem.dir', 'up');
+        }
+        else
+        {
+            libmei.AddAttribute(nr, 'stem.dir', 'down');
         }
     }
 
