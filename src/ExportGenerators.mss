@@ -1373,7 +1373,7 @@ function GenerateStaffGroups (score, barnum) {
         if (s.ShortInstrumentName != null)
 	{
             labelAbbr = libmei.LabelAbbr();
-	    libmei.SetText(label, s.ShortInstrumentName);
+	    libmei.SetText(labelAbbr, s.ShortInstrumentName);
             libmei.AddChild(std, labelAbbr);
 	}
 
