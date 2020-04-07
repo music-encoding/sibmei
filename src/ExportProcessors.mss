@@ -83,9 +83,25 @@ function ProcessBeam (bobj, layer, normalizedBeamProp) {
 
 function ProcessTuplet (noteRest, meielement, layer) {
     //$module(ExportProcessors.mss)
-    if (noteRest.ParentTupletIfAny = null)
+    parentTuplet = noteRest.ParentTupletIfAny;
+    if (parentTuplet = null)
     {
         return null;
+    }
+
+    if (noteRest.GraceNote)
+    {
+        // In Sibelius, grace notes before the first tuplet note are part of the
+        // tuplet. In MEI, we want to put them before the tuplet element.
+        prevNote = PrevNormalOrGrace(noteRest, false);
+        if (null = prevNote)
+        {
+            return null;
+        }
+        if (not TupletsEqual(parentTuplet, prevNote.ParentTupletIfAny))
+        {
+            return null;
+        }
     }
 
     /*
@@ -96,7 +112,7 @@ function ProcessTuplet (noteRest, meielement, layer) {
     */
     activeMeiTuplet = layer._property:ActiveMeiTuplet;
 
-    tupletIsContinued = activeMeiTuplet != null and TupletsEqual(noteRest.ParentTupletIfAny, activeMeiTuplet._property:SibTuplet);
+    tupletIsContinued = activeMeiTuplet != null and TupletsEqual(parentTuplet, activeMeiTuplet._property:SibTuplet);
 
     if (not(tupletIsContinued))
     {
@@ -132,7 +148,7 @@ function ProcessTuplet (noteRest, meielement, layer) {
     layer._property:ActiveMeiTuplet = meiTuplet;
 
     outermostMeiTuplet = activeMeiTuplet;
-    while (outermostMeiTuplet._property:ParentTuplet)
+    while (outermostMeiTuplet._property:ParentTuplet != null)
     {
         outermostMeiTuplet = outermostMeiTuplet._property:ParentTuplet;
     }
