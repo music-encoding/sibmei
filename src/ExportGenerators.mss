@@ -1364,18 +1364,18 @@ function GenerateStaffGroups (score, barnum) {
         }
 
         if (s.FullInstrumentName != null)
-	{
+    	{
             label = libmei.Label();
-	    libmei.SetText(label, s.FullInstrumentName);
+	        libmei.SetText(label, s.FullInstrumentName);
             libmei.AddChild(std, label);
-	}
+	    }
 
         if (s.ShortInstrumentName != null)
-	{
+	    {
             labelAbbr = libmei.LabelAbbr();
-	    libmei.SetText(labelAbbr, s.ShortInstrumentName);
+	        libmei.SetText(labelAbbr, s.ShortInstrumentName);
             libmei.AddChild(std, labelAbbr);
-	}
+    	}
 
         if (s.InstrumentName != null)
         {
