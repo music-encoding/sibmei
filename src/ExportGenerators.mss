@@ -1320,7 +1320,6 @@ function GenerateStaffGroups (score, barnum) {
         libmei.XMLIdToObjectMap[std._id] = s;
 
         libmei.AddAttribute(std, 'n', s.StaffNum);
-        libmei.AddAttribute(std, 'label', s.FullInstrumentName);
         libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
 
         clefinfo = ConvertClef(s.InitialClefStyleId);
@@ -1339,6 +1338,20 @@ function GenerateStaffGroups (score, barnum) {
         else
         {
             libmei.AddAttribute(std, 'key.mode', 'minor');
+        }
+
+        if (s.FullInstrumentName != null)
+        {
+            label = libmei.Label();
+            libmei.SetText(label, s.FullInstrumentName);
+            libmei.AddChild(std, label);
+        }
+
+        if (s.ShortInstrumentName != null)
+        {
+            labelAbbr = libmei.LabelAbbr();
+            libmei.SetText(labelAbbr, s.ShortInstrumentName);
+            libmei.AddChild(std, labelAbbr);
         }
 
         if (s.InstrumentName != null)
