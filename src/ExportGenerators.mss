@@ -984,11 +984,6 @@ function GenerateRest (bobj) {
         libmei.AddAttribute(r, 'color', nrest_color);
     }
 
-    if (bobj.GetArticulation(PauseArtic))
-    {
-        libmei.AddAttribute(r, 'fermata', 'above');
-    }
-
     return r;
 }  //$end
 
