@@ -1027,6 +1027,7 @@ function GenerateNote (nobj) {
 
     ntinfo = ConvertDiatonicPitch(nobj.DiatonicPitch);
     pnum = nobj.Pitch;
+    vel = nobj.OriginalVelocity;
 
     dis = clefinfo[2];
     dir = clefinfo[3];
@@ -1063,6 +1064,7 @@ function GenerateNote (nobj) {
         libmei.AddAttribute(n, 'oct.ges', octges);
     }
 
+    libmei.AddAttribute(n, 'vel', vel);
     libmei.AddAttribute(n, 'pnum', pnum);
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
