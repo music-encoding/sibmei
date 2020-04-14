@@ -1456,7 +1456,12 @@ function GenerateControlEvent (bobj, elementName) {
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
     tuplet = libmei.Tuplet();
+    dur = tupletObj.PlayedDuration;
+    meidur = ConvertDuration(dur);
 
+    // we simply assume no dotted duration for now
+    libmei.AddAttribute(tuplet, 'dur', meidur[0]);
+    libmei.AddAttribute(tuplet, 'dur.ppt', dur);
     libmei.AddAttribute(tuplet, 'num', tupletObj.Left);
     libmei.AddAttribute(tuplet, 'numbase', tupletObj.Right);
 
@@ -1466,7 +1471,7 @@ function GenerateTuplet(tupletObj) {
     {
         case(TupletNoNumber)
         {
-            libmei.AddAttribute(tuplet, 'dur.visible', 'false');
+            libmei.AddAttribute(tuplet, 'num.visible', 'false');
         }
         case(TupletLeft)
         {
@@ -1482,6 +1487,10 @@ function GenerateTuplet(tupletObj) {
 
     switch(tupletBracket)
     {
+        case(TupletBracketOn)
+        {
+            libmei.AddAttribute(tuplet, 'bracket.visible', 'true');
+        }
         case(TupletBracketOff)
         {
             libmei.AddAttribute(tuplet, 'bracket.visible', 'false');
