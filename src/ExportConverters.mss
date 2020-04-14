@@ -801,7 +801,7 @@ function ConvertTupletStyle (tupletStyle) {
     {
         case(TupletNoNumber)
         {
-            libmei.AddAttribute(activeTuplet, 'dur.visible', 'false');
+            libmei.AddAttribute(activeTuplet, 'num.visible', 'false');
         }
         case(TupletLeft)
         {
