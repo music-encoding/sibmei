@@ -1434,11 +1434,8 @@ function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
     tuplet = libmei.Tuplet();
     dur = tupletObj.PlayedDuration;
-    meidur = ConvertDuration(dur);
 
-    // we simply assume no dotted duration for now
-    libmei.AddAttribute(tuplet, 'dur', meidur[0]);
-    libmei.AddAttribute(tuplet, 'dur.ppt', dur);
+    libmei.AddAttribute(tuplet, 'dur.ppq', dur);
     libmei.AddAttribute(tuplet, 'num', tupletObj.Left);
     libmei.AddAttribute(tuplet, 'numbase', tupletObj.Right);
 
