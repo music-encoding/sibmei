@@ -1322,10 +1322,16 @@ function GenerateStaffGroups (score, barnum) {
         libmei.XMLIdToObjectMap[std._id] = s;
 
         libmei.AddAttribute(std, 'n', s.StaffNum);
-        libmei.AddAttribute(std, 'trans.semi', s.InitialInstrumentType.ChromaticTransposition);
-        libmei.AddAttribute(std, 'trans.diat', s.InitialInstrumentType.DiatonicTransposition);
         libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
 
+        diaTrans = s.InitialInstrumentType.DiatonicTransposition;
+        semiTrans = s.InitialInstrumentType.ChromaticTransposition;
+        if (diaTrans != 0 and semiTrans != 0)
+        {
+            libmei.AddAttribute(std, 'trans.semi', semiTrans);
+            libmei.AddAttribute(std, 'trans.diat', diaTrans);
+        }
+        
         clefinfo = ConvertClef(s.InitialClefStyleId);
         libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
         libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
