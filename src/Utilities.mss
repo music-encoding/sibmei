@@ -308,6 +308,14 @@ function AddBarObjectInfoToElement (bobj, element) {
                 libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
             }
         }
+        case('BarRest')
+        {
+            start_obj = GetNoteObjectAtPosition(bobj);
+            if (start_obj != null)
+            {
+                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+            }
+        }
         case('ArpeggioLine')
         {
             start_obj = GetNoteObjectAtPosition(bobj);
