@@ -1027,6 +1027,7 @@ function GenerateNote (nobj) {
 
     ntinfo = ConvertDiatonicPitch(nobj.DiatonicPitch);
     pnum = nobj.Pitch;
+    vel = nobj.OriginalVelocity;
 
     dis = clefinfo[2];
     dir = clefinfo[3];
@@ -1063,6 +1064,7 @@ function GenerateNote (nobj) {
         libmei.AddAttribute(n, 'oct.ges', octges);
     }
 
+    libmei.AddAttribute(n, 'vel', vel);
     libmei.AddAttribute(n, 'pnum', pnum);
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
@@ -1322,6 +1324,14 @@ function GenerateStaffGroups (score, barnum) {
         libmei.AddAttribute(std, 'n', s.StaffNum);
         libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
 
+        diaTrans = s.InitialInstrumentType.DiatonicTransposition;
+        semiTrans = s.InitialInstrumentType.ChromaticTransposition;
+        if (diaTrans != 0 and semiTrans != 0)
+        {
+            libmei.AddAttribute(std, 'trans.semi', semiTrans);
+            libmei.AddAttribute(std, 'trans.diat', diaTrans);
+        }
+        
         clefinfo = ConvertClef(s.InitialClefStyleId);
         libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
         libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
