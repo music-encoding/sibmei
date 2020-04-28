@@ -1274,12 +1274,15 @@ function GenerateScoreDef (score, barnum) {
         }
     }
 
+    vuval = docSettings.StaffSize / 8;
+
     libmei.AddAttribute(scoredef, 'page.width', docSettings.PageWidth & unit);
     libmei.AddAttribute(scoredef, 'page.height', docSettings.PageHeight & unit);
     libmei.AddAttribute(scoredef, 'page.leftmar', docSettings.PageLeftMargin & unit);
     libmei.AddAttribute(scoredef, 'page.rightmar', docSettings.PageRightMargin & unit);
     libmei.AddAttribute(scoredef, 'page.topmar', docSettings.PageTopMargin & unit);
     libmei.AddAttribute(scoredef, 'page.botmar', docSettings.PageBottomMargin & unit);
+    libmei.AddAttribute(scoredef, 'vu.height', vuval & unit);
 
     showCautionaryAccidentals = score.EngravingRules.CautionaryNaturalsInKeySignatures;
     if (showCautionaryAccidentals = true)
