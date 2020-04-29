@@ -809,7 +809,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.CueSize = true and libmei.GetName(nr) != 'space')
     {
-        libmei.AddAttribute(nr, 'fontsize', 'small');
+        libmei.AddAttribute(nr, 'cue', 'true');
     }
 
     if (bobj.Hidden = true and libmei.GetName(nr) != 'space')
