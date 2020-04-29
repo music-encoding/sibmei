@@ -1296,6 +1296,9 @@ function GenerateScoreDef (score, barnum) {
     // but the styles properties don't seem to be easily accessible.
     libmei.AddAttribute(scoredef, 'lyric.name', score.MainTextFontName);
 
+    libmei.AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
+    libmei.AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
+
     systf = score.SystemStaff;
     timesig = systf.CurrentTimeSignature(1);
 
