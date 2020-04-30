@@ -1274,12 +1274,15 @@ function GenerateScoreDef (score, barnum) {
         }
     }
 
+    vuval = docSettings.StaffSize / 8;
+
     libmei.AddAttribute(scoredef, 'page.width', docSettings.PageWidth & unit);
     libmei.AddAttribute(scoredef, 'page.height', docSettings.PageHeight & unit);
     libmei.AddAttribute(scoredef, 'page.leftmar', docSettings.PageLeftMargin & unit);
     libmei.AddAttribute(scoredef, 'page.rightmar', docSettings.PageRightMargin & unit);
     libmei.AddAttribute(scoredef, 'page.topmar', docSettings.PageTopMargin & unit);
     libmei.AddAttribute(scoredef, 'page.botmar', docSettings.PageBottomMargin & unit);
+    libmei.AddAttribute(scoredef, 'vu.height', vuval & unit);
 
     showCautionaryAccidentals = score.EngravingRules.CautionaryNaturalsInKeySignatures;
     if (showCautionaryAccidentals = true)
@@ -1292,6 +1295,9 @@ function GenerateScoreDef (score, barnum) {
     // We should read out the lyrics font styles here (e.g. `text.staff.space.hypen.lyrics.verse1`),
     // but the styles properties don't seem to be easily accessible.
     libmei.AddAttribute(scoredef, 'lyric.name', score.MainTextFontName);
+
+    libmei.AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
+    libmei.AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
 
     systf = score.SystemStaff;
     timesig = systf.CurrentTimeSignature(1);
