@@ -39,11 +39,11 @@
                     return 0;
                 }
 
-                // open file 
+                // open file
                 op = Sibelius.Open(file.NameWithExt, True);
                 if (op = True) {
                     // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
-                    sibmei2.DoExport(file.Name & '.mei');
+                    sibmei4.DoExport(file.Name & '.mei');
                     Sibelius.CloseWindow(False);
                 }
             }
@@ -51,7 +51,7 @@
             Sibelius.DestroyProgressDialog();
         }
     }"
-    _PluginMenuName "Export Sibelius folder to MEI"
+    _PluginMenuName "Export Sibelius folder to MEI 4"
     _Processing "Processing scores"
     _File "File"
     _Of "of"

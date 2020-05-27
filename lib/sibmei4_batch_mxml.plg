@@ -2,13 +2,13 @@
 {
     Initialize "()
     {
-        AddToPluginsMenu(_PluginMenuName,'Run'); 
+        AddToPluginsMenu(_PluginMenuName,'Run');
     }"
 
     Run "()
     {
         folder = Sibelius.SelectFolder();
-        
+
         if (IsObject(folder))
         {
             // count files for progress dialog
@@ -28,13 +28,13 @@
                     return 0;
                 }
 
-                // open file 
+                // open file
                 of = Sibelius.Open(file.NameWithExt, True);
 
                 if (of = True)
                 {
                     // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
-                    sibmei2.DoExport(file.Name & '.mei');
+                    sibmei4.DoExport(file.Name & '.mei');
                     Sibelius.CloseWindow(False);
                 }
             }
@@ -42,7 +42,7 @@
             Sibelius.DestroyProgressDialog();
         }
 }"
-    _PluginMenuName "Export MusicXML folder to MEI"
+    _PluginMenuName "Export MusicXML folder to MEI 4"
     _Processing "Processing scores"
     _File "File"
     _Of "of"

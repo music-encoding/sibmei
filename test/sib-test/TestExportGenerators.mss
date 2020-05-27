@@ -32,9 +32,9 @@ function TestGenerateMEIHeader (assert, plugin) {
     score.YearOfComposition = '2015';
     score.OtherInformation = 'Hello World!';
 
-    sibmei2._property:ActiveScore = score;
+    sibmei._property:ActiveScore = score;
 
-    m = sibmei2.GenerateMEIHeader();
+    m = sibmei.GenerateMEIHeader();
 
     mei = libmei.Mei();
     libmei.setDocumentRoot(mei);
@@ -108,8 +108,8 @@ function TestGenerateMEIMusic (assert, plugin) {
     n2 = t1.AddNote(128, 72, 128);
     n3 = t1.AddNote(256, 72, 128);
 
-    sibmei2._property:ActiveScore = score;
-    music = sibmei2.GenerateMEIMusic();
+    sibmei._property:ActiveScore = score;
+    music = sibmei.GenerateMEIMusic();
 
     m = libmei.Mei();
     libmei.AddChild(m, music);
@@ -153,8 +153,8 @@ function TestGenerateMusicWithLyrics (assert, plugin) {
     l4v2 = bar.AddLyric(768, 256, 'tü', 1, 1, 1);
     l4v2.StyleId = 'text.staff.space.hypen.lyrics.verse2';
 
-    sibmei2._property:ActiveScore = score;
-    music = sibmei2.GenerateMEIMusic();
+    sibmei._property:ActiveScore = score;
+    music = sibmei.GenerateMEIMusic();
 
     m = libmei.Mei();
     libmei.AddChild(m, music);
@@ -205,8 +205,8 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     b7 = bar.AddLine(0, 1024, 'line.system.repeat.open');
     n7 = bar.AddNote(0, 72, 1024);
 
-    sibmei2._property:ActiveScore = score;
-    music = sibmei2.GenerateMEIMusic();
+    sibmei._property:ActiveScore = score;
+    music = sibmei.GenerateMEIMusic();
 
     m = libmei.Mei();
     libmei.AddChild(m, music);
@@ -267,8 +267,8 @@ function TestGenerateStaffGroups (assert, plugin) {
     for each instrumentID in instrumentIDs {
       score.CreateInstrumentAtBottom(instrumentID);
     }
-    sibmei2._property:ActiveScore = score;
-    staffgroups = sibmei2.GenerateStaffGroups(score, 1);
+    sibmei._property:ActiveScore = score;
+    staffgroups = sibmei.GenerateStaffGroups(score, 1);
 
     // this is not valid MEI, but it should render correctly.
     m = libmei.Mei();
@@ -301,6 +301,6 @@ function TestGenerateLine (assert, plugin) {
     // A slur across bars
     slur2 = staff.NthBar(1).AddLine(512, 1024, 'line.staff.slur.down');
 
-    sibmei2._property:ActiveScore = score;
-    sibmei2.GenerateMEIMusic();
+    sibmei._property:ActiveScore = score;
+    sibmei.GenerateMEIMusic();
 }  //$end

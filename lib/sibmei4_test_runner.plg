@@ -2,11 +2,11 @@
 {
   Initialize "()
   {
-    AddToPluginsMenu('Sibmei Test Runner', 'Run');
+    AddToPluginsMenu('Sibmei 4 Test Runner', 'Run');
   }"
 
   Run "()
   {
-    Testsibmei2.Run();
+    Testsibmei4.Run();
   }"
 }
