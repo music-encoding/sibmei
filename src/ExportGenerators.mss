@@ -1510,11 +1510,17 @@ function GenerateLine (bobj) {
         {
             line = GenerateControlEvent(bobj, 'Hairpin');
             libmei.AddAttribute(line, 'form', 'cres');
+            pinstyle = ConvertHairpin(bobj.StyleId);
+            libmei.AddAttribute(line, 'lform', pinstyle[0]);
+            libmei.AddAttribute(line, 'niente', pinstyle[1]);
         }
         case ('DiminuendoLine')
         {
             line = GenerateControlEvent(bobj, 'Hairpin');
             libmei.AddAttribute(line, 'form', 'dim');
+            pinstyle = ConvertHairpin(bobj.StyleId);
+            libmei.AddAttribute(line, 'lform', pinstyle[0]);
+            libmei.AddAttribute(line, 'niente', pinstyle[1]);
         }
         case ('OctavaLine')
         {
