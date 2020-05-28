@@ -970,7 +970,7 @@ function GenerateRest (bobj) {
 
     if (bobj.CueSize = true and name != 'space')
     {
-        libmei.AddAttribute(nr, 'fontsize', 'small');
+        libmei.AddAttribute(r, 'fontsize', 'small');
     }
 
     if (bobj.Color != 0 and name != 'space')
