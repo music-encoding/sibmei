@@ -2,6 +2,7 @@ function Run() {
     //$module(Run.mss)
 
     // first, ensure we're running with a clean slate.
+    Self._property:libmei = libmei4;
     libmei.destroy();
 
     // do some preliminary checks
@@ -80,4 +81,3 @@ function DoExport (filename) {
     // clean up after ourself
     libmei.destroy();
 }  //$end
-
