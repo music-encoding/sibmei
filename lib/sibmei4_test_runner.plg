@@ -1,0 +1,12 @@
+
+{
+  Initialize "()
+  {
+    AddToPluginsMenu('Sibmei 4 Test Runner', 'Run');
+  }"
+
+  Run "()
+  {
+    Testsibmei4.Run();
+  }"
+}

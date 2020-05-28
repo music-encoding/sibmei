@@ -1,3 +1,10 @@
+function Initialize() {
+  //$module(Run.mss)
+  Self._property:libmei = libmei4;
+  Self._property:sibmei = sibmei4;
+}  //$end
+
+
 function Run() {
   plugins = Sibelius.Plugins;
 
@@ -17,12 +24,12 @@ function Run() {
   Sibelius.CloseAllWindows(false);
   Sibelius.New();
 
-  Self._property:pluginDir = GetPluginFolder('sibmei2.plg');
+  Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
   Self._property:tempDir = CreateNewTempDir();
   Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs'
       & Sibelius.PathSeparator;
 
-  suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei2);
+  suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei);
 
   suite
     .AddModule('TestExportConverters')
@@ -33,7 +40,7 @@ function Run() {
 
   suite.Run();
 
-  sibmei_batch_sib.ConvertFolder(Sibelius.GetFolder(_SibTestFileDirectory));
+  sibmei4_batch_sib.ConvertFolder(Sibelius.GetFolder(_SibTestFileDirectory));
 
   // We do not 'clean up' with Sibelius.CloseAllWindows() here because it
   // sometimes causes Sibelius crashes.
