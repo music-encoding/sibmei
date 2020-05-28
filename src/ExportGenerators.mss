@@ -973,11 +973,6 @@ function GenerateRest (bobj) {
         libmei.AddAttribute(r, 'fontsize', 'small');
     }
 
-    if (bobj.Hidden = true and name != 'space')
-    {
-        libmei.AddAttribute(r, 'visible', 'false');
-    }
-
     if (bobj.Color != 0 and name != 'space')
     {
         nrest_color = ConvertColor(bobj);
