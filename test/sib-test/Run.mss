@@ -1,11 +1,8 @@
-function Initialize() {
-  //$module(Run.mss)
+function Run() {
   Self._property:libmei = libmei4;
   Self._property:sibmei = sibmei4;
-}  //$end
+  sibmei4._property:libmei = libmei;
 
-
-function Run() {
   plugins = Sibelius.Plugins;
 
   if (not (plugins.Contains('Test'))) {
