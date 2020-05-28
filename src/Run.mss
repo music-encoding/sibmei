@@ -1,10 +1,6 @@
 function Run() {
     //$module(Run.mss)
 
-    // first, ensure we're running with a clean slate.
-    Self._property:libmei = libmei4;
-    libmei.destroy();
-
     // do some preliminary checks
     if (Sibelius.ProgramVersion < 7000)
     {
@@ -44,6 +40,10 @@ function Run() {
 
 function DoExport (filename) {
     //$module(Run.mss)
+
+    // first, ensure we're running with a clean slate.
+    Self._property:libmei = libmei4;
+    libmei.destroy();
 
     // Deal with the Progress GUI
     // set the active score here so we can refer to it throughout the plugin
