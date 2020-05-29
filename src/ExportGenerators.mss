@@ -1287,7 +1287,7 @@ function GenerateScoreDef (score, barnum) {
     showCautionaryAccidentals = score.EngravingRules.CautionaryNaturalsInKeySignatures;
     if (showCautionaryAccidentals = true)
     {
-        libmei.AddAttribute(scoredef, 'key.sig.showchange', 'true');
+        libmei.AddAttribute(scoredef, 'keysig.showchange', 'true');
     }
 
     libmei.AddAttribute(scoredef, 'music.name', score.MainMusicFontName);
@@ -1337,7 +1337,7 @@ function GenerateStaffGroups (score, barnum) {
             libmei.AddAttribute(std, 'trans.semi', semiTrans);
             libmei.AddAttribute(std, 'trans.diat', diaTrans);
         }
-        
+
         clefinfo = ConvertClef(s.InitialClefStyleId);
         libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
         libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
