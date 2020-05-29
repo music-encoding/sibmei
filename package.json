@@ -1,14 +1,18 @@
 {
   "name": "sibmei4",
   "version": "4.0.0",
-  "description": "",
+  "description": "MEI export plugin for Avid Sibelius",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/npm/cli.git"
+  },
   "main": "plgconfig.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "test": "mocha --recursive",
-    "analyze": "./tools/analyze.js"
+    "analyze": "node tools/analyze.js"
   },
   "author": "",
   "license": "ISC",
