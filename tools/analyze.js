@@ -37,6 +37,7 @@ function reportIssue(filePath, lineIndex, line, message) {
 
 
 function analyzeUsage(methods, attributes) {
+  console.log('Analyze libmei and attribute usage...');
   for (const fileName of fs.readdirSync(directories.src)) {
     const filePath = path.join(directories.src, fileName);
     const lines = fs.readFileSync(filePath, {encoding: 'utf8'}).split("\n");
@@ -68,6 +69,7 @@ function analyzeUsage(methods, attributes) {
       }
     }
   }
+  console.log('Done');
 }
 
 
@@ -93,6 +95,8 @@ while (match = globalVarRegex.exec(libmeiCode)) {
 
 https.get(schemaUrl, (res) => {
   let data = '';
+  console.log('Downloading MEI schema...')
+
   res.on('data', (chunk) => {
     data += chunk;
   });
@@ -107,6 +111,7 @@ https.get(schemaUrl, (res) => {
       throw e;
     }
 
+    console.log('Extracting attribute definitions...');
     // TODO: Use saxes right away instead of creating a DOM first and running
     // XPath on it. This is really slow.
     const attributeNames = xpath.evaluateXPath(`
