@@ -536,15 +536,18 @@ function ProcessSymbol (sobj) {
         for atts = 1 to mapValue.Length
         {
             att = mapValue[atts];
-            trace(att[0] & att[1]);
+            for each Pair n in att
+            {
+                trace(n.Name & n.Value);
+            }
         }
 
-        trace(libmei.MethodExists(makeElement));
-
-        //symbol = libmei.CallMethod(makeElement);
-        //symbol = AddBarObjectInfoToElement(sobj, symbol);
-        //mlines = Self._property:MeasureObjects;
-        //mlines.Push(symbol._id);
+        trace(makeElement);
+        
+        symbol = libmei.@makeElement();
+        symbol = AddBarObjectInfoToElement(sobj, symbol);
+        mlines = Self._property:MeasureObjects;
+        mlines.Push(symbol._id);
     }
     
 } //$end
