@@ -15,8 +15,8 @@ function InitModifierSymbols () {
 
     modifierMap = CreateDictionary(
         '52', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel
-        '53', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe
-        '54', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe (2)
+        '53', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel (2) (was toe in previous version, but this seems to be wrong)
+        '54', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe
         '160', CreateSparseArray('Artic', CreateDictionary('artic','stop')),                    //stop
         '162', CreateSparseArray('Artic', CreateDictionary('artic','open')),                    //open
         '163', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp
