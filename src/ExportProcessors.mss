@@ -532,19 +532,19 @@ function ProcessSymbol (sobj) {
         mapValue = controlEventMap[sobj.Index];
 
         makeElement = mapValue[0];
-        trace(makeElement);
-        for atts = 1 to mapValue.Length
+
+        symbol = libmei.@makeElement();
+
+        // add attributes if necessary
+        if (mapValue.Length = 2)
         {
-            att = mapValue[atts];
-            for each Pair n in att
+            atts = mapValue[1];
+            for each Pair att in atts
             {
-                trace(n.Name & n.Value);
+                libmei.AddAttribute(symbol, att.Name, att.Value);
             }
         }
 
-        trace(makeElement);
-        
-        symbol = libmei.@makeElement();
         symbol = AddBarObjectInfoToElement(sobj, symbol);
         mlines = Self._property:MeasureObjects;
         mlines.Push(symbol._id);
