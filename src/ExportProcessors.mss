@@ -526,11 +526,10 @@ function ProcessSymbol (sobj) {
         }
     controlEventMap = Self._property:ControlEventMap;
 
-    // iterate over controlEventMap
+    // iterate over controlEventMap to process symbols that belong to measure
     if(controlEventMap.PropertyExists(sobj.Index))
     {
         mapValue = controlEventMap[sobj.Index];
-
         makeElement = mapValue[0];
 
         symbol = libmei.@makeElement();
@@ -548,6 +547,38 @@ function ProcessSymbol (sobj) {
         symbol = AddBarObjectInfoToElement(sobj, symbol);
         mlines = Self._property:MeasureObjects;
         mlines.Push(symbol._id);
+    }
+
+    // iterate over modifierMap to process symbols that belong to a single note
+    if(modifierMap.PropertyExists(sobj.Index))
+    {
+        mapValue = modifierMap[sobj.Index];
+        makeElement = mapValue[0];
+
+        nobj = GetNoteObjectAtPosition(sobj);
+
+        if (nobj != null)
+        {
+            modifier = libmei.@makeElement();
+
+            // add attributes
+            if (mapValue.Length = 2)
+            {
+                atts = mapValue[1];
+                for each Pair att in atts
+                {
+                    libmei.AddAttribute(modifier, att.Name, att.Value);
+                }
+            }
+
+            libmei.AddChild(nobj, modifier);
+        }
+        else
+        {
+            warnings = Self._property:warnings;
+            warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+        }
+        
     }
     
 } //$end
