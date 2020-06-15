@@ -49,7 +49,7 @@ function DoExport (filename) {
     Self._property:ActiveScore = Sibelius.ActiveScore;
     if (Self._property:ActiveScore = null)
     {
-        Sibelius.MessageBox('No score to convert. Can not export to ' & filename);
+        Sibelius.MessageBox('Could not find an active score. Cannot export to ' & filename);
         return false;
     }
 
