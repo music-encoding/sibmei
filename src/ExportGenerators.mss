@@ -354,9 +354,6 @@ function GenerateMeasure (num) {
         libmei.AddAttribute(m, 'metcon', 'false');
     }
 
-    systf = score.SystemStaff;
-    sysBar = systf[num];
-
     if (sysBar.NthBarInSystem = 0)
     {
         Self._property:SystemBreak = libmei.Sb();
@@ -999,7 +996,7 @@ function GenerateNote (nobj) {
         ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
         pnum = ptuplet.Left;
         pden = ptuplet.Right;
-        floatgesdur = (pden & '.0' / pnum & '.0') * dur;
+        floatgesdur = (pden * 1.0 / pnum) * dur;
         gesdur = Round(floatgesdur);
     }
     else

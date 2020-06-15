@@ -592,15 +592,11 @@ function ConvertSibeliusStructure (score) {
     {
         for each Bar b in s
         {
-            if (bar_to_staff.PropertyExists(b.BarNumber))
-            {
-                bar_to_staff[b.BarNumber].Push(s.StaffNum);
-            }
-            else
+            if (not bar_to_staff.PropertyExists(b.BarNumber))
             {
                 bar_to_staff[b.BarNumber] = CreateSparseArray();
-                bar_to_staff[b.BarNumber].Push(s.StaffNum);
             }
+            bar_to_staff[b.BarNumber].Push(s.StaffNum);
         }
     }
     return bar_to_staff;
@@ -611,8 +607,7 @@ function ConvertColor (nrest) {
     r = nrest.ColorRed;
     g = nrest.ColorGreen;
     b = nrest.ColorBlue;
-    a_dec = nrest.ColorAlpha & '.0';
-    a = a_dec / 255.0;
+    a = nrest.ColorAlpha / 255.0;
 
     return 'rgba(' & r & ',' & g & ',' & b & ',' & a & ')';
 }  //$end
