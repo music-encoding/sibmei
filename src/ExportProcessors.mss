@@ -513,17 +513,7 @@ function ProcessSymbol (sobj) {
     }
 
     // load symbol style dictionaries
-    // TODO: load them once within Run()?
-    if (Self._property:ModifierMap = null)
-        {
-            Self._property:ModifierMap = InitModifierSymbols();
-        }
     modifierMap = Self._property:ModifierMap;
-
-    if (Self._property:ControlEventMap = null)
-        {
-            Self._property:ControlEventMap = InitControlEventSymbols();
-        }
     controlEventMap = Self._property:ControlEventMap;
 
     // iterate over controlEventMap to process symbols that belong to measure
