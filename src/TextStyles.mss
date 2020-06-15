@@ -32,7 +32,6 @@ function InitTextHandlers() {
 function HandleText (textObject) {
     // TODO: Move this to a global initialization function
     InitTextHandlers();
-    Trace('handle text');
     if (null != Self._property:Extension and null != Extension.TextHandlers)
     {
         // TODO: We need to check for both StyleId *and* StyleAsText so we can
@@ -104,17 +103,19 @@ function CreateAnchoredText (textObj) {
 
 function AddFormattedText (parentElement, textObj) {
     textWithFormatting = textObj.TextWithFormatting;
-    if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting, 0) != '\\')
+    if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
         parentElement.SetText(textObj.Text);
         return null;
     }
 
+    nodes = CreateSparseArray();
+
     state = CreateDictionary(
         'currentText', null,
-        'rendAttributes', null,
-        'rendFlags', null,
-        'nodes', null,
+        'rendAttributes', CreateDictionary(),
+        'rendFlags', CreateDictionary(),
+        'nodes', nodes,
         'paragraphs', null
     );
 
@@ -124,12 +125,14 @@ function AddFormattedText (parentElement, textObj) {
         {
             case ('\\n')
             {
-                state.nodes.Push(libmei.Lb());
+                PushStyledText(state);
+                nodes.Push(libmei.Lb());
             }
             case ('\\N')
             {
+                PushStyledText(state);
                 // TODO: Add <p> if it is allowed within parentElement (look at .name)
-                state.nodes.Push(libmei.Lb());
+                nodes.Push(libmei.Lb());
             }
             case ('\\B')
             {
@@ -192,7 +195,7 @@ function AddFormattedText (parentElement, textObj) {
                 SwitchBaselineAdjust(state, GetTextCommandArg(component));
             }
             case ('\\$') {
-                AddTextSubstitute(state, substituteName);
+                AppendTextSubstitute(state, GetTextCommandArg(component));
             }
             case ('\\\\')
             {
@@ -210,17 +213,55 @@ function AddFormattedText (parentElement, textObj) {
             }
         }
     }
+
+    PushStyledText(state);
+
+    nodeCount = nodes.Length;
+    precedingElement = null;
+
+    nodeIndex = 0;
+    while (nodeIndex < nodeCount)
+    {
+        node = nodes[nodeIndex];
+        if (IsObject(node))
+        {
+            // We have an element
+            libmei.AddChild(parentElement, node);
+            precedingElement = node;
+        }
+        else
+        {
+            // We have a text node
+            text = node;
+            // If there are multiple adjacent text nodes, we need to join them
+            while (nodeIndex < nodeCount and not IsObject(nodes[nodeIndex + 1])) {
+                nodeIndex = nodeIndex + 1;
+                text = text & nodes[nodeIndex];
+            }
+
+            if (precedingElement = null)
+            {
+                libmei.SetText(parentElement, text);
+            }
+            else
+            {
+                libmei.SetTail(precedingElement, text);
+            }
+        }
+        nodeIndex = nodeIndex + 1;
+    }
 }  //$end
 
 
 function NewTextParagraph (state) {
+    // TODO!
     ;
 }  //$end
 
 
 function GetTextCommandArg (command) {
     // Remove leading part, e.g. the '\$' or '\s' and trailing '\'
-    return Substring(2, Length(command) - 3);
+    return Substring(command, 2, Length(command) - 3);
 }  //$end
 
 
@@ -228,7 +269,7 @@ function SwitchBaselineAdjust (state, param) {
     sup = (param = 'superscript');
     sub = (param = 'subscript');
     if (sup != state.rendFlags['sup'] or sub != state.rendFlags['sub']) {
-        AppendStyledText(state);
+        PushStyledText(state);
     }
     state.rendFlags['sup'] = sup;
     state.rendFlags['sub'] = sub;
@@ -249,7 +290,7 @@ function SwitchFont (state, fontName) {
             {
                 if (textNotYetAppended and state.rendAttributes[attName] != null)
                 {
-                    AppendStyledText(state);
+                    PushStyledText(state);
                     textNotYetAppended = false;
                 }
                 state.rendAttributes[attName] = null;
@@ -261,7 +302,7 @@ function SwitchFont (state, fontName) {
             {
                 if (textNotYetAppended and state.rendFlags[flagName])
                 {
-                    AppendStyledText(state);
+                    PushStyledText(state);
                     textNotYetAppended = false;
                 }
                 state.rendFlags[flagName] = false;
@@ -279,7 +320,7 @@ function SwitchTextStyle (state, attName, value) {
     if (state.rendAttributes[attName] != value)
     {
         // Style changes, so append current text before modifying style state
-        AppendStyledText(state);
+        PushStyledText(state);
     }
     state.rendAttributes[attName] = value;
 }  //$end
@@ -288,55 +329,44 @@ function SwitchTextStyle (state, attName, value) {
 function SwitchRendFlags (state, flagName, value) {
     if (state.rendFlags[flagName] != value)
     {
-        AppendStyledText(state);
+        PushStyledText(state);
     }
     state.rendFlags[flagName] = value;
 }  //$end
 
 
-function AppendStyledText (state) {
-    if (null != state.currentText)
+function PushStyledText (state) {
+    if (state.currentText = '')
     {
-        rendAttributes = GetRendAttributes(state);
-        if (null = rendAttributes)
-        {
-            nodes = state.nodes;
-            if (null = nodes)
-            {
-                state.nodes = CreateSparseArray(currentText);
-            }
-            else
-            {
-                currentNode = nodes[nodes.Length - 1];
-                if (IsObject(currentNode))
-                {
-                    // This is an element
-                    newTail = libmei.GetTail(currentElement) & state.currentText;
-                    libmei.SetTail(currentElement, newTail);
-                }
-                else
-                {
-                    // currentNode is plain text
-                    nodes[nodes.Length - 1] = currentNode & state.currentText;
-                }
-            }
+        return null;
+    }
+
+    nodes = state.nodes;
+    if (null = nodes)
+    {
+        state.nodes = CreateSparseArray();
+    }
+
+    styleAttributes = GetStyleAttributes(state);
+    if (null = styleAttributes)
+    {
+        nodes.Push(state.currentText);
+    }
+    else
+    {
+        rend = libmei.Rend();
+        for each Name attName in styleAttributes {
+            libmei.AddAttribute(rend, attName, styleAttributes[attName]);
         }
-        else
-        {
-            rend = libmei.Rend();
-            for each Name attName in rendAttributes
-            {
-                rend.AddAttribute(attName, rendAttributes[attName]);
-            }
-            // TODO: Continue this
-        }
+        libmei.SetText(rend, state.currentText);
+        nodes.Push(rend);
     }
 
     state.currentText = '';
 }  //$end
 
 
-function GetRendAttributes (state) {
+function GetStyleAttributes (state) {
     rendAttributes = null;
 
     if (null != state.rendAttributes)
@@ -384,11 +414,6 @@ function GetRendAttributes (state) {
 
 function AppendTextSubstitute (state, substituteName) {
     score = Self._property:ActiveScore;
-    substitutedText = score.@substituteName;
-    if (substitutedText = '') {
-        // TODO: Also check for all-whitespace text
-        return null;
-    }
 
     textSubstituteInfo = TextSubstituteMap[substituteName];
     if (null = textSubstituteInfo)
@@ -398,17 +423,23 @@ function AppendTextSubstitute (state, substituteName) {
         return null;
     }
 
+    substitutedText = score.@substituteName;
+    if (substitutedText = '') {
+        // TODO: Also check for all-whitespace text
+        return null;
+    }
+
     elementName = textSubstituteInfo[0];
     element = libmei.@elementName();
     state.nodes.Push(element);
     for i = 1 to textSubstituteInfo.Length step 2
     {
-        libmei.AddAttribute(textSubstituteInfo[i], textSubstituteInfo[i + 1]);
+        libmei.AddAttribute(element, textSubstituteInfo[i], textSubstituteInfo[i + 1]);
     }
 
     /*
     // Use this instead of a Dictionary mapping?  May be a little clearer and
-    // allows allows the analysis script to check it properly.
+    // allows the analysis script to check it properly.
     element = null;
 
     switch (substituteName)
@@ -465,9 +496,9 @@ function AppendTextSubstitute (state, substituteName) {
     }*/
 
 
-    rendAttributes = GetRendAttributes(state);
+    styleAttributes = GetStyleAttributes(state);
     rendElement = null;
-    if (null = rendAttributes)
+    if (null = styleAttributes)
     {
         libmei.SetText(element, substitutedText);
     }
@@ -475,9 +506,9 @@ function AppendTextSubstitute (state, substituteName) {
     {
         rendElement = libmei.Rend();
         libmei.AddChild(element, rendElement);
-        for each Name attName in rendAttributes
+        for each Name attName in styleAttributes
         {
-            libmei.AddAttribute(rendElement, attName, rendAttributes[attName]);
+            libmei.AddAttribute(rendElement, attName, styleAttributes[attName]);
         }
         libmei.SetText(rendElement, substitutedText);
     }
