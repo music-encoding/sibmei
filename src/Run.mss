@@ -54,16 +54,6 @@ function DoExport (filename) {
     // Set up the warnings tracker
     Self._property:warnings = CreateSparseArray();
 
-    // Initialize symbol styles
-    if (Self._property:ModifierMap = null)
-        {
-            Self._property:ModifierMap = InitModifierSymbols();
-        }
-    if (Self._property:ControlEventMap = null)
-        {
-            Self._property:ControlEventMap = InitControlEventSymbols();
-        }
-
     progCount = Sibelius.ActiveScore.SystemStaff.BarCount;
     fn = utils.ExtractFileName(filename);
     progressTitle = utils.Format(_InitialProgressTitle, fn);
