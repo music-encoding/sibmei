@@ -425,7 +425,7 @@ function GenerateMeasure (num) {
         textobjs = systemtext[num];
         for each textobj in textobjs
         {
-            text = ConvertText(textobj);
+            text = HandleText(textobj);
 
             if (text != null)
             {
@@ -698,17 +698,7 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Text')
             {
-                mobj = ConvertText(bobj);
-                if (mobj != null)
-                {
-                    //Try to get note at position of bracket and put id
-                    obj = GetNoteObjectAtPosition(bobj);
-
-                    if (obj != null)
-                    {
-                        libmei.AddAttribute(mobj, 'startid', '#' & obj._id);
-                    }
-                }
+                mobj = HandleText(bobj);
             }
         }
 
