@@ -25,6 +25,9 @@ describe("Symbols", function() {
       });
     describe("Modifiers (children of note): Articulations", function() {
         var artics = xpath.evaluateXPath('//*:artic', meiSymbols);
+        it("21 articulations were created", function () {
+            assert.strictEqual(artics.length, 21, "Not all 21 articulations were created");
+        });
         it("<artic> is child of <note>", function() {
             for (let count = 0; count < artics.length; count++) {
                 assert.strictEqual(artics[count].parentNode.localName, "note", '<artic> ${i} is not a child of <note>');
