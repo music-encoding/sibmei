@@ -45,13 +45,18 @@ function DoExport (filename) {
     Self._property:libmei = libmei4;
     libmei.destroy();
 
-    // Deal with the Progress GUI
     // set the active score here so we can refer to it throughout the plugin
     Self._property:ActiveScore = Sibelius.ActiveScore;
+    if (Self._property:ActiveScore = null)
+    {
+        Sibelius.MessageBox('No score to convert. Can not export to ' & filename);
+        return false;
+    }
 
     // Set up the warnings tracker
     Self._property:warnings = CreateSparseArray();
 
+    // Deal with the Progress GUI
     progCount = Sibelius.ActiveScore.SystemStaff.BarCount;
     fn = utils.ExtractFileName(filename);
     progressTitle = utils.Format(_InitialProgressTitle, fn);
