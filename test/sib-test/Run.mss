@@ -2,6 +2,7 @@ function Run() {
   Self._property:libmei = libmei4;
   Self._property:sibmei = sibmei4;
   sibmei4._property:libmei = libmei;
+  sibmei.InitGlobals();
 
   plugins = Sibelius.Plugins;
 
