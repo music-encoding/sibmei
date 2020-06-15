@@ -5,12 +5,16 @@ function InitTextHandlers() {
     Self._property:TextHandlers = CreateDictionary(
         'text.staff.expression', 'ExpressionTextHandler',
         'text.system.page_aligned.title', 'PageTitleHandler',
+        'text.system.page_aligned.subtitle', 'PageTitleHandler',
         'text.system.page_aligned.composer', 'PageComposerTextHandler',
+        'text.system.tempo', 'TempoTextHandler',
         'text.staff.space.figuredbass', 'FiguredBassTextHandler'
     );
 
     Self._property:TextSubstituteMap = CreateDictionary(
         'Title', CreateSparseArray('Title'),
+        'Subtitle', CreateSparseArray('Title', 'type', 'subordinate'),
+        'Dedication', CreateSparseArray('Dedication'),
         // <composer>, <arranger>, <lyricist>, <userRestrict> and <publisher>
         // are only allowed in a few places, e.g. metadata or title pages.
         // We therfore use mor generic elements
@@ -30,7 +34,7 @@ function InitTextHandlers() {
 
 
 function HandleText (textObject) {
-    // TODO: Move this to a global initialization function
+    // TODO: Move InitTextHandlers() call to a global initialization function
     InitTextHandlers();
     if (null != Self._property:Extension and null != Extension.TextHandlers)
     {
@@ -51,44 +55,48 @@ function HandleText (textObject) {
 }  //$end
 
 
-function ExpressionTextHandler (textObj) {
-    dynam = AddBarObjectInfoToElement(textObj, libmei.Dynam());
-    AddFormattedText(dynam, textObj);
+function ExpressionTextHandler (textObject) {
+    dynam = AddBarObjectInfoToElement(textObject, libmei.Dynam());
+    AddFormattedText(dynam, textObject);
     return dynam;
 }  //$end
 
 
 function PageTitleHandler (textObject) {
-    atext = libmei.AnchoredText();
+    anchoredText = libmei.AnchoredText();
     title = libmei.Title();
+    if (textObject.StyleId = 'text.system.page_aligned.subtitle')
+    {
+        libmei.AddAttribute(title, 'type', 'subordinate');
+    }
 
-    libmei.AddChild(atext, title);
-    libmei.SetText(title, text);
+    libmei.AddChild(anchoredText, title);
+    AddFormattedText(title, textObject);
 
-    return atext;
+    return anchoredText;
 }  //$end
 
 
 function PageComposerTextHandler (textObject) {
     // 'text.system.page_aligned.composer'
-    return AddBarObjectInfoToElement(textObj, CreateAnchoredText(textObj));
+    return AddBarObjectInfoToElement(textObject, CreateAnchoredText(textObject));
 }  //$end
 
 
 function TempoTextHandler (textObject) {
     // 'text.system.tempo'
     tempo = libmei.Tempo();
-    libmei.AddChild(tempo, CreateAnchoredText(textObj));
+    libmei.AddChild(tempo, CreateAnchoredText(textObject));
     return tempo;
 }  //$end
 
 
 function FiguredBassTextHandler (textObject) {
     // 'text.staff.space.figuredbass'
-    harm = AddBarObjectInfoToElement(textObj, libmei.Harm());
+    harm = AddBarObjectInfoToElement(textObject, libmei.Harm());
     fb = libmei.Fb();
     libmei.AddChild(harm, fb);
-    ConvertFbFigures(fb, textObj);
+    ConvertFbFigures(fb, textObject);
     return harm;
 }  //$end
 
@@ -96,7 +104,7 @@ function FiguredBassTextHandler (textObject) {
 function CreateAnchoredText (textObj) {
     //$module(ExportConverters.mss)
     anchoredText = libmei.AnchoredText();
-    libmei.SetText(anchoredText, ConvertSubstitution(textObj.Text));
+    AddFormattedText(anchoredText, textObj);
     return anchoredText;
 }  //$end
 
@@ -105,7 +113,7 @@ function AddFormattedText (parentElement, textObj) {
     textWithFormatting = textObj.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
-        parentElement.SetText(textObj.Text);
+        libmei.SetText(parentElement, textObj.Text);
         return null;
     }
 
@@ -115,6 +123,8 @@ function AddFormattedText (parentElement, textObj) {
         'currentText', null,
         'rendAttributes', CreateDictionary(),
         'rendFlags', CreateDictionary(),
+        // TODO: Also track the active character style (mainly
+        // `\ctext.character.musictext\`, and custom styles)
         'nodes', nodes,
         'paragraphs', null
     );
@@ -131,7 +141,7 @@ function AddFormattedText (parentElement, textObj) {
             case ('\\N')
             {
                 PushStyledText(state);
-                // TODO: Add <p> if it is allowed within parentElement (look at .name)
+                // TODO: Add <p> if it is allowed within parentElement (use libmei.GetName())
                 nodes.Push(libmei.Lb());
             }
             case ('\\B')
@@ -165,7 +175,9 @@ function AddFormattedText (parentElement, textObj) {
             case ('\\c')
             {
                 // TODO: Can we sensibly handle a character style change? The
-                // only built-in one seem to be `text.character.musictext`
+                // only built-in one seem to be `text.character.musictext`. We
+                // might want to allow Extensions to handle custom character
+                // styles.
                 ;
             }
             case ('\\s')
@@ -201,8 +213,9 @@ function AddFormattedText (parentElement, textObj) {
             {
                 // According to the documentation, 'backslashes themselves are
                 // represented by \\ , to avoid conflicting with the above
-                // commands'. Though that does not seem to work, but in case
-                // Avid fixes this at some point, let's just assume it works.
+                // commands'. Though that does not seem to work, let's just
+                // assume it does in case Avid fixes this.
+
                 // We strip one leading backspace.
                 state.currentText = state.currentText & Substring(component, 1);
             }
@@ -269,10 +282,41 @@ function SwitchBaselineAdjust (state, param) {
     sup = (param = 'superscript');
     sub = (param = 'subscript');
     if (sup != state.rendFlags['sup'] or sub != state.rendFlags['sub']) {
+        // Style changed, push the previous text before changing the style
         PushStyledText(state);
     }
     state.rendFlags['sup'] = sup;
     state.rendFlags['sub'] = sub;
+}  //$end
+
+
+function ResetTextStyles (state, infoOnly) {
+    // If `infoOnly` is `true`, does not make any changes, only tells us if
+    // there are re-settable styles
+    if (null != state.rendAttributes)
+    {
+        for each Name attName in state.rendAttributes
+        {
+            if (infoOnly and state.rendAttributes[attName] != null)
+            {
+                return true;
+            }
+            state.rendAttributes[attName] = null;
+        }
+    }
+
+    if (null != state.rendFlags)
+    {
+        for each Name flagName in state.rendFlags
+        {
+            if (infoOnly and state.rendFlags[flagName])
+            {
+                return true;
+            }
+            state.rendFlags[flagName] = false;
+        }
+    }
+    return false;
 }  //$end
 
 
@@ -281,32 +325,10 @@ function SwitchFont (state, fontName) {
     {
         // Before resetting the style, we have to add text preceding the '\f_\'
         // style reset – but only if the style reset actually changes something.
-
-        textNotYetAppended = true;
-
-        if (null != state.rendAttributes)
+        if (ResetTextStyles(state, true))
         {
-            for each Name attName in state.rendAttributes
-            {
-                if (textNotYetAppended and state.rendAttributes[attName] != null)
-                {
-                    PushStyledText(state);
-                    textNotYetAppended = false;
-                }
-                state.rendAttributes[attName] = null;
-            }
-        }
-        if (null != state.rendFlags)
-        {
-            for each Name flagName in state.rendFlags
-            {
-                if (textNotYetAppended and state.rendFlags[flagName])
-                {
-                    PushStyledText(state);
-                    textNotYetAppended = false;
-                }
-                state.rendFlags[flagName] = false;
-            }
+            PushStyledText(state);
+            ResetTextStyles(state, false);
         }
     }
     else
@@ -341,16 +363,11 @@ function PushStyledText (state) {
         return null;
     }
 
-    nodes = state.nodes;
-    if (null = nodes)
-    {
-        state.nodes = CreateSparseArray();
-    }
-
     styleAttributes = GetStyleAttributes(state);
     if (null = styleAttributes)
     {
-        nodes.Push(state.currentText);
+        // We attach unstyled text without wrapping it in <rend>
+        state.nodes.Push(state.currentText);
     }
     else
     {
@@ -359,7 +376,7 @@ function PushStyledText (state) {
             libmei.AddAttribute(rend, attName, styleAttributes[attName]);
         }
         libmei.SetText(rend, state.currentText);
-        nodes.Push(rend);
+        state.nodes.Push(rend);
     }
 
     state.currentText = '';
@@ -386,25 +403,21 @@ function GetStyleAttributes (state) {
 
     if (null != state.rendFlags)
     {
-        rendFlags = null;
+        rendAttValue = '';
         for each Name flagName in state.rendFlags
         {
             flagActive = state.rendFlags[flagName];
             if (flagActive)
             {
-                if (null != rendFlags)
-                {
-                    rendFlags = CreateSparseArray();
-                }
-                rendFlags.Push(flagName);
+                rendAttValue = rendAttValue & flagName & ' ';
             }
         }
-        if (null != rendFlags)
+        if (rendAttValue != '')
         {
             if (null = rendAttributes) {
                 rendAttributes = CreateDictionary();
             }
-            rendAttributes['rend'] = rendFlags.Join(' ');
+            rendAttributes['rend'] = rendAttValue;
         }
     }
 
@@ -436,64 +449,6 @@ function AppendTextSubstitute (state, substituteName) {
     {
         libmei.AddAttribute(element, textSubstituteInfo[i], textSubstituteInfo[i + 1]);
     }
-
-    /*
-    // Use this instead of a Dictionary mapping?  May be a little clearer and
-    // allows the analysis script to check it properly.
-    element = null;
-
-    switch (substituteName)
-    {
-        case ('Title')
-        {
-            element = libmei.Title();
-        }
-        case ('Composer')
-        {
-            element = libmei.Composer();
-        }
-        case ('Arranger')
-        {
-            element = libmei.Arranger();
-        }
-        case ('Lyricist')
-        {
-            element = libmei.Lyricist();
-        }
-        case ('MoreInfo')
-        {
-            element = libmei.Seg();
-            libmei.AddAttribute(element, 'type', 'MoreInfo');
-        }
-        case ('Artist')
-        {
-            element = libmei.PersName();
-            libmei.AddAttribute(element, 'role', 'Artist');
-        }
-        case ('Copyright')
-        {
-            // <useRestrict> is only allowed on <titlePage>, so use generic element
-            element = libmei.Seg();
-            libmei.AddAttribute(element, 'type', 'Copyright');
-        }
-        case ('Publisher')
-        {
-            // <publisher> is only allowed in a few places, so use generic element
-            // We don't even know if it's a person or an institution
-            element = libmei.Seg();
-            libmei.AddAttribute(element, 'type', 'Publisher');
-        }
-        case ('PartName')
-        {
-            element = libmei.Seg();
-            libmei.AddAttribute(element, 'type', 'PartName');
-        }
-        default
-        {
-            state.currentText = state.currentText & '\\$' & substituteName & '\\';
-            return null;
-        }
-    }*/
 
 
     styleAttributes = GetStyleAttributes(state);

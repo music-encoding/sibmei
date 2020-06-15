@@ -219,10 +219,16 @@ function GetNoteObjectAtPosition (bobj) {
     // If one isn't found exactly at the end position, it will first look back (previous)
     // and then look forward, for candidate objects.
 
+    voice_num = bobj.VoiceNumber;
+    if (voice_num = 0)
+    {
+        // Things like titles or composer text needn't/shouldn't be attached to
+        // voices or notes.
+        return null;
+    }
     objectPositions = Self._property:ObjectPositions;
     staff_num = bobj.ParentBar.ParentStaff.StaffNum;
     bar_num = bobj.ParentBar.BarNumber;
-    voice_num = bobj.VoiceNumber;
 
     staffObjectPositions = objectPositions[staff_num];
     barObjectPositions = staffObjectPositions[bar_num];
