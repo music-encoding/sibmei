@@ -2037,11 +2037,6 @@ GetTail "(element) {
         indent = indent - 1;
     }
 
-    if (Length(tl) > 0)
-    {
-        xmlout = xmlout & tabs & tl & Chr(10);
-    }
-
     // convertDictToXml takes care of adding the />
     // for tags that do not have children. We'll
     // take care of the terminal tag here for those
@@ -2057,6 +2052,11 @@ GetTail "(element) {
             tabs = Substring(tabs, 0, Length(tabs) - 4);
             xmlout = xmlout & tabs & '</' & nm & '>' & Chr(10);
         }
+    }
+
+    if (Length(tl) > 0)
+    {
+        xmlout = xmlout & tabs & tl & Chr(10);
     }
 
     return xmlout;
