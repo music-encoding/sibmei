@@ -11,10 +11,10 @@ describe("Symbols", function() {
         const mordents = xpath.evaluateXPath('//*:mordent', meiSymbols);
         const turns = xpath.evaluateXPath('//*:turn', meiSymbols);
         it("Mordent has @form='upper'", function() {
-          utils.assertAttrOnElements(mordents, [0], 'form', 'upper');
+          utils.assertAttrOnElements(mordents, [1], 'form', 'upper');
         });
         it("Inverted mordent has @form='lower'", function() {
-          utils.assertAttrOnElements(mordents, [1], 'form', 'lower');
+          utils.assertAttrOnElements(mordents, [0], 'form', 'lower');
         });
         it("Turn has @form='upper'", function() {
           utils.assertAttrOnElements(turns, [0], 'form', 'upper');
