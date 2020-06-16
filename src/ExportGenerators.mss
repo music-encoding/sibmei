@@ -354,9 +354,6 @@ function GenerateMeasure (num) {
         libmei.AddAttribute(m, 'metcon', 'false');
     }
 
-    systf = score.SystemStaff;
-    sysBar = systf[num];
-
     if (sysBar.NthBarInSystem = 0)
     {
         Self._property:SystemBreak = libmei.Sb();
@@ -428,7 +425,7 @@ function GenerateMeasure (num) {
         textobjs = systemtext[num];
         for each textobj in textobjs
         {
-            text = ConvertText(textobj);
+            text = HandleText(textobj);
 
             if (text != null)
             {
@@ -701,17 +698,7 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Text')
             {
-                mobj = ConvertText(bobj);
-                if (mobj != null)
-                {
-                    //Try to get note at position of bracket and put id
-                    obj = GetNoteObjectAtPosition(bobj);
-
-                    if (obj != null)
-                    {
-                        libmei.AddAttribute(mobj, 'startid', '#' & obj._id);
-                    }
-                }
+                mobj = HandleText(bobj);
             }
         }
 
@@ -999,7 +986,7 @@ function GenerateNote (nobj) {
         ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
         pnum = ptuplet.Left;
         pden = ptuplet.Right;
-        floatgesdur = (pden & '.0' / pnum & '.0') * dur;
+        floatgesdur = (pden * 1.0 / pnum) * dur;
         gesdur = Round(floatgesdur);
     }
     else

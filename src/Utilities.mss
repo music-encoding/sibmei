@@ -219,10 +219,16 @@ function GetNoteObjectAtPosition (bobj) {
     // If one isn't found exactly at the end position, it will first look back (previous)
     // and then look forward, for candidate objects.
 
+    voice_num = bobj.VoiceNumber;
+    if (voice_num = 0)
+    {
+        // Things like titles or composer text needn't/shouldn't be attached to
+        // voices or notes.
+        return null;
+    }
     objectPositions = Self._property:ObjectPositions;
     staff_num = bobj.ParentBar.ParentStaff.StaffNum;
     bar_num = bobj.ParentBar.BarNumber;
-    voice_num = bobj.VoiceNumber;
 
     staffObjectPositions = objectPositions[staff_num];
     barObjectPositions = staffObjectPositions[bar_num];
@@ -290,47 +296,18 @@ function AddBarObjectInfoToElement (bobj, element) {
 
     libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
 
-    switch (bobj.Type)
+    start_obj = GetNoteObjectAtPosition(bobj);
+    if (start_obj != null)
     {
-        case('SymbolItem')
-        {
-            start_obj = GetNoteObjectAtPosition(bobj);
-            if (start_obj != null)
-            {
-                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
-            }
-        }
-        case('NoteRest')
-        {
-            start_obj = GetNoteObjectAtPosition(bobj);
-            if (start_obj != null)
-            {
-                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
-            }
-        }
-        case('ArpeggioLine')
-        {
-            start_obj = GetNoteObjectAtPosition(bobj);
-            if (start_obj != null)
-            {
-                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
-            }
-        }
-        // at default add tstamp2 and try to find startid and endid
-        default
-        {
-            libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-            start_obj = GetNoteObjectAtPosition(bobj);
-            end_obj = GetNoteObjectAtEndPosition(bobj);
-            if (start_obj != null)
-            {
-                libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
-            }
+        libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+    }
 
-            if (end_obj != null)
-            {
-                libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
-            }
+    if (TypeHasEndBarNumberProperty[bobj.Type]) {
+        libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        end_obj = GetNoteObjectAtEndPosition(bobj);
+        if (end_obj != null)
+        {
+            libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
         }
     }
 
@@ -844,4 +821,80 @@ function AppendToLayer (meielement, l, beam, tuplet) {
             libmei.AddChild(l, meielement);
         }
     }
+}  //$end
+
+
+function DataToMEI (data) {
+    /*
+        Allows creating MEI from data structures, e.g. for templating purposes.
+        Takes an array with the following content:
+
+            0.  The capitalized tag name
+            1.  A dictionary with attribute names and values (unlike tag names,
+                attribute names are not capitalized). Can be null if no
+                attributes are declared.
+            2.  A child node (optional), represented by either a string for text
+                or a SparseArray of the same form for a child element.
+            3.  Any number of additional child nodes.
+            ...
+
+        Note that all element names are capitalized, but attribute names remain
+        lower case.
+
+        Example:
+
+        DataToMEI(CreateSparseArray(
+            'P', null,
+            'This is ',
+            CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
+                'declarative'
+            ),
+            ' MEI generation.'
+        ));
+
+        Output:
+
+        <p>This is <rend rend='italic'>declarative</rend> MEI generation.</p>
+    */
+    tagName = data[0];
+    element = libmei.@tagName();
+
+    attributes = data[1];
+    if (null != attributes)
+    {
+        for each Name attName in attributes
+        {
+            libmei.AddAttribute(element, attName, attributes[attName]);
+        }
+    }
+
+    if (data.Length > 2)
+    {
+        // Add children
+        currentChild = null;
+        for i = 2 to data.Length
+        {
+            childData = data[i];
+            if (IsObject(childData))
+            {
+                // We have a child element
+                currentChild = DataToMEI(childData);
+                libmei.AddChild(element, currentChild);
+            }
+            else
+            {
+                // We have a text child
+                if (currentChild = null)
+                {
+                    libmei.SetText(element, libmei.GetText(element) & childData);
+                }
+                else
+                {
+                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & childData);
+                }
+            }
+        }
+    }
+
+    return element;
 }  //$end

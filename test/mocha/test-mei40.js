@@ -9,7 +9,6 @@ const meiHead = utils.getTestMeiDom('header.mei');
 const meiMdivs = utils.getTestMeiDom('mdivs.mei');
 const meiNRsmall = utils.getTestMeiDom('nrsmall.mei');
 const meiBarRests = utils.getTestMeiDom('barrests.mei');
-const meiSymbols = utils.getTestMeiDom('symbols.mei');
 
 describe("Head 4.0", () => {
   it("correct meiversion is set", () => {
@@ -103,22 +102,5 @@ describe("Measure rests and repeats", () => {
   });
   it("<multiRpt> has num='4'", () => {
     assert.strictEqual(xpath.evaluateXPath('//*:measure[@n="8"]//*:multiRpt', meiBarRests).getAttribute('num'), '4');
-  });
-});
-
-describe("Updated attributes for symbols (mordents and turns)", () => {
-  const mordents = xpath.evaluateXPath('//*:mordent', meiSymbols);
-  const turns = xpath.evaluateXPath('//*:turn', meiSymbols);
-  it("Mordent has @form='upper'", () => {
-    utils.assertAttrOnElements(mordents, [0], 'form', 'upper');
-  });
-  it("Inverted mordent has @form='lower'", () => {
-    utils.assertAttrOnElements(mordents, [1], 'form', 'lower');
-  });
-  it("Turn has @form='upper'", () => {
-    utils.assertAttrOnElements(turns, [0], 'form', 'upper');
-  });
-  it("Inverted turn has @form='lower'", () => {
-    utils.assertAttrOnElements(turns, [1], 'form', 'lower');
   });
 });

@@ -503,335 +503,74 @@ function ProcessSymbol (sobj) {
         warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Symbol'));
     }
 
-    switch (sobj.Index)
+    // trills are special
+    if (sobj.Index = '32')
     {
-        case ('32')
-        {
-            // trill
-            trill = GenerateTrill(sobj);
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(trill._id);
-        }
-
-        case ('36')
-        {
-            // inverted mordent
-            mordent = libmei.Mordent();
-            libmei.AddAttribute(mordent, 'form', 'lower');
-            mordent = AddBarObjectInfoToElement(sobj, mordent);
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(mordent._id);
-        }
-
-        case ('37')
-        {
-            // mordent
-            mordent = libmei.Mordent();
-            libmei.AddAttribute(mordent, 'form', 'upper');
-            mordent = AddBarObjectInfoToElement(sobj, mordent);
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(mordent._id);
-        }
-
-        case ('38')
-        {
-            // turn
-            turn = libmei.Turn();
-            libmei.AddAttribute(turn, 'form', 'upper');
-            turn = AddBarObjectInfoToElement(sobj, turn);
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(turn._id);
-        }
-
-        case ('39')
-        {
-            // inverted turn
-            turn = libmei.Turn();
-            libmei.AddAttribute(turn, 'form', 'lower');
-            turn = AddBarObjectInfoToElement(sobj, turn);
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(turn._id);
-        }
-        case ('52')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'heel');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('53')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'heel');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('54')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'toe');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('55')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'toe');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('160')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'stop');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('162')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'open');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('163')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'damp');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('164')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'damp');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('165')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'damp');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('166')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'damp');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('212')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'ten');
-                libmei.AddAttribute(artic, 'place', 'above');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('214')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'marc');
-                libmei.AddAttribute(artic, 'place', 'above');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('217')
-        {
-            // up-bow above
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'upbow');
-                libmei.AddAttribute(artic, 'place', 'above');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('218')
-        {
-            // down-bow above
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'dnbow');
-                libmei.AddAttribute(artic, 'place', 'above');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('233')
-        {
-            // up-bow below
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'upbow');
-                libmei.AddAttribute(artic, 'place', 'below');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('234')
-        {
-            // down-bow below
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttribute(artic, 'artic', 'dnbow');
-                libmei.AddAttribute(artic, 'place', 'below');
-                libmei.AddChild(nobj, artic);
-            }
-            else
-            {
-                warnings = Self._property:warnings;
-                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
-            }
-        }
-        case ('240')
-        {
-            // double staccato
-            return null;
-        }
-        case ('241')
-        {
-            // triple staccato
-            return null;
-        }
-        case ('242')
-        {
-            // quadruple staccato
-            return null;
-        }
-        case ('243')
-        {
-            // snap
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttributeValue(artic, 'artic', 'snap');
-                libmei.AddChild(nobj, artic);
-            }
-            else
-            {
-                warnings = Self._property:warnings;
-                warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
-            }
-        }
-        case ('480')
-        {
-            //scoop
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttributeValue(artic, 'artic', 'scoop');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('481')
-        {
-            //fall
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttributeValue(artic, 'artic', 'fall');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('490')
-        {
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttributeValue(artic, 'artic', 'fingernail');
-                libmei.AddChild(nobj, artic);
-            }
-        }
-        case ('494')
-        {
-            //doit
-            nobj = GetNoteObjectAtPosition(sobj);
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttributeValue(artic, 'artic', 'doit');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-        case ('495')
-        {
-            //plop
-            nobj = GetNoteObjectAtPosition(sobj);
-
-            if (nobj != null)
-            {
-                artic = libmei.Artic();
-                libmei.AddAttributeValue(artic, 'artic', 'plop');
-                libmei.AddChild(nobj, artic);
-            }
-
-        }
-
+        // trill
+        trill = GenerateTrill(sobj);
+        mlines = Self._property:MeasureObjects;
+        mlines.Push(trill._id);
     }
+
+    // load symbol style dictionaries
+    modifierMap = Self._property:ModifierMap;
+    controlEventMap = Self._property:ControlEventMap;
+
+    // iterate over controlEventMap to process symbols that belong to measure
+    if(controlEventMap.PropertyExists(sobj.Index))
+    {
+        mapValue = controlEventMap[sobj.Index];
+        makeElement = mapValue[0];
+
+        symbol = libmei.@makeElement();
+
+        // add attributes if necessary
+        if (mapValue.Length = 2)
+        {
+            atts = mapValue[1];
+            for each Pair att in atts
+            {
+                libmei.AddAttribute(symbol, att.Name, att.Value);
+            }
+        }
+
+        symbol = AddBarObjectInfoToElement(sobj, symbol);
+        mlines = Self._property:MeasureObjects;
+        mlines.Push(symbol._id);
+    }
+
+    // iterate over modifierMap to process symbols that belong to a single note
+    if(modifierMap.PropertyExists(sobj.Index))
+    {
+        mapValue = modifierMap[sobj.Index];
+        makeElement = mapValue[0];
+
+        nobj = GetNoteObjectAtPosition(sobj);
+
+        if (nobj != null)
+        {
+            modifier = libmei.@makeElement();
+
+            // add attributes
+            if (mapValue.Length = 2)
+            {
+                atts = mapValue[1];
+                for each Pair att in atts
+                {
+                    libmei.AddAttribute(modifier, att.Name, att.Value);
+                }
+            }
+
+            libmei.AddChild(nobj, modifier);
+        }
+        else
+        {
+            warnings = Self._property:warnings;
+            warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+        }
+        
+    }
+    
 } //$end
 
 function ProcessEndingSlurs (bar) {

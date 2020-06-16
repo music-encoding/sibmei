@@ -45,6 +45,8 @@ function DoExport (filename) {
     Self._property:libmei = libmei4;
     libmei.destroy();
 
+    InitGlobals();
+
     // set the active score here so we can refer to it throughout the plugin
     Self._property:ActiveScore = Sibelius.ActiveScore;
     if (Self._property:ActiveScore = null)
