@@ -13,22 +13,22 @@ function InitTextHandlers() {
 
     Self._property:TextSubstituteMap = CreateDictionary(
         'Title', CreateSparseArray('Title'),
-        'Subtitle', CreateSparseArray('Title', 'type', 'subordinate'),
+        'Subtitle', CreateSparseArray('Title', CreateDictionary('type', 'subordinate')),
         'Dedication', CreateSparseArray('Dedication'),
         // <composer>, <arranger>, <lyricist>, <userRestrict> and <publisher>
         // are only allowed in a few places, e.g. metadata or title pages.
-        // We therfore use mor generic elements
-        'Composer', CreateSparseArray('PersName', 'role', 'Composer'),
-        'Arranger', CreateSparseArray('PersName', 'role', 'Arranger'),
-        'Lyricist', CreateSparseArray('PersName', 'role', 'Lyricist'),
-        'Artist', CreateSparseArray('PersName', 'role', 'Artist'),
+        // We therfore use more generic elements
+        'Composer', CreateSparseArray('PersName', CreateDictionary('role', 'Composer')),
+        'Arranger', CreateSparseArray('PersName', CreateDictionary('role', 'Arranger')),
+        'Lyricist', CreateSparseArray('PersName', CreateDictionary('role', 'Lyricist')),
+        'Artist', CreateSparseArray('PersName', CreateDictionary('role', 'Artist')),
         // <useRestrict> is only allowed on <titlePage>, so use generic element
-        'Copyright', CreateSparseArray('Seg', 'type', 'Copyright'),
+        'Copyright', CreateSparseArray('Seg', CreateDictionary('type', 'Copyright')),
         // <publisher> is only allowed in a few places, so use generic element
         // We don't even know if it's a person or an institution
-        'Publisher', CreateSparseArray('Seg', 'type', 'Publisher'),
-        'MoreInfo', CreateSparseArray('Seg', 'type', 'MoreInfo'),
-        'PartName', CreateSparseArray('Seg', 'type', 'PartName')
+        'Publisher', CreateSparseArray('Seg', CreateDictionary('type', 'Publisher')),
+        'MoreInfo', CreateSparseArray('Seg', CreateDictionary('type', 'MoreInfo')),
+        'PartName', CreateSparseArray('Seg', CreateDictionary('type', 'PartName'))
     );
 }  //$end
 
@@ -442,14 +442,8 @@ function AppendTextSubstitute (state, substituteName) {
         return null;
     }
 
-    elementName = textSubstituteInfo[0];
-    element = libmei.@elementName();
+    element = DataToMEI(textSubstituteInfo);
     state.nodes.Push(element);
-    for i = 1 to textSubstituteInfo.Length step 2
-    {
-        libmei.AddAttribute(element, textSubstituteInfo[i], textSubstituteInfo[i + 1]);
-    }
-
 
     styleAttributes = GetStyleAttributes(state);
     rendElement = null;
