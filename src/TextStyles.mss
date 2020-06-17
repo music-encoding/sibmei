@@ -404,12 +404,21 @@ function GetStyleAttributes (state) {
     if (null != state.rendFlags)
     {
         rendAttValue = '';
+        firstRendFlag = true;
         for each Name flagName in state.rendFlags
         {
             flagActive = state.rendFlags[flagName];
             if (flagActive)
             {
-                rendAttValue = rendAttValue & flagName & ' ';
+                if (firstRendFlag = true)
+                {
+                    rendAttValue = rendAttValue & flagName;    
+                    firstRendFlag = false;
+                }
+                else
+                {
+                    rendAttValue = rendAttValue & ' ' & flagName;
+                }
             }
         }
         if (rendAttValue != '')
