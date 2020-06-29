@@ -13,15 +13,31 @@ describe("Text elements", function() {
     });
     it("check for <tempo> in measure 6", function() {
         const tempo = xpath.evaluateXPath("//*:measure[@n='6']/*:tempo", meiText);
-        assert.notStrictEqual(tempo.length, null ,"<tempo> in measure 6 is missing");
+        assert.notStrictEqual(tempo.length, 0 ,"<tempo> in measure 6 is missing");
     });
     // test for dynam
     it("two <dynam> elements", function() {
         const dynams = xpath.evaluateXPath("//*:dynam", meiText);
-        assert.strictEqual(dynams.length,2,"there should be 2 <dynam> elements");
+        assert.strictEqual(dynams.length, 2,"there should be 2 <dynam> elements");
     });
     // test for title, subtitle & composer
-    // test for plain text
-    // test formatting: bold, subscript, superscript,italic, font change, font size
-
+    it("check for composer label in measure 1", function() {
+        const composerEl = xpath.evaluateXPath("//*:measure[@n='1']//*:persName[@role='Composer']", meiText);
+        assert.notStrictEqual(composerEl.length, 0,"The composer label is missing");
+    });
+    it("check for subordinate title in measure 1", function() {
+        const subTitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
+        assert.notStrictEqual(subTitle.length, 0, "The subtitle is missing");
+    });
+    // test for plain text (not implemented yet)
+    // test formatting: subscript, superscript
+    it("check for superscript", function() {
+        const superscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sup']", meiText);
+        assert.notStrictEqual(superscript.length, 0, "Superscript in subtitle is missing");
+    });
+    it("check for subscript", function() {
+        const subscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sub']", meiText);
+        assert.notStrictEqual(subscript.length, 0, "Subscript in subtitle is missing");
+    });
+    // test formatting: bold, italic, font change, font size
 });
