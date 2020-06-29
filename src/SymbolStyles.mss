@@ -6,13 +6,56 @@
 function InitSymbolHandlers () {
     //$module(SymbolStyles.mss)
 
-    // Create a dictionary with symbol index number as key (sobj.Index) and a value that determines the element that has to be created
-    // All the symbols defined here should be created as children of note elements (modifier)
-    // Artic() is the element that has to be created like -> modifier = libmei.Artic();
-    // Every other SparseArray determines an attribute that needs to be added to modifier
-    // E.g.: '52' becomes <artic artic='heel' />
+    symbIndexHandler = CreateDictionary(
+        '36', 'HandleControlEvents',                //inverted mordent
+        '37', 'HandleControlEvents',                //mordent
+        '38', 'HandleControlEvents',                //turn
+        '39', 'HandleControlEvents',                //inverted turn
+        '52', 'HandleModifier',                     //heel
+        '53', 'HandleModifier',                     //heel (2) (was toe in previous version, but this seems to be wrong)
+        '54', 'HandleModifier',                     //toe
+        '160', 'HandleModifier',                    //stop
+        '162', 'HandleModifier',                    //open
+        '163', 'HandleModifier',                    //damp
+        '164', 'HandleModifier',                    //damp (2)
+        '165', 'HandleModifier',                    //damp (3)
+        '166', 'HandleModifier',                    //damp (4)
+        '212', 'HandleModifier',                    //ten above
+        '214', 'HandleModifier',                    //marc above
+        '217', 'HandleModifier',                    //upbow above
+        '218', 'HandleModifier',                    //dnbow above
+        '233', 'HandleModifier',                    //upbow below
+        '234', 'HandleModifier',                    //dnbow below
+        '243', 'HandleModifier',                    //snap
+        '480', 'HandleModifier',                    //scoop
+        '481', 'HandleModifier',                    //fall
+        '490', 'HandleModifier',                    //fingernail
+        '494', 'HandleModifier',                    //doit
+        '495', 'HandleModifier'                     //plop
+    );
 
-     Self._property:ModifierMap = CreateDictionary(
+    if(Self._property:SymbolIndexHandlers = null)
+    {
+        /*symbMethods = CreateDictionary();
+
+        for each Pair symb in symbIndexHandler
+        {
+            symbMethods.SetMethod(symb.Name, Self, symb.Value);
+        }*/
+
+        Self._property:SymbolIndexHandlers = symbIndexHandler;
+    }
+
+    // Create a dictionary with symbol index number as key (sobj.Index) and a value that determines the element that has to be created
+    // 0th element in SparseArray is the element name as function call
+    // following Dictionary contains attributes
+    // TODO: key, CreateDictionary(Element, CreateDictionary(attname, attvalue))
+
+     symbIndexMap = CreateDictionary(
+        '36', CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),                  //inverted mordent
+        '37', CreateSparseArray('Mordent', CreateDictionary('form','upper')),                   //mordent
+        '38', CreateSparseArray('Turn', CreateDictionary('form', 'upper')),                     //turn
+        '39', CreateSparseArray('Turn', CreateDictionary('form', 'lower')),                     //inverted turn
         '52', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel
         '53', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel (2) (was toe in previous version, but this seems to be wrong)
         '54', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe
@@ -34,30 +77,16 @@ function InitSymbolHandlers () {
         '490', CreateSparseArray('Artic', CreateDictionary('artic','fingernail')),              //fingernail
         '494', CreateSparseArray('Artic', CreateDictionary('artic','doit')),                    //doit
         '495', CreateSparseArray('Artic', CreateDictionary('artic','plop'))                     //plop
-    );
+    );  
 
-    // Create a dictionary with symbol index number as key (sobj.Index) and a value that determines the element that has to be created
-    // All the symbols defined here should be created as children of measure (control events)
-    // Turn() is the element that has to be created like -> controlEvent = libmei.Turn();
-    // Every other SparseArray determines an attribute that needs to be added to modifier
-    // E.g.: '36' becomes <turn form='lower' />
-
-    Self._property:ControlEventMap = CreateDictionary(
-        '36', CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),      //inverted mordent
-        '37', CreateSparseArray('Mordent', CreateDictionary('form','upper')),       //mordent
-        '38', CreateSparseArray('Turn', CreateDictionary('form', 'upper')),         //turn
-        '39', CreateSparseArray('Turn', CreateDictionary('form', 'lower'))          //inverted turn
-    );    
-
-    /*if (Self._property:ModifierMap = null) 
+    if(Self._property:SymbolIndexMap = null)
     {
-        Self._property:ModifierMap = modifierMap;
+        Self._property:SymbolIndexMap = symbIndexMap;
     }
 
-    if (Self._property:ControlEventMap = null)
-    {
-        Self._property:ControlEventMap = controlEventMap;
-    }*/
+    // Dictionary to handle symbols by name
+    Self._property:SymbolNameHandlers = CreateDictionary();
+    Self._property:SymbolNameMap = CreateDictionary();
 
 }//$end
 
@@ -86,20 +115,15 @@ function HandleSymbol (sobj) {
         mlines.Push(trill._id);
     }
 
-    // load symbol style dictionaries
-    modifierMap = Self._property:ModifierMap;
-    controlEventMap = Self._property:ControlEventMap;
+    // get SymbolIndexHandlers and SymbolIndexMap
+    symbolHandlers = Self._property:SymbolIndexHandlers;
+    symbolMap = Self._property:SymbolIndexMap;
 
-    // iterate over controlEventMap to process symbols that belong to measure
-    if(controlEventMap.PropertyExists(sobj.Index))
+    // look for symbol in SymbolIndexHandlers
+    if(symbolHandlers.PropertyExists(sobj.Index))
     {
-        HandleControlEvents(sobj,controlEventMap[sobj.Index]);
-    }
-
-    // iterate over modifierMap to process symbols that belong to a single note
-    if(modifierMap.PropertyExists(sobj.Index))
-    {
-        HandleModifier(sobj,modifierMap[sobj.Index]);
+        handler = symbolHandlers[sobj.Index];
+        @handler(sobj, symbolMap[sobj.Index]);
     }
     
 } //$end
