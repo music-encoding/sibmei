@@ -728,7 +728,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each SymbolItem sobj in bar
     {
-        ProcessSymbol(sobj);
+        HandleSymbol(sobj);
     }
 
     ProcessEndingSlurs(bar);

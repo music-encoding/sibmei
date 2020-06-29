@@ -32,13 +32,6 @@ function InitGlobals () {
     );
 
     // Initialize symbol styles
-    if (Self._property:ModifierMap = null)
-        {
-            Self._property:ModifierMap = InitModifierSymbols();
-        }
-    if (Self._property:ControlEventMap = null)
-        {
-            Self._property:ControlEventMap = InitControlEventSymbols();
-        }
+    InitSymbolHandlers();
 
 }  //$end
