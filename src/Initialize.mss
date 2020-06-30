@@ -1,4 +1,5 @@
 function Initialize() {
+    //$module(Initialize.mss)
     Self._property:Logfile = GetTempDir() & LOGFILE;
 
     AddToPluginsMenu(PluginName,'Run');
@@ -6,6 +7,7 @@ function Initialize() {
 
 
 function InitGlobals () {
+    //$module(Initialize.mss)
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);
@@ -32,6 +34,26 @@ function InitGlobals () {
     );
 
     // Initialize symbol styles
-    InitSymbolHandlers();
+    Self._property:SymbolHandlers = InitSymbolHandlers();
+    Self._property:SymbolMap = InitSymbolMap();
 
 }  //$end
+
+function RegisterHandlers(handlers, handlerDefinitions, plugin) {
+    //$module(Initialize.mss)
+    // Text handlers can be registered by 'idType' StyleId or StyleAsText
+    // Symbol handlers can be registered by 'idType' Index or Name
+
+    for each Name idType in handlers
+    {
+        if (null != handlerDefinitions[idType])
+        {
+            handle = handlers[idType];
+            for each Name id in handlerDefinitions[idType]
+            {
+                handle.SetMethod(id, plugin, handlerDefinitions[idType].@id);
+            }
+        }
+    }
+
+}   //$end
