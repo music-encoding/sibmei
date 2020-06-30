@@ -7,10 +7,10 @@ function InitSymbolHandlers () {
     //$module(SymbolStyles.mss)
 
     symbIndexHandler = CreateDictionary(
-        '36', 'HandleControlEvents',                //inverted mordent
-        '37', 'HandleControlEvents',                //mordent
-        '38', 'HandleControlEvents',                //turn
-        '39', 'HandleControlEvents',                //inverted turn
+        '36', 'HandleControlEvent',                 //inverted mordent
+        '37', 'HandleControlEvent',                 //mordent
+        '38', 'HandleControlEvent',                 //turn
+        '39', 'HandleControlEvent',                 //inverted turn
         '52', 'HandleModifier',                     //heel
         '53', 'HandleModifier',                     //heel (2) (was toe in previous version, but this seems to be wrong)
         '54', 'HandleModifier',                     //toe
@@ -159,7 +159,7 @@ function HandleModifier(sobj, mapValue){
 
 }   //$end
 
-function HandleControlEvents(sobj, mapValue){
+function HandleControlEvent(sobj, mapValue){
     //$module(SymbolStyles.mss)
 
     makeElement = mapValue[0];
