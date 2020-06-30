@@ -136,23 +136,11 @@ function HandleSymbol (sobj) {
 function HandleModifier(this, sobj, mapValue){
     //$module(SymbolHandler.mss)
 
-    makeElement = mapValue[0];
-
     nobj = GetNoteObjectAtPosition(sobj);
 
     if (nobj != null)
     {
-        modifier = libmei.@makeElement();
-
-        // add attributes
-        if (mapValue.Length = 2)
-        {
-            atts = mapValue[1];
-            for each Pair att in atts
-            {
-                libmei.AddAttribute(modifier, att.Name, att.Value);
-            }
-        }
+        modifier = DataToMEI(mapValue);
 
         libmei.AddChild(nobj, modifier);
     }
@@ -167,19 +155,7 @@ function HandleModifier(this, sobj, mapValue){
 function HandleControlEvent(this, sobj, mapValue){
     //$module(SymbolHandler.mss)
 
-    makeElement = mapValue[0];
-
-    symbol = libmei.@makeElement();
-
-    // add attributes if necessary
-    if (mapValue.Length = 2)
-    {
-        atts = mapValue[1];
-        for each Pair att in atts
-        {
-            libmei.AddAttribute(symbol, att.Name, att.Value);
-        }
-    }
+    symbol = DataToMEI(mapValue);
 
     symbol = AddBarObjectInfoToElement(sobj, symbol);
     mlines = Self._property:MeasureObjects;
