@@ -125,13 +125,13 @@ function ChooseExtensions () {
 }  //$end
 
 
-function ActivateAllExtensions () {
+function SelectAllExtensions () {
     SelectedExtensions = AvailableExtensions;
     Sibelius.RefreshDialog();
 }  //$end
 
 
-function DeactivateAllExtensions () {
+function DeselectAllExtensions () {
     SelectedExtensions = CreateHash();
     Sibelius.RefreshDialog();
 }  //$end
