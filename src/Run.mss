@@ -25,6 +25,8 @@ function Run() {
     activeFileName = utils.ExtractFileName(activeFileNameFull);
     activePath = Sibelius.GetDocumentsFolder();
 
+    ChooseExtensions();
+
     // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
 
@@ -87,4 +89,49 @@ function DoExport (filename) {
 
     // clean up after ourself
     libmei.destroy();
+}  //$end
+
+
+function ChooseExtensions () {
+    AvailableExtensions = CreateHash();
+    extensionErrors = RegisterExtensions();
+    if (extensionErrors != '')
+    {
+        Sibelius.MessageBox(extensionErrors);
+    }
+    if (not Sibelius.ShowDialog(ExtensionDialog, Self))
+    {
+        return null;
+    }
+    // Unfortunately, SelectedExtensions only has the values from the AvailableExtensions
+    // object.
+    extensionIsSelected = CreateDictionary();
+    for each extension in SelectedExtensions
+    {
+        extensionIsSelected[extension] = true;
+    }
+    for each extension in AvailableExtensions
+    {
+        // Cast TreeNode Hash object to its string value
+        fullExtensionName = extension & '';
+        if (extensionIsSelected[extension])
+        {
+            plgName = extension.Label;
+            // TODO: Register all symbol and text handlers provided by this
+            // plugin
+            Trace(plgName);
+        }
+    }
+}  //$end
+
+
+function ActivateAllExtensions () {
+    SelectedExtensions = AvailableExtensions;
+    Sibelius.RefreshDialog();
+}  //$end
+
+
+function DeactivateAllExtensions () {
+    SelectedExtensions = CreateHash();
+    Sibelius.RefreshDialog();
 }  //$end

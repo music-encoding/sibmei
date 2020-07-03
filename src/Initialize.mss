@@ -57,3 +57,55 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
     }
 
 }   //$end
+
+
+function RegisterExtensions () {
+    // Stores any found extensions in the global AvailableExtensions TreeDict
+    // Hash object. Keys are the names by which they can be be referenced in
+    // ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`. Values are
+    // the full name that is displayed to the user.
+
+    apiSemver = SplitString(ExtensionAPIVersion, '.');
+    errors = '';
+
+    for each pluginObject in Sibelius.Plugins
+    {
+        if (pluginObject.DataExists('SibmeiExtensionAPIVersion'))
+        {
+            plgName = pluginObject.File.NameNoPath;
+            extensionSemver = SplitString(@plgName.SibmeiExtensionAPIVersion, '.');
+
+            switch (true)
+            {
+                case (extensionSemver.NumChildren != 3)
+                {
+                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`';
+                }
+                case ((apiSemver[0] = extensionSemver[0]) and (apiSemver[1] >= extensionSemver[1]))
+                {
+                    error = null;
+                }
+                case ((apiSemver[0] < extensionSemver[0]) or (apiSemver[1] < extensionSemver[1]))
+                {
+                    error = 'Extension %s requires Sibmei to be updated to a newer version';
+                }
+                default
+                {
+                    error = 'Extension %s needs to be updated to be compatible with the current Sibmei version';
+                }
+            }
+
+            if (null = error)
+            {
+                // Storing key/value pairs in old-style Hash TreeNodes needs @-indirection
+                AvailableExtensions.@plgName = pluginObject.Name;
+            }
+            else
+            {
+                errors = errors & utils.Format(error, plgName) & '\n';
+            }
+        }
+    }
+
+    return errors;
+}  //$end

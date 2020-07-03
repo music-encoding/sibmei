@@ -1,6 +1,7 @@
 Version     "4.0.0"
 PluginName  "Sibelius to MEI 4 Exporter"
 Author      "Andrew Hankinson"
+ExtensionAPIVersion "1.0.0"
 
 _InitialProgressTitle "Exporting %s to MEI"
 _ExportFileIsNull "You must specify a file to save."
@@ -16,3 +17,6 @@ _ObjectIsOnAnIllogicalObject "Bar %s, voice %s. %s is added to a %s object. This
 _ObjectCouldNotFindAttachment "Bar %s, voice %s. %s could not be attached to a Note object, so it will not appear in the output."
 
 LOGFILE "sibelius.log"
+
+AvailableExtensions
+SelectedExtensions

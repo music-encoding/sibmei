@@ -412,7 +412,7 @@ function GetStyleAttributes (state) {
             {
                 if (firstRendFlag = true)
                 {
-                    rendAttValue = rendAttValue & flagName;    
+                    rendAttValue = rendAttValue & flagName;
                     firstRendFlag = false;
                 }
                 else
