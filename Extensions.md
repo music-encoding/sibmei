@@ -63,6 +63,8 @@ Register your symbol and text handlers in this function.
    If no symbols are registered by either `Name` or `Index` property, the
    respective sub-dictionaries can be omitted.
 
+   Second argument must be `Self`.
+
 * **`RegisterTextHandlers()`**: Works the same way as
    `RegisterSymbolHandlers()`, with the difference that sub-Dictionary keys are
    `StyleId` and `StyleAsText` instead of `Index` and `Name`. Always use

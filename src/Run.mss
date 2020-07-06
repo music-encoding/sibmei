@@ -25,7 +25,10 @@ function Run() {
     activeFileName = utils.ExtractFileName(activeFileNameFull);
     activePath = Sibelius.GetDocumentsFolder();
 
-    ChooseExtensions();
+    if (not InitGlobals())
+    {
+        return false;
+    }
 
     // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
@@ -43,11 +46,15 @@ function Run() {
 function DoExport (filename) {
     //$module(Run.mss)
 
+    if (not Self._property:_Initialized)
+    {
+        Trace('InitGlobals() must be called before running DoExport()');
+        return null;
+    }
+
     // first, ensure we're running with a clean slate.
     Self._property:libmei = libmei4;
     libmei.destroy();
-
-    InitGlobals();
 
     // set the active score here so we can refer to it throughout the plugin
     Self._property:ActiveScore = Sibelius.ActiveScore;
@@ -89,49 +96,4 @@ function DoExport (filename) {
 
     // clean up after ourself
     libmei.destroy();
-}  //$end
-
-
-function ChooseExtensions () {
-    AvailableExtensions = CreateHash();
-    extensionErrors = RegisterExtensions();
-    if (extensionErrors != '')
-    {
-        Sibelius.MessageBox(extensionErrors);
-    }
-    if (not Sibelius.ShowDialog(ExtensionDialog, Self))
-    {
-        return null;
-    }
-    // Unfortunately, SelectedExtensions only has the values from the AvailableExtensions
-    // object.
-    extensionIsSelected = CreateDictionary();
-    for each extension in SelectedExtensions
-    {
-        extensionIsSelected[extension] = true;
-    }
-    for each extension in AvailableExtensions
-    {
-        // Cast TreeNode Hash object to its string value
-        fullExtensionName = extension & '';
-        if (extensionIsSelected[extension])
-        {
-            plgName = extension.Label;
-            // TODO: Register all symbol and text handlers provided by this
-            // plugin
-            Trace(plgName);
-        }
-    }
-}  //$end
-
-
-function SelectAllExtensions () {
-    SelectedExtensions = AvailableExtensions;
-    Sibelius.RefreshDialog();
-}  //$end
-
-
-function DeselectAllExtensions () {
-    SelectedExtensions = CreateHash();
-    Sibelius.RefreshDialog();
 }  //$end

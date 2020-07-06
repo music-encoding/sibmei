@@ -23,6 +23,8 @@
         }
         else
         {
+            sibmei4.InitGlobals();
+
             // count files for progress dialog
             numFiles = folder.FileCount('SIB');
             index = 0;

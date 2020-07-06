@@ -38,10 +38,10 @@ function InitSymbolHandlers () {
             '490', 'HandleModifier',                    //fingernail
             '494', 'HandleModifier',                    //doit
             '495', 'HandleModifier'                     //plop
-        ),
-        'Name', CreateDictionary(
-            'Pedal', 'HandleControlEvent'
         )
+        // 'Name', CreateDictionary(
+        //     'Pedal', 'HandleControlEvent'
+        // )
     ), Self);
 
     return symbolHandlers;
@@ -80,9 +80,9 @@ function InitSymbolMap () {
         '481', CreateSparseArray('Artic', CreateDictionary('artic','fall')),                    //fall
         '490', CreateSparseArray('Artic', CreateDictionary('artic','fingernail')),              //fingernail
         '494', CreateSparseArray('Artic', CreateDictionary('artic','doit')),                    //doit
-        '495', CreateSparseArray('Artic', CreateDictionary('artic','plop')),                    //plop
-        'Pedal', CreateSparseArray('Pedal', CreateDictionary('dir', 'down', 'func', 'sustain')) //Pedal
-    );  
+        '495', CreateSparseArray('Artic', CreateDictionary('artic','plop'))                     //plop
+        // 'Pedal', CreateSparseArray('Pedal', CreateDictionary('dir', 'down', 'func', 'sustain')) //Pedal
+    );
 
 }   //$end
 
