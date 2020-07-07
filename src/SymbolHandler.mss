@@ -150,6 +150,8 @@ function HandleModifier(this, sobj, mapValue){
         warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
     }
 
+    return modifier;
+
 }   //$end
 
 function HandleControlEvent(this, sobj, mapValue){
@@ -160,5 +162,7 @@ function HandleControlEvent(this, sobj, mapValue){
     symbol = AddBarObjectInfoToElement(sobj, symbol);
     mlines = Self._property:MeasureObjects;
     mlines.Push(symbol._id);
+
+    return symbol;
 
 }   //$end

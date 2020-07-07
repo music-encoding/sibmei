@@ -22,11 +22,10 @@
 
   }"
 
-  HandleMySymbol "(obj) {
-    symbolElement = api.MeiFactory(MySymbolTemplate);
+  HandleMySymbol "(self, obj) {
+    symbolElement = api.HandleControlEvent(obj, MySymbolTemplate);
     if (obj.ColorRed = 255) {
       libmei.AddAttribute(symbolElement, 'type', 'myRedType');
     }
-    return symbolElement;
   }"
 }

@@ -121,7 +121,6 @@ function InitExtensions () {
 
     for each Name plgName in chosenExtensions
     {
-        Trace(plgName);
         @plgName.InitSibmeiExtension(apiObject);
     }
 
@@ -133,7 +132,9 @@ function CreateApiObject () {
     apiObject = CreateDictionary('libmei', libmei);
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
-    apiObject.SetMethod('MeiFactory', Self, 'ExtenionAPI_MeiFactory');
+    apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
+    apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
+    apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
     return apiObject;
 }  //$end
 
@@ -145,6 +146,6 @@ function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
     RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin);
 }  //$end
 
-function MeiFactory (this, templateObject) {
+function ExtensionAPI_MeiFactory (this, templateObject) {
     DataToMEI(templateObject);
 }  //$end
