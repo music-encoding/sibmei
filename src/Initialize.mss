@@ -8,6 +8,10 @@ function Initialize() {
 
 function InitGlobals () {
     //$module(Initialize.mss)
+    
+    // initialize libmei as soon as possible
+    Self._property:libmei = libmei4;
+    
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);

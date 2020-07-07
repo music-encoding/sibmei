@@ -53,7 +53,7 @@ function DoExport (filename) {
     }
 
     // first, ensure we're running with a clean slate.
-    Self._property:libmei = libmei4;
+    // (initialization of libmei has moved to InitGlobals())
     libmei.destroy();
 
     // set the active score here so we can refer to it throughout the plugin
