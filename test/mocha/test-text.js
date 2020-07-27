@@ -30,6 +30,10 @@ describe("Text elements", function() {
         assert.notStrictEqual(subTitle.length, 0, "The subtitle is missing");
     });
     // test for plain text (not implemented yet)
+    it("check for plain text in measure 2", function() {
+        const plain = xpath.evaluateXPath("//*:measure[@n='2']/*:anchoredText", meiText);
+        assert.notStrictEqual(plain.length, 0 ,"plain text in measure 2 is missing");
+    });
     // test formatting: subscript, superscript
     it("check for superscript", function() {
         const superscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sup']", meiText);
