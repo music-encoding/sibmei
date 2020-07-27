@@ -8,7 +8,8 @@ function InitTextHandlers() {
         'text.system.page_aligned.subtitle', 'PageTitleHandler',
         'text.system.page_aligned.composer', 'PageComposerTextHandler',
         'text.system.tempo', 'TempoTextHandler',
-        'text.staff.space.figuredbass', 'FiguredBassTextHandler'
+        'text.staff.space.figuredbass', 'FiguredBassTextHandler',
+        'text.staff.plain', 'CreateAnchoredText'
     );
 
     Self._property:TextSubstituteMap = CreateDictionary(
