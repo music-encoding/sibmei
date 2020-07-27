@@ -87,7 +87,7 @@ function PageComposerTextHandler (textObject) {
 function TempoTextHandler (textObject) {
     // 'text.system.tempo'
     tempo = libmei.Tempo();
-    libmei.AddChild(tempo, CreateAnchoredText(textObject));
+    AddFormattedText(tempo, textObject);
     return tempo;
 }  //$end
 
