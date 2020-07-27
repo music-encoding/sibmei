@@ -39,5 +39,10 @@ describe("Text elements", function() {
         const subscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sub']", meiText);
         assert.notStrictEqual(subscript.length, 0, "Subscript in subtitle is missing");
     });
+    // check for front matter
+    it("check for front matter", function() {
+        const firstMusicChild = xpath.evaluateXPath("//*:music/element()[1]", meiText);
+        assert.strictEqual(firstMusicChild.localName, "front");
+    });
     // test formatting: bold, italic, font change, font size
 });
