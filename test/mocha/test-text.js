@@ -48,5 +48,36 @@ describe("Text elements", function() {
         const firstMusicChild = xpath.evaluateXPath("//*:music/element()[1]", meiText);
         assert.strictEqual(firstMusicChild.localName, "front");
     });
-    // test formatting: bold, italic, font change, font size
+    // test formatting: these tests all depend on the test file looking like this, working with content querying
+    // make sure that no false positives occur by checking for the length of the arrays first...
+    // bold: "Title text" @fontweight="bold"
+    it("check for bold text", function() {
+        const bold = xpath.evaluateXPath("//*:rend[./text()='Title text' or ./text()='poco']", meiText);
+        assert.strictEqual(bold.length, 2, "There are only " + bold.length + " elements queried!");
+        utils.assertAttrOnElements(bold, [0, 1], "fontweight", "bold");
+    });
+    // italic: "Subtitle Text" @fontstyle="italic"
+    it("check for italic text", function() {
+        const subtitleText = xpath.evaluateXPath("//*:rend[./text()='Subtitle Text']", meiText);
+        assert.notStrictEqual(subtitleText.length, 0, "No matching elements to assert were found!");
+        utils.assertAttrOnElements(subtitleText, [0], "fontstyle", "italic");
+    });
+    // underline: "underlined for me" @rend="underline"
+    it("check for underlined text", function() {
+        const underline = xpath.evaluateXPath("//*:rend[./text()='underlined for me']", meiText);
+        assert.notStrictEqual(underline.length, 0, "No matching elements to assert were found!");
+        utils.assertAttrOnElements(underline, [0], "rend", "underline");
+    });
+    // font change: @fontfam "change " & "the font"
+    it("check for font change", function() {
+        const changeTheFont = xpath.evaluateXPath("//*:rend[./text()='change ' or ./text()='the font']", meiText);
+        assert.strictEqual(changeTheFont.length, 2, "There are only " + changeTheFont.length + " elements queried!");
+        utils.assertHasAttr(changeTheFont, "fontfam");
+    });
+    // font size: @fontsize "larger"
+    it("check for font size", function() {
+        const larger = xpath.evaluateXPath("//*:rend[./text()='larger']", meiText);
+        assert.notStrictEqual(larger.length, 0, "No matching elements to assert were found!");
+        utils.assertHasAttr(larger, "fontsize");
+    });
 });
