@@ -52,8 +52,7 @@ function InitSymbolMap () {
     //$module(SymbolHandler.mss)
     // Create a dictionary with symbol index number as key (sobj.Index) and a value that determines the element that has to be created
     // 0th element in SparseArray is the element name as function call
-    // following Dictionary contains attributes
-    // TODO: key, CreateDictionary(Element, CreateDictionary(attname, attvalue))
+    // see for further instructions Utilities/MeiFactory()
 
      return CreateDictionary(
         '36', CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),                  //inverted mordent
