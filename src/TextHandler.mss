@@ -2,7 +2,7 @@ function InitTextHandlers() {
     // QUESTION: We could also take an argument and throw all text handlers from
     // extensions into the same dictionary
 
-    Self._property:TextHandlers = CreateDictionary(
+    return CreateDictionary(
         'text.staff.expression', 'ExpressionTextHandler',
         'text.system.page_aligned.title', 'PageTitleHandler',
         'text.system.page_aligned.subtitle', 'PageTitleHandler',
@@ -11,8 +11,10 @@ function InitTextHandlers() {
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.plain', 'CreateAnchoredText'
     );
+}  //$end
 
-    Self._property:TextSubstituteMap = CreateDictionary(
+function InitTextSubstituteMap() {
+    return CreateDictionary(
         'Title', CreateSparseArray('Title'),
         'Subtitle', CreateSparseArray('Title', CreateDictionary('type', 'subordinate')),
         'Dedication', CreateSparseArray('Dedication'),
@@ -35,8 +37,6 @@ function InitTextHandlers() {
 
 
 function HandleText (textObject) {
-    // TODO: Move InitTextHandlers() call to a global initialization function
-    InitTextHandlers();
     if (null != Self._property:Extension and null != Extension.TextHandlers)
     {
         // TODO: We need to check for both StyleId *and* StyleAsText so we can

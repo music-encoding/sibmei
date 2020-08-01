@@ -43,6 +43,8 @@ function InitGlobals (extensions) {
     // Initialize symbol styles
     Self._property:SymbolHandlers = InitSymbolHandlers();
     Self._property:SymbolMap = InitSymbolMap();
+    Self._property:TextHandlers = InitTextHandlers();
+    Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
     if (not InitExtensions(extensions))
     {
