@@ -99,7 +99,13 @@ function DeselectAllExtensions () {
 }  //$end
 
 
-function InitExtensions () {
+function InitExtensions (extensions) {
+    // To let the user choose extensions via dialog, pass `null` as argument.
+    // If extensions should be activated without showing the  dialog, pass a
+    // SparseArray with the 'PLG names' of the extensions, i.e. the names that
+    // `RegisterAvailableExtensions()` will use as keys. This is useful e.g.
+    // for running tests without requiring user interaction.
+    //
     // Returns false if the user aborted the selection of extensions or if there
     // are any errors, otherwise returns true.
 
@@ -112,9 +118,17 @@ function InitExtensions () {
     }
 
     chosenExtensions = CreateDictionary();
-    if (not ChooseExtensions(AvailableExtensions, chosenExtensions))
+    if (null = extensions)
     {
-        return false;
+        if (not ChooseExtensions(AvailableExtensions, chosenExtensions))
+        {
+            return false;
+        }
+    } else {
+        for each plgName in extensions
+        {
+            chosenExtensions[plgName] = AvailableExtensions[plgName];
+        }
     }
 
     apiObject = CreateApiObject();

@@ -2,7 +2,7 @@ function Run() {
   Self._property:libmei = libmei4;
   Self._property:sibmei = sibmei4;
   sibmei4._property:libmei = libmei;
-  sibmei.InitGlobals();
+  sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
 
   plugins = Sibelius.Plugins;
 
@@ -38,7 +38,7 @@ function Run() {
 
   suite.Run();
 
-  sibmei4_batch_sib.ConvertFolder(Sibelius.GetFolder(_SibTestFileDirectory));
+  sibmei4_batch_sib.ConvertFolder(Sibelius.GetFolder(_SibTestFileDirectory), extensions);
 
   // We do not 'clean up' with Sibelius.CloseAllWindows() here because it
   // sometimes causes Sibelius crashes.

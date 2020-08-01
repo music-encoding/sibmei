@@ -11,7 +11,7 @@
 
         if (IsObject(folder))
         {
-            sibmei4.InitGlobals();
+            sibmei4.InitGlobals(null);
 
             // count files for progress dialog
             numFiles = folder.FileCount('XML');

@@ -25,7 +25,7 @@ function Run() {
     activeFileName = utils.ExtractFileName(activeFileNameFull);
     activePath = Sibelius.GetDocumentsFolder();
 
-    if (not InitGlobals())
+    if (not InitGlobals(null))
     {
         return false;
     }

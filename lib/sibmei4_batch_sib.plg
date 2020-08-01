@@ -10,11 +10,11 @@
         folder = Sibelius.SelectFolder();
         if (null != folder)
         {
-            ConvertFolder(folder);
+            ConvertFolder(folder, null);
         }
     }"
 
-    ConvertFolder "(folder)
+    ConvertFolder "(folder, extensions)
     {
 
         if (not IsObject(folder))
@@ -23,7 +23,7 @@
         }
         else
         {
-            sibmei4.InitGlobals();
+            sibmei4.InitGlobals(extensions);
 
             // count files for progress dialog
             numFiles = folder.FileCount('SIB');
