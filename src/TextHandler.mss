@@ -452,7 +452,7 @@ function AppendTextSubstitute (state, substituteName) {
         return null;
     }
 
-    element = DataToMEI(textSubstituteInfo);
+    element = MeiFactory(textSubstituteInfo);
     state.nodes.Push(element);
 
     styleAttributes = GetStyleAttributes(state);

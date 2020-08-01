@@ -139,7 +139,7 @@ function HandleModifier(this, sobj, mapValue){
 
     if (nobj != null)
     {
-        modifier = DataToMEI(mapValue);
+        modifier = MeiFactory(mapValue);
 
         libmei.AddChild(nobj, modifier);
     }
@@ -156,7 +156,7 @@ function HandleModifier(this, sobj, mapValue){
 function HandleControlEvent(this, sobj, mapValue){
     //$module(SymbolHandler.mss)
 
-    symbol = DataToMEI(mapValue);
+    symbol = MeiFactory(mapValue);
 
     symbol = AddBarObjectInfoToElement(sobj, symbol);
     mlines = Self._property:MeasureObjects;

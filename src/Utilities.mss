@@ -824,7 +824,7 @@ function AppendToLayer (meielement, l, beam, tuplet) {
 }  //$end
 
 
-function DataToMEI (data) {
+function MeiFactory (data) {
     /*
         Allows creating MEI from data structures, e.g. for templating purposes.
         Takes an array with the following content:
@@ -843,7 +843,7 @@ function DataToMEI (data) {
 
         Example:
 
-        DataToMEI(CreateSparseArray(
+        MeiFactory(CreateSparseArray(
             'P', null,
             'This is ',
             CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
@@ -878,7 +878,7 @@ function DataToMEI (data) {
             if (IsObject(childData))
             {
                 // We have a child element
-                currentChild = DataToMEI(childData);
+                currentChild = MeiFactory(childData);
                 libmei.AddChild(element, currentChild);
             }
             else

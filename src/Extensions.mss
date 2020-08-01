@@ -161,5 +161,5 @@ function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject) {
-    DataToMEI(templateObject);
+    MeiFactory(templateObject);
 }  //$end
