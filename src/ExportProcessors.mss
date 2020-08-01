@@ -406,10 +406,9 @@ function ProcessFrontMatter (bobj) {
         libmei.AddAttribute(pb, 'n', pnum);
         frontmatter[pnum] = CreateSparseArray(pb);
     }
-    pagematter = frontmatter[pnum];
 
-    text = GenerateFormattedString(bobj);
-    frontmatter[pnum] = pagematter.Concat(text);
+    text = AddFormattedText(libmei.Div(), bobj);
+    frontmatter[pnum].Push(text);
 
 }  //$end
 

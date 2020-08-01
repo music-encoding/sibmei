@@ -115,7 +115,7 @@ function AddFormattedText (parentElement, textObj) {
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
         libmei.SetText(parentElement, textObj.Text);
-        return null;
+        return parentElement;
     }
 
     nodes = CreateSparseArray();
@@ -226,6 +226,8 @@ function AddFormattedText (parentElement, textObj) {
                 state.currentText = state.currentText & component;
             }
         }
+
+        return parentElement;
     }
 
     PushStyledText(state);
