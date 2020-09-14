@@ -48,8 +48,9 @@ function InitTextSubstituteMap() {
 function HandleText (textObject) {
     // Step through the different ID types ('StyleId' and 'StyleAsText') and
     // check for text handlers for this type
-    for each Name idType in TextHandlers {
-        handlersForIdType = TextHandlers.@idType;
+    textHandlers = Self._property:TextHandlers;
+    for each Name idType in textHandlers {
+        handlersForIdType = textHandlers.@idType;
         idValue = textObject.@idType;
         if(handlersForIdType.MethodExists(idValue))
         {
