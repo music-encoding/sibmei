@@ -2,15 +2,24 @@ function InitTextHandlers() {
     // QUESTION: We could also take an argument and throw all text handlers from
     // extensions into the same dictionary
 
-    return CreateDictionary(
-        'text.staff.expression', 'ExpressionTextHandler',
-        'text.system.page_aligned.title', 'PageTitleHandler',
-        'text.system.page_aligned.subtitle', 'PageTitleHandler',
-        'text.system.page_aligned.composer', 'PageComposerTextHandler',
-        'text.system.tempo', 'TempoTextHandler',
-        'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-        'text.staff.plain', 'CreateAnchoredText'
+    textHandlers = CreateDictionary(
+        'StyleId', CreateDictionary(),
+        'StyleAsText', CreateDictionary()
     );
+
+    RegisterHandlers(textHandlers, CreateDictionary(
+        'StyleId', CreateDictionary(
+            'text.staff.expression', 'ExpressionTextHandler',
+            'text.system.page_aligned.title', 'PageTitleHandler',
+            'text.system.page_aligned.subtitle', 'PageTitleHandler',
+            'text.system.page_aligned.composer', 'PageComposerTextHandler',
+            'text.system.tempo', 'TempoTextHandler',
+            'text.staff.space.figuredbass', 'FiguredBassTextHandler',
+            'text.staff.plain', 'CreateAnchoredText'
+        )
+    ), Self);
+
+    return textHandlers;
 }  //$end
 
 function InitTextSubstituteMap() {
@@ -37,33 +46,28 @@ function InitTextSubstituteMap() {
 
 
 function HandleText (textObject) {
-    if (null != Self._property:Extension and null != Extension.TextHandlers)
-    {
-        // TODO: We need to check for both StyleId *and* StyleAsText so we can
-        // handle custom styles
-        textHandler = Extension.TextHandlers[textObject.StyleId];
-        if (null != textHandler)
+    // Step through the different ID types ('StyleId' and 'StyleAsText') and
+    // check for text handlers for this type
+    textHandlers = Self._property:TextHandlers;
+    for each Name idType in textHandlers {
+        handlersForIdType = textHandlers.@idType;
+        idValue = textObject.@idType;
+        if(handlersForIdType.MethodExists(idValue))
         {
-            return Extension.@textHandler(textObject);
+            return handlersForIdType.@idValue(textObject);
         }
-    }
-
-    textHandler = TextHandlers[textObject.StyleId];
-    if (null != textHandler)
-    {
-        return @textHandler(textObject);
     }
 }  //$end
 
 
-function ExpressionTextHandler (textObject) {
+function ExpressionTextHandler (this, textObject) {
     dynam = AddBarObjectInfoToElement(textObject, libmei.Dynam());
     AddFormattedText(dynam, textObject);
     return dynam;
 }  //$end
 
 
-function PageTitleHandler (textObject) {
+function PageTitleHandler (this, textObject) {
     anchoredText = libmei.AnchoredText();
     title = libmei.Title();
     if (textObject.StyleId = 'text.system.page_aligned.subtitle')
@@ -78,13 +82,15 @@ function PageTitleHandler (textObject) {
 }  //$end
 
 
-function PageComposerTextHandler (textObject) {
+function PageComposerTextHandler (this, textObject) {
     // 'text.system.page_aligned.composer'
-    return AddBarObjectInfoToElement(textObject, CreateAnchoredText(textObject));
+    anchoredText = libmei.AnchoredText();
+    AddFormattedText(anchoredText, textObject);
+    return anchoredText;
 }  //$end
 
 
-function TempoTextHandler (textObject) {
+function TempoTextHandler (this, textObject) {
     // 'text.system.tempo'
     tempo = libmei.Tempo();
     AddFormattedText(tempo, textObject);
@@ -92,7 +98,7 @@ function TempoTextHandler (textObject) {
 }  //$end
 
 
-function FiguredBassTextHandler (textObject) {
+function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
     harm = AddBarObjectInfoToElement(textObject, libmei.Harm());
     fb = libmei.Fb();
@@ -102,7 +108,7 @@ function FiguredBassTextHandler (textObject) {
 }  //$end
 
 
-function CreateAnchoredText (textObj) {
+function CreateAnchoredText (this, textObj) {
     //$module(ExportConverters.mss)
     anchoredText = libmei.AnchoredText();
     AddFormattedText(anchoredText, textObj);
@@ -226,8 +232,6 @@ function AddFormattedText (parentElement, textObj) {
                 state.currentText = state.currentText & component;
             }
         }
-
-        return parentElement;
     }
 
     PushStyledText(state);
@@ -450,7 +454,6 @@ function AppendTextSubstitute (state, substituteName) {
 
     substitutedText = score.@substituteName;
     if (substitutedText = '') {
-        // TODO: Also check for all-whitespace text
         return null;
     }
 

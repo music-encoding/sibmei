@@ -1,70 +1,74 @@
 function Run() {
-  Self._property:libmei = libmei4;
-  Self._property:sibmei = sibmei4;
-  sibmei4._property:libmei = libmei;
-  sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
+    Self._property:libmei = libmei4;
+    Self._property:sibmei = sibmei4;
+    sibmei4._property:libmei = libmei;
+    sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
 
-  plugins = Sibelius.Plugins;
+    plugins = Sibelius.Plugins;
 
-  if (not (plugins.Contains('Test'))) {
-    Sibelius.MessageBox('Please install the Test plugin!');
-    ExitPlugin();
-  }
+    if (not (plugins.Contains('Test')))
+    {
+        Sibelius.MessageBox('Please install the Test plugin!');
+        ExitPlugin();
+    }
 
-  // In an attempt to minimize the chance of Sibelius crashing randomly, close
-  // all scores before running the tests.
-  if (not Sibelius.YesNoMessageBox(
-    'All open scores will be closed without saving before running the tests. Continue?'
-  )) {
-    ExitPlugin();
-  }
+    // In an attempt to minimize the chance of Sibelius crashing randomly, close
+    // all scores before running the tests.
+    if (not Sibelius.YesNoMessageBox(
+        'All open scores will be closed without saving before running the tests. Continue?'
+    ))
+    {
+        ExitPlugin();
+    }
 
-  Sibelius.CloseAllWindows(false);
-  Sibelius.New();
+    Sibelius.CloseAllWindows(false);
+    Sibelius.New();
 
-  Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
-  Self._property:tempDir = CreateNewTempDir();
-  Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs'
-      & Sibelius.PathSeparator;
+    Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
+    Self._property:tempDir = CreateNewTempDir();
+    Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs'  & Sibelius.PathSeparator;
 
-  suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei);
+    suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei);
 
-  suite
-    .AddModule('TestExportConverters')
-    .AddModule('TestLibmei')
-    .AddModule('TestExportGenerators')
-    .AddModule('TestUtilities')
+    suite
+        .AddModule('TestExportConverters')
+        .AddModule('TestLibmei')
+        .AddModule('TestExportGenerators')
+        .AddModule('TestUtilities')
     ;
 
-  suite.Run();
+    suite.Run();
 
-  sibmei4_batch_sib.ConvertFolder(Sibelius.GetFolder(_SibTestFileDirectory), extensions);
+    sibmei4_batch_sib.ConvertFolder(
+        Sibelius.GetFolder(_SibTestFileDirectory),
+        CreateSparseArray('sibmei4_extension_test')
+    );
 
-  // We do not 'clean up' with Sibelius.CloseAllWindows() here because it
-  // sometimes causes Sibelius crashes.
-  Trace('Run `npm test` to test output written to ' & _SibTestFileDirectory);
+    // We do not 'clean up' with Sibelius.CloseAllWindows() here because it
+    // sometimes causes Sibelius crashes.
+    Trace('Run `npm test` to test output written to ' & _SibTestFileDirectory);
 }  //$end
 
 
 function GetPluginFolder(plgName) {
-  //$module(Run.mss)
-  plgNameLength = Length(plgName);
+    //$module(Run.mss)
+    plgNameLength = Length(plgName);
 
-  for each plugin in Sibelius.Plugins
-  {
-    path = plugin.File;
-    i = Length(path) - 2;
-    while (i >= 0 and CharAt(path, i) != Sibelius.PathSeparator) {
-        i = i - 1;
+    for each plugin in Sibelius.Plugins
+    {
+        path = plugin.File;
+        i = Length(path) - 2;
+        while (i >= 0 and CharAt(path, i) != Sibelius.PathSeparator) {
+            i = i - 1;
+        }
+
+        if (Substring(path, i + 1) = plgName) {
+            return Substring(path, 0, i + 1);
+        }
     }
 
-    if (Substring(path, i + 1) = plgName) {
-      return Substring(path, 0, i + 1);
-    }
-  }
-
-  Sibelius.MessageBox(plgName & ' was not found');
-  ExitPlugin();
+    Sibelius.MessageBox(plgName & ' was not found');
+    ExitPlugin();
 }  //$end
 
 
