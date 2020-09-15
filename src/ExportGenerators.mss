@@ -1843,6 +1843,10 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
         libmei.AddAttribute(symbol, 'glyph.auth', 'smufl');
         libmei.AddAttribute(symbol, 'glyph.num', glyphnum);
         libmei.AddAttribute(symbol, 'glyph.name', glyphname);
+        // Add x/y attributes to satisfy some Schematron rules
+        libmei.AddAttribute(symbol, 'x', '0');
+        libmei.AddAttribute(symbol, 'y', '0');
+
 
         symbolIds[glyphnum] = symbolDef._id;
     }

@@ -311,7 +311,11 @@ function AddBarObjectInfoToElement (bobj, element) {
         }
     }
 
-    libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+    if (bar.ParentStaff.StaffNum > 0)
+    {
+        // Only add @staff if this is not attached to the SystemStaff
+        libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+    }
     libmei.AddAttribute(element, 'layer', voicenum);
 
     if (bobj.Type = 'Line')

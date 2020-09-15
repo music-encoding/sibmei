@@ -26,7 +26,9 @@ function InitTextSubstituteMap() {
     return CreateDictionary(
         'Title', CreateSparseArray('Title'),
         'Subtitle', CreateSparseArray('Title', CreateDictionary('type', 'subordinate')),
-        'Dedication', CreateSparseArray('Dedication'),
+        // <dedication> is only allowed on <titlePage> and <creation>, so use
+        // generic element
+        'Dedication', CreateSparseArray('Seg', CreateDictionary('type', 'Dedication')),
         // <composer>, <arranger>, <lyricist>, <userRestrict> and <publisher>
         // are only allowed in a few places, e.g. metadata or title pages.
         // We therfore use more generic elements
@@ -92,7 +94,7 @@ function PageComposerTextHandler (this, textObject) {
 
 function TempoTextHandler (this, textObject) {
     // 'text.system.tempo'
-    tempo = libmei.Tempo();
+    tempo = AddBarObjectInfoToElement(textObject, libmei.Tempo());
     AddFormattedText(tempo, textObject);
     return tempo;
 }  //$end
@@ -120,7 +122,16 @@ function AddFormattedText (parentElement, textObj) {
     textWithFormatting = textObj.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
-        libmei.SetText(parentElement, textObj.Text);
+        if (parentElement.name = 'div')
+        {
+            p = libmei.P();
+            libmei.SetText(p, textObj.Text);
+            libmei.AddChild(parentElement, p);
+        }
+        else
+        {
+            libmei.SetText(parentElement, textObj.Text);
+        }
         return parentElement;
     }
 
