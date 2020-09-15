@@ -149,6 +149,7 @@ function CreateApiObject () {
     apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
     apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
     apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
+    apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
     return apiObject;
 }  //$end
 
@@ -163,3 +164,7 @@ function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
 function ExtensionAPI_MeiFactory (this, templateObject) {
     MeiFactory(templateObject);
 }  //$end
+
+function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
+    AddFormattedText (parentElement, textObj);
+}   //$end

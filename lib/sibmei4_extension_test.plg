@@ -20,6 +20,12 @@
       )
     ), Self);
 
+    api.RegisterTextHandlers(CreateDictionary(
+      'StyleAsText', CreateDictionary(
+        'My text', 'HandleMyText'
+      )
+    ), Self);
+
   }"
 
   HandleMySymbol "(self, obj) {
@@ -27,5 +33,11 @@
     if (obj.ColorRed = 255) {
       libmei.AddAttribute(symbolElement, 'type', 'myRedType');
     }
+  }"
+
+  HandleMyText "(self, textObj) {
+    textElement = libmei.AnchoredText();
+    api.AddFormattedText(textElement, textObj);
+    return textElement;
   }"
 }

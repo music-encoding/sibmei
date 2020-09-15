@@ -7,6 +7,7 @@ const utils = require('./utils');
 describe("Extensions", function() {
   const mei = utils.getTestMeiDom('extensions.mei');
   const symbols = xpath.evaluateXPath('//*:symbol', mei);
+  const text = xpath.evaluateXPath('//*:anchoredText', mei);
 
   it("exports custom symbols", function() {
     utils.assertAttrValueFormat(symbols, 'fontfam', 'myCustomFont');
@@ -21,5 +22,9 @@ describe("Extensions", function() {
       assert.strictEqual(measure.tagName, "measure", 'must be attached to measures');
       assert.strictEqual(String(i + 1), measure.getAttribute("n"), 'test file has 1 symbol per measure');
     }
+  });
+
+  it("exports custom text by name", function(){
+    assert.notStrictEqual(text.length, 0 ,"custom <anchoredText> is missing");
   });
 });
