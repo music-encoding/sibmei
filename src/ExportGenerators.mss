@@ -1828,7 +1828,8 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
         if (Self._property:SymbolTable = null)
         {
             symbolTable = libmei.SymbolTable();
-            libmei.AddChild(Self._property:MainScoreDef, symbolTable);
+            scoreDef = Self._property:MainScoreDef;
+            libmei.AddChildAtPosition(scoreDef, symbolTable, 0);
             Self._property:SymbolTable = symbolTable;
         }
         symbolTable = Self._property:SymbolTable;
