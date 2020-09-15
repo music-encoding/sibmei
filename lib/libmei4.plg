@@ -1,6 +1,6 @@
 
 {
-
+    
     _License "() {
     return 'Copyright (c) 2011-2015 Andrew Hankinson, Alastair Porter, and Others
 
@@ -24,7 +24,7 @@
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.';
     }"
 
-
+    
 Arpeg "() {
     CreateElement('arpeg', null);
 }"
@@ -771,6 +771,10 @@ Mensur "() {
 
 Proport "() {
     CreateElement('proport', null);
+}"
+
+Stem "() {
+    CreateElement('stem', null);
 }"
 
 Cc "() {
@@ -1681,13 +1685,12 @@ SymbolTable "() {
     CreateElement('symbolTable', null);
 }"
 
-
+    
 Initialize "() {
         tree_doc = CreateSparseArray();
         flat_doc = CreateDictionary();
         id_incr = 0;
 
-        Self._property:XMLIdToObjectMap = CreateDictionary();
         Self._property:MEIDocument = tree_doc;
         Self._property:MEIFlattened = flat_doc;
         Self._property:MEIID = id_incr;
@@ -1698,7 +1701,6 @@ Initialize "() {
     commentObj.text = comment;
     return commentObj;
 }"
-
 CreateElement "(tagname, orig_id) {
     element = CreateDictionary(
         'name', tagname,
@@ -1723,7 +1725,6 @@ CreateElement "(tagname, orig_id) {
 
     return element;
 }"
-
 GetChildren "(element) {
         c = CreateSparseArray();
         for each child_id in element.children {
@@ -1732,17 +1733,23 @@ GetChildren "(element) {
         }
         return c;
 }"
-
 SetChildren "(element, childarr) {
         element.children = childarr;
 }"
-
+AddChildAtPosition "(element, child, position) {
+        AddChild(element, child);
+        c = element.children;
+        // shift all children that are at a higher index than `position`
+        for i = c.Length - 1 to position step -1 {
+            c[i] = c[i - 1];
+        }
+        element.children[position] = child._id;
+}"
 AddChild "(element, child) {
         cid = child._id;
         child._parent = element._id;
         element.children.Push(cid);
 }"
-
 RemoveChild "(element, child) {
     newarr = CreateSparseArray();
 
@@ -1756,32 +1763,15 @@ RemoveChild "(element, child) {
 
     element.children = newarr;
 }"
-
-GetChildById "(element, childid) {
-    d = Self._property:MEIFlattened;
-
-    for each elid in element.children
-    {
-        if (elid = childid)
-        {
-            return d[elid];
-        }
-    }
-
-    return False;
-}"
-
 GetAttributes "(element) {
     return element.attrs;
 }"
-
 AddAttribute "(element, attrname, attrval) {
     a = element.attrs;
     // check and replace any newlines
     val = _encodeEntities(attrval);
     a[attrname] = val;
 }"
-
 AddAttributeValue "(element, attrname, attrval) {
     // appends a value to an existing attribute. Used, for example,
     // in appending multiple articulations to @artic on note.
@@ -1800,7 +1790,6 @@ AddAttributeValue "(element, attrname, attrval) {
 
     element.attrs[attrname] = val;
 }"
-
 GetAttribute "(element, attrname) {
         attrs = element.attrs;
         if (attrs.PropertyExists(attrname))
@@ -1812,7 +1801,6 @@ GetAttribute "(element, attrname) {
             return False;
         }
 }"
-
 SetAttributes "(element, new_attrs) {
     //sets all attributes, wiping out any previous ones
     element.attrs = CreateDictionary();
@@ -1823,11 +1811,9 @@ SetAttributes "(element, new_attrs) {
         AddAttribute(element, a.Name, a.Value);
     }
 }"
-
 GetId "(element) {
         return element._id;
 }"
-
 SetId "(element, value) {
         olddict = Self._property:MEIFlattened;
         oldid = element._id;
@@ -1837,7 +1823,6 @@ SetId "(element, value) {
         newdict[value] = element;
         Self._property:MEIFlattened = newdict;
 }"
-
 RemoveAttribute "(element, attrname) {
     // since there are no delete functions
     // for dictionaries, we set the attribute
@@ -1848,19 +1833,15 @@ RemoveAttribute "(element, attrname) {
 GetName "(element) {
     return element.name;
 }"
-
 SetText "(element, val) {
     element.text = _encodeEntities(val);
 }"
-
 GetText "(element) {
     return element.text;
 }"
-
 SetTail "(element, val) {
     element.tail = _encodeEntities(val);
 }"
-
 GetTail "(element) {
     return element.tail;
 }"
@@ -1869,7 +1850,6 @@ GetTail "(element) {
         // cleans up
         Self._property:MEIFlattened = CreateDictionary();
         Self._property:MEIDocument = CreateSparseArray();
-        Self._property:XMLIdToObjectMap = CreateDictionary();
         Self._property:MEIID = 0;
     }"
 
@@ -2073,7 +2053,7 @@ GetTail "(element) {
     meiDocumentToFile "(meidoc, filename) {
         meiout = _exportMeiDocument(meidoc);
         if (Sibelius.CreateTextFile(filename)) {
-            return Sibelius.AppendTextFile(filename, meiout, 1);
+            return Sibelius.AppendTextFile(filename, meiout, true);
         } else {
             return false;
         }
@@ -2087,7 +2067,6 @@ GetTail "(element) {
 
     return res;
 }"
-
     popMode "(arr) {
     if (arr.Length > 0) {
         return arr.Pop();
@@ -2096,7 +2075,6 @@ GetTail "(element) {
         return 15;
     }
 }"
-
     _encodeEntities "(string)
     {
         /*
@@ -2124,11 +2102,10 @@ GetTail "(element) {
 
         return string;
     }"
-
     _xmlImport "(filename) {
     /*
         Based on the Quick-n-Dirty XML parser at
-        http://www.javaworld.com/javatips/jw-javatip128.html
+        https://www.infoworld.com/article/2077493/java-tip-128--create-a-quick-and-dirty-xml-parser.html
     */
     xmlinput = Sibelius.ReadTextFile(filename, true);
     meidoc = CreateSparseArray();
