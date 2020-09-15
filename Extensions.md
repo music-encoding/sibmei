@@ -78,6 +78,17 @@ Register your symbol and text handlers in this function.
    `InitSibmeiExtension()` method instead of defining them locally in the symbol
    handler methods.
 
+* **`HandleControlEvent()`**: One of the two basic symbol handling functions. 
+   Takes a SymbolItem and a value from a template dictionary and adds the symbol 
+   to `<measure>`.
+
+* **`HandleModifier()`**: The other basic symbol handling function. Takes the 
+   SymbolItem and a valie from a template dictionary and adds the symbol as a 
+   child of `<note>`, e.g. for articulations.
+
+* **`AddFormattedText()`**: A method used for the export of text styles. It 
+   adds the content of TextWithFormatting to the element.
+
 ## Example
 
 An example extension plugin can be found
