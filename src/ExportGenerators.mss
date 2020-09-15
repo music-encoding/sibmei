@@ -1307,7 +1307,6 @@ function GenerateStaffGroups (score, barnum) {
     for each Staff s in score
     {
         std = libmei.StaffDef();
-        libmei.XMLIdToObjectMap[std._id] = s;
 
         libmei.AddAttribute(std, 'n', s.StaffNum);
         libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
