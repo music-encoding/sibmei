@@ -13,6 +13,45 @@ function GenerateMEIHeader () {
     libmei.AddChild(header, fileD);
     libmei.AddChild(fileD, titleS);
 
+    respS = libmei.RespStmt();
+    libmei.AddChild(titleS, respS);
+    persN = libmei.PersName();
+    libmei.AddChild(respS, persN);
+    pubS = libmei.PubStmt();
+    libmei.AddChild(fileD, pubS);
+
+    avail = libmei.Availability();
+    ur = libmei.UseRestrict();
+    libmei.AddChild(avail, ur);
+    libmei.AddChild(pubS, avail);
+    libmei.SetText(ur, score.Copyright);
+
+    encodingD = libmei.EncodingDesc();
+    libmei.AddChild(header, encodingD);
+
+    appI = libmei.AppInfo();
+    libmei.AddChild(encodingD, appI);
+
+    applic = libmei.Application();
+    libmei.SetId(applic, 'sibelius');
+    libmei.AddChild(appI, applic);
+    libmei.AddAttribute(applic, 'version', Sibelius.ProgramVersion);
+    isodate = ConvertDate(Sibelius.CurrentDate);
+    libmei.AddAttribute(applic, 'isodate', isodate);
+    osname = libmei.Name();
+    libmei.SetText(osname, Sibelius.OSVersionString);
+    libmei.AddAttribute(osname, 'type', 'operating-system');
+    libmei.AddChild(applic, osname);
+
+    plgapp = libmei.Application();
+    plgname = libmei.Name();
+    libmei.SetText(plgname, PluginName & ' (' & Version & ')');
+    libmei.AddAttribute(plgapp, 'type', 'plugin');
+    libmei.AddAttribute(plgapp, 'version', Version);
+    libmei.SetId(plgapp, 'sibmei');
+    libmei.AddChild(plgapp, plgname);
+    libmei.AddChild(appI, plgapp);
+
     workDesc = libmei.WorkDesc();
     Self._property:WorkDescElement = workDesc;
 
@@ -79,44 +118,6 @@ function GenerateMEIHeader () {
         libmei.AddChild(wd_notesStmt, ns_annot);
         libmei.SetText(ns_annot, score.OtherInformation);
     }
-
-    respS = libmei.RespStmt();
-    libmei.AddChild(titleS, respS);
-    persN = libmei.PersName();
-    libmei.AddChild(respS, persN);
-    pubS = libmei.PubStmt();
-    libmei.AddChild(fileD, pubS);
-
-    avail = libmei.Availability();
-    ur = libmei.UseRestrict();
-    libmei.AddChild(avail, ur);
-    libmei.AddChild(pubS, avail);
-    libmei.SetText(ur, score.Copyright);
-
-    encodingD = libmei.EncodingDesc();
-    libmei.AddChild(header, encodingD);
-    appI = libmei.AppInfo();
-    libmei.AddChild(encodingD, appI);
-
-    applic = libmei.Application();
-    libmei.SetId(applic, 'sibelius');
-    libmei.AddChild(appI, applic);
-    libmei.AddAttribute(applic, 'version', Sibelius.ProgramVersion);
-    isodate = ConvertDate(Sibelius.CurrentDate);
-    libmei.AddAttribute(applic, 'isodate', isodate);
-    osname = libmei.Name();
-    libmei.SetText(osname, Sibelius.OSVersionString);
-    libmei.AddAttribute(osname, 'type', 'operating-system');
-    libmei.AddChild(applic, osname);
-
-    plgapp = libmei.Application();
-    plgname = libmei.Name();
-    libmei.SetText(plgname, PluginName & ' (' & Version & ')');
-    libmei.AddAttribute(plgapp, 'type', 'plugin');
-    libmei.AddAttribute(plgapp, 'version', Version);
-    libmei.SetId(plgapp, 'sibmei');
-    libmei.AddChild(plgapp, plgname);
-    libmei.AddChild(appI, plgapp);
 
     return header;
 }  //$end
