@@ -101,14 +101,6 @@ If an extension requires access to functionality that is not exposed by the API 
 
 * **`HandleModifier()`** takes the same arguments as `HandleControlEvent()`, but attaches the MEI element to a `<note>` element instead of the `<measure>` element.
 
-* **`HandleControlEvent()`**: One of the two basic symbol handling functions. 
-   Takes a SymbolItem and a value from a template dictionary and adds the symbol 
-   to `<measure>`.
-
-* **`HandleModifier()`**: The other basic symbol handling function. Takes the 
-   SymbolItem and a valie from a template dictionary and adds the symbol as a 
-   child of `<note>`, e.g. for articulations.
-
 * **`AddFormattedText()`**: A method used for the export of text styles. It 
    adds the content of TextWithFormatting to the element.
 
