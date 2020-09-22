@@ -12,27 +12,41 @@ them.
 
 ### `ExtensionAPIVersion`
 
-A semantic version string specifying for which version of the Sibmei extension
-API the extension was written. The current API version can be found in
-`GLOBALS.mss`.
+A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#Degree_of_compatibility) specifying for which version of the Sibmei extension
+API the extension was written. The current API version of Sibmei can be found in
+[`GLOBALS.mss`](https://github.com/music-encoding/sibmei/blob/master/src/GLOBALS.mss).
 
 ## Required Methods
 
 ### Symbol or Text Handlers
 
-These methods take a Sibelius object as argument and return an MEI element that
+The core purpose of an extension is to define symbol and text handlers to export Sibelius objects in custom ways. These handlers take two arguments:
+
+* `this` (this parameter should be ignored by the extension)
+* a Sibelius object (`SymbolItem` or `SystemSymbolitem` for symbol handlers, `Text` and `SystemTextItem` for text handlers)
+
+A handler should return an MEI element (created using libmei) that
 Sibmei will append to the `<measure>` element.  If `null` is returned instead,
 the Sibelius object will not be exported at all.
 
 ### `InitSibmeiExtension()`
 
 Sibmei calls this method and passes an API Dictionary as argument (see below).
-Register your symbol and text handlers in this function.
+Register your symbol and text handlers in this function using `RegisterSymbolHandlers()` and `RegisterTextHandlers()` (see below).
 
-#### API Dictionary Fields
+## API Dictionary
 
-* **`libmei`**: A refernce to libmei that can be used to construct and
+### Interaction with Sibmei
+
+Extensions must only interact with Sibmei through the API dictionary passed to `InitSibmeiExtension()`. The functionality provided by the API dictionary is guaranteed to remain backwards compatible with newer releases that retain the same major version number for the `ExtensionAPIVersion`, while Sibmei's core methods may change at any point.
+
+If an extension requires access to functionality that is not exposed by the API dictionary, [create an issue]() or a pull request on GitHub.
+
+### API data and methods
+
+* **`libmei`**: A reference to libmei that can be used to construct and
    manipulate MEI elements.
+   
 * **`RegisterSymbolHandlers()`**: Call this function to make a symbol handler
    known to Sibmei. To tell Sibelius which symbol to handle, it must be
    registered by the symbol's `Index` or `Name` properties. For built-in
@@ -72,19 +86,20 @@ Register your symbol and text handlers in this function.
 
 * **`MeiFactory()`**: A convenience method that takes a template SparseArray as
    argument and generates an MEI element from it. For detailed information, see
-   the documentation comments in `Initialize.mss`.
+   the documentation comments in [`Utilities.mss`](https://github.com/music-encoding/sibmei/blob/master/src/Utilities.mss).
 
    It is a good idea to define template dictionaries as global variables in the
    `InitSibmeiExtension()` method instead of defining them locally in the symbol
    handler methods.
+   
+* **`HandleControlEvent()`**:  Pass this function two arguments:
 
-* **`HandleControlEvent()`**: One of the two basic symbol handling functions. 
-   Takes a SymbolItem and a value from a template dictionary and adds the symbol 
-   to `<measure>`.
+   * The to be exported `SymbolItem` or `SystemSymbolItem`
+   * A template suitable for passing to `MeiFactory()`
 
-* **`HandleModifier()`**: The other basic symbol handling function. Takes the 
-   SymbolItem and a valie from a template dictionary and adds the symbol as a 
-   child of `<note>`, e.g. for articulations.
+   `HandleControlEvent()` will take care of creating an element and attaching it to the measure.
+
+* **`HandleModifier()`** takes the same arguments as `HandleControlEvent()`, but attaches the MEI element to a `<note>` element instead of the `<measure>` element.
 
 * **`AddFormattedText()`**: A method used for the export of text styles. It 
    adds the content of TextWithFormatting to the element.
@@ -92,4 +107,4 @@ Register your symbol and text handlers in this function.
 ## Example
 
 An example extension plugin can be found
-[on GitHub](https://github.com/music-encoding/sibmei/tree/master/lib/sibmei4_extension_test.plg).
+[on GitHub](https://github.com/music-encoding/sibmei/blob/master/lib/sibmei4_extension_test.plg).
