@@ -127,7 +127,8 @@ function InitExtensions (extensions) {
     } else {
         for each plgName in extensions
         {
-            chosenExtensions[plgName] = AvailableExtensions[plgName];
+            // Attention, choose AvailableExtensions with .@
+            chosenExtensions[plgName] = AvailableExtensions.@plgName;
         }
     }
 
