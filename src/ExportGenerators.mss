@@ -121,9 +121,9 @@ function GenerateApplicationInfo () {
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
 
-    if (ChosenExtensions)
+    if (Self._property:ChosenExtensions)
     {
-        for each Pair ext in ChosenExtensions
+        for each Pair ext in Self._property:ChosenExtensions
         {
             extapp = libmei.Application();
             libmei.SetId(extapp, ext.Name);
