@@ -121,6 +121,20 @@ function GenerateApplicationInfo () {
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
 
+    if (Self._property:ChosenExtensions)
+    {
+        for each Pair ext in Self._property:ChosenExtensions
+        {
+            extapp = libmei.Application();
+            libmei.SetId(extapp, ext.Name);
+            libmei.AddAttribute(extapp, 'type', 'extension');
+            extName = libmei.Name();
+            libmei.SetText(extName, ext.Value);
+            libmei.AddChild(extapp, extName);
+            libmei.AddChild(appI,extapp);
+        }
+    }
+
     return appI;
 
 }   //$end

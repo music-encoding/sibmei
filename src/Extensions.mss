@@ -127,7 +127,8 @@ function InitExtensions (extensions) {
     } else {
         for each plgName in extensions
         {
-            chosenExtensions[plgName] = AvailableExtensions[plgName];
+            // Attention, choose AvailableExtensions with .@
+            chosenExtensions[plgName] = AvailableExtensions.@plgName;
         }
     }
 
@@ -137,6 +138,9 @@ function InitExtensions (extensions) {
     {
         @plgName.InitSibmeiExtension(apiObject);
     }
+
+    // store chosenExtensions as global to add application info
+    Self._property:ChosenExtensions = chosenExtensions;
 
     return true;
 }  //$end
