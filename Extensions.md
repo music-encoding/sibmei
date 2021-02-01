@@ -14,7 +14,7 @@ them.
 
 A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#Degree_of_compatibility) specifying for which version of the Sibmei extension
 API the extension was written. The current API version of Sibmei can be found in
-[`GLOBALS.mss`](https://github.com/music-encoding/sibmei/blob/master/src/GLOBALS.mss).
+[`GLOBALS.mss`](./src/GLOBALS.mss).
 
 ## Required Methods
 
@@ -23,7 +23,7 @@ API the extension was written. The current API version of Sibmei can be found in
 The core purpose of an extension is to define symbol and text handlers to export Sibelius objects in custom ways. These handlers take two arguments:
 
 * `this` (this parameter should be ignored by the extension)
-* a Sibelius object (`SymbolItem` or `SystemSymbolitem` for symbol handlers, `Text` and `SystemTextItem` for text handlers)
+* a Sibelius object (`SymbolItem` or `SystemSymbolitem` for symbol handlers, `Text` and `SystemTextItem` for text handlers)
 
 A handler should return an MEI element (created using libmei) that
 Sibmei will append to the `<measure>` element.  If `null` is returned instead,
@@ -40,7 +40,7 @@ Register your symbol and text handlers in this function using `RegisterSymbolHan
 
 Extensions must only interact with Sibmei through the API dictionary passed to `InitSibmeiExtension()`. The functionality provided by the API dictionary is guaranteed to remain backwards compatible with newer releases that retain the same major version number for the `ExtensionAPIVersion`, while Sibmei's core methods may change at any point.
 
-If an extension requires access to functionality that is not exposed by the API dictionary, [create an issue]() or a pull request on GitHub.
+If an extension requires access to functionality that is not exposed by the API dictionary, [create an issue](https://github.com/music-encoding/sibmei/issues/new) or a pull request on GitHub.
 
 ### API data and methods
 
@@ -86,7 +86,7 @@ If an extension requires access to functionality that is not exposed by the API 
 
 * **`MeiFactory()`**: A convenience method that takes a template SparseArray as
    argument and generates an MEI element from it. For detailed information, see
-   the documentation comments in [`Utilities.mss`](https://github.com/music-encoding/sibmei/blob/master/src/Utilities.mss).
+   the documentation comments in [`Utilities.mss`](./src/Utilities.mss).
 
    It is a good idea to define template dictionaries as global variables in the
    `InitSibmeiExtension()` method instead of defining them locally in the symbol
@@ -107,4 +107,4 @@ If an extension requires access to functionality that is not exposed by the API 
 ## Example
 
 An example extension plugin can be found
-[on GitHub](https://github.com/music-encoding/sibmei/blob/master/lib/sibmei4_extension_test.plg).
+[on GitHub](./lib/sibmei4_extension_test.plg).
