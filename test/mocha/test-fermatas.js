@@ -11,4 +11,9 @@ describe("Fermatas", () => {
     const rests = xpath.evaluateXPath('//*:rest',mei);
     utils.assertHasAttrNot(rests,"fermata");
   })
+
+  it("all 36 fermatas are exported", () => {
+    const fermatas = xpath.evaluateXPath('//*:fermata', mei);
+    assert.strictEqual(fermatas.length, 36, "Not all 36 fermatas were created");
+  })
 });
