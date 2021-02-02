@@ -31,6 +31,12 @@ module.exports = {
     }
   },
 
+  assertHasAttrNot: function(elements, attName) {
+    for (let i = 0; i < elements.length; i += 1) {
+      assert.strictEqual(elements[i].getAttribute(attName), null, `element ${i} should not have attribute @${attName}`);
+    }
+  },
+
   assertElsHasAttr: function(elements, indices, attName) {
     for (let i = 0; i < elements.length; i += 1) {
       const elementDescription = 'element index ' + i + ' (' + elements[i].localName + ')';
