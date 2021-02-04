@@ -602,6 +602,27 @@ function PrevNormalOrGrace (noteRest, grace) {
     return prev_obj;
 }  //$end
 
+function HasSingleVoice (bar) {
+    //$module(Utilities.mss)
+
+    // Returns true if the bar has at most one single voice
+
+    voiceNum = -1;
+    for each bobj in bar
+    {
+        if (voiceNum != bobj.VoiceNumber and (bobj.Type = 'NoteRest' or bobj.Type = 'BarRest'))
+        {
+            if (voiceNum > 0)
+            {
+                return false;
+            }
+            voiceNum = bobj.VoiceNumber;
+        }
+    }
+
+    return true;
+}  //$end
+
 function GetNongraceParentBeam (noteRest, layer) {
     //$module(Utilities.mss)
     /*

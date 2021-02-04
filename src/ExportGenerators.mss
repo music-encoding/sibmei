@@ -148,7 +148,6 @@ function GenerateMEIMusic () {
     Self._property:LyricWords = CreateDictionary();
     Self._property:SpecialBarlines = CreateDictionary();
     Self._property:SystemText = CreateDictionary();
-    Self._property:LayerObjectPositions = null;
     Self._property:ObjectPositions = CreateDictionary();
 
     Self._property:VoltaBars = CreateDictionary();
@@ -847,17 +846,17 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.GetArticulation(PauseArtic))
     {
-        GenerateFermata(bobj, 'curved', 'norm');
+        GenerateFermata(bobj, 'curved', ConvertFermataForm(bobj));
     }
 
     if (bobj.GetArticulation(SquarePauseArtic))
     {
-        GenerateFermata(bobj, 'square', 'norm');
+        GenerateFermata(bobj, 'square', ConvertFermataForm(bobj));
     }
 
     if (bobj.GetArticulation(TriPauseArtic))
     {
-        GenerateFermata(bobj, 'angular', 'norm');
+        GenerateFermata(bobj, 'angular', ConvertFermataForm(bobj));
     }
 
     if (bobj.GetArticulation(StaccatoArtic))
@@ -1228,15 +1227,15 @@ function GenerateBarRest (bobj) {
         // TODO: Check for flipped fermatas
         case(PauseTypeRound)
         {
-            GenerateFermata(bobj, 'curved', 'norm');
+            GenerateFermata(bobj, 'curved', ConvertFermataForm(bobj));
         }
         case(PauseTypeTriangular)
         {
-            GenerateFermata(bobj, 'angular', 'norm');
+            GenerateFermata(bobj, 'angular', ConvertFermataForm(bobj));
         }
         case(PauseTypeSquare)
         {
-            GenerateFermata(bobj, 'square', 'norm');
+            GenerateFermata(bobj, 'square', ConvertFermataForm(bobj));
         }
     }
 

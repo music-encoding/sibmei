@@ -1059,3 +1059,30 @@ function ConvertTimeStamp (time) {
     isodate = utils.Format('%s:%s:%s', hours, mins, secs);
     return isodate;
 }  //$end
+
+function ConvertFermataForm (bobj) {
+    //$module(ExportConverters.mss)
+
+    // Tries to find out @shape for 'keypad fermatas' of NoteRests and BarRests.
+    // At this point we expect that the calling function has already determined
+    // that the noteRest has a 'keypad fermata'.
+
+    if (bobj.Type = 'BarRest')
+    {
+        stemweight = 0;
+    }
+    else
+    {
+        stemweight = bobj.Stemweight;
+    }
+
+    if ((stemweight < 0) or (bobj.VoiceNumber % 2 = 1) or HasSingleVoice(bobj.ParentBar))
+    {
+        return 'norm';
+    }
+    else
+    {
+        return 'inv';
+    }
+
+}  //$end
