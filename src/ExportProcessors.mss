@@ -473,20 +473,6 @@ function ProcessVolta (mnum) {
     return null;
 }  //$end
 
-function ProcessTremolo (bobj) {
-    //$module(ExportProcessors.mss)
-    if (bobj.DoubleTremolos = 0)
-    {
-        return null;
-    }
-
-    Log('Fingered tremolo: ' & bobj.DoubleTremolos);
-    tremEl = libmei.FTrem();
-    libmei.AddAttribute(tremEl, 'beams', bobj.DoubleTremolos);
-    libmei.AddAttribute(tremEl, 'unitdur');
-
-} //$end
-
 function ProcessEndingSlurs (bar) {
     //$module(ExportProcessors.mss)
     slur_resolver = Self._property:SlurResolver;
