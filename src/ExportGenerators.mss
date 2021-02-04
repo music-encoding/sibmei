@@ -845,20 +845,7 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', '1slash');
     }
 
-    if (bobj.GetArticulation(PauseArtic))
-    {
-        GenerateFermata(bobj, 'curved');
-    }
-
-    if (bobj.GetArticulation(TriPauseArtic))
-    {
-        GenerateFermata(bobj, 'angular');
-    }
-
-    if (bobj.GetArticulation(SquarePauseArtic))
-    {
-        GenerateFermata(bobj, 'square');
-    }
+    GenerateNoteRestFermatas(bobj);
 
     if (bobj.GetArticulation(StaccatoArtic))
     {
@@ -984,10 +971,7 @@ function GenerateRest (bobj) {
         libmei.AddAttribute(r, 'color', nrest_color);
     }
 
-    if (bobj.GetArticulation(PauseArtic))
-    {
-        libmei.AddAttribute(r, 'fermata', 'above');
-    }
+    GenerateNoteRestFermatas(bobj);
 
     return r;
 }  //$end
@@ -1230,17 +1214,18 @@ function GenerateBarRest (bobj) {
     }
 
     switch (bobj.PauseType) {
+        // TODO: Check for flipped fermatas
         case(PauseTypeRound)
         {
-            GenerateFermata(bobj, 'curved');
+            GenerateFermata(bobj, 'curved', 'norm');
         }
         case(PauseTypeTriangular)
         {
-            GenerateFermata(bobj, 'angular');
+            GenerateFermata(bobj, 'angular', 'norm');
         }
         case(PauseTypeSquare)
         {
-            GenerateFermata(bobj, 'square');
+            GenerateFermata(bobj, 'square', 'norm');
         }
     }
 
@@ -1760,11 +1745,32 @@ function GenerateTrill (bobj) {
 }  //$end
 
 
-function GenerateFermata (bobj, shape) {
+function GenerateNoteRestFermatas (noteRest) {
+    //$module(ExportGenerators.mss)
+
+    // TODO: Check when a fermatat is flipped
+    if (noteRest.GetArticulation(PauseArtic))
+    {
+        return GenerateFermata(noteRest, 'curved', 'norm');
+    }
+
+    if (noteRest.GetArticulation(TriPauseArtic))
+    {
+        return GenerateFermata(noteRest, 'angular', 'norm');
+    }
+
+    if (noteRest.GetArticulation(SquarePauseArtic))
+    {
+        return GenerateFermata(noteRest, 'square', 'norm');
+    }
+}  //$end
+
+
+function GenerateFermata (bobj, shape, form) {
     //$module(ExportGenerators.mss)
     fermata = GenerateControlEvent(bobj, 'Fermata');
 
-    libmei.AddAttribute(fermata, 'form', 'norm');
+    libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
 
     measureObjs = Self._property:MeasureObjects;

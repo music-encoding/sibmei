@@ -30,6 +30,12 @@ function InitSymbolHandlers () {
             '214', 'HandleModifier',                    //marc above
             '217', 'HandleModifier',                    //upbow above
             '218', 'HandleModifier',                    //dnbow above
+            '220', 'HandleControlEvent',                // square fermata above
+            '221', 'HandleControlEvent',                // round fermata above
+            '222', 'HandleControlEvent',                // triangular fermata above
+            '236', 'HandleControlEvent',                // square fermata below
+            '237', 'HandleControlEvent',                // round fermata below
+            '238', 'HandleControlEvent',                // triangular fermata below
             '233', 'HandleModifier',                    //upbow below
             '234', 'HandleModifier',                    //dnbow below
             '243', 'HandleModifier',                    //snap
@@ -72,6 +78,12 @@ function InitSymbolMap () {
         '214', CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','above')),   //marc above
         '217', CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','above')),  //upbow above
         '218', CreateSparseArray('Artic', CreateDictionary('artic','dnbow', 'place','above')),  //dnbow above
+        '220', CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'norm')),  // square fermata above
+        '221', CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'norm')),  // round fermata above
+        '222', CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'norm')), // triangular fermata above
+        '236', CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'inv')),   // square fermata below
+        '237', CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'inv')),   // round fermata below
+        '238', CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'inv')),  // triangular fermata below
         '233', CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','below')),  //upbow below
         '234', CreateSparseArray('Artic', CreateDictionary('artic','dnbow', 'place','below')),  //dnbow below
         '243', CreateSparseArray('Artic', CreateDictionary('artic','snap')),                    //snap
