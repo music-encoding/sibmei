@@ -154,6 +154,8 @@ function CreateApiObject () {
     apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
     apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
     apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
+    apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
+    apiObject.SetMethod('AddControlEventAttributes', Self, 'ExtensionAPI_AddControlEventAttributes');
     return apiObject;
 }  //$end
 
@@ -171,4 +173,12 @@ function ExtensionAPI_MeiFactory (this, templateObject) {
 
 function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
     AddFormattedText (parentElement, textObj);
+}   //$end
+
+function ExtensionAPI_GenerateControlEvent (this, bobj, elementName) {
+    GenerateControlEvent(bobj, elementName);
+}   //$end
+
+function ExtensionAPI_AddControlEventAttributes (this, bobj) {
+    AddControlEventAttributes(bobj);
 }   //$end

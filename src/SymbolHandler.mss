@@ -129,7 +129,7 @@ function HandleSymbol (sobj) {
             symbolHandlers.Name.@symbName(sobj, symbolMap[symbName]);
         }
     }
-    
+
 } //$end
 
 function HandleModifier(this, sobj, mapValue){
@@ -158,7 +158,7 @@ function HandleControlEvent(this, sobj, mapValue){
 
     symbol = MeiFactory(mapValue);
 
-    symbol = AddBarObjectInfoToElement(sobj, symbol);
+    symbol = AddControlEventAttributes(sobj, symbol);
     mlines = Self._property:MeasureObjects;
     mlines.Push(symbol._id);
 

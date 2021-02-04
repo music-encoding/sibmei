@@ -1430,6 +1430,12 @@ function GenerateStaffGroups (score, barnum) {
     return parentstgrp;
 }  //$end
 
+function GenerateControlEvent (bobj, elementName) {
+    //$module(ExportGenerators.mss)
+
+    return AddControlEventAttributes(bobj, libmei.@elementName());
+}  //$end
+
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
     tuplet = libmei.Tuplet();
@@ -1479,36 +1485,34 @@ function GenerateLine (bobj) {
     {
         case ('Slur')
         {
-            line = libmei.Slur();
+            line = GenerateControlEvent(bobj, 'Slur');
             slurrend = ConvertSlurStyle(bobj.StyleId);
             libmei.AddAttribute(line, 'lform', slurrend[1]);
         }
         case ('CrescendoLine')
         {
-            line = libmei.Hairpin();
+            line = GenerateControlEvent(bobj, 'Hairpin');
             libmei.AddAttribute(line, 'form', 'cres');
         }
         case ('DiminuendoLine')
         {
-            line = libmei.Hairpin();
+            line = GenerateControlEvent(bobj, 'Hairpin');
             libmei.AddAttribute(line, 'form', 'dim');
         }
         case ('OctavaLine')
         {
-            line = libmei.Octave();
+            line = GenerateControlEvent(bobj, 'Octave');
             octrend = ConvertOctava(bobj.StyleId);
             libmei.AddAttribute(line, 'dis', octrend[0]);
             libmei.AddAttribute(line, 'dis.place', octrend[1]);
         }
         case ('GlissandoLine')
         {
-            line = libmei.Gliss();
+            line = GenerateControlEvent(bobj, 'Gliss');
         }
         case ('Trill')
         {
             line = GenerateTrill(bobj);
-            // NB: Return here since the trill already has its properties set.
-            return line;
         }
         case ('Line')
         {
@@ -1519,7 +1523,7 @@ function GenerateLine (bobj) {
                 //brackets
                 case ('bracket')
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                     bracketType = 'bracket';
 
                     //horizontal brackets
@@ -1606,7 +1610,7 @@ function GenerateLine (bobj) {
                 //solid vertical line
                 case ('vertical')
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                     libmei.AddAttribute(line,'form','solid');
                     libmei.AddAttribute(line,'type','vertical');
                 }
@@ -1618,7 +1622,7 @@ function GenerateLine (bobj) {
                     {
                         if (linecomps[3] = 'vertical')
                         {
-                            line = libmei.Line();
+                            line = GenerateControlEvent(bobj, 'Line');
                             libmei.AddAttribute(line,'form','dashed');
                             libmei.AddAttribute(line,'type','vertical');
                         }
@@ -1626,25 +1630,25 @@ function GenerateLine (bobj) {
                     //dashed horizontal line
                     else
                     {
-                      line = libmei.Line();
+                      line = GenerateControlEvent(bobj, 'Line');
                       libmei.AddAttribute(line,'form','dashed');
                     }
                 }
                 //dotted horizontal line
                 case('dotted')
                 {
-                  line = libmei.Line();
+                  line = GenerateControlEvent(bobj, 'Line');
                   libmei.AddAttribute(line,'form','dotted');
                 }
                 //solid horizontal line
                 case('plain')
                 {
-                  line = libmei.Line();
+                  line = GenerateControlEvent(bobj, 'Line');
                   libmei.AddAttribute(line,'form','solid');
                 }
                 case ('vibrato')
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                     libmei.AddAttribute(line, 'type', 'vibrato');
                     libmei.AddAttribute(line, 'form', 'wavy');
                     libmei.AddAttribute(line, 'place', 'above');
@@ -1654,18 +1658,11 @@ function GenerateLine (bobj) {
                 //To catch diverse line types, set a default
                 default
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                 }
             }
         }
     }
-
-    if (line = null)
-    {
-        return null;
-    }
-
-    line = AddBarObjectInfoToElement(bobj, line);
 
     return line;
 }  //$end
@@ -1673,7 +1670,6 @@ function GenerateLine (bobj) {
 
 function GenerateArpeggio (bobj) {
     //$module(ExportGenerators.mss)
-    arpeg = libmei.Arpeg();
     orientation = null;
 
     switch (bobj.Type)
@@ -1711,6 +1707,8 @@ function GenerateArpeggio (bobj) {
         }
     }
 
+    arpeg = GenerateControlEvent(bobj, 'Arpeg');
+
     if (orientation = null)
     {
         libmei.AddAttribute(arpeg, 'arrow', 'false');
@@ -1729,8 +1727,6 @@ function GenerateArpeggio (bobj) {
         }
     }
 
-    arpeg = AddBarObjectInfoToElement(bobj, arpeg);
-
     return arpeg;
 }  //$end
 
@@ -1740,7 +1736,7 @@ function GenerateTrill (bobj) {
     /* There are two types of trills in Sibelius: A line object and a
         symbol object. This method normalizes both of these.
     */
-    trill = libmei.Trill();
+    trill = GenerateControlEvent(bobj, 'Trill');
     bar = bobj.ParentBar;
     obj = GetNoteObjectAtPosition(bobj);
 
@@ -1748,8 +1744,6 @@ function GenerateTrill (bobj) {
     {
         libmei.AddAttribute(trill, 'startid', '#' & obj._id);
     }
-
-    trill = AddBarObjectInfoToElement(bobj, trill);
 
     return trill;
 }  //$end
@@ -1805,12 +1799,10 @@ function GenerateFermata (bobj) {
         return null;
     }
 
-    fermata = libmei.Fermata();
+    fermata = GenerateControlEvent(bobj, 'Fermata');
 
     libmei.AddAttribute(fermata, 'form', 'norm');
     libmei.AddAttribute(fermata, 'shape', shape);
-
-    fermata = AddBarObjectInfoToElement(bobj, fermata);
 
     return fermata;
 }  //$end

@@ -36,7 +36,7 @@
   }"
 
   HandleMyText "(self, textObj) {
-    textElement = libmei.AnchoredText();
+    textElement = api.GenerateControlEvent(textObj, 'AnchoredText');
     api.AddFormattedText(textElement, textObj);
     return textElement;
   }"

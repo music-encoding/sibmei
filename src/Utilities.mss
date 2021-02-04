@@ -277,7 +277,7 @@ function GetNoteObjectAtPosition (bobj) {
     return null;
 }  //$end
 
-function AddBarObjectInfoToElement (bobj, element) {
+function AddControlEventAttributes (bobj, element) {
     //$module(Utilities.mss)
     /*
         adds timing and position info (tstamps, etc.) to an element.

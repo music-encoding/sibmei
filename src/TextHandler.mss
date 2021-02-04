@@ -63,7 +63,7 @@ function HandleText (textObject) {
 
 
 function ExpressionTextHandler (this, textObject) {
-    dynam = AddBarObjectInfoToElement(textObject, libmei.Dynam());
+    dynam = GenerateControlEvent(textObject, 'Dynam');
     AddFormattedText(dynam, textObject);
     return dynam;
 }  //$end
@@ -94,7 +94,7 @@ function PageComposerTextHandler (this, textObject) {
 
 function TempoTextHandler (this, textObject) {
     // 'text.system.tempo'
-    tempo = AddBarObjectInfoToElement(textObject, libmei.Tempo());
+    tempo = GenerateControlEvent(textObject, 'Tempo');
     AddFormattedText(tempo, textObject);
     return tempo;
 }  //$end
@@ -102,7 +102,7 @@ function TempoTextHandler (this, textObject) {
 
 function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
-    harm = AddBarObjectInfoToElement(textObject, libmei.Harm());
+    harm = GenerateControlEvent(textObject, 'Harm');
     fb = libmei.Fb();
     libmei.AddChild(harm, fb);
     ConvertFbFigures(fb, textObject);
