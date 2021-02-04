@@ -132,14 +132,14 @@ function HandleSymbol (sobj) {
 
 } //$end
 
-function HandleModifier(this, sobj, mapValue){
+function HandleModifier(this, sobj, template){
     //$module(SymbolHandler.mss)
 
     nobj = GetNoteObjectAtPosition(sobj);
 
     if (nobj != null)
     {
-        modifier = MeiFactory(mapValue);
+        modifier = MeiFactory(template);
 
         libmei.AddChild(nobj, modifier);
     }
@@ -153,10 +153,10 @@ function HandleModifier(this, sobj, mapValue){
 
 }   //$end
 
-function HandleControlEvent(this, sobj, mapValue){
+function HandleControlEvent(this, sobj, template){
     //$module(SymbolHandler.mss)
 
-    symbol = MeiFactory(mapValue);
+    symbol = MeiFactory(template);
 
     symbol = AddControlEventAttributes(sobj, symbol);
     mlines = Self._property:MeasureObjects;

@@ -28,14 +28,14 @@
 
   }"
 
-  HandleMySymbol "(self, obj) {
+  HandleMySymbol "(this, obj) {
     symbolElement = api.HandleControlEvent(obj, MySymbolTemplate);
     if (obj.ColorRed = 255) {
       libmei.AddAttribute(symbolElement, 'type', 'myRedType');
     }
   }"
 
-  HandleMyText "(self, textObj) {
+  HandleMyText "(this, textObj) {
     textElement = api.GenerateControlEvent(textObj, 'AnchoredText');
     api.AddFormattedText(textElement, textObj);
     return textElement;
