@@ -845,15 +845,19 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', '1slash');
     }
 
-    if (bobj.GetArticulation(PauseArtic) or bobj.GetArticulation(TriPauseArtic) or bobj.GetArticulation(SquarePauseArtic))
+    if (bobj.GetArticulation(PauseArtic))
     {
-        fermata = GenerateFermata(bobj);
-        if (fermata != null)
-        {
-            libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
-            measureObjs = Self._property:MeasureObjects;
-            measureObjs.Push(fermata._id);
-        }
+        GenerateFermata(bobj, 'curved');
+    }
+
+    if (bobj.GetArticulation(TriPauseArtic))
+    {
+        GenerateFermata(bobj, 'angular');
+    }
+
+    if (bobj.GetArticulation(SquarePauseArtic))
+    {
+        GenerateFermata(bobj, 'square');
     }
 
     if (bobj.GetArticulation(StaccatoArtic))
@@ -1225,12 +1229,19 @@ function GenerateBarRest (bobj) {
         }
     }
 
-    fermata = GenerateFermata(bobj);
-    if (fermata != null)
-    {
-        libmei.AddAttribute(fermata, 'startid', '#' & obj._id);
-        measureObjs = Self._property:MeasureObjects;
-        measureObjs.Push(fermata._id);
+    switch (bobj.PauseType) {
+        case(PauseTypeRound)
+        {
+            GenerateFermata(bobj, 'curved');
+        }
+        case(PauseTypeTriangular)
+        {
+            GenerateFermata(bobj, 'angular');
+        }
+        case(PauseTypeSquare)
+        {
+            GenerateFermata(bobj, 'square');
+        }
     }
 
     if (bobj.Hidden = true)
@@ -1749,60 +1760,15 @@ function GenerateTrill (bobj) {
 }  //$end
 
 
-function GenerateFermata (bobj) {
+function GenerateFermata (bobj, shape) {
     //$module(ExportGenerators.mss)
-    /* Note rests can have multiple fermatas in Sibelius,
-        but this is currently not supported.
-        Also, fermatas added as symbols are not yet handled.
-    */
-    shape = null;
-
-    switch (bobj.Type)
-    {
-        case('NoteRest')
-        {
-            if (bobj.GetArticulation(PauseArtic))
-            {
-                shape = 'curved';
-            }
-            if (bobj.GetArticulation(TriPauseArtic))
-            {
-                shape = 'angular';
-            }
-            if (bobj.GetArticulation(SquarePauseArtic))
-            {
-                shape = 'square';
-            }
-        }
-        case('BarRest')
-        {
-            switch (bobj.PauseType)
-            {
-                case(PauseTypeRound)
-                {
-                    shape = 'curved';
-                }
-                case(PauseTypeTriangular)
-                {
-                    shape = 'angular';
-                }
-                case(PauseTypeSquare)
-                {
-                    shape = 'square';
-                }
-            }
-        }
-    }
-
-    if (shape = null)
-    {
-        return null;
-    }
-
     fermata = GenerateControlEvent(bobj, 'Fermata');
 
     libmei.AddAttribute(fermata, 'form', 'norm');
     libmei.AddAttribute(fermata, 'shape', shape);
+
+    measureObjs = Self._property:MeasureObjects;
+    measureObjs.Push(fermata._id);
 
     return fermata;
 }  //$end
