@@ -50,16 +50,19 @@ describe("Fermatas", function() {
   });
 
   it("expected fermata forms", function() {
-    const fermatas = xpath.evaluateXPath('//*:fermata', mei);
-    const expectedForms = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1];
-    for (let i = 0; i += 1; i < expectedForms.length) {
-      const fermata = fermatas[i];
-      const fermataNumber = i % 12 + 1;
-      const line = Math.floor(i / 12) + 1;
-      const flip = line == 3 ? -1 : 1;
-      const expectedForm = expectedForms[i % 12] * flip == 1 ? 'norm' : 'inv';
-      const foundForm = fermata.getAttribute("form");
-      assert.strictEqual(foundForm, expectedForm, `Expected fermata ${fermataNumber} in line ${line} to have form ${expectedForm}, but found ${foundForm}`);
+    const expectedForms = [
+      [1],             // b. 1,  7, 13
+      [1],             // b. 2,  8, 14
+      [1],             // b. 3,  9, 15
+      [1, 1, 1, 1, 1], // b. 4, 10, 16
+      [1, 1],          // b. 5, 11, 17
+      [1, -1]          // b. 6, 12, 18
+    ];
+    for (let barIndex = 0; barIndex < measures.length; barIndex += 1) {
+      const foundForms = (fermatasByMeasure[barIndex] || []).map(fermata => fermata.getAttribute("form"));
+      const flip = barIndex >= 12 ? -1 : 1;  // Starting from bar 13, all fermatas are flipped
+      const expectedFormsInBar = expectedForms[barIndex % 6].map(factor => factor * flip == 1 ? 'norm' : 'inv');
+      assert.deepEqual(foundForms, expectedFormsInBar, `Expected fermata forms ${expectedFormsInBar} in bar ${barIndex + 1}, but found ${foundForms}`);
     }
   });
 });
