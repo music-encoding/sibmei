@@ -845,7 +845,20 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', '1slash');
     }
 
-    GenerateNoteRestFermatas(bobj);
+    if (bobj.GetArticulation(PauseArtic))
+    {
+        GenerateFermata(bobj, 'curved', 'norm');
+    }
+
+    if (bobj.GetArticulation(SquarePauseArtic))
+    {
+        GenerateFermata(bobj, 'square', 'norm');
+    }
+
+    if (bobj.GetArticulation(TriPauseArtic))
+    {
+        GenerateFermata(bobj, 'angular', 'norm');
+    }
 
     if (bobj.GetArticulation(StaccatoArtic))
     {
@@ -970,8 +983,6 @@ function GenerateRest (bobj) {
         nrest_color = ConvertColor(bobj);
         libmei.AddAttribute(r, 'color', nrest_color);
     }
-
-    GenerateNoteRestFermatas(bobj);
 
     return r;
 }  //$end
@@ -1742,27 +1753,6 @@ function GenerateTrill (bobj) {
     }
 
     return trill;
-}  //$end
-
-
-function GenerateNoteRestFermatas (noteRest) {
-    //$module(ExportGenerators.mss)
-
-    // TODO: Check when a fermatat is flipped
-    if (noteRest.GetArticulation(PauseArtic))
-    {
-        return GenerateFermata(noteRest, 'curved', 'norm');
-    }
-
-    if (noteRest.GetArticulation(TriPauseArtic))
-    {
-        return GenerateFermata(noteRest, 'angular', 'norm');
-    }
-
-    if (noteRest.GetArticulation(SquarePauseArtic))
-    {
-        return GenerateFermata(noteRest, 'square', 'norm');
-    }
 }  //$end
 
 
