@@ -39,6 +39,8 @@ function Run() {
 
     suite.Run();
 
+    Sibelius.CloseAllWindows(false);
+
     sibmei4_batch_sib.ConvertFolder(
         Sibelius.GetFolder(_SibTestFileDirectory),
         CreateSparseArray('sibmei4_extension_test')
