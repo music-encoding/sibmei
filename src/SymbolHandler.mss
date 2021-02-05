@@ -152,17 +152,16 @@ function HandleModifier(this, sobj, template){
     if (nobj != null)
     {
         modifier = MeiFactory(template);
-
         libmei.AddChild(nobj, modifier);
+        return modifier;
     }
     else
     {
         warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, bar.BarNumber, voicenum, sobj.Name));
+        barNum = sobj.ParentBar.BarNumber;
+        voiceNum = sobj.VoiceNumber;
+        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, sobj.Name));
     }
-
-    return modifier;
-
 }   //$end
 
 function HandleControlEvent(this, sobj, template){
