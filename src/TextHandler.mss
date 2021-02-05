@@ -111,7 +111,6 @@ function FiguredBassTextHandler (this, textObject) {
 
 
 function CreateAnchoredText (this, textObj) {
-    //$module(ExportConverters.mss)
     anchoredText = libmei.AnchoredText();
     AddFormattedText(anchoredText, textObj);
     return anchoredText;

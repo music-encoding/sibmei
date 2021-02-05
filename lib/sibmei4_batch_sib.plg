@@ -19,7 +19,7 @@
 
         if (not IsObject(folder))
         {
-          Sibelius.MessageBox('Not a folder object: ' & folder);
+            Sibelius.MessageBox('Not a folder object: ' & folder);
         }
         else
         {

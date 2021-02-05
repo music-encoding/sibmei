@@ -1224,7 +1224,6 @@ function GenerateBarRest (bobj) {
     }
 
     switch (bobj.PauseType) {
-        // TODO: Check for flipped fermatas
         case(PauseTypeRound)
         {
             GenerateFermata(bobj, 'curved', ConvertFermataForm(bobj));
