@@ -49,4 +49,20 @@ These unit tests are primarily used to test specific Sibmei functions.  They use
 
 ### mocha
 
-[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), run `npm test` from the root directory of this git repository.
+[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), either run `npm test` from the root directory of this git repository or have Testsibmei automatically trigger the tests.  The latter requires a `test.bat` or `test.sh` file in the same directory as the Sibmei `*.plg` files, depending on the operating system. Create a file that looks like this:
+
+#### Windows: test.bat
+
+```
+x:
+cd x:\path\to\sibmei
+cmd /k npm test
+```
+
+#### Mac: test.sh
+
+Help for testing and documenting for Mac welcome!
+
+## Writing Extensions
+
+For project specific handling of text and symbols, [extension plugins](Extensions.md) can be written.

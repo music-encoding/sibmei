@@ -26,7 +26,7 @@ function Run() {
 
     Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
     Self._property:tempDir = CreateNewTempDir();
-    Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs'  & Sibelius.PathSeparator;
+    Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs' & Sibelius.PathSeparator;
 
     suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei);
 
@@ -46,9 +46,19 @@ function Run() {
         CreateSparseArray('sibmei4_extension_test')
     );
 
-    // We do not 'clean up' with Sibelius.CloseAllWindows() here because it
-    // sometimes causes Sibelius crashes.
-    Trace('Run `npm test` to test output written to ' & _SibTestFileDirectory);
+    // Make sure we have an open window so Sibelius will neither crash nor
+    // decide to open a new window later that will force the mocha test results
+    // into the background.
+    Sibelius.New();
+
+    if (Sibelius.PathSeparator = '/') {
+        mochaScript = pluginDir & 'test.sh';
+    } else {
+        mochaScript = pluginDir & 'test.bat';
+    }
+    if (not (Sibelius.FileExists(mochaScript) and Sibelius.LaunchApplication(mochaScript))) {
+        Sibelius.MessageBox('Run `npm test` to test output written to ' & _SibTestFileDirectory);
+    }
 }  //$end
 
 
