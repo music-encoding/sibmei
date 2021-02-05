@@ -68,7 +68,7 @@ The API is guaranteed to remain backwards compatible with newer releases that re
 
 ### Symbol or Text Handlers
 
-The core purpose of an extension is to define symbol and text handlers to export Sibelius objects in custom ways. (See `HandleMyText()` in the above [example](#example))  These handlers take two arguments:
+The core purpose of an extension is to define symbol and text handlers to export Sibelius objects in custom ways. (See `HandleMyText()` in the above [example](#example))  These handlers take two arguments:
 
 * `this`: a Dictionary that is passed for technical reasons and *must be ignored by the extension*
 * a Sibelius object (`SymbolItem` or `SystemSymbolitem` for symbol handlers, `Text` or `SystemTextItem` for text handlers)
@@ -77,7 +77,7 @@ A text handler should return an MEI element (created using libmei) that
 Sibmei will append to the `<measure>` element.  If `null` is returned instead,
 the object will not be exported.
 
-A symbol handler should either call the `HandleModifier()` or `HandleControlEvent()` methods. If neither is called, the object will not be exported. Symbol handlers needn't return anything.
+A symbol handler should either call the `HandleModifier()` or `HandleControlEvent()` methods. If neither is called, the object will not be exported. Symbol handlers needn't return anything.
 
 ### `InitSibmeiExtension()`
 
@@ -88,7 +88,7 @@ Register your symbol and text handlers in this function using `RegisterSymbolHan
 
 ### Interaction with Sibmei
 
-Extensions must only interact with Sibmei through the API dictionary passed to `InitSibmeiExtension()` because Sibmei's core methods may change at any point. If an extension requires access to functionality that is not exposed by the API dictionary, [create an issue](https://github.com/music-encoding/sibmei/issues/new) or a pull request on GitHub.
+Extensions must only interact with Sibmei through the API dictionary passed to `InitSibmeiExtension()` because Sibmei's core methods may change at any point. If an extension requires access to functionality that is not exposed by the API dictionary, [create an issue](https://github.com/music-encoding/sibmei/issues/new) or a pull request on GitHub.
 
 ### API data and methods
 
@@ -100,8 +100,8 @@ The API dictionary exposes the following object:
 It exposes the following methods that must only be called in the initialization phase:
 
 * **`RegisterSymbolHandlers()`**: Call this function to make a symbol handler
-   known to Sibmei. To tell Sibelius which symbol to handle, it must be
-   registered by the symbol's `Index` or `Name` properties. For built-in
+   known to Sibmei. To tell Sibmei which symbols the extension handles, the symbols must be
+   registered by their `Index` or `Name` property. For built-in
    symbols, always use the `Index` property, for custom symbols, always use the
    `Name` property.
 
@@ -129,7 +129,7 @@ It exposes the following methods that must only be called in the initialization 
    If no symbols are registered by either `Name` or `Index` property, the
    respective sub-dictionaries can be omitted.
 
-   Second argument must be `Self`.
+   Second argument of `RegisterSymbolHandler()` must be `Self`.
 
 * **`RegisterTextHandlers()`**: Works the same way as
    `RegisterSymbolHandlers()`, with the difference that sub-Dictionary keys are
@@ -153,7 +153,7 @@ The following methods must only be used by handler methods:
 
    `HandleControlEvent()` creates an MEI element and attaches it to the `<measure>` element. It returns the element for further manipulation by the extension plugin.
 
-* **`HandleModifier()`**: Works similarly to `HandleControlEvent()`, but attaches the generated MEI element to a `<note>` element instead of the `<measure>` element.
+* **`HandleModifier()`**: Works similarly to `HandleControlEvent()`, but attaches the generated MEI element to an event element (`<note>`, `<chord>` etc.) instead of the `<measure>` element.
 
 * **`AddFormattedText()`**: Takes arguments:
 
@@ -175,7 +175,7 @@ The following methods must only be used by handler methods:
    Adds the following control event attributes:
 
    * `@startid` (if a start object could be identified) and `@tstamp`
-   * If applicable (e.g. for lines), `@endid` (if an end object could be identifed) and `@tstamp2`
+   * If applicable (e.g. for lines), `@endid` (if an end object could be identified) and `@tstamp2`
    * `@staff` (if object is staff-attached)
    * `@layer`
    * For lines:
