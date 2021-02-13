@@ -64,9 +64,8 @@ describe("Text elements", function() {
     });
     // underline: "underlined for me" @rend="underline"
     it("check for underlined text", function() {
-        const underline = xpath.evaluateXPath("//*:rend[./text()='underlined ' or ./text()='for me']", meiText);
-        assert.strictEqual(underline.length, 2, "There are only " + underline.length + " elements queried!");
-        utils.assertAttrOnElements(underline, [0, 1], "rend", "underline");
+        const underlinedText = xpath.evaluateXPath("//*[contains(@rend, 'underline')]", meiText).map(n => n.textContent.trim());
+        assert.deepEqual(underlinedText, ['underlined', 'for me']);
     });
     // font change: @fontfam "change " & "the font"
     it("check for font change", function() {
