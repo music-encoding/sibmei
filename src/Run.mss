@@ -17,13 +17,19 @@ function Run() {
     // get the active score object
     activeScore = Sibelius.ActiveScore;
 
-    // it does not seem possible to get the current folder for the file
-    // so we will default to the user's documents folder.
-    // NB: it seems that if we don't specify a folder name, the filename
-    // is not properly set.
-    activeFileNameFull = activeScore.FileName;
-    activeFileName = utils.ExtractFileName(activeFileNameFull);
-    activePath = Sibelius.GetDocumentsFolder();
+    if (Sibelius.FileExists(activeScore.FileName)) {
+        scoreFile = Sibelius.GetFile(activeScore.FileName);
+        activeFileName = scoreFile.NameNoPath & '.mei';
+        activePath = scoreFile.Path;
+    } else {
+        activeFileName = 'untitled.mei';
+        activePath = Sibelius.GetDocumentsFolder();
+    }
+
+    if (not InitGlobals(null))
+    {
+        return false;
+    }
 
     // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
@@ -41,8 +47,14 @@ function Run() {
 function DoExport (filename) {
     //$module(Run.mss)
 
+    if (not Self._property:_Initialized)
+    {
+        Trace('InitGlobals() must be called before running DoExport()');
+        return null;
+    }
+
     // first, ensure we're running with a clean slate.
-    Self._property:libmei = libmei4;
+    // (initialization of libmei has moved to InitGlobals())
     libmei.destroy();
 
     // set the active score here so we can refer to it throughout the plugin

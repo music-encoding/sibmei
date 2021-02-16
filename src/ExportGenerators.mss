@@ -121,6 +121,20 @@ function GenerateApplicationInfo () {
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
 
+    if (Self._property:ChosenExtensions)
+    {
+        for each Pair ext in Self._property:ChosenExtensions
+        {
+            extapp = libmei.Application();
+            libmei.SetId(extapp, ext.Name);
+            libmei.AddAttribute(extapp, 'type', 'extension');
+            extName = libmei.Name();
+            libmei.SetText(extName, ext.Value);
+            libmei.AddChild(extapp, extName);
+            libmei.AddChild(appI,extapp);
+        }
+    }
+
     return appI;
 
 }   //$end
@@ -134,7 +148,6 @@ function GenerateMEIMusic () {
     Self._property:LyricWords = CreateDictionary();
     Self._property:SpecialBarlines = CreateDictionary();
     Self._property:SystemText = CreateDictionary();
-    Self._property:LayerObjectPositions = null;
     Self._property:ObjectPositions = CreateDictionary();
 
     Self._property:VoltaBars = CreateDictionary();
@@ -354,9 +367,6 @@ function GenerateMeasure (num) {
         libmei.AddAttribute(m, 'metcon', 'false');
     }
 
-    systf = score.SystemStaff;
-    sysBar = systf[num];
-
     if (sysBar.NthBarInSystem = 0)
     {
         Self._property:SystemBreak = libmei.Sb();
@@ -428,7 +438,7 @@ function GenerateMeasure (num) {
         textobjs = systemtext[num];
         for each textobj in textobjs
         {
-            text = ConvertText(textobj);
+            text = HandleText(textobj);
 
             if (text != null)
             {
@@ -701,17 +711,7 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Text')
             {
-                mobj = ConvertText(bobj);
-                if (mobj != null)
-                {
-                    //Try to get note at position of bracket and put id
-                    obj = GetNoteObjectAtPosition(bobj);
-
-                    if (obj != null)
-                    {
-                        libmei.AddAttribute(mobj, 'startid', '#' & obj._id);
-                    }
-                }
+                mobj = HandleText(bobj);
             }
         }
 
@@ -741,7 +741,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each SymbolItem sobj in bar
     {
-        ProcessSymbol(sobj);
+        HandleSymbol(sobj);
     }
 
     ProcessEndingSlurs(bar);
@@ -844,15 +844,19 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttribute(nr, 'stem.mod', '1slash');
     }
 
-    if (bobj.GetArticulation(PauseArtic) or bobj.GetArticulation(TriPauseArtic) or bobj.GetArticulation(SquarePauseArtic))
+    if (bobj.GetArticulation(PauseArtic))
     {
-        fermata = GenerateFermata(bobj);
-        if (fermata != null)
-        {
-            libmei.AddAttribute(fermata, 'startid', '#' & nr._id);
-            measureObjs = Self._property:MeasureObjects;
-            measureObjs.Push(fermata._id);
-        }
+        GenerateFermata(bobj, 'curved', ConvertFermataForm(bobj));
+    }
+
+    if (bobj.GetArticulation(SquarePauseArtic))
+    {
+        GenerateFermata(bobj, 'square', ConvertFermataForm(bobj));
+    }
+
+    if (bobj.GetArticulation(TriPauseArtic))
+    {
+        GenerateFermata(bobj, 'angular', ConvertFermataForm(bobj));
     }
 
     if (bobj.GetArticulation(StaccatoArtic))
@@ -979,11 +983,6 @@ function GenerateRest (bobj) {
         libmei.AddAttribute(r, 'color', nrest_color);
     }
 
-    if (bobj.GetArticulation(PauseArtic))
-    {
-        libmei.AddAttribute(r, 'fermata', 'above');
-    }
-
     return r;
 }  //$end
 
@@ -999,7 +998,7 @@ function GenerateNote (nobj) {
         ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
         pnum = ptuplet.Left;
         pden = ptuplet.Right;
-        floatgesdur = (pden & '.0' / pnum & '.0') * dur;
+        floatgesdur = (pden * 1.0 / pnum) * dur;
         gesdur = Round(floatgesdur);
     }
     else
@@ -1224,12 +1223,19 @@ function GenerateBarRest (bobj) {
         }
     }
 
-    fermata = GenerateFermata(bobj);
-    if (fermata != null)
-    {
-        libmei.AddAttribute(fermata, 'startid', '#' & obj._id);
-        measureObjs = Self._property:MeasureObjects;
-        measureObjs.Push(fermata._id);
+    switch (bobj.PauseType) {
+        case(PauseTypeRound)
+        {
+            GenerateFermata(bobj, 'curved', ConvertFermataForm(bobj));
+        }
+        case(PauseTypeTriangular)
+        {
+            GenerateFermata(bobj, 'angular', ConvertFermataForm(bobj));
+        }
+        case(PauseTypeSquare)
+        {
+            GenerateFermata(bobj, 'square', ConvertFermataForm(bobj));
+        }
     }
 
     if (bobj.Hidden = true)
@@ -1320,7 +1326,6 @@ function GenerateStaffGroups (score, barnum) {
     for each Staff s in score
     {
         std = libmei.StaffDef();
-        libmei.XMLIdToObjectMap[std._id] = s;
 
         libmei.AddAttribute(std, 'n', s.StaffNum);
         libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
@@ -1430,6 +1435,12 @@ function GenerateStaffGroups (score, barnum) {
     return parentstgrp;
 }  //$end
 
+function GenerateControlEvent (bobj, elementName) {
+    //$module(ExportGenerators.mss)
+
+    return AddControlEventAttributes(bobj, libmei.@elementName());
+}  //$end
+
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
     tuplet = libmei.Tuplet();
@@ -1479,36 +1490,34 @@ function GenerateLine (bobj) {
     {
         case ('Slur')
         {
-            line = libmei.Slur();
+            line = GenerateControlEvent(bobj, 'Slur');
             slurrend = ConvertSlurStyle(bobj.StyleId);
             libmei.AddAttribute(line, 'lform', slurrend[1]);
         }
         case ('CrescendoLine')
         {
-            line = libmei.Hairpin();
+            line = GenerateControlEvent(bobj, 'Hairpin');
             libmei.AddAttribute(line, 'form', 'cres');
         }
         case ('DiminuendoLine')
         {
-            line = libmei.Hairpin();
+            line = GenerateControlEvent(bobj, 'Hairpin');
             libmei.AddAttribute(line, 'form', 'dim');
         }
         case ('OctavaLine')
         {
-            line = libmei.Octave();
+            line = GenerateControlEvent(bobj, 'Octave');
             octrend = ConvertOctava(bobj.StyleId);
             libmei.AddAttribute(line, 'dis', octrend[0]);
             libmei.AddAttribute(line, 'dis.place', octrend[1]);
         }
         case ('GlissandoLine')
         {
-            line = libmei.Gliss();
+            line = GenerateControlEvent(bobj, 'Gliss');
         }
         case ('Trill')
         {
             line = GenerateTrill(bobj);
-            // NB: Return here since the trill already has its properties set.
-            return line;
         }
         case ('Line')
         {
@@ -1519,7 +1528,7 @@ function GenerateLine (bobj) {
                 //brackets
                 case ('bracket')
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                     bracketType = 'bracket';
 
                     //horizontal brackets
@@ -1606,7 +1615,7 @@ function GenerateLine (bobj) {
                 //solid vertical line
                 case ('vertical')
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                     libmei.AddAttribute(line,'form','solid');
                     libmei.AddAttribute(line,'type','vertical');
                 }
@@ -1618,7 +1627,7 @@ function GenerateLine (bobj) {
                     {
                         if (linecomps[3] = 'vertical')
                         {
-                            line = libmei.Line();
+                            line = GenerateControlEvent(bobj, 'Line');
                             libmei.AddAttribute(line,'form','dashed');
                             libmei.AddAttribute(line,'type','vertical');
                         }
@@ -1626,25 +1635,25 @@ function GenerateLine (bobj) {
                     //dashed horizontal line
                     else
                     {
-                      line = libmei.Line();
+                      line = GenerateControlEvent(bobj, 'Line');
                       libmei.AddAttribute(line,'form','dashed');
                     }
                 }
                 //dotted horizontal line
                 case('dotted')
                 {
-                  line = libmei.Line();
+                  line = GenerateControlEvent(bobj, 'Line');
                   libmei.AddAttribute(line,'form','dotted');
                 }
                 //solid horizontal line
                 case('plain')
                 {
-                  line = libmei.Line();
+                  line = GenerateControlEvent(bobj, 'Line');
                   libmei.AddAttribute(line,'form','solid');
                 }
                 case ('vibrato')
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                     libmei.AddAttribute(line, 'type', 'vibrato');
                     libmei.AddAttribute(line, 'form', 'wavy');
                     libmei.AddAttribute(line, 'place', 'above');
@@ -1654,18 +1663,11 @@ function GenerateLine (bobj) {
                 //To catch diverse line types, set a default
                 default
                 {
-                    line = libmei.Line();
+                    line = GenerateControlEvent(bobj, 'Line');
                 }
             }
         }
     }
-
-    if (line = null)
-    {
-        return null;
-    }
-
-    line = AddBarObjectInfoToElement(bobj, line);
 
     return line;
 }  //$end
@@ -1673,7 +1675,6 @@ function GenerateLine (bobj) {
 
 function GenerateArpeggio (bobj) {
     //$module(ExportGenerators.mss)
-    arpeg = libmei.Arpeg();
     orientation = null;
 
     switch (bobj.Type)
@@ -1711,6 +1712,8 @@ function GenerateArpeggio (bobj) {
         }
     }
 
+    arpeg = GenerateControlEvent(bobj, 'Arpeg');
+
     if (orientation = null)
     {
         libmei.AddAttribute(arpeg, 'arrow', 'false');
@@ -1729,8 +1732,6 @@ function GenerateArpeggio (bobj) {
         }
     }
 
-    arpeg = AddBarObjectInfoToElement(bobj, arpeg);
-
     return arpeg;
 }  //$end
 
@@ -1740,7 +1741,7 @@ function GenerateTrill (bobj) {
     /* There are two types of trills in Sibelius: A line object and a
         symbol object. This method normalizes both of these.
     */
-    trill = libmei.Trill();
+    trill = GenerateControlEvent(bobj, 'Trill');
     bar = bobj.ParentBar;
     obj = GetNoteObjectAtPosition(bobj);
 
@@ -1749,68 +1750,19 @@ function GenerateTrill (bobj) {
         libmei.AddAttribute(trill, 'startid', '#' & obj._id);
     }
 
-    trill = AddBarObjectInfoToElement(bobj, trill);
-
     return trill;
 }  //$end
 
 
-function GenerateFermata (bobj) {
+function GenerateFermata (bobj, shape, form) {
     //$module(ExportGenerators.mss)
-    /* Note rests can have multiple fermatas in Sibelius,
-        but this is currently not supported.
-        Also, fermatas added as symbols are not yet handled.
-    */
-    shape = null;
+    fermata = GenerateControlEvent(bobj, 'Fermata');
 
-    switch (bobj.Type)
-    {
-        case('NoteRest')
-        {
-            if (bobj.GetArticulation(PauseArtic))
-            {
-                shape = 'curved';
-            }
-            if (bobj.GetArticulation(TriPauseArtic))
-            {
-                shape = 'angular';
-            }
-            if (bobj.GetArticulation(SquarePauseArtic))
-            {
-                shape = 'square';
-            }
-        }
-        case('BarRest')
-        {
-            switch (bobj.PauseType)
-            {
-                case(PauseTypeRound)
-                {
-                    shape = 'curved';
-                }
-                case(PauseTypeTriangular)
-                {
-                    shape = 'angular';
-                }
-                case(PauseTypeSquare)
-                {
-                    shape = 'square';
-                }
-            }
-        }
-    }
-
-    if (shape = null)
-    {
-        return null;
-    }
-
-    fermata = libmei.Fermata();
-
-    libmei.AddAttribute(fermata, 'form', 'norm');
+    libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
 
-    fermata = AddBarObjectInfoToElement(bobj, fermata);
+    measureObjs = Self._property:MeasureObjects;
+    measureObjs.Push(fermata._id);
 
     return fermata;
 }  //$end
@@ -1829,247 +1781,6 @@ function GenerateChordSymbol (bobj) {
     return harm;
 }  //$end
 
-function GenerateFormattedString (bobj) {
-    //$module(ExportGenerators.mss)
-    /*
-        Returns an array containing at least one paragraph
-        tag, formatted with the <rend> element.
-
-        Multiple paragraph tags may be returned if the formatting string contains
-        a '\n\' (new paragraph)
-    */
-
-    FORMATOPEN = 1;
-    FORMATCLOSE = 2;
-    FORMATTAG = 3;
-    FORMATINFO = 4;
-    TEXTSTR = 5;
-
-    // initialize context as a text string, since we may not always open with a formatting tag.
-    ctx = TEXTSTR;
-    tag = null;
-    activeinfo = '';
-    activetext = '';
-
-    ret = CreateSparseArray();
-    activeDiv = libmei.Div();
-    activePara = libmei.P();
-    libmei.AddChild(activeDiv, activePara);
-    ret.Push(activeDiv);
-
-    text = bobj.TextWithFormattingAsString;
-
-    if (text = '')
-    {
-        return ret;
-    }
-
-    for i = 0 to Length(text)
-    {
-        c = CharAt(text, i);
-
-        if (c = '\\')
-        {
-            if (ctx = FORMATINFO or ctx = FORMATTAG)
-            {
-                /*
-                    If we have an open format context or
-                    we are looking at format info and see
-                    a slash, we are closing the format context
-                */
-                ctx = FORMATCLOSE;
-            }
-            else
-            {
-                if (ctx = TEXTSTR or ctx = FORMATCLOSE)
-                {
-                    /* If we have a slash we are either switching
-                        into a new formatting tag context
-                        or we are opening a new formatting tag
-                        immediately after closing one.
-                    */
-                    ctx = FORMATOPEN;
-                }
-            }
-        }
-        else
-        {
-            switch (ctx)
-            {
-                case (FORMATOPEN)
-                {
-                    // the previous iteration gave us an opening
-                    // formatting string, so the next character is
-                    // the formatting tag
-                    ctx = FORMATTAG;
-                }
-
-                case (FORMATTAG)
-                {
-                    /*
-                        After seeing a tag we will expect to find some
-                        info. If there is no info, the next character will
-                        be a \ and it will be caught above.
-                    */
-                    ctx = FORMATINFO;
-                    activeinfo = activeinfo & c;
-                }
-
-                case (FORMATINFO)
-                {
-                    // keep appending the active info until
-                    // we reach the end.
-                    activeinfo = activeinfo & c;
-                }
-
-                case (FORMATCLOSE)
-                {
-                    // the previous context was a closing format tag,
-                    // so the next character, if it is not another opening
-                    // tag, is a text string. Assume it is a text string
-                    // which will be corrected on the next go-round.
-                    ctx = TEXTSTR;
-                    activetext = activetext & c;
-                }
-
-                case (TEXTSTR)
-                {
-                    activetext = activetext & c;
-                }
-            }
-        }
-
-        // now that we have figured out what context we are in, we
-        // can do something about it.
-        switch (ctx)
-        {
-            case (FORMATTAG)
-            {
-                tag = c;
-
-                if (tag = 'n')
-                {
-                    if (activetext != '')
-                    {
-                        libmei.SetText(activePara, activetext);
-                        activetext = '';
-                    }
-
-                    activePara = libmei.P();
-                    libmei.AddChild(activeDiv, activePara);
-                }
-
-                if (tag = 'N')
-                {
-                    if (activetext != '')
-                    {
-                        children = activePara.children;
-
-                        if (children.Length > 0)
-                        {
-                            lastLbId = children[-1];
-                            lastLb = libmei.getElementById(lastLbId);
-                            libmei.SetTail(lastLb, activetext);
-                        }
-                        else
-                        {
-                            libmei.SetText(activePara, activetext);
-                        }
-                    }
-                    activetext = '';
-
-                    lb = libmei.Lb();
-                    libmei.AddChild(activePara, lb);
-                }
-            }
-
-            case (TEXTSTR)
-            {
-                ;
-            }
-
-            case (FORMATOPEN)
-            {
-                // if we have hit a new format opening tag and we have some previous text.
-                // if (activetext != '')
-                // {
-                //     // we have some pending text that needs to be dealt with
-                //     libmei.SetText(activePara, activetext);
-                //     activetext = '';
-                // }
-                ;
-            }
-
-            case (FORMATCLOSE)
-            {
-                if (activeinfo != '')
-                {
-                    // tags that have info.
-                    switch (tag)
-                    {
-                        case ('s')
-                        {
-                            // our info block should contain units.
-                            // Log('Units: ' & activeinfo);
-                            ;
-                        }
-
-                        case ('c')
-                        {
-                            // our info block should contain a style
-                            // Log('Style: ' & activeinfo);
-                            ;
-                        }
-
-                        case ('f')
-                        {
-                            // our info block should either contain
-                            // a font name or an underscore to switch
-                            // back to the default font.
-                            // Log('Font: ' & activeinfo);
-                            ;
-                        }
-
-                        case ('$')
-                        {
-                            // our info block should contain a substitution
-                            // Log('Substitution: ' & activeinfo);
-                            ;
-                        }
-                    }
-
-                    activeinfo = '';
-                    tag = '';
-                }
-            }
-            default
-            {
-                // Log('default: ' & ctx);
-                ;
-            }
-        }
-    }
-
-    //
-    if (ctx = TEXTSTR and activetext != '')
-    {
-        // if we end the text on a text string, append it to the active paragraph element.
-        children = activePara.children;
-        if (children.Length > 0)
-        {
-            lastLbId = children[-1];
-            lastLb = libmei.getElementById(lastLbId);
-            libmei.SetTail(lastLb, activetext);
-        }
-        else
-        {
-            libmei.SetText(activePara, activetext);
-        }
-    }
-
-    return ret;
-}  //$end
-
 function GenerateSmuflAltsym (glyphnum, glyphname) {
     //$module(ExportGenerators.mss)
     if (Self._property:SmuflSymbolIds = null)
@@ -2083,7 +1794,8 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
         if (Self._property:SymbolTable = null)
         {
             symbolTable = libmei.SymbolTable();
-            libmei.AddChild(Self._property:MainScoreDef, symbolTable);
+            scoreDef = Self._property:MainScoreDef;
+            libmei.AddChildAtPosition(scoreDef, symbolTable, 0);
             Self._property:SymbolTable = symbolTable;
         }
         symbolTable = Self._property:SymbolTable;
@@ -2097,6 +1809,10 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
         libmei.AddAttribute(symbol, 'glyph.auth', 'smufl');
         libmei.AddAttribute(symbol, 'glyph.num', glyphnum);
         libmei.AddAttribute(symbol, 'glyph.name', glyphname);
+        // Add x/y attributes to satisfy some Schematron rules
+        libmei.AddAttribute(symbol, 'x', '0');
+        libmei.AddAttribute(symbol, 'y', '0');
+
 
         symbolIds[glyphnum] = symbolDef._id;
     }

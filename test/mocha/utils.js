@@ -31,6 +31,12 @@ module.exports = {
     }
   },
 
+  assertHasAttrNot: function(elements, attName) {
+    for (let i = 0; i < elements.length; i += 1) {
+      assert.strictEqual(elements[i].getAttribute(attName), null, `element ${i} should not have attribute @${attName}`);
+    }
+  },
+
   assertElsHasAttr: function(elements, indices, attName) {
     for (let i = 0; i < elements.length; i += 1) {
       const elementDescription = 'element index ' + i + ' (' + elements[i].localName + ')';
@@ -43,14 +49,27 @@ module.exports = {
     }
   },
 
+  /**
+   * @param  {Element|Element[]} elements
+   * @param  {string} attName
+   * @param  {string|RegExp} expectedFormat  If a string is supplied, the
+   *    attributes will be tested for strict equality, otherwise if they match
+   *    the RegExp.
+   */
   assertAttrValueFormat: function (elements, attName, expectedFormat) {
+    if (!elements instanceof Array) {
+      elements = [elements];
+    }
     for (let i = 0; i < elements.length; i += 1) {
       const actualValue = elements[i].getAttribute(attName);
       if (actualValue == undefined) {
         assert.ok(false, 'element ' + i + ' has no @' + attName);
       }
-      else {
+      else if (expectedFormat instanceof RegExp) {
         assert.ok(expectedFormat.test(actualValue), 'value on element ' + i + ' does not match');
+      }
+      else {
+        assert.strictEqual(actualValue, expectedFormat);
       }
     }
   }

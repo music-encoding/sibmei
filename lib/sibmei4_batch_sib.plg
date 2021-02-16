@@ -10,19 +10,21 @@
         folder = Sibelius.SelectFolder();
         if (null != folder)
         {
-            ConvertFolder(folder);
+            ConvertFolder(folder, null);
         }
     }"
 
-    ConvertFolder "(folder)
+    ConvertFolder "(folder, extensions)
     {
 
         if (not IsObject(folder))
         {
-          Sibelius.MessageBox('Not a folder object: ' & folder);
+            Sibelius.MessageBox('Not a folder object: ' & folder);
         }
         else
         {
+            sibmei4.InitGlobals(extensions);
+
             // count files for progress dialog
             numFiles = folder.FileCount('SIB');
             index = 0;

@@ -592,15 +592,11 @@ function ConvertSibeliusStructure (score) {
     {
         for each Bar b in s
         {
-            if (bar_to_staff.PropertyExists(b.BarNumber))
-            {
-                bar_to_staff[b.BarNumber].Push(s.StaffNum);
-            }
-            else
+            if (not bar_to_staff.PropertyExists(b.BarNumber))
             {
                 bar_to_staff[b.BarNumber] = CreateSparseArray();
-                bar_to_staff[b.BarNumber].Push(s.StaffNum);
             }
+            bar_to_staff[b.BarNumber].Push(s.StaffNum);
         }
     }
     return bar_to_staff;
@@ -611,8 +607,7 @@ function ConvertColor (nrest) {
     r = nrest.ColorRed;
     g = nrest.ColorGreen;
     b = nrest.ColorBlue;
-    a_dec = nrest.ColorAlpha & '.0';
-    a = a_dec / 255.0;
+    a = nrest.ColorAlpha / 255.0;
 
     return 'rgba(' & r & ',' & g & ',' & b & ',' & a & ')';
 }  //$end
@@ -880,89 +875,6 @@ function ConvertBarline (linetype) {
     }
 }  //$end
 
-function ConvertText (textobj) {
-    //$module(ExportConverters.mss)
-    styleid = textobj.StyleId;
-    switch (styleid)
-    {
-        case ('text.staff.expression')
-        {
-            dynam = libmei.Dynam();
-            libmei.SetText(dynam, lstrip(textobj.Text));
-            libmei.AddAttribute(dynam, 'staff', textobj.ParentBar.ParentStaff.StaffNum);
-            libmei.AddAttribute(dynam, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
-
-            if (textobj.Dx != 0)
-            {
-                libmei.AddAttribute(dynam, 'ho', ConvertOffsetsToMEI(textobj.Dx));
-            }
-
-            if (textobj.Dy != 0)
-            {
-                libmei.AddAttribute(dynam, 'vo', ConvertOffsetsToMEI(textobj.Dy));
-            }
-            return dynam;
-        }
-        case ('text.system.page_aligned.title')
-        {
-            text = ConvertSubstitution(textobj.Text);
-            atext = libmei.AnchoredText();
-            title = libmei.Title();
-
-            libmei.AddChild(atext, title);
-            libmei.SetText(title, text);
-
-            return atext;
-        }
-        case ('text.system.page_aligned.composer')
-        {
-            return ConvertTextElement(textobj);
-        }
-        case ('text.system.tempo')
-        {
-            tempo = libmei.Tempo();
-            atext = ConvertTextElement(textobj);
-            libmei.AddAttribute(tempo, 'tstamp', ConvertPositionToTimestamp(textobj.Position, textobj.ParentBar));
-            libmei.AddChild(tempo, atext);
-            return tempo;
-        }
-        case ('text.staff.space.figuredbass')
-        {
-            harm = libmei.Harm();
-            harm = AddBarObjectInfoToElement(textobj, harm);
-            fb = libmei.Fb();
-            libmei.AddChild(harm, fb);
-            ConvertFbFigures(fb, textobj);
-            return harm;
-        }
-        default
-        {
-            return null;
-        }
-    }
-}  //$end
-
-function ConvertTextElement (textobj) {
-    //$module(ExportConverters.mss)
-    obj = libmei.AnchoredText();
-
-    text = ConvertSubstitution(textobj.Text);
-
-    libmei.SetText(obj, text);
-
-    if (textobj.Dx != 0)
-    {
-        libmei.AddAttribute(obj, 'ho', ConvertOffsetsToMEI(textobj.Dx));
-    }
-
-    if (textobj.Dy != 0)
-    {
-        libmei.AddAttribute(obj, 'vo', ConvertOffsetsToMEI(textobj.Dy));
-    }
-
-    return obj;
-}  //$end
-
 function ConvertFbFigures (fb, bobj) {
     //$module(ExportConverters)
     if (Self._property:FigbassCharMap = null)
@@ -1148,59 +1060,29 @@ function ConvertTimeStamp (time) {
     return isodate;
 }  //$end
 
-
-function ConvertSubstitution (string) {
+function ConvertFermataForm (bobj) {
     //$module(ExportConverters.mss)
-    // if the string does not start with a substitution, send back the original string.
-    if (Substring(string, 0, 2) != '\\$')
+
+    // Tries to find out @shape for 'keypad fermatas' of NoteRests and BarRests.
+    // At this point we expect that the calling function has already determined
+    // that the noteRest has a 'keypad fermata'.
+
+    if (bobj.Type = 'BarRest')
     {
-        return string;
+        stemweight = 0;
+    }
+    else
+    {
+        stemweight = bobj.Stemweight;
     }
 
-    score = Self._property:ActiveScore;
-    // it's 3 because of the two chars at the beginning, and then the last backslash.
-    fieldname = Substring(string, 2, Length(string) - 3);
-
-    switch (fieldname)
+    if ((stemweight < 0) or (bobj.VoiceNumber % 2 = 1) or HasSingleVoice(bobj.ParentBar))
     {
-        case ('Title')
-        {
-            return score.Title;
-        }
-        case ('Composer')
-        {
-            return score.Composer;
-        }
-        case ('Arranger')
-        {
-            return score.Arranger;
-        }
-        case ('Lyricist')
-        {
-            return score.Lyricist;
-        }
-        case ('MoreInfo')
-        {
-            return score.MoreInfo;
-        }
-        case ('Artist')
-        {
-            return score.Artist;
-        }
-        case ('Copyright')
-        {
-            return score.Copyright;
-        }
-        case ('Publisher')
-        {
-            return score.Publisher;
-        }
-        case ('PartName')
-        {
-            return score.PartName;
-        }
+        return 'norm';
+    }
+    else
+    {
+        return 'inv';
     }
 
-    // if it doesn't match anything, return the original string.
-    return string;
 }  //$end
