@@ -179,6 +179,6 @@ function ExtensionAPI_GenerateControlEvent (this, bobj, elementName) {
     GenerateControlEvent(bobj, elementName);
 }   //$end
 
-function ExtensionAPI_AddControlEventAttributes (this, bobj) {
-    AddControlEventAttributes(bobj);
+function ExtensionAPI_AddControlEventAttributes (this, bobj, element) {
+    AddControlEventAttributes(bobj, element);
 }   //$end
