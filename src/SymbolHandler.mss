@@ -26,6 +26,7 @@ function InitSymbolHandlers () {
             '164', 'HandleModifier',                    //damp (2)
             '165', 'HandleModifier',                    //damp (3)
             '166', 'HandleModifier',                    //damp (4)
+            '211', 'HandleModifier',                    //spiccato
             '212', 'HandleModifier',                    //ten above
             '214', 'HandleModifier',                    //marc above
             '217', 'HandleModifier',                    //upbow above
@@ -74,6 +75,7 @@ function InitSymbolMap () {
         '164', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (2)
         '165', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (3)
         '166', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (4)
+        '211', CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','above')),                   //spiccato
         '212', CreateSparseArray('Artic', CreateDictionary('artic','ten', 'place','above')),    //ten above
         '214', CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','above')),   //marc above
         '217', CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','above')),  //upbow above
