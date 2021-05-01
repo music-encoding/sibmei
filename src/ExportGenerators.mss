@@ -894,6 +894,11 @@ function GenerateNoteRest (bobj, layer) {
         libmei.AddAttributeValue(nr, 'artic', 'stacciss');
     }
 
+    if (bobj.GetArticulation(WedgeArtic))
+    {
+        libmei.AddAttributeValue(nr, 'artic', 'spicc');
+    }
+
     if (bobj.GetArticulation(PlusArtic))
     {
         libmei.AddAttributeValue(nr, 'artic', 'stop');
