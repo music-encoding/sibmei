@@ -60,3 +60,4 @@ function develop() {
 }
 
 exports.develop = develop;
+exports.build = build;
