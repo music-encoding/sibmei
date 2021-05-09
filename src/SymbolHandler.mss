@@ -26,7 +26,9 @@ function InitSymbolHandlers () {
             '164', 'HandleModifier',                    //damp (2)
             '165', 'HandleModifier',                    //damp (3)
             '166', 'HandleModifier',                    //damp (4)
-            '211', 'HandleModifier',                    //spiccato
+            '209', 'HandleModifier',                    //staccato above
+            '210', 'HandleModifier',                    //staccatissimo above
+            '211', 'HandleModifier',                    //spiccato above
             '212', 'HandleModifier',                    //ten above
             '214', 'HandleModifier',                    //marc above
             '217', 'HandleModifier',                    //upbow above
@@ -34,6 +36,10 @@ function InitSymbolHandlers () {
             '220', 'HandleControlEvent',                // square fermata above
             '221', 'HandleControlEvent',                // round fermata above
             '222', 'HandleControlEvent',                // triangular fermata above
+            '225', 'HandleModifier',                    // staccato below
+            '226', 'HandleModifier',                    // staccatissimo below
+            '227', 'HandleModifier',                    // spiccato below
+            '230', 'HandleModifier',                    // marcato below
             '236', 'HandleControlEvent',                // square fermata below
             '237', 'HandleControlEvent',                // round fermata below
             '238', 'HandleControlEvent',                // triangular fermata below
@@ -75,7 +81,9 @@ function InitSymbolMap () {
         '164', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (2)
         '165', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (3)
         '166', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (4)
-        '211', CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','above')),                   //spiccato
+        '209', CreateSparseArray('Artic', CreateDictionary('artic','stacc', 'place','above')),  //staccato above
+        '210', CreateSparseArray('Artic', CreateDictionary('artic','stacciss', 'place','above')), //staccatissimo above
+        '211', CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','above')),  //spiccato above
         '212', CreateSparseArray('Artic', CreateDictionary('artic','ten', 'place','above')),    //ten above
         '214', CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','above')),   //marc above
         '217', CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','above')),  //upbow above
@@ -83,6 +91,10 @@ function InitSymbolMap () {
         '220', CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'norm')),  // square fermata above
         '221', CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'norm')),  // round fermata above
         '222', CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'norm')), // triangular fermata above
+        '225', CreateSparseArray('Artic', CreateDictionary('artic','stacc', 'place','below')),     //staccato below
+        '226', CreateSparseArray('Artic', CreateDictionary('artic','stacciss', 'place','below')),  //staccatissimo below
+        '227', CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','below')),     //spiccato below
+        '230', CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','below')),      //marcato below
         '236', CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'inv')),   // square fermata below
         '237', CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'inv')),   // round fermata below
         '238', CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'inv')),  // triangular fermata below
