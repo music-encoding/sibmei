@@ -43,6 +43,11 @@ describe("Text elements", function() {
         const subscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sub']", meiText);
         assert.notStrictEqual(subscript.length, 0, "Subscript in subtitle is missing");
     });
+    // Formatting elements must be output without indentation or any other additional whitespace
+    it("check for whitespace introduced by formatting tags", function() {
+        const subtitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
+        assert.strictEqual(subtitle.textContent, 'E0=mc2', 0, "Text must not have any whitespace");
+    });
     // check for front matter
     it("check for front matter", function() {
         const firstMusicChild = xpath.evaluateXPath("//*:music/element()[1]", meiText);
