@@ -1751,6 +1751,8 @@ AddChild "(element, child) {
         element.children.Push(cid);
 }"
 RemoveChild "(element, child) {
+    child._parent = null;
+    UnregisterId(child._id);
     newarr = CreateSparseArray();
 
     for each elid in element.children
@@ -1814,14 +1816,18 @@ SetAttributes "(element, new_attrs) {
 GetId "(element) {
         return element._id;
 }"
-SetId "(element, value) {
-        olddict = Self._property:MEIFlattened;
-        oldid = element._id;
-
-        newdict = removeKeyFromDictionary(olddict, oldid);
-        element._id = value;
-        newdict[value] = element;
-        Self._property:MEIFlattened = newdict;
+SetId "(element, newId) {
+    oldId = element._id;
+    UnregisterId(oldId);
+    Self.MEIFlattened[newId] = element;
+    element._id = newId;
+}"
+UnregisterId "(id) {
+    // ManuScript dictionaries will return the empty string if an entry does
+    // not exists, so the most sensible way to cancel an element is to put the
+    // empty string in its place as ManuScript does not allow us to remove an
+    // entry entirely from a Dictionary
+    Self.MEIFlattened[id] = '';
 }"
 RemoveAttribute "(element, attrname) {
     // since there are no delete functions
