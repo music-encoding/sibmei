@@ -43,11 +43,6 @@ describe("Text elements", function() {
         const subscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sub']", meiText);
         assert.notStrictEqual(subscript.length, 0, "Subscript in subtitle is missing");
     });
-    // Formatting elements must be output without indentation or any other additional whitespace
-    it("check for whitespace introduced by formatting tags", function() {
-        const subtitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
-        assert.strictEqual(subtitle.textContent, 'E0=mc2', 0, "Text must not have any whitespace");
-    });
     // check for front matter
     it("check for front matter", function() {
         const firstMusicChild = xpath.evaluateXPath("//*:music/element()[1]", meiText);
@@ -69,8 +64,9 @@ describe("Text elements", function() {
     });
     // underline: "underlined for me" @rend="underline"
     it("check for underlined text", function() {
-        const underlinedText = xpath.evaluateXPath("//*[contains(@rend, 'underline')]", meiText).map(n => n.textContent.trim());
-        assert.deepEqual(underlinedText, ['underlined', 'for me']);
+        const underline = xpath.evaluateXPath("//*:rend[./text()='underlined ' or ./text()='for me']", meiText);
+        assert.strictEqual(underline.length, 2, "There are only " + underline.length + " elements queried!");
+        utils.assertAttrOnElements(underline, [0, 1], "rend", "underline");
     });
     // font change: @fontfam "change " & "the font"
     it("check for font change", function() {
