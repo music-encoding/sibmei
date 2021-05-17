@@ -51,7 +51,8 @@ function HandleText (textObject) {
     // Step through the different ID types ('StyleId' and 'StyleAsText') and
     // check for text handlers for this type
     textHandlers = Self._property:TextHandlers;
-    for each Name idType in textHandlers {
+    for each Name idType in textHandlers
+    {
         handlersForIdType = textHandlers.@idType;
         idValue = textObject.@idType;
         if(handlersForIdType.MethodExists(idValue))
@@ -121,6 +122,7 @@ function AddFormattedText (parentElement, textObj) {
     textWithFormatting = textObj.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
+        // We have a simple text element without special style properties
         if (parentElement.name = 'div')
         {
             p = libmei.P();
@@ -134,16 +136,16 @@ function AddFormattedText (parentElement, textObj) {
         return parentElement;
     }
 
+    // At this point we know that we have text with style changes and/or text
+    // substitutions
     nodes = CreateSparseArray();
 
     state = CreateDictionary(
         'currentText', null,
-        'rendAttributes', CreateDictionary(),
-        'rendFlags', CreateDictionary(),
+        'style', CreateDictionary(),
         // TODO: Also track the active character style (mainly
         // `\ctext.character.musictext\`, and custom styles)
-        'nodes', nodes,
-        'paragraphs', null
+        'meiNodes', nodes
     );
 
     for each component in textObj.TextWithFormatting
@@ -179,15 +181,23 @@ function AddFormattedText (parentElement, textObj) {
             }
             case ('\\U')
             {
-                SwitchTextStyle(state, 'rend', 'underline', true);
+                SwitchTextStyle(state, 'underline', 'underline_on');
             }
             case ('\\u')
             {
-                SwitchTextStyle(state, 'rend', 'underline', false);
+                SwitchTextStyle(state, 'underline', 'underline_off');
             }
             case ('\\f')
             {
-                SwitchFont(state, GetTextCommandArg(component));
+                font = GetTextCommandArg(component);
+                if (font = '_')
+                {
+                    ResetTextStyles(state);
+                }
+                else
+                {
+                    SwitchTextStyle(state, 'fontfam', font);
+                }
             }
             case ('\\c')
             {
@@ -221,17 +231,18 @@ function AddFormattedText (parentElement, textObj) {
             }
             case ('\\p')
             {
-                SwitchBaselineAdjust(state, GetTextCommandArg(component));
+                SwitchTextStyle(state, 'baseline', GetTextCommandArg(component));
             }
-            case ('\\$') {
+            case ('\\$')
+            {
                 AppendTextSubstitute(state, GetTextCommandArg(component));
             }
             case ('\\\\')
             {
                 // According to the documentation, 'backslashes themselves are
                 // represented by \\ , to avoid conflicting with the above
-                // commands'. Though that does not seem to work, let's just
-                // assume it does in case Avid fixes this.
+                // commands'. Though Sibelius does not seem to allow inputting
+                // this, let's still cover it in case Avid fixes this.
 
                 // We strip one leading backspace.
                 state.currentText = state.currentText & Substring(component, 1);
@@ -264,7 +275,8 @@ function AddFormattedText (parentElement, textObj) {
             // We have a text node
             text = node;
             // If there are multiple adjacent text nodes, we need to join them
-            while (nodeIndex < nodeCount and not IsObject(nodes[nodeIndex + 1])) {
+            while (nodeIndex < nodeCount and not IsObject(nodes[nodeIndex + 1]))
+            {
                 nodeIndex = nodeIndex + 1;
                 text = text & nodes[nodeIndex];
             }
@@ -283,94 +295,38 @@ function AddFormattedText (parentElement, textObj) {
 }  //$end
 
 
-function NewTextParagraph (state) {
-    // TODO!
-    ;
-}  //$end
-
-
 function GetTextCommandArg (command) {
     // Remove leading part, e.g. the '\$' or '\s' and trailing '\'
     return Substring(command, 2, Length(command) - 3);
 }  //$end
 
 
-function SwitchBaselineAdjust (state, param) {
-    sup = (param = 'superscript');
-    sub = (param = 'subscript');
-    if (sup != state.rendFlags['sup'] or sub != state.rendFlags['sub']) {
-        // Style changed, push the previous text before changing the style
-        PushStyledText(state);
-    }
-    state.rendFlags['sup'] = sup;
-    state.rendFlags['sub'] = sub;
-}  //$end
+function ResetTextStyles (state) {
+    textNotYetPushed = true;
+    style = state.style;
 
-
-function ResetTextStyles (state, infoOnly) {
-    // If `infoOnly` is `true`, does not make any changes, only tells us if
-    // there are re-settable styles
-    if (null != state.rendAttributes)
+    for each Name property in style
     {
-        for each Name attName in state.rendAttributes
+        if (textNotYetPushed and null != style[property])
         {
-            if (infoOnly and state.rendAttributes[attName] != null)
-            {
-                return true;
-            }
-            state.rendAttributes[attName] = null;
-        }
-    }
-
-    if (null != state.rendFlags)
-    {
-        for each Name flagName in state.rendFlags
-        {
-            if (infoOnly and state.rendFlags[flagName])
-            {
-                return true;
-            }
-            state.rendFlags[flagName] = false;
-        }
-    }
-    return false;
-}  //$end
-
-
-function SwitchFont (state, fontName) {
-    if (fontName = '_')
-    {
-        // Before resetting the style, we have to add text preceding the '\f_\'
-        // style reset – but only if the style reset actually changes something.
-        if (ResetTextStyles(state, true))
-        {
+            // Style changes because we reset this property from non-null value
+            // to null. Therefore push the existing text with the old style
+            // before resetting it.
+            textNotYetPushed = false;
             PushStyledText(state);
-            ResetTextStyles(state, false);
         }
-    }
-    else
-    {
-        SwitchTextStyle(state, 'fontfam', fontName);
+        style[property] = null;
     }
 }  //$end
 
 
-function SwitchTextStyle (state, attName, value) {
-    if (state.rendAttributes[attName] != value)
+function SwitchTextStyle (state, property, value) {
+    if (state.style[property] != value)
     {
         // Style changes, so append current text before modifying style state
         PushStyledText(state);
     }
-    state.rendAttributes[attName] = value;
-}  //$end
-
-
-function SwitchRendFlags (state, flagName, value) {
-    if (state.rendFlags[flagName] != value)
-    {
-        PushStyledText(state);
-    }
-    state.rendFlags[flagName] = value;
+    state.style[property] = value;
 }  //$end
 
 
@@ -384,16 +340,17 @@ function PushStyledText (state) {
     if (null = styleAttributes)
     {
         // We attach unstyled text without wrapping it in <rend>
-        state.nodes.Push(state.currentText);
+        state.meiNodes.Push(state.currentText);
     }
     else
     {
         rend = libmei.Rend();
-        for each Name attName in styleAttributes {
+        for each Name attName in styleAttributes
+        {
             libmei.AddAttribute(rend, attName, styleAttributes[attName]);
         }
         libmei.SetText(rend, state.currentText);
-        state.nodes.Push(rend);
+        state.meiNodes.Push(rend);
     }
 
     state.currentText = '';
@@ -401,61 +358,71 @@ function PushStyledText (state) {
 
 
 function GetStyleAttributes (state) {
-    rendAttributes = null;
+    // Returns a dictionary with attribute names and values.
+    // Returns null if there are no style attributes.
 
-    if (null != state.rendAttributes)
+    style = state.style;
+    styleAttributes = CreateDictionary();
+    rendValues = CreateSparseArray();
+
+    noStyles = true;
+
+    for each Name property in state.style
     {
-        for each Name attName in state.rendAttributes
+        value = style[property];
+        switch (value)
         {
-            value = state.rendAttributes[attName];
-            if (null != value)
+            case (null)
             {
-                if (null = rendAttributes) {
-                    rendAttributes = CreateDictionary();
-                }
-                rendAttributes[attName] = value;
+                ; // Nothing to add
+            }
+            case ('underline_on')
+            {
+                rendValues.Push('underline');
+            }
+            case ('underline_off')
+            {
+                ; // Nothing to add
+            }
+            case ('normal') // baseline
+            {
+                ; // Nothing to add
+            }
+            case ('subscript')
+            {
+                rendValues.Push('sub');
+            }
+            case ('superscript')
+            {
+                rendValues.Push('sup');
+            }
+            default
+            {
+                noStyles = false;
+                styleAttributes[property] = value;
             }
         }
     }
 
-    if (null != state.rendFlags)
+    if (rendValues.Length > 0)
     {
-        rendAttValue = '';
-        firstRendFlag = true;
-        for each Name flagName in state.rendFlags
-        {
-            flagActive = state.rendFlags[flagName];
-            if (flagActive)
-            {
-                if (firstRendFlag = true)
-                {
-                    rendAttValue = rendAttValue & flagName;
-                    firstRendFlag = false;
-                }
-                else
-                {
-                    rendAttValue = rendAttValue & ' ' & flagName;
-                }
-            }
-        }
-        if (rendAttValue != '')
-        {
-            if (null = rendAttributes) {
-                rendAttributes = CreateDictionary();
-            }
-            rendAttributes['rend'] = rendAttValue;
-        }
+        noStyles = false;
+        styleAttributes['rend'] = rendValues.Join(' ');
     }
 
-    return rendAttributes;
+    if (noStyles)
+    {
+        return null;
+    }
+    return styleAttributes;
 }  //$end
 
 
 function AppendTextSubstitute (state, substituteName) {
     score = Self._property:ActiveScore;
 
-    textSubstituteInfo = TextSubstituteMap[substituteName];
-    if (null = textSubstituteInfo)
+    textSubstituteTemplate = TextSubstituteMap[substituteName];
+    if (null = textSubstituteTemplate)
     {
         // No known substitution. Sibelius renders those literally.
         state.currentText = state.currentText & '\\$' & substituteName & '\\';
@@ -463,12 +430,15 @@ function AppendTextSubstitute (state, substituteName) {
     }
 
     substitutedText = score.@substituteName;
-    if (substitutedText = '') {
+    if (substitutedText = '')
+    {
         return null;
     }
 
-    element = MeiFactory(textSubstituteInfo);
-    state.nodes.Push(element);
+    PushStyledText(state);
+
+    element = MeiFactory(textSubstituteTemplate);
+    state.meiNodes.Push(element);
 
     styleAttributes = GetStyleAttributes(state);
     rendElement = null;
