@@ -16,11 +16,11 @@ module.exports = {
   assertAttrOnElements: function(elements, indices, attName, expectedValue) {
     for (let i = 0; i < elements.length; i += 1) {
       const actualValue = elements[i].getAttribute(attName);
-      const elementDescription = 'element index ' + i + ' (' + elements[i].localName + ')' + ' ("' + elements[i].innerHTML + '")';
+      const elementDescription = 'element index ' + i + ' (' + elements[i].localName + ')' + ' ("' + elements[i].outerHTML + '")';
       if (indices.indexOf(i) >= 0) {
-        assert.strictEqual(actualValue, expectedValue, 'value not found on ' + elementDescription);
+        assert.strictEqual(actualValue, expectedValue, `value for ${attName} not found on ${elementDescription}`);
       } else {
-        assert.notEqual(actualValue, expectedValue, 'value unexpectedly found on ' + elementDescription);
+        assert.notEqual(actualValue, expectedValue, `value for ${attName} unexpectedly found on ${elementDescription}`);
       }
     }
   },
