@@ -181,7 +181,6 @@ function ShiftTupletToTupletSpan (tuplet) {
         // appearing in the output.)
         pobj = libmei.getElementById(tuplet._parent);
         libmei.RemoveChild(pobj, tuplet);
-        tuplet._parent = null;
     }
 
     mobjs = Self._property:MeasureObjects;
