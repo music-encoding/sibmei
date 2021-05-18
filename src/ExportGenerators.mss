@@ -211,19 +211,26 @@ function GenerateMEIMusic () {
 
     currentScoreDef = null;
 
+    timerId = 1;
+    Sibelius.ResetStopWatch(timerId);
+
+
     for j = 1 to numbars + 1
     {
-        // this value may get changed by the volta processor
-        // to inject a new parent in the hierarchy.
-        progressMsg = utils.Format(_ExportingBars, j, numbars);
-        cont = Sibelius.UpdateProgressDialog(j, progressMsg);
-        section = Self._property:SectionElement;
-
-        // if the user has clicked cancel, stop the plugin.
-        if (cont = 0)
+        // Surprisingly, the progress dialog slows down processing tremendously,
+        // so only update it at most 5 times a second
+        // http://sibelius-manuscript-plug-in-developers.3224780.n2.nabble.com/Performance-notes-for-Plug-in-Developers-td7573341.html
+        if (Sibelius.GetElapsedMilliSeconds(timerId) > 200)
         {
-            ExitPlugin();
+            Sibelius.ResetStopWatch(timerId);
+            progressMsg = utils.Format(_ExportingBars, j, numbars);
+            if (not Sibelius.UpdateProgressDialog(j, progressMsg))
+            {
+                // if the user has clicked cancel, stop the plugin.
+                ExitPlugin();
+            }
         }
+        section = Self._property:SectionElement;
 
         m = GenerateMeasure(j);
         ending = ProcessVolta(j);
