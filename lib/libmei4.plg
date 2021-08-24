@@ -1749,8 +1749,13 @@ AddChild "(element, child) {
         cid = child._id;
         child._parent = element._id;
         element.children.Push(cid);
+        // The following might be redundant, but in case a child is removed from
+        // one parent and added to another, it's safer to re-register the ID.
+        Self.MEIFlattened[cid] = child;
 }"
 RemoveChild "(element, child) {
+    child._parent = null;
+    UnregisterId(child._id);
     newarr = CreateSparseArray();
 
     for each elid in element.children
@@ -1814,14 +1819,15 @@ SetAttributes "(element, new_attrs) {
 GetId "(element) {
         return element._id;
 }"
-SetId "(element, value) {
-        olddict = Self._property:MEIFlattened;
-        oldid = element._id;
-
-        newdict = removeKeyFromDictionary(olddict, oldid);
-        element._id = value;
-        newdict[value] = element;
-        Self._property:MEIFlattened = newdict;
+SetId "(element, newId) {
+    UnregisterId(element._id);
+    element._id = newId;
+    Self.MEIFlattened[newId] = element;
+}"
+UnregisterId "(id) {
+    olddict = Self._property:MEIFlattened;
+    newdict = removeKeyFromDictionary(olddict, id);
+    Self._property:MEIFlattened = newdict;
 }"
 RemoveAttribute "(element, attrname) {
     // since there are no delete functions
