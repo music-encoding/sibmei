@@ -13,6 +13,6 @@ describe("bar numbers", function() {
     });
     it("exports @label attributes", function() {
         const nAttributes = xpath.evaluateXPath("//*:measure", mei).map(m => m.getAttribute('label'));
-        assert.deepEqual(nAttributes, [null, null, '5', '1'], "@n is simply ascending");
+        assert.deepEqual(nAttributes, [null, null, '5', '1'], "@label represents displayed bar numbers");
     });
 });
