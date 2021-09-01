@@ -395,7 +395,7 @@ function GenerateMeasure (num) {
             Self._property:PageBreak = pb;
         }
 
-        if (bar.ExternalBarNumberString and libmei.GetAttribute(m, 'label') = False)
+        if (bar.ExternalBarNumberString != bar.BarNumber and libmei.GetAttribute(m, 'label') = False)
         {
             libmei.AddAttribute(m, 'label', bar.ExternalBarNumberString);
         }
