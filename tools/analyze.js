@@ -36,10 +36,20 @@ function reportIssue(filePath, lineIndex, line, message) {
 }
 
 
+function* mssPaths(folder) {
+  for (const item of fs.readdirSync(folder).map(f => path.join(folder, f))) {
+    if (fs.lstatSync(item).isDirectory()) {
+      yield* mssPaths(item);
+    } else if (item.match(/\.mss$/)) {
+      yield item;
+    }
+  }
+}
+
+
 function analyzeUsage(methods, attributes) {
   console.log('Analyze libmei and attribute usage...');
-  for (const fileName of fs.readdirSync(directories.src)) {
-    const filePath = path.join(directories.src, fileName);
+  for (filePath of mssPaths(directories.src)) {
     const lines = fs.readFileSync(filePath, {encoding: 'utf8'}).split("\n");
 
     for (let lineIndex = 0; lineIndex < lines.length; lineIndex ++) {
