@@ -25,8 +25,8 @@ describe("Symbols", function() {
       });
     describe("Modifiers (children of note): Articulations", function() {
         var artics = xpath.evaluateXPath('//*:artic', meiSymbols);
-        it("21 articulations were created", function () {
-            assert.strictEqual(artics.length, 21, "Not all 21 articulations were created");
+        it("22 articulations were created", function () {
+            assert.strictEqual(artics.length, 22, "Not all 22 articulations were created");
         });
         it("<artic> is child of <note>", function() {
             for (let count = 0; count < artics.length; count++) {
@@ -37,8 +37,7 @@ describe("Symbols", function() {
             utils.assertHasAttr(artics, "artic");
         });
         it("<artic> with @place", function() {
-            utils.assertElsHasAttr(artics, [9, 10, 11, 12, 13, 14], 'place');
+            utils.assertElsHasAttr(artics, [10, 11, 12, 13, 14, 15], 'place');
         });
     });
 });
-  

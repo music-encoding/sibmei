@@ -17,9 +17,10 @@ function InitSymbolHandlers () {
             '37', 'HandleControlEvent',                 //mordent
             '38', 'HandleControlEvent',                 //turn
             '39', 'HandleControlEvent',                 //inverted turn
-            '52', 'HandleModifier',                     //heel
-            '53', 'HandleModifier',                     //heel (2) (was toe in previous version, but this seems to be wrong)
-            '54', 'HandleModifier',                     //toe
+            '52', 'HandleModifier',                     //heel 1
+            '53', 'HandleModifier',                     //heel 2
+            '54', 'HandleModifier',                     //toe 1
+            '55', 'HandleModifier',                     //toe 2
             '160', 'HandleModifier',                    //stop
             '162', 'HandleModifier',                    //open
             '163', 'HandleModifier',                    //damp
@@ -72,9 +73,10 @@ function InitSymbolMap () {
         '37', CreateSparseArray('Mordent', CreateDictionary('form','upper')),                   //mordent
         '38', CreateSparseArray('Turn', CreateDictionary('form', 'upper')),                     //turn
         '39', CreateSparseArray('Turn', CreateDictionary('form', 'lower')),                     //inverted turn
-        '52', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel
-        '53', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel (2) (was toe in previous version, but this seems to be wrong)
-        '54', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe
+        '52', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel 1
+        '53', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel 2
+        '54', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe 1
+        '55', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe 2
         '160', CreateSparseArray('Artic', CreateDictionary('artic','stop')),                    //stop
         '162', CreateSparseArray('Artic', CreateDictionary('artic','open')),                    //open
         '163', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp
