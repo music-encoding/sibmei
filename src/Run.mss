@@ -1,6 +1,11 @@
 function Run() {
     //$module(Run.mss)
 
+    if (not InitGlobals(null))
+    {
+        return null;
+    }
+
     DoExport(null);
 
 }  //$end
@@ -17,11 +22,6 @@ function GetExportFileName () {
     } else {
         activeFileName = 'untitled.mei';
         activePath = Sibelius.GetDocumentsFolder();
-    }
-
-    if (not InitGlobals(null))
-    {
-        return null;
     }
 
     // Ask to the file to be saved somewhere
