@@ -1,19 +1,6 @@
 function Run() {
     //$module(Run.mss)
 
-    // do some preliminary checks
-    if (Sibelius.ProgramVersion < 7000)
-    {
-        Sibelius.MessageBox(_VersionNotSupported);
-        return False;
-    }
-
-    if (Sibelius.ScoreCount = 0)
-    {
-        Sibelius.MessageBox(_ScoreError);
-        return False;
-    }
-
     DoExport(null);
 
 }  //$end
@@ -50,6 +37,20 @@ function DoExport (filename) {
     // Argument filename is optional and will be determined automatically if
     // `null` is passed in instead.  The filename is also returned so the
     // caller can then work with.
+
+    // do some preliminary checks
+    if (Sibelius.ProgramVersion < 7000)
+    {
+        Sibelius.MessageBox(_VersionNotSupported);
+        return False;
+    }
+
+    if (Sibelius.ScoreCount = 0)
+    {
+        Sibelius.MessageBox(_ScoreError);
+        return null;
+    }
+
     if (null = filename)
     {
         filename = GetExportFileName();
