@@ -513,7 +513,7 @@ function NormalizedBeamProp (noteRest) {
 
     if (noteRest.Beam != StartBeam)
     {
-        prev_obj = PrevNormalOrGrace(noteRest, noteRest.GraceNote);
+        prev_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote, 'PreviousItem');
 
         if (prev_obj != null and prev_obj.Beam != NoBeam and prev_obj.Duration < 256)
         {
@@ -532,7 +532,7 @@ function NormalizedBeamProp (noteRest) {
     // StartBeam or the above test for a previous beam failed.
     // We still need to check whether there is a following note that we can beam to.
 
-    next_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote);
+    next_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote, 'NextItem');
     if (next_obj != null and next_obj.Duration < 256 and (next_obj.Beam = ContinueBeam or next_obj.Beam = SingleBeam))
     {
         return StartBeam;
@@ -543,17 +543,15 @@ function NormalizedBeamProp (noteRest) {
     }
 }  //$end
 
-function NextNormalOrGrace (noteRest, grace) {
+function NextNormalOrGrace (noteRest, grace, previousOrNext) {
     //$module(Utilities.mss)
     /*
         When given a 'normal' NoteRest, this function returns the next 'normal' NoteRest
         in the same voice.
         When given a grace NoteRest, this function returns the immediately adjacent
         following grace NoteRest, if existant.
-        This function is basically a duplicate of PrevNormalOrGrace() with
-        'Previous' replaced by 'Next'.
     */
-    next_obj = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
+    next_obj = noteRest.@previousOrNext(noteRest.VoiceNumber, 'NoteRest');
     if (grace)
     {
         // There mustn't be any intermitting 'normal' notes between grace notes.
@@ -572,34 +570,6 @@ function NextNormalOrGrace (noteRest, grace) {
         }
     }
     return next_obj;
-}  //$end
-
-function PrevNormalOrGrace (noteRest, grace) {
-    //$module(Utilities.mss)
-    /*
-        For a description, see NextNormalOrGrace().
-        This function is basically a duplicate of PrevNormalOrGrace() with
-        'Next' replaced by 'Previous'.
-    */
-    prev_obj = noteRest.PreviousItem(noteRest.VoiceNumber, 'NoteRest');
-    if (grace)
-    {
-        // There mustn't be any intermitting 'normal' notes between grace notes.
-        if (prev_obj != null and not(prev_obj.GraceNote))
-        {
-            prev_obj = null;
-        }
-    }
-    else
-    {
-        // If noteRest isn't a grace note, we skip all grace notes as their beams
-        // can be nested inside normal beams.
-        while (prev_obj and prev_obj.GraceNote)
-        {
-            prev_obj = prev_obj.NextItem(noteRest.VoiceNumber, 'NoteRest');
-        }
-    }
-    return prev_obj;
 }  //$end
 
 function HasSingleVoice (bar) {
@@ -633,7 +603,7 @@ function GetNongraceParentBeam (noteRest, layer) {
     {
         // Only if the active non-grace beam continues to the next normal note, the
         // grace note is truly placed under the non-grace beam.
-        nextNongraceNoteRest = NextNormalOrGrace(noteRest, false);
+        nextNongraceNoteRest = NextNormalOrGrace(noteRest, false, 'NextItem');
         if (nextNongraceNoteRest != null)
         {
             nextNormalBeamProp = NormalizedBeamProp(nextNongraceNoteRest);
