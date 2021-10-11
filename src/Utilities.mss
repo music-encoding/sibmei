@@ -513,7 +513,7 @@ function NormalizedBeamProp (noteRest) {
 
     if (noteRest.Beam != StartBeam)
     {
-        prev_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote, 'PreviousItem');
+        prev_obj = AdjacentNormalOrGrace(noteRest, noteRest.GraceNote, 'PreviousItem');
 
         if (prev_obj != null and prev_obj.Beam != NoBeam and prev_obj.Duration < 256)
         {
@@ -532,7 +532,7 @@ function NormalizedBeamProp (noteRest) {
     // StartBeam or the above test for a previous beam failed.
     // We still need to check whether there is a following note that we can beam to.
 
-    next_obj = NextNormalOrGrace(noteRest, noteRest.GraceNote, 'NextItem');
+    next_obj = AdjacentNormalOrGrace(noteRest, noteRest.GraceNote, 'NextItem');
     if (next_obj != null and next_obj.Duration < 256 and (next_obj.Beam = ContinueBeam or next_obj.Beam = SingleBeam))
     {
         return StartBeam;
@@ -543,7 +543,7 @@ function NormalizedBeamProp (noteRest) {
     }
 }  //$end
 
-function NextNormalOrGrace (noteRest, grace, previousOrNext) {
+function AdjacentNormalOrGrace (noteRest, grace, previousOrNext) {
     //$module(Utilities.mss)
     /*
         When given a 'normal' NoteRest, this function returns the next 'normal' NoteRest
@@ -603,7 +603,7 @@ function GetNongraceParentBeam (noteRest, layer) {
     {
         // Only if the active non-grace beam continues to the next normal note, the
         // grace note is truly placed under the non-grace beam.
-        nextNongraceNoteRest = NextNormalOrGrace(noteRest, false, 'NextItem');
+        nextNongraceNoteRest = AdjacentNormalOrGrace(noteRest, false, 'NextItem');
         if (nextNongraceNoteRest != null)
         {
             nextNormalBeamProp = NormalizedBeamProp(nextNongraceNoteRest);

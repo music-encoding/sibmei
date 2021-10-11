@@ -562,7 +562,7 @@ function GenerateLayers (staffnum, measurenum) {
                 // out whether they are part of beams or tuplets.
                 clef = GenerateClef(bobj);
 
-                prevNoteRest = NextNormalOrGrace(bobj, false, 'PreviousItem');
+                prevNoteRest = AdjacentNormalOrGrace(bobj, false, 'PreviousItem');
 
                 if (prevNoteRest != null)
                 {
@@ -581,7 +581,7 @@ function GenerateLayers (staffnum, measurenum) {
                         default
                         {
                             // ContinueBeam and SingleBeam
-                            nextNoteRest = NextNormalOrGrace(bobj, false, 'NextItem');
+                            nextNoteRest = AdjacentNormalOrGrace(bobj, false, 'NextItem');
                             if (nextNoteRest != null)
                             {
                                 nextBeamProp = NormalizedBeamProp(nextNoteRest);

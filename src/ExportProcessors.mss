@@ -93,7 +93,7 @@ function ProcessTuplet (noteRest, meielement, layer) {
     {
         // In Sibelius, grace notes before the first tuplet note are part of the
         // tuplet. In MEI, we want to put them before the tuplet element.
-        prevNote = NextNormalOrGrace(noteRest, false, 'PreviousItem');
+        prevNote = AdjacentNormalOrGrace(noteRest, false, 'PreviousItem');
         if (null = prevNote)
         {
             return null;
