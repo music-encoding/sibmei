@@ -1,19 +1,17 @@
 function Run() {
     //$module(Run.mss)
 
-    // do some preliminary checks
-    if (Sibelius.ProgramVersion < 7000)
+    if (not InitGlobals(null))
     {
-        Sibelius.MessageBox(_VersionNotSupported);
-        return False;
+        return null;
     }
 
-    if (Sibelius.ScoreCount = 0)
-    {
-        Sibelius.MessageBox(_ScoreError);
-        return False;
-    }
+    DoExport(null);
 
+}  //$end
+
+
+function GetExportFileName () {
     // get the active score object
     activeScore = Sibelius.ActiveScore;
 
@@ -26,26 +24,42 @@ function Run() {
         activePath = Sibelius.GetDocumentsFolder();
     }
 
-    if (not InitGlobals(null))
-    {
-        return false;
-    }
-
     // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
 
-    if (filename = null)
-    {
-        Sibelius.MessageBox(_ExportFileIsNull);
-        return False;
-    }
+    return filename;
+} //$end
 
-    DoExport(filename);
-
-}  //$end
 
 function DoExport (filename) {
     //$module(Run.mss)
+
+    // Argument filename is optional and will be determined automatically if
+    // `null` is passed in instead.  The filename is also returned so the
+    // caller can then work with.
+
+    // do some preliminary checks
+    if (Sibelius.ProgramVersion < 7000)
+    {
+        Sibelius.MessageBox(_VersionNotSupported);
+        return False;
+    }
+
+    if (Sibelius.ScoreCount = 0)
+    {
+        Sibelius.MessageBox(_ScoreError);
+        return null;
+    }
+
+    if (null = filename)
+    {
+        filename = GetExportFileName();
+        if (null = filename)
+        {
+            Sibelius.MessageBox(_ExportFileIsNull);
+            return null;
+        }
+    }
 
     if (not Self._property:_Initialized)
     {
@@ -97,4 +111,6 @@ function DoExport (filename) {
 
     // clean up after ourself
     libmei.destroy();
+
+    return filename;
 }  //$end
