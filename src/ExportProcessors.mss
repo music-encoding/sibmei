@@ -204,10 +204,16 @@ function ProcessLyric (lyricobj, objectPositions) {
         return null;
     }
 
-    styleparts = MSplitString(lyricobj.StyleId, '.');
-    verse_id = styleparts[5];
-    verse_id_arr = MSplitString(verse_id, false);
-    verse_num = verse_id_arr[5];
+    verse_num = 0;
+    isChorus = (lyricobj.StyleId = 'text.staff.space.hypen.lyrics.chorus');
+
+    if (not isChorus)
+    {
+        verseIdPrefix = 'text.staff.space.hypen.lyrics.verse';
+        // Substring after the verse ID prefix is a verse number, from 1 to 6
+        verse_num = Substring(lyricobj.StyleId, Length(verseIdPrefix)) + 0;
+    }
+
     bar_num = lyricobj.ParentBar.BarNumber;
     staff_num = lyricobj.ParentBar.ParentStaff.StaffNum;
     voicenum = lyricobj.VoiceNumber;
@@ -263,8 +269,22 @@ function ProcessLyric (lyricobj, objectPositions) {
     {
         syl = lyric_word[j];
 
-        verse = libmei.Verse();
-        libmei.AddAttribute(verse, 'n', verse_num);
+        if (isChorus) {
+            verse = libmei.Refrain();
+        }
+        else
+        {
+            verse = libmei.Verse();
+        }
+
+        if (verse_num > 0)
+        {
+            // verse_num = 0 is used for anything that is not a verse, e.g.
+            // chorus, Siblius' "lyrics above" style and any other user defined
+            // lyrics styles where we don't know if a specific verse number is
+            // intended.  We therefore only write @n if verse_num > 0.
+            libmei.AddAttribute(verse, 'n', verse_num);
+        }
         sylel = libmei.Syl();
         // In the case of elisions, we create multiple syl elements from one
         // LyricItem. We have to distinguish between the first and the last syl
