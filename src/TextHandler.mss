@@ -10,13 +10,13 @@ function InitTextHandlers() {
     RegisterHandlers(textHandlers, CreateDictionary(
         'StyleId', CreateDictionary(
             'text.staff.expression', 'ExpressionTextHandler',
-            'text.system.page_aligned.title', 'PageTitleHandler',
-            'text.system.page_aligned.subtitle', 'PageTitleHandler',
-            'text.system.page_aligned.composer', 'PageComposerTextHandler',
-            'text.staff.plain', 'CreateAnchoredText'
+            'text.staff.plain', 'CreateAnchoredText',
             'text.staff.space.figuredbass', 'FiguredBassTextHandler',
             'text.staff.technique', 'CreateDirective',
-            'text.system.tempo', 'TempoTextHandler',
+            'text.system.page_aligned.composer', 'PageComposerTextHandler',
+            'text.system.page_aligned.subtitle', 'PageTitleHandler',
+            'text.system.page_aligned.title', 'PageTitleHandler',
+            'text.system.tempo', 'TempoTextHandler'
         )
     ), Self);
 
