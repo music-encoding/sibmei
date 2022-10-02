@@ -1678,8 +1678,6 @@ function GenerateHairpin (bobj) {
     //$module(ExportGenerators.mss)
     hairpin = GenerateControlEvent(bobj, 'Hairpin');
 
-    Trace(1);
-
     switch (bobj.Type) {
         case ('CrescendoLine')
         {
@@ -1692,8 +1690,6 @@ function GenerateHairpin (bobj) {
     }
 
     style = MSplitString(bobj.StyleId, '.')[4];
-
-    Trace('style ' &style);
 
     switch(style)
     {
