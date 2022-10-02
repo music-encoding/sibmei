@@ -121,8 +121,8 @@ function CreateAnchoredText (this, textObject) {
 function CreateDirective (this, textObject) {
     directive = GenerateControlEvent(textObject, 'Dir');
     AddFormattedText(directive, textObject);
-    styleparts = MSplitString(textObject.StyleId, '.');
-    text_style = styleparts[3];
+    styleIdPrefix = 'text.staff.';
+    text_style = Substring(textObject.StyleId, Length(styleIdPrefix)) + 0;
     libmei.AddAttribute(directive, 'class', text_style);
     return directive;
 }  //$end
