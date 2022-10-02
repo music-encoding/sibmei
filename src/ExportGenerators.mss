@@ -686,11 +686,11 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('CrescendoLine')
             {
-                mobj = GenerateLine(bobj);
+                mobj = GenerateHairpin(bobj);
             }
             case('DiminuendoLine')
             {
-                mobj = GenerateLine(bobj);
+                mobj = GenerateHairpin(bobj);
             }
             case('OctavaLine')
             {
@@ -1496,7 +1496,6 @@ function GenerateTuplet(tupletObj) {
 function GenerateLine (bobj) {
     //$module(ExportGenerators.mss)
     line = null;
-    bar = bobj.ParentBar;
 
     switch (bobj.Type)
     {
@@ -1505,22 +1504,6 @@ function GenerateLine (bobj) {
             line = GenerateControlEvent(bobj, 'Slur');
             slurrend = ConvertSlurStyle(bobj.StyleId);
             libmei.AddAttribute(line, 'lform', slurrend[1]);
-        }
-        case ('CrescendoLine')
-        {
-            line = GenerateControlEvent(bobj, 'Hairpin');
-            libmei.AddAttribute(line, 'form', 'cres');
-            pinstyle = ConvertHairpin(bobj.StyleId);
-            libmei.AddAttribute(line, 'lform', pinstyle[0]);
-            libmei.AddAttribute(line, 'niente', pinstyle[1]);
-        }
-        case ('DiminuendoLine')
-        {
-            line = GenerateControlEvent(bobj, 'Hairpin');
-            libmei.AddAttribute(line, 'form', 'dim');
-            pinstyle = ConvertHairpin(bobj.StyleId);
-            libmei.AddAttribute(line, 'lform', pinstyle[0]);
-            libmei.AddAttribute(line, 'niente', pinstyle[1]);
         }
         case ('OctavaLine')
         {
@@ -1689,6 +1672,53 @@ function GenerateLine (bobj) {
 
     return line;
 }  //$end
+
+
+function GenerateHairpin (bobj) {
+    //$module(ExportGenerators.mss)
+    hairpin = GenerateControlEvent(bobj, 'Hairpin');
+
+    Trace(1);
+
+    switch (bobj.Type) {
+        case ('CrescendoLine')
+        {
+            libmei.AddAttribute(hairpin, 'form', 'cres');
+        }
+        case ('DiminuendoLine')
+        {
+            libmei.AddAttribute(hairpin, 'form', 'dim');
+        }
+    }
+
+    style = MSplitString(bobj.StyleId, '.')[4];
+
+    Trace('style ' &style);
+
+    switch(style)
+    {
+        case ('dashed')
+        {
+            libmei.AddAttribute(hairpin, 'lform', 'dashed');
+        }
+        case ('dotted')
+        {
+            libmei.AddAttribute(hairpin, 'lform', 'dotted');
+        }
+        case ('fromsilence') {
+            libmei.AddAttribute(hairpin, 'niente', 'true');
+        }
+        case ('tosilence') {
+            libmei.AddAttribute(hairpin, 'niente', 'true');
+        }
+        // Will work in MEI 5
+        // case ('bracketed') {
+        //     libmei.AddAttribute(lform, 'enclose', 'paren');
+        // }
+    }
+
+    return hairpin;
+} //$end
 
 
 function GenerateArpeggio (bobj) {

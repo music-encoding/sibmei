@@ -142,31 +142,6 @@ function ConvertOctava (octava_id) {
     return CreateSparseArray(dis, place);
 }  //$end
 
-function ConvertHairpin (style_id) {
-    //$module(ExportConverters.mss)
-    pinparts = MSplitString(style_id, '.');
-    switch(pinparts[4])
-    {
-        case ('dashed')
-        {
-            lform = 'dashed';
-        }
-        case ('dotted')
-        {
-            lform = 'dotted';
-        }
-        default
-        {
-            lform = ' ';
-        }
-    }
-	niente = 'false';
-    if (pinparts[4] = 'fromsilence' or pinparts[4] = 'tosilence') {
-        niente = 'true';
-    }
-    return CreateSparseArray(lform, niente);
-} //$end
-
 function ConvertDiatonicPitch (diatonic_pitch) {
     //$module(ExportConverters)
     octv = (diatonic_pitch / 7) - 1;
