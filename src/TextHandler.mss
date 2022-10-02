@@ -122,7 +122,7 @@ function CreateDirective (this, textObject) {
     directive = GenerateControlEvent(textObject, 'Dir');
     AddFormattedText(directive, textObject);
     styleIdPrefix = 'text.staff.';
-    text_style = Substring(textObject.StyleId, Length(styleIdPrefix)) + 0;
+    text_style = Substring(textObject.StyleId, Length(styleIdPrefix));
     libmei.AddAttribute(directive, 'class', text_style);
     return directive;
 }  //$end
