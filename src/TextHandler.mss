@@ -123,6 +123,10 @@ function CreateDirective (this, textObject) {
     AddFormattedText(directive, textObject);
     styleIdPrefix = 'text.staff.';
     text_style = Substring(textObject.StyleId, Length(styleIdPrefix));
+    if (MSplitString(o.StyleId, '.')[-2] = 'user')
+    {
+        text_style = textObject.StyleAsText;
+    }
     libmei.AddAttribute(directive, 'class', text_style);
     return directive;
 }  //$end
