@@ -280,7 +280,7 @@ function ProcessLyric (lyricobj, objectPositions) {
         if (verse_num > 0)
         {
             // verse_num = 0 is used for anything that is not a verse, e.g.
-            // chorus, Siblius' "lyrics above" style and any other user defined
+            // chorus, Siblius' 'lyrics above' style and any other user defined
             // lyrics styles where we don't know if a specific verse number is
             // intended.  We therefore only write @n if verse_num > 0.
             libmei.AddAttribute(verse, 'n', verse_num);
