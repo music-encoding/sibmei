@@ -104,6 +104,15 @@ function TempoTextHandler (this, textObject) {
 function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
     harm = GenerateControlEvent(textObject, 'Harm');
+
+    // uniquely, for figured bass we do not use the startid here,
+    // since a figure can change halfway through a note. So we remove
+    // the startid and replace it with corresp, pointing to the
+    // same ID.
+    startidValue = libmei.GetAttribute(harm, 'startid');
+    libmei.RemoveAttribute(harm, 'startid');
+    libmei.AddAttribute(harm, 'corresp', startidValue);
+
     fb = libmei.Fb();
     libmei.AddChild(harm, fb);
     ConvertFbFigures(fb, textObject);
