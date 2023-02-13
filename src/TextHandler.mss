@@ -10,12 +10,13 @@ function InitTextHandlers() {
     RegisterHandlers(textHandlers, CreateDictionary(
         'StyleId', CreateDictionary(
             'text.staff.expression', 'ExpressionTextHandler',
-            'text.system.page_aligned.title', 'PageTitleHandler',
-            'text.system.page_aligned.subtitle', 'PageTitleHandler',
-            'text.system.page_aligned.composer', 'PageComposerTextHandler',
-            'text.system.tempo', 'TempoTextHandler',
+            'text.staff.plain', 'CreateAnchoredText',
             'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-            'text.staff.plain', 'CreateAnchoredText'
+            'text.staff.technique', 'CreateDirective',
+            'text.system.page_aligned.composer', 'PageComposerTextHandler',
+            'text.system.page_aligned.subtitle', 'PageTitleHandler',
+            'text.system.page_aligned.title', 'PageTitleHandler',
+            'text.system.tempo', 'TempoTextHandler'
         )
     ), Self);
 
@@ -111,27 +112,39 @@ function FiguredBassTextHandler (this, textObject) {
 }  //$end
 
 
-function CreateAnchoredText (this, textObj) {
+function CreateAnchoredText (this, textObject) {
     anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObj);
+    AddFormattedText(anchoredText, textObject);
     return anchoredText;
 }  //$end
 
+function CreateDirective (this, textObject) {
+    directive = GenerateControlEvent(textObject, 'Dir');
+    AddFormattedText(directive, textObject);
+    styleIdPrefix = 'text.staff.';
+    textStyle = Substring(textObject.StyleId, Length(styleIdPrefix));
+    if (MSplitString(textObject.StyleId, '.')[-2] = 'user')
+    {
+        textStyle = textObject.StyleAsText;
+    }
+    libmei.AddAttribute(directive, 'label', textStyle);
+    return directive;
+}  //$end
 
-function AddFormattedText (parentElement, textObj) {
-    textWithFormatting = textObj.TextWithFormatting;
+function AddFormattedText (parentElement, textObject) {
+    textWithFormatting = textObject.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
         // We have a simple text element without special style properties
         if (parentElement.name = 'div')
         {
             p = libmei.P();
-            libmei.SetText(p, textObj.Text);
+            libmei.SetText(p, textObject.Text);
             libmei.AddChild(parentElement, p);
         }
         else
         {
-            libmei.SetText(parentElement, textObj.Text);
+            libmei.SetText(parentElement, textObject.Text);
         }
         return parentElement;
     }
@@ -148,7 +161,7 @@ function AddFormattedText (parentElement, textObj) {
         'meiNodes', nodes
     );
 
-    for each component in textObj.TextWithFormatting
+    for each component in textObject.TextWithFormatting
     {
         switch (Substring(component, 0, 2))
         {

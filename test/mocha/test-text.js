@@ -85,4 +85,8 @@ describe("Text elements", function() {
         assert.notStrictEqual(larger.length, 0, "No matching elements to assert were found!");
         assert.notEqual(larger.getAttribute("fontsize"), null, "@fontsize is missing");
     });
+    it("exports techique text from measure 7", function() {
+        const dir = xpath.evaluateXPath("//*:measure[@n='7']/*:dir", meiText);
+        assert.strictEqual(dir.getAttribute('class'), "technique");
+    });
 });
