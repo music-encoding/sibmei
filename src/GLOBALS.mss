@@ -1,4 +1,4 @@
-Version     "4.0.0"
+Version     "4.1.0"
 PluginName  "Sibelius to MEI 4 Exporter"
 Author      "Andrew Hankinson and Others"
 ExtensionAPIVersion "1.1.0"

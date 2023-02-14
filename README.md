@@ -8,17 +8,55 @@ The latest release of the plugin can be found on the GitHub releases page: https
 
 To install this plugin, copy or symlink the `.plg` files in the Sibelius Plugin directory on your machine. The specific location [depends on your OS and version of Sibelius](http://www.sibelius.com/download/plugins/index.html?help=install).
 
+If you're only interested in running the plugin in Sibelius, this is all you need to do.
+
 ## Developing and Contributing
 
-The Sibelius to MEI exporter uses the fantastic [plgToMSS](https://github.com/tido/plgToMSS) tool developed by the Tido team. To contribute to development, you should first install this tool following [their instructions](https://github.com/tido/plgToMSS/blob/master/README.md).
+These are the instructions for installing the development dependencies and developing the plugin.
 
-Once installed, you should get the source code for the Sibelius to MEI plugin. This uses the `gulp` tool to automatically watch the source files for changes, builds and installs the plugin in the Sibelius plugin directory. So, to get set up for development you should install Node.js and the Node Package Manager (npm), and then run the following commands:
+**Note that as of 2023, the dependencies are very fragile since some of the packages are outdated. This makes installation a bit of a pain.**
+
+There are two ways around the painful dependency installation: The first is to try and struggle with npm and all the dependencies to see if you can get them to work. I couldn't, but maybe you can.
+
+The second is to use the alternate JavaScript package manager, `yarn`, since it seems to be much better at managing dependencies and get them to run.
+
+Both sets of instructions are provided here, but instructions on how to install `npm` or `yarn` are not provided. You should choose one or the other, not both!
+
+Note that this only affects the process for building the plugin; You should still follow the instructions below for running the unit tests.
+
+### Building using the Yarn method
+
+Yarn provides a few niceities for running scripts from the directory without installing things globally. All of the dependencies are included in the `package.json` file, including the Tido `pltToMSS` utility and `gulp`, so once you have yarn installed you should be able to run (in the source directory):
 
 ```
-$> npm install -g gulp  // (installs the gulp command globally)
-$> cd sibmei            // cd into the sibmei source directory
+$> yarn install
+```
+
+Once this finishes you can test the installation by running:
+
+```
+$> yarn run gulp develop
+```
+
+This will run a file watcher and as you edit the .mss files it should re-build the plugin for you.
+
+### Building using the NPM method
+
+Previous versions of the plugin had you install packages externally, but in this version you can install everything locally within the development directory, including the Tido plgToMSS code (installed from GitHub) and gulp.
+
+```
 $> npm install          // installs the packages listed in the sibmei package.json directory
 ```
+
+If you have `npx` installed you should now be able to run:
+
+```
+$> npx gulp develop
+```
+
+And it will load a file watcher, watch your source files for changes, and re-build the plugin as you edit and save.
+
+### Linking the plugin during development
 
 You need to create a symbolic link from the Sibelius plugin folder to the build folder in the sibmei directory. The paths are system dependent.
 
