@@ -4,7 +4,7 @@ ExtensionDialog "Dialog"
   X "138"
   Y "282"
   Width "205"
-  Height "170"
+  Height "180"
   Controls
   {
     Text
@@ -30,17 +30,17 @@ ExtensionDialog "Dialog"
     {
       Title "Activate All Extensions"
       X "2"
-      Y "77"
-      Width "68"
+      Y "78"
+      Width "90"
       Height "14"
       Method "SelectAllExtensions"
     }
     Button
     {
       Title "Deactivate All Extensions"
-      X "72"
-      Y "77"
-      Width "68"
+      X "111"
+      Y "78"
+      Width "90"
       Height "14"
       Method "DeselectAllExtensions"
     }
@@ -58,13 +58,13 @@ ExtensionDialog "Dialog"
       X "1"
       Y "109"
       Width "205"
-      Height "14"
+      Height "18"
     }
     Button
     {
       Title "Export"
-      X "151"
-      Y "129"
+      X "152"
+      Y "135"
       Width "50"
       Height "14"
       DefaultButton "1"
@@ -73,8 +73,8 @@ ExtensionDialog "Dialog"
     Button
     {
       Title "Cancel"
-      X "100"
-      Y "129"
+      X "93"
+      Y "135"
       Width "50"
       Height "14"
       EndDialog "0"
