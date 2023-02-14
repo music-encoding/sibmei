@@ -2,7 +2,7 @@
 {
     
     _License "() {
-    return 'Copyright (c) 2011-2015 Andrew Hankinson, Alastair Porter, and Others
+    return 'Copyright (c) 2011-2023 Andrew Hankinson, Alastair Porter, and Others
 
     Permission is hereby granted, free of charge, to any person obtaining
     a copy of this software and associated documentation files (the
@@ -2488,7 +2488,6 @@ GetTail "(element) {
 }"
 
 generateRandomID "() {
-//$module(ExportGenerators.mss)
     id = Self._property:MEIID + 1;
     Self._property:MEIID = id;
     id = 'm-' & id;
