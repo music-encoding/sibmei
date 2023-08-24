@@ -4,7 +4,7 @@ This plugin allows Sibelius to export to the Music Encoding Initiative (MEI) for
 
 ## Download and Installation
 
-The latest release of the plugin can be found on the GitHub releases page: https://github.com/music-encoding/sibmei/releases
+The latest release of the plugin can be found on the [GitHub releases page](https://github.com/music-encoding/sibmei/releases).
 
 To install this plugin, copy or symlink the `.plg` files in the Sibelius Plugin directory on your machine. The specific location [depends on your OS and version of Sibelius](http://www.sibelius.com/download/plugins/index.html?help=install).
 
@@ -28,13 +28,13 @@ Note that this only affects the process for building the plugin; You should stil
 
 Yarn provides a few niceities for running scripts from the directory without installing things globally. All of the dependencies are included in the `package.json` file, including the [Tido `plgToMSS`](https://github.com/tido/plgToMSS) utility and `gulp`, so once you have yarn installed you should be able to run (in the source directory):
 
-```
+```sh
 $> yarn install
 ```
 
 Once this finishes you can test the installation by running:
 
-```
+```sh
 $> yarn run gulp develop
 ```
 
@@ -44,13 +44,13 @@ This will run a file watcher and as you edit the .mss files it should re-build t
 
 Previous versions of the plugin had you install packages externally, but in this version you can install everything locally within the development directory, including the Tido plgToMSS code (installed from GitHub) and gulp.
 
-```
+```sh
 $> npm install          // installs the packages listed in the sibmei package.json directory
 ```
 
 If you have `npx` installed you should now be able to run:
 
-```
+```sh
 $> npx gulp develop
 ```
 
@@ -62,15 +62,15 @@ You need to create a symbolic link from the Sibelius plugin folder to the build 
 
 Example for Mac:
 
-````
+```sh
 $> ln -s "~/path/to/sibmei/build/MEI Export" "~/Library/Application Support/Avid/Sibelius 7.5/Plugins/MEI Export"
-````
+```
 
 Example for Windows (run as administrator):
 
-````
+```sh
 > mklink /D "%APPDATA%\Avid\Sibelius\Plugins\MEI Export" "%HOMEPATH%\path\to\sibmei\build\MEI Export"
-````
+```
 
 Then, to start developing the plugin, you should run `gulp develop`. This will watch the folder for changes, build, and deploy the plugin. **To make your changes active, you will need to "unload" and "reload" the plugin in Sibelius.**
 
@@ -85,13 +85,13 @@ These unit tests are primarily used to test specific Sibmei functions.  They use
 * starting Testsibmei from the plugin editing window or
 * starting "Sibmei Test Runner" from the menu/ribbon.
 
-### mocha
+### Mocha
 
 [Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), either run `npm test` from the root directory of this git repository or have Testsibmei automatically trigger the tests.  The latter requires a `test.bat` or `test.sh` file in the same directory as the Sibmei `*.plg` files, depending on the operating system. Create a file that looks like this:
 
 #### Windows: test.bat
 
-```
+```sh
 x:
 cd x:\path\to\sibmei
 cmd /k npm test
