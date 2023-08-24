@@ -26,7 +26,7 @@ Note that this only affects the process for building the plugin; You should stil
 
 ### Building using the Yarn method
 
-Yarn provides a few niceities for running scripts from the directory without installing things globally. All of the dependencies are included in the `package.json` file, including the Tido `plgToMSS` utility and `gulp`, so once you have yarn installed you should be able to run (in the source directory):
+Yarn provides a few niceities for running scripts from the directory without installing things globally. All of the dependencies are included in the `package.json` file, including the [Tido `plgToMSS`](https://github.com/tido/plgToMSS) utility and `gulp`, so once you have yarn installed you should be able to run (in the source directory):
 
 ```
 $> yarn install
