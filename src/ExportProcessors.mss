@@ -285,6 +285,11 @@ function ProcessLyric (lyricobj, objectPositions) {
             // intended.  We therefore only write @n if verse_num > 0.
             libmei.AddAttribute(verse, 'n', verse_num);
         }
+        if (syl.Color != 0)
+        {
+            libmei.AddAttribute(verse, 'color', ConvertColor(syl));
+        }
+
         sylel = libmei.Syl();
         // In the case of elisions, we create multiple syl elements from one
         // LyricItem. We have to distinguish between the first and the last syl
