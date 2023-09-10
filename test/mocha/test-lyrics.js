@@ -57,4 +57,18 @@ describe("Lyrics", () => {
       assert.strictEqual(syls[4].parentNode.parentNode.nodeName, 'chord');
     });
   });
+
+  describe("color", () => {
+    // Only first two <syl> elements in test file are colored
+    it("encodes colored lyrics", () => {
+      for (let i = 0; i < 2; i++) {
+        assert.strictEqual(syls[i].parentNode.getAttribute('color'), 'rgba(255,0,0,1)', '<syl> index ' + i);
+      }
+    });
+    it("omits @color for black lyrics", () => {
+      for (let i = 2; i < syls.length; i++) {
+        assert.strictEqual(syls[i].parentNode.getAttribute('color'), null, '<syl> index ' + i);
+      }
+    });
+  });
 });
