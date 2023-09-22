@@ -87,7 +87,7 @@ describe("Text elements", function() {
     });
     it("exports technique text from measure 7", function() {
         const dir = xpath.evaluateXPath("//*:measure[@n='7']/*:dir", meiText);
-        assert.strictEqual(dir.getAttribute('class'), "technique");
+        assert.strictEqual(dir.getAttribute("label"), "technique");
     });
     it("exports color", function() {
         const dir = xpath.evaluateXPath("//*:measure[@n='7']/*:dir", meiText);
