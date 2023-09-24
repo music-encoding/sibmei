@@ -147,7 +147,14 @@ function ExportBatch (files, extensions) {
         {
             // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
             error = DoExport(file.Name & '.mei');
-            Sibelius.CloseWindow(False);
+            if (Sibelius.ProgramVersion >= 20201200)
+            {
+                Sibelius.CloseAllWindowsForScore(Sibelius.ActiveScore, false);
+            }
+            else
+            {
+                Sibelius.CloseWindow(False);
+            }
             if (null = error)
             {
                 exportCount = exportCount + 1;
