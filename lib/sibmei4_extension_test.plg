@@ -22,6 +22,8 @@
       'glyph.name', 'mySymbolGlyph'
     ));
 
+    Self._property:MyLineTemplate = CreateSparseArray('Line', CreateDictionary('type', 'myline'));
+
     api.RegisterSymbolHandlers(CreateDictionary(
       'Name', CreateDictionary(
         'My symbol', 'HandleMySymbol'
@@ -34,6 +36,11 @@
       )
     ), Self);
 
+    api.RegisterLineHandlers(CreateDictionary(
+      'StyleAsText', CreateDictionary(
+        'My line', 'HandleMyLine'
+      )
+    ), Self);
   }"
 
   HandleMySymbol "(this, obj) {
@@ -47,5 +54,11 @@
     textElement = api.GenerateControlEvent(textObj, 'AnchoredText');
     api.AddFormattedText(textElement, textObj);
     return textElement;
+  }"
+
+  HandleMyLine "(this, lineObj) {
+    line = api.MeiFactory(MyLineTemplate);
+    api.AddControlEventAttributes(lineObj, line);
+    return line;
   }"
 }

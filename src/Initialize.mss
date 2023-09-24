@@ -43,6 +43,8 @@ function InitGlobals (extensions) {
     // Initialize symbol styles
     Self._property:SymbolHandlers = InitSymbolHandlers();
     Self._property:SymbolMap = InitSymbolMap();
+    Self._property:LineMap = InitLineMap();
+    Self._property:LineHandlers = InitLineHandlers();
     Self._property:TextHandlers = InitTextHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
@@ -58,7 +60,7 @@ function InitGlobals (extensions) {
 
 function RegisterHandlers(handlers, handlerDefinitions, plugin) {
     //$module(Initialize.mss)
-    // Text handlers can be registered by 'idType' StyleId or StyleAsText
+    // Text and Line handlers can be registered by 'idType' StyleId or StyleAsText
     // Symbol handlers can be registered by 'idType' Index or Name
 
     for each Name idType in handlers

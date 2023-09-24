@@ -8,6 +8,7 @@ describe("Extensions", function() {
   const mei = utils.getTestMeiDom('extensions.mei');
   const symbols = xpath.evaluateXPath('//*:symbol', mei);
   const text = xpath.evaluateXPath('//*:anchoredText', mei);
+  const line = xpath.evaluateXPath('//*:line', mei);
 
   it("exports custom symbols", function() {
     utils.assertAttrValueFormat(symbols, 'fontfam', 'myCustomFont');
@@ -26,5 +27,9 @@ describe("Extensions", function() {
 
   it("exports custom text by name", function(){
     assert.notStrictEqual(text.length, 0 ,"custom <anchoredText> is missing");
+  });
+
+  it("exports custom lines by name", function(){
+    utils.assertAttrValueFormat(line, 'type', 'myline');
   });
 });

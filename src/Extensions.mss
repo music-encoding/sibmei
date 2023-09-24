@@ -124,7 +124,9 @@ function InitExtensions (extensions) {
         {
             return false;
         }
-    } else {
+    }
+    else
+    {
         for each plgName in extensions
         {
             // Attention, choose AvailableExtensions with .@
@@ -150,6 +152,7 @@ function CreateApiObject () {
     apiObject = CreateDictionary('libmei', libmei);
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
+    apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
     apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
     apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
     apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
@@ -165,6 +168,10 @@ function ExtensionAPI_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
 
 function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
     RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin);
+}  //$end
+
+function ExtensionAPI_RegisterLineHandlers (this, lineHandlerDict, plugin) {
+    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject) {
