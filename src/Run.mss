@@ -132,7 +132,7 @@ function ExportBatch (files, extensions) {
 
     for index = 0 to numFiles
     {
-        file = files[index];
+        file = Sibelius.GetFile(files[index]);
 
         open = Sibelius.Open(file, True);
         if (not open)
