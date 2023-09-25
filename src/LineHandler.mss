@@ -172,6 +172,8 @@ function HandleLineTemplate(this, lobj, template){
 
     line = MeiFactory(template);
     AddControlEventAttributes(lobj, line);
+    lobj._property:mobj = line;
+    PushToHashedLayer(Self._property:LineEndResolver, lobj.EndBarNumber, lobj);
 
     return line;
 }   //$end

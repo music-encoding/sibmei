@@ -144,7 +144,7 @@ function GenerateMEIMusic () {
     score = Self._property:ActiveScore;
 
     Self._property:TieResolver = CreateDictionary();
-    Self._property:SlurResolver = CreateSparseArray();
+    Self._property:LineEndResolver = CreateSparseArray();
     Self._property:LyricWords = CreateDictionary();
     Self._property:SpecialBarlines = CreateDictionary();
     Self._property:SystemText = CreateDictionary();
@@ -681,8 +681,6 @@ function GenerateLayers (staffnum, measurenum) {
             case('Slur')
             {
                 mobj = HandleLine(bobj);
-                bobj._property:mobj = mobj;
-                PushToHashedLayer(Self._property:SlurResolver, bobj.EndBarNumber, bobj);
             }
             case('CrescendoLine')
             {
@@ -751,7 +749,7 @@ function GenerateLayers (staffnum, measurenum) {
         HandleSymbol(sobj);
     }
 
-    ProcessEndingSlurs(bar);
+    ProcessEndingLines(bar);
 
     return layers;
 }  //$end

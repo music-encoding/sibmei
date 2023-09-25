@@ -497,20 +497,20 @@ function ProcessVolta (mnum) {
     return null;
 }  //$end
 
-function ProcessEndingSlurs (bar) {
+function ProcessEndingLines (bar) {
     //$module(ExportProcessors.mss)
-    slur_resolver = Self._property:SlurResolver;
+    lineResolver = Self._property:LineEndResolver;
     for voiceNumber = 1 to 5
     {
-        endingSlurs = slur_resolver[LayerHash(bar, voiceNumber)];
-        if (endingSlurs != null)
+        endingLines = lineResolver[LayerHash(bar, voiceNumber)];
+        if (endingLines != null)
         {
-            for each slur in endingSlurs
+            for each line in endingLines
             {
-                end_obj = GetNoteObjectAtEndPosition(slur);
+                end_obj = GetNoteObjectAtEndPosition(line);
                 if (end_obj != null)
                 {
-                    libmei.AddAttribute(slur._property:mobj, 'endid', '#' & end_obj._id);
+                    libmei.AddAttribute(line._property:mobj, 'endid', '#' & end_obj._id);
                 }
             }
         }
