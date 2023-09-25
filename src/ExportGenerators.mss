@@ -680,29 +680,29 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Slur')
             {
-                mobj = GenerateLine(bobj);
+                mobj = HandleLine(bobj);
                 bobj._property:mobj = mobj;
                 PushToHashedLayer(Self._property:SlurResolver, bobj.EndBarNumber, bobj);
             }
             case('CrescendoLine')
             {
-                mobj = GenerateHairpin(bobj);
+                mobj = HandleLine(bobj);
             }
             case('DiminuendoLine')
             {
-                mobj = GenerateHairpin(bobj);
+                mobj = HandleLine(bobj);
             }
             case('OctavaLine')
             {
-                mobj = GenerateLine(bobj);
+                mobj = HandleLine(bobj);
             }
             case('GlissandoLine')
             {
-                mobj = GenerateLine(bobj);
+                mobj = HandleLine(bobj);
             }
             case('Trill')
             {
-                mobj = GenerateLine(bobj);
+                mobj = GenerateTrill(bobj);
             }
             case('ArpeggioLine')
             {
@@ -1499,81 +1499,6 @@ function GenerateTuplet(tupletObj) {
 
     return tuplet;
 }  //$end
-
-function GenerateLine (bobj) {
-    //$module(ExportGenerators.mss)
-    line = null;
-
-    switch (bobj.Type)
-    {
-        case ('Slur')
-        {
-            line = GenerateControlEvent(bobj, 'Slur');
-            slurrend = ConvertSlurStyle(bobj.StyleId);
-            libmei.AddAttribute(line, 'lform', slurrend[1]);
-        }
-        case ('OctavaLine')
-        {
-            line = GenerateControlEvent(bobj, 'Octave');
-            octrend = ConvertOctava(bobj.StyleId);
-            libmei.AddAttribute(line, 'dis', octrend[0]);
-            libmei.AddAttribute(line, 'dis.place', octrend[1]);
-        }
-        case ('GlissandoLine')
-        {
-            line = GenerateControlEvent(bobj, 'Gliss');
-        }
-        case ('Trill')
-        {
-            line = GenerateTrill(bobj);
-        }
-    }
-
-    return line;
-}  //$end
-
-
-function GenerateHairpin (bobj) {
-    //$module(ExportGenerators.mss)
-    hairpin = GenerateControlEvent(bobj, 'Hairpin');
-
-    switch (bobj.Type) {
-        case ('CrescendoLine')
-        {
-            libmei.AddAttribute(hairpin, 'form', 'cres');
-        }
-        case ('DiminuendoLine')
-        {
-            libmei.AddAttribute(hairpin, 'form', 'dim');
-        }
-    }
-
-    style = MSplitString(bobj.StyleId, '.')[4];
-
-    switch(style)
-    {
-        case ('dashed')
-        {
-            libmei.AddAttribute(hairpin, 'lform', 'dashed');
-        }
-        case ('dotted')
-        {
-            libmei.AddAttribute(hairpin, 'lform', 'dotted');
-        }
-        case ('fromsilence') {
-            libmei.AddAttribute(hairpin, 'niente', 'true');
-        }
-        case ('tosilence') {
-            libmei.AddAttribute(hairpin, 'niente', 'true');
-        }
-        // Will work in MEI 5
-        // case ('bracketed') {
-        //     libmei.AddAttribute(lform, 'enclose', 'paren');
-        // }
-    }
-
-    return hairpin;
-} //$end
 
 
 function GenerateArpeggio (bobj) {

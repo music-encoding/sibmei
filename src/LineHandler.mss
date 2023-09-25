@@ -85,7 +85,51 @@ function InitLineMap () {
         'line.staff.vertical',                 CreateSparseArray('Line', CreateDictionary('form', 'solid', 'type', verticalLine)),
         'line.staff.vibrato',                  CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'type', 'vibrato')),
         // 'line.staff.vibrato.bar',              CreateSparseArray('Line', CreateDictionary('form', 'solid')),
-        'line.staff.vibrato.wide',             CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'width', 'wide'))
+        'line.staff.vibrato.wide',             CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'width', 'wide')),
+
+        // Type = 'Hairpin'
+        'line.staff.hairpin.crescendo', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres')),
+        'line.staff.hairpin.crescendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'lform', 'dashed')),
+        'line.staff.hairpin.crescendo.bracketed', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres')),
+        'line.staff.hairpin.crescendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'lform', 'dotted')),
+        'line.staff.hairpin.crescendo.fromsilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'niente', 'true')),
+        'line.staff.hairpin.diminuendo', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim')),
+        'line.staff.hairpin.diminuendo.bracketed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim')),
+        'line.staff.hairpin.diminuendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dashed')),
+        'line.staff.hairpin.diminuendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dotted')),
+        'line.staff.hairpin.diminuendo.tosilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'niente', 'true')),
+
+        // Type = 'OctavaLine'
+        'line.staff.octava.minus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'place', 'below')),
+        'line.staff.octava.minus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'place', 'below')),
+        'line.staff.octava.plus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'place', 'above')),
+        'line.staff.octava.plus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'place', 'above')),
+
+        // Type = 'GlissandoLine'
+        // TODO: For line.staff.gliss.straight and line.staff.port.straight,
+        // Sibelius has an added text 'gliss.' or 'port.' above the line
+        'line.staff.gliss.straight', CreateSparseArray('Gliss', CreateDictionary()),
+        'line.staff.gliss.wavy', CreateSparseArray('Gliss', CreateDictionary('lform', 'wavy')),
+        'line.staff.port.straight', CreateSparseArray('Gliss', CreateDictionary()),
+
+        // Type = 'Slur'
+        // 'down' and 'up' don't really mean anything. Sibelius handles both
+        // styles in the same way and it doesn't mean the slurs are actually
+        // curved upwards or downwards.  Pressing 's' to create a slur will
+        // apparently always create a slur with style `line.staff.slur.up`, no
+        // matter the resulting curvature.  With ManuScript, there is no way we
+        // can find out the actual curvature.
+        'line.staff.slur.down', CreateSparseArray('Slur'),
+        'line.staff.slur.down.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed')),
+        'line.staff.slur.down.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed')),
+        'line.staff.slur.down.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted')),
+        'line.staff.slur.up', CreateSparseArray('Slur'),
+        'line.staff.slur.up.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed')),
+        'line.staff.slur.up.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed')),
+        'line.staff.slur.up.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted')),
+        // A slur with this style can apparently not be created vie the UI, but
+        // it can be created with ManuScript
+        'line.staff.tie', CreateSparseArray('Tie')
     );
 
     return lineMap;
@@ -130,4 +174,4 @@ function HandleLineTemplate(this, lobj, template){
     AddControlEventAttributes(lobj, line);
 
     return line;
-} //$end
+}   //$end

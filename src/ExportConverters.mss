@@ -108,40 +108,6 @@ function ConvertClef (clefid) {
     return ret;
 }  //$end
 
-function ConvertOctava (octava_id) {
-    //$module(ExportConverters.mss)
-    octparts = MSplitString(octava_id, '.');
-    switch(octparts[3])
-    {
-        case ('minus15')
-        {
-            dis = '15';
-            place = 'below';
-        }
-        case ('minus8')
-        {
-            dis = '8';
-            place = 'below';
-        }
-        case ('plus15')
-        {
-            dis = '15';
-            place = 'above';
-        }
-        case ('plus8')
-        {
-            dis = '8';
-            place = 'above';
-        }
-        default
-        {
-            dis = ' ';
-            place = ' ';
-        }
-    }
-    return CreateSparseArray(dis, place);
-}  //$end
-
 function ConvertDiatonicPitch (diatonic_pitch) {
     //$module(ExportConverters)
     octv = (diatonic_pitch / 7) - 1;
@@ -708,44 +674,6 @@ function ConvertNoteStyle (style) {
     return noteStyle;
 }  //$end
 
-function ConvertSlurStyle (style) {
-    //$module(ExportConverters.mss)
-    slurparts = MSplitString(style, '.');
-    direction = ' ';
-    style = ' ';
-
-    switch(slurparts[3])
-    {
-        case ('up')
-        {
-            direction = 'above';
-        }
-        case ('down')
-        {
-            direction = 'below';
-        }
-        default
-        {
-            direction = ' ';
-        }
-    }
-    switch(slurparts[4])
-    {
-        case ('dashed')
-        {
-            style = 'dashed';
-        }
-        case ('dotted')
-        {
-            style = 'dotted';
-        }
-        default
-        {
-            style = ' ';
-        }
-    }
-    return CreateSparseArray(direction, style);
-}  //$end
 
 function ConvertPositionToTimestamp (position, bar) {
     //$module(ExportConverters.mss)

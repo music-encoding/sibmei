@@ -1,14 +1,12 @@
 function TestExportConverters (suite) {
     //$module(TestExportConverters)
     suite
-        .Add('TestSlurValueConverter')
         .Add('TestDiatonicPitchConverter')
         .Add('TestOffsetConverter')
         .Add('TestDurationConverter')
         .Add('TestPitchesInKeySignature')
         .Add('TestHasVisibleAccidentalConverter')
         .Add('TestAccidentalConverter')
-        .Add('TestOctavaConverter')
         .Add('TestNamedTimeSignatureConverter')
         .Add('TestKeySignatureConverter')
         .Add('TestClefConverter')
@@ -16,17 +14,6 @@ function TestExportConverters (suite) {
         .Add('TestPositionToTimestampConverter')
         .Add('TestConvertTimeStamp')
         ;
-} //$end
-
-function TestSlurValueConverter (assert, plugin) {
-    //$module(TestExportConverters)
-    output = sibmei.ConvertSlurStyle('line.staff.slur.up.dotted');
-    assert.Equal(output[0], 'above', 'Direction should be up');
-    assert.Equal(output[1], 'dotted', 'Style should be dotted');
-
-    output = sibmei.ConvertSlurStyle('line.staff.slur.down');
-    assert.Equal(output[0], 'below', 'Direction should be down');
-    assert.Equal(output[1], ' ', 'Style should be empty');
 } //$end
 
 function TestDiatonicPitchConverter(assert, plugin) {
@@ -218,13 +205,6 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     note11 = noterest11[0];
     output = sibmei.HasVisibleAccidental(note11);
     assert.NotOK(output, 'The 3rd note in the 7th bar has a hidden C sharp');
-}  //$end
-
-function TestOctavaConverter (assert, plugin) {
-    //$module(TestExportConverters.mss)
-    oct = sibmei.ConvertOctava('line.staff.octava.minus15');
-    assert.Equal(oct[0], '15', 'The octava should be two octaves below');
-    assert.Equal(oct[1], 'below', 'The octava should be below');
 }  //$end
 
 function TestNamedTimeSignatureConverter (assert, plugin) {
