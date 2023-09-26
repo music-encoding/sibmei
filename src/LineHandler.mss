@@ -24,6 +24,10 @@ function InitLineMap () {
 
     verticalLine = 'vertical line';
 
+    // Commented out line styles are not supported yet.  Some of them might need
+    // to be registered to a more specialized line handler than the standard
+    // HandleLineTemplate().
+
     lineMap = CreateDictionary(
         // Type = 'Line'
         'line.staff.arrow',                    CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow')),
@@ -130,6 +134,41 @@ function InitLineMap () {
         // A slur with this style can apparently not be created vie the UI, but
         // it can be created with ManuScript
         'line.staff.tie', CreateSparseArray('Tie')
+
+        // Line types not handled yet:
+        // BeamLine
+        //   line.staff.beam
+        // Bend
+        //   line.staff.bend
+        // Box
+        //   line.staff.box
+        // HighLight
+        //   line.highlight
+        // RitardLine
+        //   line.system.tempo.accel
+        //   line.system.tempo.accel.italic
+        //   line.system.tempo.accel.italic.textonly
+        //   line.system.tempo.accel.molto
+        //   line.system.tempo.accel.molto.textonly
+        //   line.system.tempo.accel.poco
+        //   line.system.tempo.accel.poco.textonly
+        //   line.system.tempo.accel.textonly
+        //   line.system.tempo.rall
+        //   line.system.tempo.rall.italic
+        //   line.system.tempo.rall.italic.textonly
+        //   line.system.tempo.rall.molto
+        //   line.system.tempo.rall.molto.textonly
+        //   line.system.tempo.rall.poco
+        //   line.system.tempo.rall.poco.textonly
+        //   line.system.tempo.rall.textonly
+        //   line.system.tempo.rit
+        //   line.system.tempo.rit.italic
+        //   line.system.tempo.rit.italic.textonly
+        //   line.system.tempo.rit.molto
+        //   line.system.tempo.rit.molto.textonly
+        //   line.system.tempo.rit.poco
+        //   line.system.tempo.rit.poco.textonly
+        //   line.system.tempo.rit.textonly
     );
 
     return lineMap;
