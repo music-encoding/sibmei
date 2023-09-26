@@ -668,7 +668,6 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each bobj in bar
     {
-        obj = null;
         mobj = null;
 
         switch (bobj.Type)
