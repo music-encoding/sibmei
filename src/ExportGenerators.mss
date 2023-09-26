@@ -670,13 +670,12 @@ function GenerateLayers (staffnum, measurenum) {
     {
         obj = null;
         mobj = null;
-        chordsym = null;
 
         switch (bobj.Type)
         {
             case('GuitarFrame')
             {
-                chordsym = GenerateChordSymbol(bobj);
+                mobj = GenerateChordSymbol(bobj);
             }
             case('Slur')
             {
@@ -720,20 +719,13 @@ function GenerateLayers (staffnum, measurenum) {
             }
         }
 
+        // add element to the measure objects so that they get added to the
+        // measure later in the processing cycle.
         if (mobj != null)
         {
             mobjs = Self._property:MeasureObjects;
             mobjs.Push(mobj._id);
             Self._property:MeasureObjects = mobjs;
-        }
-
-        // add chord symbols to the measure objects
-        // so that they get added to the measure later in the processing cycle.
-        if (chordsym != null)
-        {
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(chordsym._id);
-            Self._property:MeasureObjects = mlines;
         }
     }
 
