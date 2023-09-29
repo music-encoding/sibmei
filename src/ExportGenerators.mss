@@ -1814,6 +1814,11 @@ function GenerateFermata (bobj, shape, form) {
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
 
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(fermata, 'color', ConvertColor(bobj));
+    }
+
     measureObjs = Self._property:MeasureObjects;
     measureObjs.Push(fermata._id);
 
