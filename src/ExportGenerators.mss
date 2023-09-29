@@ -831,8 +831,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.Color != 0)
     {
-        nrest_color = ConvertColor(bobj);
-        libmei.AddAttribute(nr, 'color', nrest_color);
+        libmei.AddAttribute(nr, 'color', ConvertColor(bobj));
     }
 
     /* NB: If there is a problem with grace notes, look here first.
@@ -996,8 +995,7 @@ function GenerateRest (bobj) {
 
     if (bobj.Color != 0 and name != 'space')
     {
-        nrest_color = ConvertColor(bobj);
-        libmei.AddAttribute(r, 'color', nrest_color);
+        libmei.AddAttribute(r, 'color', ConvertColor(bobj));
     }
 
     return r;
@@ -1090,8 +1088,7 @@ function GenerateNote (nobj) {
 
     if (nobj.Color != nobj.ParentNoteRest.Color)
     {
-        note_color = ConvertColor(nobj);
-        libmei.AddAttribute(n, 'color', note_color);
+        libmei.AddAttribute(n, 'color', ConvertColor(nobj));
     }
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
