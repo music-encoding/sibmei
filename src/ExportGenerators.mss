@@ -1676,6 +1676,12 @@ function GenerateLine (bobj) {
                     line = GenerateControlEvent(bobj, 'Line');
                 }
             }
+
+            if (bobj.Color != 0)
+            {
+                libmei.AddAttribute(line, 'color', ConvertColor(bobj));
+            }
+
         }
     }
 
