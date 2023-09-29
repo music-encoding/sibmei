@@ -558,7 +558,7 @@ function GenerateLayers (staffnum, measurenum) {
         {
             case('Clef')
             {
-                // Clefs are placed inside the musical flow like notes.  Hence we also need to find
+                // Clefs are placed inside the musical flow like notes. Hence we also need to find
                 // out whether they are part of beams or tuplets.
                 clef = GenerateClef(bobj);
 
@@ -767,6 +767,11 @@ function GenerateClef (bobj) {
     libmei.AddAttribute(clef_el, 'dis.place', clefinfo[3]);
     libmei.AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
     libmei.AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(clef_el, 'color', ConvertColor(bobj));
+    }
 
     return clef_el;
 }  //$end
