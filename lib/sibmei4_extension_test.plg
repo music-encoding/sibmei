@@ -32,6 +32,7 @@
 
     api.RegisterTextHandlers(CreateDictionary(
       'StyleAsText', CreateDictionary(
+        'XPath test', 'HandleXPathTest',
         'My text', 'HandleMyText'
       )
     ), Self);
@@ -54,6 +55,21 @@
     textElement = api.GenerateControlEvent(textObj, 'AnchoredText');
     api.AddFormattedText(textElement, textObj);
     return textElement;
+  }"
+
+  HandleXPathTest "(this, textObj) {
+    annotElement = api.GenerateControlEvent(textObj, 'Annot');
+    libmei.AddAttribute(annotElement, 'type', 'xpath-test');
+    textWithFormatting = textObj.TextWithFormatting;
+    for i = 0 to textWithFormatting.NumChildren {
+      if (CharAt(textWithFormatting[i], 0) = '\\') {
+        // Remove formatting and newlines. fontoxpath will complain about if
+        // is additional whitespace in XPath expressions.
+        textWithFormatting[i] = '';
+      }
+    }
+    libmei.SetText(annotElement, JoinStrings(textWithFormatting, ''));
+    return annotElement;
   }"
 
   HandleMyLine "(this, lineObj) {
