@@ -302,13 +302,9 @@ function AddControlEventAttributes (bobj, element) {
         libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
     }
 
-    if (TypeHasEndBarNumberProperty[bobj.Type]) {
+    if (TypeHasEndBarNumberProperty[bobj.Type])
+    {
         libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        end_obj = GetNoteObjectAtEndPosition(bobj);
-        if (end_obj != null)
-        {
-            libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
-        }
     }
 
     if (bar.ParentStaff.StaffNum > 0)

@@ -6,13 +6,6 @@ function InitLineHandlers () {
         'StyleAsText', CreateDictionary()
     );
 
-    handlerMap = CreateDictionary();
-    for each Name styleId in Self._property:LineMap
-    {
-        handlerMap[styleId] = 'HandleLineTemplate';
-    }
-    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', handlerMap), Self);
-
     return lineHandlers;
 }//$end
 
@@ -28,7 +21,7 @@ function InitLineMap () {
     // to be registered to a more specialized line handler than the standard
     // HandleLineTemplate().
 
-    lineMap = CreateDictionary(
+    linesWithEndid = CreateDictionary(
         // Type = 'Line'
         'line.staff.arrow',                    CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow')),
         'line.staff.arrow.black.right',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow')),
@@ -42,15 +35,11 @@ function InitLineMap () {
         // 'line.staff.bend.hold',                CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         'line.staff.bracket.above',            CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angledown', 'endsym', 'angledown')),
         'line.staff.bracket.above.end',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'angledown')),
-        'line.staff.bracket.above.start',      CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angledown')),
         'line.staff.bracket.below',            CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleup', 'endsym', 'angleup')),
         'line.staff.bracket.below.end',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'angleup')),
-        'line.staff.bracket.below.start',      CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleup')),
         'line.staff.bracket.vertical',         CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleleft', 'endsym', 'angleleft')),
         'line.staff.bracket.vertical.2',       CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleright', 'endsym', 'angleright')),
-        'line.staff.dashed',                   CreateSparseArray('Line', CreateDictionary('form', 'dashed')),
         'line.staff.dashed.vertical',          CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', verticalLine)),
-        'line.staff.dotted',                   CreateSparseArray('Line', CreateDictionary('form', 'dotted')),
         // TODO: Sibelius uses a vertical stroke at the end, but we don't have a fitting @endsym value
         'line.staff.guitareffect',             CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', 'guitareffect')),
         // 'line.staff.harmonic.artificial',      CreateSparseArray('Line', CreateDictionary('form', 'solid')),
@@ -67,7 +56,6 @@ function InitLineMap () {
         // TODO: The Nebenstimme line type only has a start symbol and an end symbol without an actual line.
         'line.staff.nebenstimme',              CreateSparseArray('Line', CreateDictionary('startsym', 'N', 'endsym', 'angledown', 'lwidth', '0')),
         // 'line.staff.pick.scrape',              CreateSparseArray('Line', CreateDictionary('form', 'solid')),
-        'line.staff.plain',                    CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.rake',                     CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.slide',                    CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.string.above.1',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
@@ -87,21 +75,6 @@ function InitLineMap () {
         // 'line.staff.string.below.7',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.string.below.8',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         'line.staff.vertical',                 CreateSparseArray('Line', CreateDictionary('form', 'solid', 'type', verticalLine)),
-        'line.staff.vibrato',                  CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'type', 'vibrato')),
-        // 'line.staff.vibrato.bar',              CreateSparseArray('Line', CreateDictionary('form', 'solid')),
-        'line.staff.vibrato.wide',             CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'width', 'wide')),
-
-        // Type = 'Hairpin'
-        'line.staff.hairpin.crescendo', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres')),
-        'line.staff.hairpin.crescendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'lform', 'dashed')),
-        'line.staff.hairpin.crescendo.bracketed', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres')),
-        'line.staff.hairpin.crescendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'lform', 'dotted')),
-        'line.staff.hairpin.crescendo.fromsilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'niente', 'true')),
-        'line.staff.hairpin.diminuendo', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim')),
-        'line.staff.hairpin.diminuendo.bracketed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim')),
-        'line.staff.hairpin.diminuendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dashed')),
-        'line.staff.hairpin.diminuendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dotted')),
-        'line.staff.hairpin.diminuendo.tosilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'niente', 'true')),
 
         // Type = 'OctavaLine'
         'line.staff.octava.minus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'place', 'below')),
@@ -131,45 +104,87 @@ function InitLineMap () {
         'line.staff.slur.up.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed')),
         'line.staff.slur.up.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed')),
         'line.staff.slur.up.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted')),
-        // A slur with this style can apparently not be created vie the UI, but
-        // it can be created with ManuScript
+        // A 'slur' with this style can apparently not be created via the UI,
+        // but it can be created with ManuScript
         'line.staff.tie', CreateSparseArray('Tie')
-
-        // Line types not handled yet:
-        // BeamLine
-        //   line.staff.beam
-        // Bend
-        //   line.staff.bend
-        // Box
-        //   line.staff.box
-        // HighLight
-        //   line.highlight
-        // RitardLine
-        //   line.system.tempo.accel
-        //   line.system.tempo.accel.italic
-        //   line.system.tempo.accel.italic.textonly
-        //   line.system.tempo.accel.molto
-        //   line.system.tempo.accel.molto.textonly
-        //   line.system.tempo.accel.poco
-        //   line.system.tempo.accel.poco.textonly
-        //   line.system.tempo.accel.textonly
-        //   line.system.tempo.rall
-        //   line.system.tempo.rall.italic
-        //   line.system.tempo.rall.italic.textonly
-        //   line.system.tempo.rall.molto
-        //   line.system.tempo.rall.molto.textonly
-        //   line.system.tempo.rall.poco
-        //   line.system.tempo.rall.poco.textonly
-        //   line.system.tempo.rall.textonly
-        //   line.system.tempo.rit
-        //   line.system.tempo.rit.italic
-        //   line.system.tempo.rit.italic.textonly
-        //   line.system.tempo.rit.molto
-        //   line.system.tempo.rit.molto.textonly
-        //   line.system.tempo.rit.poco
-        //   line.system.tempo.rit.poco.textonly
-        //   line.system.tempo.rit.textonly
     );
+
+    linesWithoutEndid = CreateDictionary(
+        // Type = 'Line'
+        'line.staff.bracket.above.start',      CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angledown')),
+        'line.staff.bracket.below.start',      CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleup')),
+        'line.staff.dashed',                   CreateSparseArray('Line', CreateDictionary('form', 'dashed')),
+        'line.staff.dotted',                   CreateSparseArray('Line', CreateDictionary('form', 'dotted')),
+        'line.staff.plain',                    CreateSparseArray('Line', CreateDictionary('form', 'solid')),
+        'line.staff.vibrato',                  CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'type', 'vibrato')),
+        // 'line.staff.vibrato.bar',              CreateSparseArray('Line', CreateDictionary('form', 'solid')),
+        'line.staff.vibrato.wide',             CreateSparseArray('Line', CreateDictionary('form', 'wavy', 'width', 'wide')),
+
+        // Type = 'Hairpin'
+        'line.staff.hairpin.crescendo', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres')),
+        'line.staff.hairpin.crescendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'lform', 'dashed')),
+        'line.staff.hairpin.crescendo.bracketed', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres')),
+        'line.staff.hairpin.crescendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'lform', 'dotted')),
+        'line.staff.hairpin.crescendo.fromsilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'cres', 'niente', 'true')),
+        'line.staff.hairpin.diminuendo', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim')),
+        'line.staff.hairpin.diminuendo.bracketed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim')),
+        'line.staff.hairpin.diminuendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dashed')),
+        'line.staff.hairpin.diminuendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dotted')),
+        'line.staff.hairpin.diminuendo.tosilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'niente', 'true'))
+    );
+
+    // Line types not handled yet:
+    // Type = 'BeamLine'
+    //   line.staff.beam
+    // Type = 'Bend'
+    //   line.staff.bend
+    // Type = 'Box'
+    //   line.staff.box
+    // Type = 'HighLight'
+    //   line.highlight
+    // Type = 'RitardLine'
+    //   line.system.tempo.accel
+    //   line.system.tempo.accel.italic
+    //   line.system.tempo.accel.italic.textonly
+    //   line.system.tempo.accel.molto
+    //   line.system.tempo.accel.molto.textonly
+    //   line.system.tempo.accel.poco
+    //   line.system.tempo.accel.poco.textonly
+    //   line.system.tempo.accel.textonly
+    //   line.system.tempo.rall
+    //   line.system.tempo.rall.italic
+    //   line.system.tempo.rall.italic.textonly
+    //   line.system.tempo.rall.molto
+    //   line.system.tempo.rall.molto.textonly
+    //   line.system.tempo.rall.poco
+    //   line.system.tempo.rall.poco.textonly
+    //   line.system.tempo.rall.textonly
+    //   line.system.tempo.rit
+    //   line.system.tempo.rit.italic
+    //   line.system.tempo.rit.italic.textonly
+    //   line.system.tempo.rit.molto
+    //   line.system.tempo.rit.molto.textonly
+    //   line.system.tempo.rit.poco
+    //   line.system.tempo.rit.poco.textonly
+    //   line.system.tempo.rit.textonly
+
+    lineMap = CreateDictionary();
+
+    handlerMap = CreateDictionary();
+    for each Name styleId in linesWithoutEndid
+    {
+        handlerMap[styleId] = 'HandleLineTemplate';
+        lineMap[styleId] = linesWithoutEndid[styleId];
+    }
+    RegisterHandlers(Self._property:LineHandlers, CreateDictionary('StyleId', handlerMap), Self);
+
+    handlerMap = CreateDictionary();
+    for each Name styleId in linesWithEndid
+    {
+        handlerMap[styleId] = 'HandleLineTemplateAddEndid';
+        lineMap[styleId] = linesWithEndid[styleId];
+    }
+    RegisterHandlers(Self._property:LineHandlers, CreateDictionary('StyleId', handlerMap), Self);
 
     return lineMap;
 } //$end
@@ -185,7 +200,7 @@ function HandleLine (lobj) {
         // assign it to the first voice, since we don't have any notes in voice/layer 0.
         lobj.VoiceNumber = 1;
         warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Symbol'));
+        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, lobj.Type));
     }
 
     lineHandlers = Self._property:LineHandlers;
@@ -212,6 +227,15 @@ function HandleLineTemplate(this, lobj, template){
     line = MeiFactory(template);
     AddControlEventAttributes(lobj, line);
     lobj._property:mobj = line;
+
+    return line;
+}   //$end
+
+
+function HandleLineTemplateAddEndid(this, lobj, template){
+    //$module(LineHandler.mss)
+
+    line = HandleLineTemplate(this, lobj, template);
     PushToHashedLayer(Self._property:LineEndResolver, lobj.EndBarNumber, lobj);
 
     return line;
