@@ -2082,8 +2082,6 @@ generateRandomID "() {
     return id;
 }"
 
-}
-
 removeKeyFromDictionary "(dict, key) {
     newdict = CreateDictionary();
     for each Pair p in dict
@@ -2096,3 +2094,5 @@ removeKeyFromDictionary "(dict, key) {
 
     return newdict;
 }"
+
+}
