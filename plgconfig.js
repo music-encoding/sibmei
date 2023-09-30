@@ -5,9 +5,9 @@ var config = {
   // folder.
   plgPath:        './build',
   plgCategory:    'MEI Export',
-  pluginFilename: 'sibmei4.plg',
+  pluginFilename: 'sibmei5.plg',
   linkLibraries: [
-    'libmei4.plg', 'sibmei4_batch_mxml.plg', 'sibmei4_batch_sib.plg', 'sibmei4_test_runner.plg', 'sibmei4_extension_test.plg'
+    'libmei5.plg', 'sibmei5_batch_mxml.plg', 'sibmei5_batch_sib.plg', 'sibmei5_test_runner.plg', 'sibmei5_extension_test.plg'
   ],
   importDir:      './import',
   buildDir:       './build',

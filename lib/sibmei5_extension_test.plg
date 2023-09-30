@@ -9,7 +9,7 @@
     // The plugin will be listed in the menu, but it is not runnable. Give some
     // instructions instead of showing no response when users try to run it.
     Sibelius.MessageBox(
-      'This plug-in is an extension of the sibmei MEI export plug-in. To use it, run MEI export.'
+      'This plug-in is an extension of the Sibmei MEI export plug-in. To use it, run MEI export.'
     );
   }"
 

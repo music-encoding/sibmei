@@ -15,15 +15,7 @@
 
         files = CreateSparseArray();
 
-        for each XML file in folder
-        {
-            files.Push(file);
-        }
-        for each MUSICXML file in folder
-        {
-            files.Push(file);
-        }
-        for each MXL file in folder
+        for each SIB file in folder
         {
             files.Push(file);
         }
@@ -31,5 +23,5 @@
         sibmei4.ExportBatch(files, null);
     }"
 
-    _PluginMenuName "Export MusicXML folder to MEI 4"
+    _PluginMenuName "Export Sibelius folder to MEI 5"
 }

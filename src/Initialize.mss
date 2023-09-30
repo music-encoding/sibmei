@@ -13,7 +13,7 @@ function InitGlobals (extensions) {
     // more detailed information.
 
     // initialize libmei as soon as possible
-    Self._property:libmei = libmei4;
+    Self._property:libmei = libmei5;
 
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
