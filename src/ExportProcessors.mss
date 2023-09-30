@@ -10,7 +10,7 @@ function ProcessScore () {
 
     libmei.AddAttribute(mei, 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
     libmei.AddAttribute(mei, 'xmlns', 'http://www.music-encoding.org/ns/mei');
-    libmei.AddAttribute(mei, 'meiversion', '4.0.1');
+    libmei.AddAttribute(mei, 'meiversion', '5.0');
 
     header = GenerateMEIHeader();
     libmei.AddChild(mei, header);

@@ -13,7 +13,7 @@ function GenerateMEIHeader () {
     libmei.AddChild(header, fileD);
     libmei.AddChild(fileD, titleS);
 
-    //encodingDesc must preceed workList in MEI 4.0
+    //encodingDesc must preceed workList
     encodingD = libmei.EncodingDesc();
     libmei.AddChild(header, encodingD);
     appI = GenerateApplicationInfo();
@@ -273,7 +273,7 @@ function GenerateMEIMusic () {
                 currentScoreDef = libmei.ScoreDef();
             }
 
-            libmei.AddAttribute(currentScoreDef, 'key.sig', ConvertKeySignature(currKeyS.Sharps));
+            libmei.AddAttribute(currentScoreDef, 'keysig', ConvertKeySignature(currKeyS.Sharps));
         }
 
         if (currentScoreDef != null)
@@ -1385,7 +1385,7 @@ function GenerateStaffGroups (score, barnum) {
         libmei.AddAttribute(std, 'clef.dis.place', clefinfo[3]);
 
         keysig = s.CurrentKeySignature(barnum);
-        libmei.AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
+        libmei.AddAttribute(std, 'keysig', ConvertKeySignature(keysig.Sharps));
 
         if (keysig.Major)
         {

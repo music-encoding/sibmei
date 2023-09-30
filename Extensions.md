@@ -151,8 +151,8 @@ The following methods must only be used by handler methods:
 
 * **`HandleControlEvent()`**:  Pass this function two arguments:
 
-   * The to be exported `SymbolItem` or `SystemSymbolItem`
-   * A template suitable for passing to `MeiFactory()`
+  * The to be exported `SymbolItem` or `SystemSymbolItem`
+  * A template suitable for passing to `MeiFactory()`
 
    `HandleControlEvent()` creates an MEI element and attaches it to the `<measure>` element. It returns the element for further manipulation by the extension plugin.
 
@@ -169,29 +169,29 @@ The following methods must only be used by handler methods:
 
 * **`AddFormattedText()`**: Takes arguments:
 
-   * `parentElement`: MEI element that the formatted text nodes should be appended to
-   * `textObj`: A  `Text` or `SystemTextItem` object. Its `TextWithFormatting` property is converted to MEI markup.
+  * `parentElement`: MEI element that the formatted text nodes should be appended to
+  * `textObj`: A  `Text` or `SystemTextItem` object. Its `TextWithFormatting` property is converted to MEI markup.
 
 * **`GenerateControlEvent()`**: Takes two arguments:
 
-   * `bobj`: A `BarObject`
-   * `elementName`: Capitalized MEI element name, e.g. `'Line'`.
+  * `bobj`: A `BarObject`
+  * `elementName`: Capitalized MEI element name, e.g. `'Line'`.
 
    Uses the `elementName` to generate an MEI element and adds applicable control event attributes (see  `AddControlEventAttributes`)
 
 * **`AddControlEventAttributes()`**:  Takes two arguments:
 
-   * `bobj`: A `BarObject`
-   * `element`: An MEI element
+  * `bobj`: A `BarObject`
+  * `element`: An MEI element
 
    Adds the following control event attributes:
 
-   * `@startid` (if a start object could be identified) and `@tstamp`
-   * If applicable (e.g. for lines), `@endid` (if an end object could be identified) and `@tstamp2`
-   * `@staff` (if object is staff-attached)
-   * `@layer`
-   * For lines:
-     * `@dur.ppq` (unless `Duration` is 0)
-     * `@startho`, `@startvo`, `@endho`, `@endvo`
-   * For elements other than lines:
-     * `@ho`, `@vo`
+  * `@startid` (if a start object could be identified) and `@tstamp`
+  * If applicable (e.g. for lines), `@endid` (if an end object could be identified) and `@tstamp2`
+  * `@staff` (if object is staff-attached)
+  * `@layer`
+  * For lines:
+    * `@dur.ppq` (unless `Duration` is 0)
+    * `@startho`, `@startvo`, `@endho`, `@endvo`
+  * For elements other than lines:
+    * `@ho`, `@vo`
