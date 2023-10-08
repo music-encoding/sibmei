@@ -39,4 +39,11 @@ describe("Clefs", () => {
       'clef'
     );
   });
+
+  it("exports clef color", function() {
+    const coloredClef = xpath.evaluateXPath('//*:clef[@color]', mei);
+    // only the clef in bar 2 is colored
+    const measure = xpath.evaluateXPath('ancestor::*:measure', coloredClef);
+    assert.strictEqual(measure.getAttribute("n"), "2");
+  });
 });
