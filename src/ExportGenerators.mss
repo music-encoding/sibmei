@@ -8,18 +8,19 @@ function GenerateMEIHeader () {
     header = libmei.MeiHead();
     Self._property:HeaderElement = header;
 
+    //fileDesc
     fileD = libmei.FileDesc();
     titleS = libmei.TitleStmt();
     libmei.AddChild(header, fileD);
     libmei.AddChild(fileD, titleS);
 
-    //encodingDesc must preceed workList
+    //encodingDesc
     encodingD = libmei.EncodingDesc();
     libmei.AddChild(header, encodingD);
     appI = GenerateApplicationInfo();
     libmei.AddChild(encodingD, appI);
 
-    //generate workList
+    //workList
     workList = libmei.WorkList();
     Self._property:WorkListElement = workList;
 
