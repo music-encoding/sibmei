@@ -1325,6 +1325,10 @@ function GenerateScoreDef (score, barnum) {
     libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
     libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
     libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
+    if (timesig.Hidden)
+    {
+        libmei.AddAttribute(scoredef, 'meter.form', 'invis');
+    }
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
     if (score.StaffCount > 0)
