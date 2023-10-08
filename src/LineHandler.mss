@@ -77,10 +77,10 @@ function InitLineMap () {
         'line.staff.vertical',                 CreateSparseArray('Line', CreateDictionary('form', 'solid', 'type', verticalLine)),
 
         // Type = 'OctavaLine'
-        'line.staff.octava.minus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'place', 'below')),
-        'line.staff.octava.minus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'place', 'below')),
-        'line.staff.octava.plus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'place', 'above')),
-        'line.staff.octava.plus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'place', 'above')),
+        'line.staff.octava.minus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'dis.place', 'below')),
+        'line.staff.octava.minus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'dis.place', 'below')),
+        'line.staff.octava.plus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'dis.place', 'above')),
+        'line.staff.octava.plus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'dis.place', 'above')),
 
         // Type = 'GlissandoLine'
         // TODO: For line.staff.gliss.straight and line.staff.port.straight,
