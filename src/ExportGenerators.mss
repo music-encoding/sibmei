@@ -773,6 +773,11 @@ function GenerateClef (bobj) {
         libmei.AddAttribute(clef_el, 'color', ConvertColor(bobj));
     }
 
+    if (bobj.Hidden = true)
+    {
+        libmei.AddAttribute(clef_el, 'visible', 'false');
+    }
+
     return clef_el;
 }  //$end
 
