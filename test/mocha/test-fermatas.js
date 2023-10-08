@@ -18,7 +18,7 @@ describe("Fermatas", function() {
       } else if (tstampA > tstampB) {
         return 1;
       }
-      // For multiple fermatas at the same tstamp, sort alphabeticall by @shape
+      // For multiple fermatas at the same tstamp, sort alphabetically by @shape
       if (a.getAttribute('shape') < b.getAttribute('shape')) {
         return -1;
       } else {
@@ -64,5 +64,14 @@ describe("Fermatas", function() {
       const expectedFormsInBar = expectedForms[barIndex % 6].map(factor => factor * flip == 1 ? 'norm' : 'inv');
       assert.deepEqual(foundForms, expectedFormsInBar, `Expected fermata forms ${expectedFormsInBar} in bar ${barIndex + 1}, but found ${foundForms}`);
     }
+  });
+
+  it("exports fermata color", function() {
+    fermatasByMeasure.forEach((fermatasInMeasure, barIndex) => {
+      for (const fermata of fermatasInMeasure) {
+        const expectedColor = barIndex % 6 === 0 ? "rgba(255,0,0,1)" : null;
+        assert.strictEqual(fermata.getAttribute("color"), expectedColor, "bar " + (barIndex + 1));
+      }
+    });
   });
 });
