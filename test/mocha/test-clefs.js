@@ -46,4 +46,9 @@ describe("Clefs", () => {
     const measure = xpath.evaluateXPath('ancestor::*:measure', coloredClef);
     assert.strictEqual(measure.getAttribute("n"), "2");
   });
+
+  it("exports invisible clefs", function() {
+    const invisibleClef = xpath.evaluateXPath('(//*:measure[@n="3"]//*:clef)[1]', mei);
+    assert.strictEqual(invisibleClef.getAttribute("visible"), "false");
+  });
 });
