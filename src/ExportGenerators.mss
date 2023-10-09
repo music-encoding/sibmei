@@ -274,9 +274,7 @@ function GenerateMEIMusic () {
         {
             currentScoreDef = libmei.ScoreDef();
             // Log('Time Signature Change in Bar ' & j);
-            libmei.AddAttribute(currentScoreDef, 'meter.count', currTimeS.Numerator);
-            libmei.AddAttribute(currentScoreDef, 'meter.unit', currTimeS.Denominator);
-            libmei.AddAttribute(currentScoreDef, 'meter.sym', ConvertNamedTimeSignature(currTimeS.Text));
+            GenerateMeterAttributes(currentScoreDef, currTimeS);
         }
 
         if (currKeyS.Sharps != prevKeyS.Sharps)
@@ -1322,13 +1320,7 @@ function GenerateScoreDef (score, barnum) {
     systf = score.SystemStaff;
     timesig = systf.CurrentTimeSignature(1);
 
-    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
-    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
-    libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
-    if (timesig.Hidden)
-    {
-        libmei.AddAttribute(scoredef, 'meter.form', 'invis');
-    }
+    GenerateMeterAttributes(scoredef, timesig);
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
     if (score.StaffCount > 0)
@@ -1338,6 +1330,16 @@ function GenerateScoreDef (score, barnum) {
     }
 
     return scoredef;
+}  //$end
+
+function GenerateMeterAttributes (scoredef, timesig) {
+    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
+    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
+    libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
+    if (timesig.Hidden)
+    {
+        libmei.AddAttribute(scoredef, 'meter.form', 'invis');
+    }
 }  //$end
 
 function GenerateStaffGroups (score, barnum) {
