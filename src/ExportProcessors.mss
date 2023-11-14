@@ -507,10 +507,24 @@ function ProcessEndingLines (bar) {
         {
             for each line in endingLines
             {
-                end_obj = GetNoteObjectAtPosition(line, 'PreciseMatch', 'EndPosition');
-                if (end_obj != null)
+                meiLine = line._property:mobj;
+                endidSearchStrategy = meiLine.attrs['endid'];
+                if ('' = endidSearchStrategy)
                 {
-                    libmei.AddAttribute(line._property:mobj, 'endid', '#' & end_obj._id);
+                    end_obj = null;
+                }
+                else
+                {
+                    end_obj = GetNoteObjectAtPosition(line, endidSearchStrategy, 'EndPosition');
+                }
+
+                if (end_obj = null)
+                {
+                    meiLine.attrs.endid = ' ';
+                }
+                else
+                {
+                    libmei.AddAttribute(meiLine, 'endid', '#' & end_obj._id);
                 }
             }
         }

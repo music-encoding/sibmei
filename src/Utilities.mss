@@ -190,12 +190,12 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // Try and find the best matching note according to the `searchStrategy`.
     noteRestPositions = noteIdsByPosition.ValidIndices;
 
-    for noteRestIndex = noteRestPosition.Length - 1 to -1 step -1 {
+    for noteRestIndex = noteRestPositions.Length - 1 to -1 step -1 {
         if (noteRestPositions[noteRestIndex] < bobjPosition)
         {
             // We found the closest preceding and following positions
             return GetClosestNoteObject(
-                noteRestPositions,
+                noteIdsByPosition,
                 bobjPosition,
                 noteRestPositions[noteRestIndex],
                 noteRestPositions[noteRestIndex + 1],
@@ -206,7 +206,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
 
     // We did not find a preceding position
     return GetClosestNoteObject(
-        noteRestPositions, bobjPosition, null, noteRestPositions[0], searchStrategy
+        noteIdsByPosition, bobjPosition, null, noteRestPositions[0], searchStrategy
     );
 }  //$end
 

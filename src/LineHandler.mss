@@ -27,23 +27,23 @@ function InitLineMap () {
         ///////////////////////
 
         // Type = 'Line'
-        'line.staff.arrow',                    CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow', 'endid', ' ')),
-        'line.staff.arrow.black.right',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow', 'endid', ' ')),
-        'line.staff.arrow.black.right.dashed', CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'endsym', 'arrow', 'endid', ' ')),
-        'line.staff.arrow.black.right.left',   CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'arrow', 'endsym', 'arrow', 'endid', ' ')),
-        'line.staff.arrow.black.vertical',     CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow', 'endid', ' ')),
-        'line.staff.arrow.white.right',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrowwhite', 'endid', ' ')),
-        'line.staff.arrow.white.right.dashed', CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'endsym', 'arrowwhite', 'endid', ' ')),
-        'line.staff.arrow.white.right.left',   CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'arrowwhite', 'endsym', 'arrowwhite', 'endid', ' ')),
-        'line.staff.arrow.white.vertical',     CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrowwhite', 'type', verticalLine, 'endid', ' ')),
+        'line.staff.arrow',                    CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow', 'endid', 'Next')),
+        'line.staff.arrow.black.right',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow', 'endid', 'Next')),
+        'line.staff.arrow.black.right.dashed', CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'endsym', 'arrow', 'endid', 'Next')),
+        'line.staff.arrow.black.right.left',   CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'arrow', 'endsym', 'arrow', 'endid', 'Next')),
+        'line.staff.arrow.black.vertical',     CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrow', 'endid', 'PreciseMatch')),
+        'line.staff.arrow.white.right',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrowwhite', 'endid', 'Next')),
+        'line.staff.arrow.white.right.dashed', CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'endsym', 'arrowwhite', 'endid', 'Next')),
+        'line.staff.arrow.white.right.left',   CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'arrowwhite', 'endsym', 'arrowwhite', 'endid', 'Next')),
+        'line.staff.arrow.white.vertical',     CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'arrowwhite', 'type', verticalLine, 'endid', 'PreciseMatch')),
         // 'line.staff.bend.hold',                CreateSparseArray('Line', CreateDictionary('form', 'solid')),
-        'line.staff.bracket.above',            CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angledown', 'endsym', 'angledown', 'endid', ' ')),
-        'line.staff.bracket.above.end',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'angledown', 'endid', ' ')),
-        'line.staff.bracket.below',            CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleup', 'endsym', 'angleup', 'endid', ' ')),
-        'line.staff.bracket.below.end',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'angleup', 'endid', ' ')),
-        'line.staff.bracket.vertical',         CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleleft', 'endsym', 'angleleft', 'endid', ' ')),
-        'line.staff.bracket.vertical.2',       CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleright', 'endsym', 'angleright', 'endid', ' ')),
-        'line.staff.dashed.vertical',          CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', verticalLine, 'endid', ' ')),
+        'line.staff.bracket.above',            CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angledown', 'endsym', 'angledown', 'endid', 'Previous')),
+        'line.staff.bracket.above.end',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'angledown', 'endid', 'Previous')),
+        'line.staff.bracket.below',            CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleup', 'endsym', 'angleup', 'endid', 'Previous')),
+        'line.staff.bracket.below.end',        CreateSparseArray('Line', CreateDictionary('form', 'solid', 'endsym', 'angleup', 'endid', 'Previous')),
+        'line.staff.bracket.vertical',         CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleleft', 'endsym', 'angleleft', 'endid', 'PreciseMatch')),
+        'line.staff.bracket.vertical.2',       CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleright', 'endsym', 'angleright', 'endid', 'PreciseMatch')),
+        'line.staff.dashed.vertical',          CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', verticalLine, 'endid', 'PreciseMatch')),
         // TODO: Sibelius uses a vertical stroke at the end, but we don't have a fitting @endsym value
         'line.staff.guitareffect',             CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', 'guitareffect', 'endid', ' ')),
         // 'line.staff.harmonic.artificial',      CreateSparseArray('Line', CreateDictionary('form', 'solid')),
@@ -54,11 +54,11 @@ function InitLineMap () {
         // The Hauptstimme line type only has a start symbol and an end symbol
         // without an actual line. Therefore set @lwidth to 0.
         // TODO: Add create two separate symbols instead?
-        'line.staff.hauptstimme',              CreateSparseArray('Line', CreateDictionary('startsym', 'H', 'endsym', 'angledown', 'endid', ' ')),
+        'line.staff.hauptstimme',              CreateSparseArray('Line', CreateDictionary('startsym', 'H', 'endsym', 'angledown', 'endid', 'Previous')),
         // 'line.staff.letring',                  CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.mute.palm',                CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // TODO: The Nebenstimme line type only has a start symbol and an end symbol without an actual line.
-        'line.staff.nebenstimme',              CreateSparseArray('Line', CreateDictionary('startsym', 'N', 'endsym', 'angledown', 'lwidth', '0', 'endid', ' ')),
+        'line.staff.nebenstimme',              CreateSparseArray('Line', CreateDictionary('startsym', 'N', 'endsym', 'angledown', 'lwidth', '0', 'endid', 'Previous')),
         // 'line.staff.pick.scrape',              CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.rake',                     CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.slide',                    CreateSparseArray('Line', CreateDictionary('form', 'solid')),
@@ -78,20 +78,20 @@ function InitLineMap () {
         // 'line.staff.string.below.6',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.string.below.7',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.string.below.8',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
-        'line.staff.vertical',                 CreateSparseArray('Line', CreateDictionary('form', 'solid', 'type', verticalLine, 'endid', ' ')),
+        'line.staff.vertical',                 CreateSparseArray('Line', CreateDictionary('form', 'solid', 'type', verticalLine, 'endid', 'PreciseMatch')),
 
         // Type = 'OctavaLine'
-        'line.staff.octava.minus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'dis.place', 'below', 'endid', ' ')),
-        'line.staff.octava.minus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'dis.place', 'below', 'endid', ' ')),
-        'line.staff.octava.plus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'dis.place', 'above', 'endid', ' ')),
-        'line.staff.octava.plus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'dis.place', 'above', 'endid', ' ')),
+        'line.staff.octava.minus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'dis.place', 'below', 'endid', 'Previous')),
+        'line.staff.octava.minus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'dis.place', 'below', 'endid', 'Previous')),
+        'line.staff.octava.plus15', CreateSparseArray('Octave', CreateDictionary('dis', '15', 'dis.place', 'above', 'endid', 'Previous')),
+        'line.staff.octava.plus8', CreateSparseArray('Octave', CreateDictionary('dis', '8', 'dis.place', 'above', 'endid', 'Previous')),
 
         // Type = 'GlissandoLine'
         // TODO: For line.staff.gliss.straight and line.staff.port.straight,
         // Sibelius has an added text 'gliss.' or 'port.' above the line
-        'line.staff.gliss.straight', CreateSparseArray('Gliss', CreateDictionary('endid', ' ')),
-        'line.staff.gliss.wavy', CreateSparseArray('Gliss', CreateDictionary('lform', 'wavy', 'endid', ' ')),
-        'line.staff.port.straight', CreateSparseArray('Gliss', CreateDictionary('endid', ' ')),
+        'line.staff.gliss.straight', CreateSparseArray('Gliss', CreateDictionary('endid', 'Next')),
+        'line.staff.gliss.wavy', CreateSparseArray('Gliss', CreateDictionary('lform', 'wavy', 'endid', 'Next')),
+        'line.staff.port.straight', CreateSparseArray('Gliss', CreateDictionary('endid', 'Next')),
 
         // Type = 'Slur'
         // 'down' and 'up' don't really mean anything. Sibelius handles both
@@ -100,17 +100,17 @@ function InitLineMap () {
         // apparently always create a slur with style `line.staff.slur.up`, no
         // matter the resulting curvature.  With ManuScript, there is no way we
         // can find out the actual curvature.
-        'line.staff.slur.down', CreateSparseArray('Slur', CreateDictionary('endid', ' ')),
-        'line.staff.slur.down.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed', 'endid', ' ')),
-        'line.staff.slur.down.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed', 'endid', ' ')),
-        'line.staff.slur.down.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted', 'endid', ' ')),
-        'line.staff.slur.up', CreateSparseArray('Slur', CreateDictionary('endid', ' ')),
-        'line.staff.slur.up.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed', 'endid', ' ')),
-        'line.staff.slur.up.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed', 'endid', ' ')),
-        'line.staff.slur.up.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted', 'endid', ' ')),
+        'line.staff.slur.down', CreateSparseArray('Slur', CreateDictionary('endid', 'PreciseMatch')),
+        'line.staff.slur.down.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed', 'endid', 'PreciseMatch')),
+        'line.staff.slur.down.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed', 'endid', 'PreciseMatch')),
+        'line.staff.slur.down.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted', 'endid', 'PreciseMatch')),
+        'line.staff.slur.up', CreateSparseArray('Slur', CreateDictionary('endid', 'PreciseMatch')),
+        'line.staff.slur.up.bracketed', CreateSparseArray('Slur', CreateDictionary('type', 'bracketed', 'endid', 'PreciseMatch')),
+        'line.staff.slur.up.dashed', CreateSparseArray('Slur', CreateDictionary('lform', 'dashed', 'endid', 'PreciseMatch')),
+        'line.staff.slur.up.dotted', CreateSparseArray('Slur', CreateDictionary('lform', 'dotted', 'endid', 'PreciseMatch')),
         // A 'slur' with this style can apparently not be created via the UI,
         // but it can be created with ManuScript
-        'line.staff.tie', CreateSparseArray('Tie', CreateDictionary('endid', ' ')),
+        'line.staff.tie', CreateSparseArray('Tie', CreateDictionary('endid', 'PreciseMatch')),
 
         //////////////////////////
         // Lines without @endid //
@@ -221,7 +221,7 @@ function HandleLine (lobj) {
 } //$end
 
 
-function HandleLineTemplate(this, lobj, template){
+function HandleLineTemplate (this, lobj, template) {
     //$module(LineHandler.mss)
 
     line = MeiFactory(template);
