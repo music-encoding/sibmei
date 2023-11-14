@@ -500,13 +500,6 @@ function GenerateLayers (staffnum, measurenum) {
 
     objectPositions = Self._property:ObjectPositions;
 
-    if (objectPositions.PropertyExists(staffnum) = False)
-    {
-        objectPositions[staffnum] = CreateDictionary();
-    }
-
-    staffObjectPositions = objectPositions[staffnum];
-
     score = Self._property:ActiveScore;
     this_staff = score.NthStaff(staffnum);
     bar = this_staff[measurenum];
@@ -517,13 +510,7 @@ function GenerateLayers (staffnum, measurenum) {
     for each bobj in bar
     {
         voicenumber = bobj.VoiceNumber;
-
-        if (staffObjectPositions.PropertyExists(bar.BarNumber) = False)
-        {
-            staffObjectPositions[bar.BarNumber] = CreateDictionary();
-        }
-
-        barObjectPositions = staffObjectPositions[bar.BarNumber];
+        layerHash = LayerHash(bar, voicenumber);
 
         if (layerdict.PropertyExists(voicenumber))
         {
@@ -536,9 +523,9 @@ function GenerateLayers (staffnum, measurenum) {
                 l = libmei.Layer();
                 layers.Push(l._id);
 
-                if (barObjectPositions.PropertyExists(voicenumber) = False)
+                if (null = objectPositions[layerHash])
                 {
-                    barObjectPositions[voicenumber] = CreateDictionary();
+                    objectPositions[layerHash] = CreateSparseArray();
                 }
 
                 layerdict[voicenumber] = l;
@@ -609,7 +596,7 @@ function GenerateLayers (staffnum, measurenum) {
                 if (note != null)
                 {
                     // record the position of this element
-                    objVoice = barObjectPositions[voicenumber];
+                    objVoice = objectPositions[layerHash];
                     objVoice[bobj.Position] = note._id;
 
                     normalizedBeamProp = NormalizedBeamProp(bobj);
@@ -1559,8 +1546,7 @@ function GenerateTrill (bobj) {
         symbol object. This method normalizes both of these.
     */
     trill = GenerateControlEvent(bobj, 'Trill');
-    bar = bobj.ParentBar;
-    obj = GetNoteObjectAtPosition(bobj);
+    obj = GetNoteObjectAtPosition(bobj, 'Closest', 'Position');
 
     if (obj != null)
     {

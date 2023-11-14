@@ -331,7 +331,7 @@ function ProcessLyric (lyricobj, objectPositions) {
             libmei.AddAttribute(sylel, 'wordpos', 't'); // 'terminal'
         }
 
-        obj = GetNoteObjectAtPosition(syl);
+        obj = GetNoteObjectAtPosition(syl, 'PreciseMatch');
 
         if (obj != null)
         {
@@ -507,7 +507,7 @@ function ProcessEndingLines (bar) {
         {
             for each line in endingLines
             {
-                end_obj = GetNoteObjectAtEndPosition(line);
+                end_obj = GetNoteObjectAtPosition(line, 'PreciseMatch', 'EndPosition');
                 if (end_obj != null)
                 {
                     libmei.AddAttribute(line._property:mobj, 'endid', '#' & end_obj._id);
