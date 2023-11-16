@@ -7,7 +7,7 @@ function RegisterAvailableExtensions (availableExtensions) {
     // Values are the full names that are displayed to the user.
 
     apiSemver = SplitString(ExtensionAPIVersion, '.');
-    errors = '';
+    errors = CreateSparseArray();
 
     for each pluginObject in Sibelius.Plugins
     {
@@ -15,13 +15,14 @@ function RegisterAvailableExtensions (availableExtensions) {
         {
 
             plgName = pluginObject.File.NameNoPath;
-            extensionSemver = SplitString(@plgName.SibmeiExtensionAPIVersion, '.');
+            extensionSemverString = @plgName.SibmeiExtensionAPIVersion;
+            extensionSemver = SplitString(extensionSemverString, '.');
 
             switch (true)
             {
                 case (extensionSemver.NumChildren != 3)
                 {
-                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`';
+                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`. \'%s\' is not a valid version string.';
                 }
                 case ((apiSemver[0] = extensionSemver[0]) and (apiSemver[1] >= extensionSemver[1]))
                 {
@@ -29,7 +30,7 @@ function RegisterAvailableExtensions (availableExtensions) {
                 }
                 case ((apiSemver[0] < extensionSemver[0]) or (apiSemver[1] < extensionSemver[1]))
                 {
-                    error = 'Extension %s requires Sibmei to be updated to a newer version';
+                    error = 'Extension %s requires extension API version %s, but Sibmei %s only supports extension API version %s. Check for Sibmei updates supporting that extension API version.';
                 }
                 default
                 {
@@ -44,12 +45,12 @@ function RegisterAvailableExtensions (availableExtensions) {
             }
             else
             {
-                errors = errors & utils.Format(error, plgName) & '\n';
+                errors.Push(utils.Format(error, plgName, extensionSemverString, Version, ExtensionAPIVersion));
             }
         }
     }
 
-    return errors;
+    return errors.Join('\n\n');
 }  //$end
 
 
