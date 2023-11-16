@@ -30,6 +30,6 @@ describe("Extensions", function() {
   });
 
   it("exports custom lines by name", function(){
-    utils.assertAttrValueFormat(line, 'type', 'myline');
+    utils.assertAttrValueFormat([line], 'type', 'myline');
   });
 });

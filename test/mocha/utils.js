@@ -50,16 +50,13 @@ module.exports = {
   },
 
   /**
-   * @param  {Element|Element[]} elements
+   * @param  {Element[]} elements
    * @param  {string} attName
    * @param  {string|RegExp} expectedFormat  If a string is supplied, the
    *    attributes will be tested for strict equality, otherwise if they match
    *    the RegExp.
    */
   assertAttrValueFormat: function (elements, attName, expectedFormat) {
-    if (!elements instanceof Array) {
-      elements = [elements];
-    }
     for (let i = 0; i < elements.length; i += 1) {
       const actualValue = elements[i].getAttribute(attName);
       if (actualValue == undefined) {
