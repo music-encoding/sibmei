@@ -157,7 +157,7 @@ The following methods must only be used by handler methods:
 
 * **`HandleLineTemplate()`**: Takes two arguments:
 
-   * The to be exported line-like object (basically any of the ManuScript classes that has the `IsALine` flag set)
+   * The line-like object (basically any of the ManuScript classes that has the `IsALine` flag set)
    * A template suitable for passing to `MeiFactory()`. If an `@endid` attribute should be written, add an `endid` attribute in the template. Instead of the attribute value, use one of the following placeholders. The placeholder will be replaced by an ID reference when writing to XML. Which ID is written depends on the line's `EndPosition` in its end bar and the value of the placeholder:
       * `'PreciseMatch'`: `@endid` will only be written if there is a NoteRest precisely at the `EndPosition` in the same voice as the line.
       * `'Next'`: If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest following NoteRest, if there is one in the same voice as the line.
