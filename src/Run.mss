@@ -6,7 +6,12 @@ function Run() {
         return null;
     }
 
-    DoExport(null);
+    error = DoExport(null);
+
+    if (null != error)
+    {
+        Sibelius.MessageBox(error);
+    }
 
 }  //$end
 
@@ -104,13 +109,69 @@ function DoExport (filename) {
         trace('Warning: ' & warning);
     }
 
-    if (export_status = False)
-    {
-        Sibelius.MessageBox(_ExportFailure);
-    }
-
     // clean up after ourself
     libmei.destroy();
 
-    return filename;
+    if (export_status = False)
+    {
+        return 'The file was not exported. File:\n\n' & filename & '\n\ncould not be written.';
+    }
+}  //$end
+
+
+function ExportBatch (files, extensions) {
+    if (not InitGlobals(extensions))
+    {
+        return null;
+    }
+
+    utils.SortArray(files, false);
+
+    numFiles = files.Length;
+    exportCount = 0;
+
+    for index = 0 to numFiles
+    {
+        file = Sibelius.GetFile(files[index]);
+
+        open = Sibelius.Open(file, True);
+        if (not open)
+        {
+            continue = Sibelius.YesNoMessageBox('File could not be opened:\n\n' & file & '\n\nContinue anyway?');
+            if (not continue)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
+            error = DoExport(file.Name & '.mei');
+            if (Sibelius.ProgramVersion >= 20201200)
+            {
+                Sibelius.CloseAllWindowsForScore(Sibelius.ActiveScore, false);
+            }
+            else
+            {
+                Sibelius.CloseWindow(False);
+            }
+            if (null = error)
+            {
+                exportCount = exportCount + 1;
+            }
+            else
+            {
+                if (not Sibelius.YesNoMessageBox(error & '\n\nContinue anyway?'))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    Sibelius.DestroyProgressDialog();
+
+    Sibelius.MessageBox(exportCount & ' of ' & numFiles & ' files were exported.');
+
+    return true;
 }  //$end

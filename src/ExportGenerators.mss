@@ -545,7 +545,7 @@ function GenerateLayers (staffnum, measurenum) {
         {
             case('Clef')
             {
-                // Clefs are placed inside the musical flow like notes.  Hence we also need to find
+                // Clefs are placed inside the musical flow like notes. Hence we also need to find
                 // out whether they are part of beams or tuplets.
                 clef = GenerateClef(bobj);
 
@@ -744,6 +744,11 @@ function GenerateClef (bobj) {
     libmei.AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
     libmei.AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(clef_el, 'color', ConvertColor(bobj));
+    }
+
     return clef_el;
 }  //$end
 
@@ -802,8 +807,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.Color != 0)
     {
-        nrest_color = ConvertColor(bobj);
-        libmei.AddAttribute(nr, 'color', nrest_color);
+        libmei.AddAttribute(nr, 'color', ConvertColor(bobj));
     }
 
     /* NB: If there is a problem with grace notes, look here first.
@@ -967,8 +971,7 @@ function GenerateRest (bobj) {
 
     if (bobj.Color != 0 and name != 'space')
     {
-        nrest_color = ConvertColor(bobj);
-        libmei.AddAttribute(r, 'color', nrest_color);
+        libmei.AddAttribute(r, 'color', ConvertColor(bobj));
     }
 
     return r;
@@ -1061,8 +1064,7 @@ function GenerateNote (nobj) {
 
     if (nobj.Color != nobj.ParentNoteRest.Color)
     {
-        note_color = ConvertColor(nobj);
-        libmei.AddAttribute(n, 'color', note_color);
+        libmei.AddAttribute(n, 'color', ConvertColor(nobj));
     }
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
@@ -1563,6 +1565,11 @@ function GenerateFermata (bobj, shape, form) {
 
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
+
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(fermata, 'color', ConvertColor(bobj));
+    }
 
     measureObjs = Self._property:MeasureObjects;
     measureObjs.Push(fermata._id);

@@ -8,53 +8,20 @@
     Run "()
     {
         folder = Sibelius.SelectFolder();
-        if (null != folder)
+        if (null = folder)
         {
-            ConvertFolder(folder, null);
+            return '';
         }
+
+        files = CreateSparseArray();
+
+        for each SIB file in folder
+        {
+            files.Push(file);
+        }
+
+        sibmei4.ExportBatch(files, null);
     }"
 
-    ConvertFolder "(folder, extensions)
-    {
-
-        if (not IsObject(folder))
-        {
-            Sibelius.MessageBox('Not a folder object: ' & folder);
-        }
-        else
-        {
-            sibmei4.InitGlobals(extensions);
-
-            // count files for progress dialog
-            numFiles = folder.FileCount('SIB');
-            index = 0;
-            Sibelius.CreateProgressDialog(_Processing, 0, numFiles);
-
-            for each SIB file in folder
-            {
-                index = index + 1;
-                cont = Sibelius.UpdateProgressDialog(index, _File & ' ' & index & ' ' & _Of & ' ' & numFiles);
-
-                if (cont = 0) {
-                    // if user has cancelled export
-                    Sibelius.DestroyProgressDialog();
-                    return 0;
-                }
-
-                // open file
-                op = Sibelius.Open(file.NameWithExt, True);
-                if (op = True) {
-                    // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
-                    sibmei4.DoExport(file.Name & '.mei');
-                    Sibelius.CloseWindow(False);
-                }
-            }
-
-            Sibelius.DestroyProgressDialog();
-        }
-    }"
     _PluginMenuName "Export Sibelius folder to MEI 4"
-    _Processing "Processing scores"
-    _File "File"
-    _Of "of"
 }

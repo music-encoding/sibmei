@@ -7,7 +7,6 @@ _InitialProgressTitle "Exporting %s to MEI"
 _ExportFileIsNull "You must specify a file to save."
 _ScoreError "Please open a score and try again."
 _ExportSuccess "The file was exported successfully."
-_ExportFailure "The file was not exported because of an error."
 _VersionNotSupported "Versions earlier than Sibelius 7 are not supported."
 _ExportingBars "Exporting to MEI: Bar %s of %s"
 
