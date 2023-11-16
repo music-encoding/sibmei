@@ -159,6 +159,7 @@ function CreateApiObject () {
     apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
     apiObject.SetMethod('AddControlEventAttributes', Self, 'ExtensionAPI_AddControlEventAttributes');
+    apiObject.SetMethod('HandleLineTemplate', Self, 'HandleLineTemplate');
     return apiObject;
 }  //$end
 

@@ -1,5 +1,5 @@
 {
-  SibmeiExtensionAPIVersion "1.0.0"
+  SibmeiExtensionAPIVersion "1.2.0"
 
   Initialize "() {
     AddToPluginsMenu('Sibmei extension test', 'Run');
@@ -22,7 +22,9 @@
       'glyph.name', 'mySymbolGlyph'
     ));
 
-    Self._property:MyLineTemplate = CreateSparseArray('Line', CreateDictionary('type', 'myline'));
+    Self._property:MyLineTemplate = CreateSparseArray(
+      'Line', CreateDictionary('type', 'myline', 'endid')
+    );
 
     api.RegisterSymbolHandlers(CreateDictionary(
       'Name', CreateDictionary(
@@ -73,8 +75,6 @@
   }"
 
   HandleMyLine "(this, lineObj) {
-    line = api.MeiFactory(MyLineTemplate);
-    api.AddControlEventAttributes(lineObj, line);
-    return line;
+    return api.HandleLineTemplate(lineObj, MyLineTemplate);
   }"
 }
