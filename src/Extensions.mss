@@ -173,7 +173,7 @@ function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
 }  //$end
 
 function ExtensionAPI_RegisterLineHandlers (this, lineHandlerDict, plugin) {
-    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin);
+    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin, 'HandleLineTemplate');
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject) {

@@ -136,6 +136,9 @@ It exposes the following methods that must only be called in the initialization 
    `StyleId` and `StyleAsText` instead of `Index` and `Name`. Always use
    `StyleId` for built-in text styles and `StyleAsText` for custom text styles.
 
+* **`RegisterLineHandlers()`**: Works the same way as
+   `RegisterTextHandlers()`, with the difference that instead of a handler method names, a template suitable for passing to `MeiFactory()` can be used.
+
 The following methods must only be used by handler methods:
 
 * **`MeiFactory()`**: A convenience method that takes a template SparseArray as

@@ -6,15 +6,6 @@ function InitLineHandlers () {
         'StyleAsText', CreateDictionary()
     );
 
-    return lineHandlers;
-}//$end
-
-
-function InitLineMap () {
-    //$module(LineHandler.mss)
-    // Create a dictionary with StyleID as key and a template as value.
-    // See Utilities/MeiFactory() for further instructions.
-
     verticalLine = 'vertical line';
 
     // Commented out line styles are not supported yet.  Some of them might need
@@ -45,7 +36,7 @@ function InitLineMap () {
         'line.staff.bracket.vertical.2',       CreateSparseArray('Line', CreateDictionary('form', 'solid', 'startsym', 'angleright', 'endsym', 'angleright', 'endid', 'PreciseMatch')),
         'line.staff.dashed.vertical',          CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', verticalLine, 'endid', 'PreciseMatch')),
         // TODO: Sibelius uses a vertical stroke at the end, but we don't have a fitting @endsym value
-        'line.staff.guitareffect',             CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', 'guitareffect', 'endid', ' ')),
+        'line.staff.guitareffect',             CreateSparseArray('Line', CreateDictionary('form', 'dashed', 'type', 'guitareffect', 'endid', 'PreciseMatch')),
         // 'line.staff.harmonic.artificial',      CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.harmonic.harp',            CreateSparseArray('Line', CreateDictionary('form', 'solid')),
         // 'line.staff.harmonic.pinch',           CreateSparseArray('Line', CreateDictionary('form', 'solid')),
@@ -176,17 +167,9 @@ function InitLineMap () {
     //   line.system.tempo.rit.poco.textonly
     //   line.system.tempo.rit.textonly
 
-    lineMap = CreateDictionary();
+    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self, 'HandleLineTemplate');
 
-    handlerMap = CreateDictionary();
-    for each Name styleId in lineTemplates
-    {
-        handlerMap[styleId] = 'HandleLineTemplate';
-        lineMap[styleId] = lineTemplates[styleId];
-    }
-    RegisterHandlers(Self._property:LineHandlers, CreateDictionary('StyleId', handlerMap), Self);
-
-    return lineMap;
+    return lineHandlers;
 } //$end
 
 
@@ -204,19 +187,18 @@ function HandleLine (lobj) {
     }
 
     lineHandlers = Self._property:LineHandlers;
-    lineMap = Self._property:LineMap;
 
     // look for line style ID in lineHandlers.StyleId
     if (lineHandlers.StyleId.MethodExists(lobj.StyleId))
     {
         styleId = lobj.StyleId;
-        return lineHandlers.StyleId.@styleId(lobj, lineMap[styleId]);
+        return lineHandlers.StyleId.@styleId(lobj, lineHandlers.StyleId[styleId]);
     }
     // look for line name in lineHandlers.StyleAsText
     if (lineHandlers.StyleAsText.MethodExists(lobj.StyleAsText))
     {
         styleAsText = lobj.StyleAsText;
-        return lineHandlers.StyleAsText.@styleAsText(lobj, lineMap[styleAsText]);
+        return lineHandlers.StyleAsText.@styleAsText(lobj, lineHandlers.StyleAsText[styleAsText]);
     }
 } //$end
 

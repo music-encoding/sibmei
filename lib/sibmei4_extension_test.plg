@@ -41,7 +41,9 @@
 
     api.RegisterLineHandlers(CreateDictionary(
       'StyleAsText', CreateDictionary(
-        'My line', 'HandleMyLine'
+        'My line', CreateSparseArray(
+          'Line', CreateDictionary('type', 'myline', 'endid')
+        )
       )
     ), Self);
   }"
@@ -72,9 +74,5 @@
     }
     libmei.SetText(annotElement, JoinStrings(textWithFormatting, ''));
     return annotElement;
-  }"
-
-  HandleMyLine "(this, lineObj) {
-    return api.HandleLineTemplate(lineObj, MyLineTemplate);
   }"
 }
