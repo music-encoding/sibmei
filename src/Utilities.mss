@@ -145,137 +145,117 @@ function PushToHashedLayer (hashedLayers, bar, bobj) {
     layerArray.Push(bobj);
 }  //$end
 
-function GetNoteObjectAtEndPosition (bobj) {
+
+function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     //$module(Utilities.mss)
-    // takes a bar object, and returns the NoteRest object closest to the end position.
-    // If one isn't found exactly at the end position, it will first look back (previous)
-    // and then look forward, for candidate objects.
-    // NB: This will probably only work for line objects, since they are the only ones with the EndPosition attribute.
-    // Returns the MEI element closest to that position.
+    // takes a bar object, and returns the NoteRest object closest to its
+    // position, in the same voice as `bobj`. If `bobj` is in voice 0, no
+    // NoteRest will be returned.
+    // For line-like objects, parameter `position` must be supplied and be
+    // either `Position` or `EndPosition`. For all other objects, this
+    // parameter should be omitted.
+    // If no NoteRest is found exactly at the position, the defined
+    // `searchStrategy` is used to find another NoteRest and may be one of the
+    // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
 
     objectPositions = Self._property:ObjectPositions;
-    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
-    // bar_num = bobj.ParentBar.BarNumber;
-    bar_num = bobj.EndBarNumber;
-    Log('bar_num: ' & bar_num);
-    voice_num = bobj.VoiceNumber;
-
-    staffObjectPositions = objectPositions[staff_num];
-    barObjectPositions = staffObjectPositions[bar_num];
-    if (barObjectPositions = null) {
-        // TODO: We have a line that continues into a 'future' bar. Track these
-        // lines and add IDs when we've reached the end NoteRest and know its ID
-        return null;
-    }
-    voiceObjectPositions = barObjectPositions[voice_num];
-
-    if (voiceObjectPositions = null)
+    if (bobj.IsALine and positionProperty = 'EndPosition')
     {
-        // theres not much we can do here. Bail.
-        Log('Bailing due to insufficient voice information');
-        return null;
-    }
-
-    if (voiceObjectPositions.PropertyExists(bobj.EndPosition))
-    {
-        obj_id = voiceObjectPositions[bobj.EndPosition];
-        obj = libmei.getElementById(obj_id);
-        return obj;
+        bobjPosition = bobj.EndPosition;
+        noteIdsByPosition = objectPositions[LayerHash(bobj.EndBarNumber, bobj)];
     }
     else
     {
-        // if we can't find anything at this position,
-        // find the previous and subsequent objects, and align the
-        // lyrics with them.
-        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+        noteIdsByPosition = objectPositions[LayerHash(bobj.ParentBar, bobj)];
+        bobjPosition = bobj.Position;
+    }
 
-        if (prev_obj != null)
-        {
-            // there should be an object registered here
-            obj_id = voiceObjectPositions[prev_obj.Position];
-            obj = libmei.getElementById(obj_id);
-            return obj;
-        }
-        else
-        {
-            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+    if (null = noteIdsByPosition)
+    {
+        return null;
+    }
 
-            if (next_obj != null)
-            {
-                obj_id = voiceObjectPositions[next_obj.Position];
-                obj = libmei.getElementById(obj_id);
-                return obj;
-            }
+    objId = noteIdsByPosition[bobjPosition];
+    if (null != objId)
+    {
+        return libmei.getElementById(objId);
+    }
+
+    // `bobj` was not precisely attched to a NoteRest in the same voice.
+    if (searchStrategy = 'PreciseMatch')
+    {
+        return null;
+    }
+
+    // Try and find the best matching note according to the `searchStrategy`.
+    noteRestPositions = noteIdsByPosition.ValidIndices;
+
+    for noteRestIndex = noteRestPositions.Length - 1 to -1 step -1 {
+        if (noteRestPositions[noteRestIndex] < bobjPosition)
+        {
+            // We found the closest preceding and following positions
+            return GetClosestNoteObject(
+                noteIdsByPosition,
+                bobjPosition,
+                noteRestPositions[noteRestIndex],
+                noteRestPositions[noteRestIndex + 1],
+                searchStrategy
+            );
         }
     }
 
-    return null;
+    // We did not find a preceding position
+    return GetClosestNoteObject(
+        noteIdsByPosition, bobjPosition, null, noteRestPositions[0], searchStrategy
+    );
+}  //$end
+
+
+function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, followingPosition, searchStrategy) {
+    switch (true)
+    {
+        case (searchStrategy = 'Next')
+        {
+            noteRestPosition = followingPosition;
+        }
+        case (searchStrategy = 'Previous')
+        {
+            noteRestPosition = precedingPosition;
+        }
+        case (searchStrategy != 'Closest')
+        {
+            Trace(searchStrategy & ' is not an accepted value for parameter `searchStrategy`');
+            ExitPlugin();
+        }
+        // `'' = x` is testig if x is null. We can not use `x = null` or
+        // `null = x` because both expressions are truthy if `x` is 0. We can't
+        // use `x = ''` either for the same reason.
+        case ('' = precedingPosition)
+        {
+            noteRestPosition = followingPosition;
+        }
+        case ('' = followingPosition)
+        {
+            noteRestPosition = precedingPosition;
+        }
+        case ((followingPosition - bobjPosition) < (bobjPosition - precedingPosition))
+        {
+            noteRestPosition = followingPosition;
+        }
+        default
+        {
+            noteRestPosition = precedingPosition;
+        }
+    }
+
+    if ('' = noteRestPosition)
+    {
+        return null;
+    }
+
+    return libmei.getElementById(noteIdsByPosition[noteRestPosition]);
 } //$end
 
-
-function GetNoteObjectAtPosition (bobj) {
-    //$module(Utilities.mss)
-    // takes a bar object, and returns the NoteRest object closest to its position.
-    // If one isn't found exactly at the end position, it will first look back (previous)
-    // and then look forward, for candidate objects.
-
-    voice_num = bobj.VoiceNumber;
-    if (voice_num = 0)
-    {
-        // Things like titles or composer text needn't/shouldn't be attached to
-        // voices or notes.
-        return null;
-    }
-    objectPositions = Self._property:ObjectPositions;
-    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
-    bar_num = bobj.ParentBar.BarNumber;
-
-    staffObjectPositions = objectPositions[staff_num];
-    barObjectPositions = staffObjectPositions[bar_num];
-    voiceObjectPositions = barObjectPositions[voice_num];
-
-    if (voiceObjectPositions = null)
-    {
-        // theres not much we can do here. Bail.
-        Log('Bailing due to insufficient voice information');
-        return null;
-    }
-
-    if (voiceObjectPositions.PropertyExists(bobj.Position))
-    {
-        obj_id = voiceObjectPositions[bobj.Position];
-        obj = libmei.getElementById(obj_id);
-        return obj;
-    }
-    else
-    {
-        // if we can't find anything at this position,
-        // find the previous and subsequent objects, and align the
-        // lyrics with them.
-        next_obj = bobj.NextItem(voice_num, 'NoteRest');
-
-        if (next_obj != null)
-        {
-            obj_id = voiceObjectPositions[next_obj.Position];
-            obj = libmei.getElementById(obj_id);
-            return obj;
-        }
-        else
-        {
-            prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
-
-            if (prev_obj != null)
-            {
-                // there should be an object registered here
-                obj_id = voiceObjectPositions[prev_obj.Position];
-                obj = libmei.getElementById(obj_id);
-                return obj;
-            }
-        }
-    }
-
-    return null;
-}  //$end
 
 function AddControlEventAttributes (bobj, element) {
     //$module(Utilities.mss)
@@ -296,19 +276,15 @@ function AddControlEventAttributes (bobj, element) {
 
     libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
 
-    start_obj = GetNoteObjectAtPosition(bobj);
+    start_obj = GetNoteObjectAtPosition(bobj, 'PreciseMatch', 'Position');
     if (start_obj != null)
     {
         libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
     }
 
-    if (TypeHasEndBarNumberProperty[bobj.Type]) {
+    if (TypeHasEndBarNumberProperty[bobj.Type])
+    {
         libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        end_obj = GetNoteObjectAtEndPosition(bobj);
-        if (end_obj != null)
-        {
-            libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
-        }
     }
 
     if (bar.ParentStaff.StaffNum > 0)

@@ -331,7 +331,7 @@ function ProcessLyric (lyricobj, objectPositions) {
             libmei.AddAttribute(sylel, 'wordpos', 't'); // 'terminal'
         }
 
-        obj = GetNoteObjectAtPosition(syl);
+        obj = GetNoteObjectAtPosition(syl, 'PreciseMatch');
 
         if (obj != null)
         {
@@ -497,20 +497,34 @@ function ProcessVolta (mnum) {
     return null;
 }  //$end
 
-function ProcessEndingSlurs (bar) {
+function ProcessEndingLines (bar) {
     //$module(ExportProcessors.mss)
-    slur_resolver = Self._property:SlurResolver;
+    lineResolver = Self._property:LineEndResolver;
     for voiceNumber = 1 to 5
     {
-        endingSlurs = slur_resolver[LayerHash(bar, voiceNumber)];
-        if (endingSlurs != null)
+        endingLines = lineResolver[LayerHash(bar, voiceNumber)];
+        if (endingLines != null)
         {
-            for each slur in endingSlurs
+            for each line in endingLines
             {
-                end_obj = GetNoteObjectAtEndPosition(slur);
-                if (end_obj != null)
+                meiLine = line._property:mobj;
+                endidSearchStrategy = meiLine.attrs['endid'];
+                if ('' = endidSearchStrategy)
                 {
-                    libmei.AddAttribute(slur._property:mobj, 'endid', '#' & end_obj._id);
+                    end_obj = null;
+                }
+                else
+                {
+                    end_obj = GetNoteObjectAtPosition(line, endidSearchStrategy, 'EndPosition');
+                }
+
+                if (end_obj = null)
+                {
+                    meiLine.attrs.endid = ' ';
+                }
+                else
+                {
+                    libmei.AddAttribute(meiLine, 'endid', '#' & end_obj._id);
                 }
             }
         }

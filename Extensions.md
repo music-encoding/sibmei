@@ -129,12 +129,15 @@ It exposes the following methods that must only be called in the initialization 
    If no symbols are registered by either `Name` or `Index` property, the
    respective sub-dictionaries can be omitted.
 
-   Second argument of `RegisterSymbolHandler()` must be `Self`.
+   Second argument of `RegisterSymbolHandler()` must be `Self`.
 
 * **`RegisterTextHandlers()`**: Works the same way as
    `RegisterSymbolHandlers()`, with the difference that sub-Dictionary keys are
    `StyleId` and `StyleAsText` instead of `Index` and `Name`. Always use
    `StyleId` for built-in text styles and `StyleAsText` for custom text styles.
+
+* **`RegisterLineHandlers()`**: Works the same way as
+   `RegisterTextHandlers()`, with the difference that instead of a handler method names, a template suitable for passing to `MeiFactory()` can be used.
 
 The following methods must only be used by handler methods:
 
@@ -154,6 +157,15 @@ The following methods must only be used by handler methods:
    `HandleControlEvent()` creates an MEI element and attaches it to the `<measure>` element. It returns the element for further manipulation by the extension plugin.
 
 * **`HandleModifier()`**: Works similarly to `HandleControlEvent()`, but attaches the generated MEI element to an event element (`<note>`, `<chord>` etc.) instead of the `<measure>` element.
+
+* **`HandleLineTemplate()`**: Takes two arguments:
+
+   * The line-like object (basically any of the ManuScript classes that has the `IsALine` flag set)
+   * A template suitable for passing to `MeiFactory()`. If an `@endid` attribute should be written, add an `endid` attribute in the template. Instead of the attribute value, use one of the following placeholders. The placeholder will be replaced by an ID reference when writing to XML. Which ID is written depends on the line's `EndPosition` in its end bar and the value of the placeholder:
+      * `'PreciseMatch'`: `@endid` will only be written if there is a NoteRest precisely at the `EndPosition` in the same voice as the line.
+      * `'Next'`: If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest following NoteRest, if there is one in the same voice as the line.
+      * `'Previous'`:  If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest preceding NoteRest, if there is one in the same voice as the line.
+      * `'Closest'`: Writes an `@endid` that points to the closest NoteRest to the `EndPosition` in the same voice as the line.
 
 * **`AddFormattedText()`**: Takes arguments:
 

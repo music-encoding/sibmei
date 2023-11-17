@@ -50,16 +50,13 @@ module.exports = {
   },
 
   /**
-   * @param  {Element|Element[]} elements
+   * @param  {Element[]} elements
    * @param  {string} attName
    * @param  {string|RegExp} expectedFormat  If a string is supplied, the
    *    attributes will be tested for strict equality, otherwise if they match
    *    the RegExp.
    */
   assertAttrValueFormat: function (elements, attName, expectedFormat) {
-    if (!elements instanceof Array) {
-      elements = [elements];
-    }
     for (let i = 0; i < elements.length; i += 1) {
       const actualValue = elements[i].getAttribute(attName);
       if (actualValue == undefined) {
@@ -72,5 +69,28 @@ module.exports = {
         assert.strictEqual(actualValue, expectedFormat);
       }
     }
-  }
+  },
+
+  /**
+   * Iterates over all <annot> elements with @type='xpath-test' and applies the
+   * content as XPath to the <annot>'s parent <measure>. The test passes if the
+   * XPath result is truthy (i.e. returns true or matches something).
+   *
+   * XPath annotations are input in Sibelius with a text style named 'XPath
+   * test'. The text must be a valid XPath expression that can be evaluated in
+   * the context of the measure. This style is present e.g. in lines.sib and can
+   * be copied from there (by simply copying a text object of that style).
+   *
+   * @param (Document) mei
+  */
+  assertXpathAnnotations: function(mei) {
+    for (const annot of xpath.evaluateXPath("//*:annot[@type='xpath-test']", mei)) {
+      const measure = annot.parentNode.getAttribute("n");
+      const testXpath = annot.textContent;
+      const message = `measure: ${measure}, XPath: ${testXpath}`;
+      const result = xpath.evaluateXPath(testXpath, annot.parentNode);
+      const resultIsEmptyArray = result instanceof Array && result.length === 0;
+      assert.ok(!resultIsEmptyArray && result !== false, message);
+    }
+  },
 }

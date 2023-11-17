@@ -144,7 +144,7 @@ function GenerateMEIMusic () {
     score = Self._property:ActiveScore;
 
     Self._property:TieResolver = CreateDictionary();
-    Self._property:SlurResolver = CreateSparseArray();
+    Self._property:LineEndResolver = CreateSparseArray();
     Self._property:LyricWords = CreateDictionary();
     Self._property:SpecialBarlines = CreateDictionary();
     Self._property:SystemText = CreateDictionary();
@@ -500,13 +500,6 @@ function GenerateLayers (staffnum, measurenum) {
 
     objectPositions = Self._property:ObjectPositions;
 
-    if (objectPositions.PropertyExists(staffnum) = False)
-    {
-        objectPositions[staffnum] = CreateDictionary();
-    }
-
-    staffObjectPositions = objectPositions[staffnum];
-
     score = Self._property:ActiveScore;
     this_staff = score.NthStaff(staffnum);
     bar = this_staff[measurenum];
@@ -517,13 +510,7 @@ function GenerateLayers (staffnum, measurenum) {
     for each bobj in bar
     {
         voicenumber = bobj.VoiceNumber;
-
-        if (staffObjectPositions.PropertyExists(bar.BarNumber) = False)
-        {
-            staffObjectPositions[bar.BarNumber] = CreateDictionary();
-        }
-
-        barObjectPositions = staffObjectPositions[bar.BarNumber];
+        layerHash = LayerHash(bar, voicenumber);
 
         if (layerdict.PropertyExists(voicenumber))
         {
@@ -536,9 +523,9 @@ function GenerateLayers (staffnum, measurenum) {
                 l = libmei.Layer();
                 layers.Push(l._id);
 
-                if (barObjectPositions.PropertyExists(voicenumber) = False)
+                if (null = objectPositions[layerHash])
                 {
-                    barObjectPositions[voicenumber] = CreateDictionary();
+                    objectPositions[layerHash] = CreateSparseArray();
                 }
 
                 layerdict[voicenumber] = l;
@@ -609,7 +596,7 @@ function GenerateLayers (staffnum, measurenum) {
                 if (note != null)
                 {
                     // record the position of this element
-                    objVoice = barObjectPositions[voicenumber];
+                    objVoice = objectPositions[layerHash];
                     objVoice[bobj.Position] = note._id;
 
                     normalizedBeamProp = NormalizedBeamProp(bobj);
@@ -668,41 +655,37 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each bobj in bar
     {
-        obj = null;
         mobj = null;
-        chordsym = null;
 
         switch (bobj.Type)
         {
             case('GuitarFrame')
             {
-                chordsym = GenerateChordSymbol(bobj);
+                mobj = GenerateChordSymbol(bobj);
             }
             case('Slur')
             {
-                mobj = GenerateLine(bobj);
-                bobj._property:mobj = mobj;
-                PushToHashedLayer(Self._property:SlurResolver, bobj.EndBarNumber, bobj);
+                mobj = HandleLine(bobj);
             }
             case('CrescendoLine')
             {
-                mobj = GenerateHairpin(bobj);
+                mobj = HandleLine(bobj);
             }
             case('DiminuendoLine')
             {
-                mobj = GenerateHairpin(bobj);
+                mobj = HandleLine(bobj);
             }
             case('OctavaLine')
             {
-                mobj = GenerateLine(bobj);
+                mobj = HandleLine(bobj);
             }
             case('GlissandoLine')
             {
-                mobj = GenerateLine(bobj);
+                mobj = HandleLine(bobj);
             }
             case('Trill')
             {
-                mobj = GenerateLine(bobj);
+                mobj = GenerateTrill(bobj);
             }
             case('ArpeggioLine')
             {
@@ -714,7 +697,7 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                mobj = GenerateLine(bobj);
+                mobj = HandleLine(bobj);
             }
             case('Text')
             {
@@ -722,20 +705,13 @@ function GenerateLayers (staffnum, measurenum) {
             }
         }
 
+        // add element to the measure objects so that they get added to the
+        // measure later in the processing cycle.
         if (mobj != null)
         {
             mobjs = Self._property:MeasureObjects;
             mobjs.Push(mobj._id);
             Self._property:MeasureObjects = mobjs;
-        }
-
-        // add chord symbols to the measure objects
-        // so that they get added to the measure later in the processing cycle.
-        if (chordsym != null)
-        {
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(chordsym._id);
-            Self._property:MeasureObjects = mlines;
         }
     }
 
@@ -751,7 +727,7 @@ function GenerateLayers (staffnum, measurenum) {
         HandleSymbol(sobj);
     }
 
-    ProcessEndingSlurs(bar);
+    ProcessEndingLines(bar);
 
     return layers;
 }  //$end
@@ -1502,235 +1478,6 @@ function GenerateTuplet(tupletObj) {
     return tuplet;
 }  //$end
 
-function GenerateLine (bobj) {
-    //$module(ExportGenerators.mss)
-    line = null;
-
-    switch (bobj.Type)
-    {
-        case ('Slur')
-        {
-            line = GenerateControlEvent(bobj, 'Slur');
-            slurrend = ConvertSlurStyle(bobj.StyleId);
-            libmei.AddAttribute(line, 'lform', slurrend[1]);
-        }
-        case ('OctavaLine')
-        {
-            line = GenerateControlEvent(bobj, 'Octave');
-            octrend = ConvertOctava(bobj.StyleId);
-            libmei.AddAttribute(line, 'dis', octrend[0]);
-            libmei.AddAttribute(line, 'dis.place', octrend[1]);
-        }
-        case ('GlissandoLine')
-        {
-            line = GenerateControlEvent(bobj, 'Gliss');
-        }
-        case ('Trill')
-        {
-            line = GenerateTrill(bobj);
-        }
-        case ('Line')
-        {
-            // a generic line element.
-            linecomps = MSplitString(bobj.StyleId, '.');
-            switch(linecomps[2])
-            {
-                //brackets
-                case ('bracket')
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                    bracketType = 'bracket';
-
-                    //horizontal brackets
-                    if (linecomps.Length >= 3)
-                    {
-                        //brackets above
-                        if (linecomps[3] = 'above')
-                        {
-                            libmei.AddAttribute(line, 'place', 'above');
-
-                            if (linecomps.Length > 4)
-                            {
-                                if (linecomps[4] = 'start')
-                                {
-                                    bracketType = bracketType & ' start';
-                                    libmei.AddAttribute(line, 'startsym', 'angleup');
-                                }
-
-                                if (linecomps[4] = 'end')
-                                {
-                                    bracketType = bracketType & ' end';
-                                    libmei.AddAttribute(line, 'endsym', 'angleup');
-                                }
-                            }
-                            else
-                            {
-                              libmei.AddAttribute(line, 'startsym', 'angleup');
-                              libmei.AddAttribute(line, 'endsym', 'angleup');
-                            }
-                        }
-                        //brackets below
-                        if (linecomps[3] = 'below')
-                        {
-                            libmei.AddAttribute(line, 'place', 'below');
-
-                            if (linecomps.Length > 4)
-                            {
-                                if (linecomps[4] = 'start')
-                                {
-                                    bracketType = bracketType & ' start';
-                                    libmei.AddAttribute(line, 'startsym', 'angledown');
-                                }
-
-                                if (linecomps[4] = 'end')
-                                {
-                                    bracketType = bracketType & ' end';
-                                    libmei.AddAttribute(line, 'endsym', 'angledown');
-                                }
-                            }
-                            else
-                            {
-                                libmei.AddAttribute(line, 'startsym', 'angledown');
-                                libmei.AddAttribute(line, 'endsym', 'angledown');
-                            }
-                        }
-                        //vertical bracktes
-                        if (linecomps[3] = 'vertical')
-                        {
-                            bracketType = bracketType & ' vertical';
-
-                            //Add direction of bracket: line.staff.bracket.vertical.2 opens to the right, line.staff.bracket.vertical opens to the left
-                            if (linecomps > 4)
-                            {
-                                if (linecomps[4] = '2')
-                                {
-                                    bracketType = bracketType & ' start';
-                                    libmei.AddAttribute(line, 'startsym', 'angleright');
-                                    libmei.AddAttribute(line, 'endsym', 'angleright');
-                                }
-                            }
-
-                            else
-                            {
-                                bracketType = bracketType & ' end';
-                                libmei.AddAttribute(line, 'startsym', 'angleleft');
-                                libmei.AddAttribute(line, 'endsym', 'angleleft');
-                            }
-                        }
-                    }
-
-                    //add types of bracktes
-                    libmei.AddAttribute(line, 'type', bracketType);
-                }
-                //solid vertical line
-                case ('vertical')
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                    libmei.AddAttribute(line,'form','solid');
-                    libmei.AddAttribute(line,'type','vertical');
-                }
-                //dashed lines
-                case ('dashed')
-                {
-                    //dashed vertical line
-                    if (linecomps.Length > 3)
-                    {
-                        if (linecomps[3] = 'vertical')
-                        {
-                            line = GenerateControlEvent(bobj, 'Line');
-                            libmei.AddAttribute(line,'form','dashed');
-                            libmei.AddAttribute(line,'type','vertical');
-                        }
-                    }
-                    //dashed horizontal line
-                    else
-                    {
-                      line = GenerateControlEvent(bobj, 'Line');
-                      libmei.AddAttribute(line,'form','dashed');
-                    }
-                }
-                //dotted horizontal line
-                case('dotted')
-                {
-                  line = GenerateControlEvent(bobj, 'Line');
-                  libmei.AddAttribute(line,'form','dotted');
-                }
-                //solid horizontal line
-                case('plain')
-                {
-                  line = GenerateControlEvent(bobj, 'Line');
-                  libmei.AddAttribute(line,'form','solid');
-                }
-                case ('vibrato')
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                    libmei.AddAttribute(line, 'type', 'vibrato');
-                    libmei.AddAttribute(line, 'form', 'wavy');
-                    libmei.AddAttribute(line, 'place', 'above');
-
-                }
-
-                //To catch diverse line types, set a default
-                default
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                }
-            }
-
-            if (bobj.Color != 0)
-            {
-                libmei.AddAttribute(line, 'color', ConvertColor(bobj));
-            }
-
-        }
-    }
-
-    return line;
-}  //$end
-
-
-function GenerateHairpin (bobj) {
-    //$module(ExportGenerators.mss)
-    hairpin = GenerateControlEvent(bobj, 'Hairpin');
-
-    switch (bobj.Type) {
-        case ('CrescendoLine')
-        {
-            libmei.AddAttribute(hairpin, 'form', 'cres');
-        }
-        case ('DiminuendoLine')
-        {
-            libmei.AddAttribute(hairpin, 'form', 'dim');
-        }
-    }
-
-    style = MSplitString(bobj.StyleId, '.')[4];
-
-    switch(style)
-    {
-        case ('dashed')
-        {
-            libmei.AddAttribute(hairpin, 'lform', 'dashed');
-        }
-        case ('dotted')
-        {
-            libmei.AddAttribute(hairpin, 'lform', 'dotted');
-        }
-        case ('fromsilence') {
-            libmei.AddAttribute(hairpin, 'niente', 'true');
-        }
-        case ('tosilence') {
-            libmei.AddAttribute(hairpin, 'niente', 'true');
-        }
-        // Will work in MEI 5
-        // case ('bracketed') {
-        //     libmei.AddAttribute(lform, 'enclose', 'paren');
-        // }
-    }
-
-    return hairpin;
-} //$end
-
 
 function GenerateArpeggio (bobj) {
     //$module(ExportGenerators.mss)
@@ -1801,8 +1548,7 @@ function GenerateTrill (bobj) {
         symbol object. This method normalizes both of these.
     */
     trill = GenerateControlEvent(bobj, 'Trill');
-    bar = bobj.ParentBar;
-    obj = GetNoteObjectAtPosition(bobj);
+    obj = GetNoteObjectAtPosition(bobj, 'Closest', 'Position');
 
     if (obj != null)
     {

@@ -1,5 +1,5 @@
 {
-  SibmeiExtensionAPIVersion "1.0.0"
+  SibmeiExtensionAPIVersion "1.2.0"
 
   Initialize "() {
     AddToPluginsMenu('Sibmei extension test', 'Run');
@@ -22,6 +22,10 @@
       'glyph.name', 'mySymbolGlyph'
     ));
 
+    Self._property:MyLineTemplate = CreateSparseArray(
+      'Line', CreateDictionary('type', 'myline', 'endid')
+    );
+
     api.RegisterSymbolHandlers(CreateDictionary(
       'Name', CreateDictionary(
         'My symbol', 'HandleMySymbol'
@@ -30,10 +34,18 @@
 
     api.RegisterTextHandlers(CreateDictionary(
       'StyleAsText', CreateDictionary(
+        'XPath test', 'HandleXPathTest',
         'My text', 'HandleMyText'
       )
     ), Self);
 
+    api.RegisterLineHandlers(CreateDictionary(
+      'StyleAsText', CreateDictionary(
+        'My line', CreateSparseArray(
+          'Line', CreateDictionary('type', 'myline', 'endid')
+        )
+      )
+    ), Self);
   }"
 
   HandleMySymbol "(this, obj) {
@@ -47,5 +59,20 @@
     textElement = api.GenerateControlEvent(textObj, 'AnchoredText');
     api.AddFormattedText(textElement, textObj);
     return textElement;
+  }"
+
+  HandleXPathTest "(this, textObj) {
+    annotElement = api.GenerateControlEvent(textObj, 'Annot');
+    libmei.AddAttribute(annotElement, 'type', 'xpath-test');
+    textWithFormatting = textObj.TextWithFormatting;
+    for i = 0 to textWithFormatting.NumChildren {
+      if (CharAt(textWithFormatting[i], 0) = '\\') {
+        // Remove formatting and newlines. fontoxpath will complain about if
+        // is additional whitespace in XPath expressions.
+        textWithFormatting[i] = '';
+      }
+    }
+    libmei.SetText(annotElement, JoinStrings(textWithFormatting, ''));
+    return annotElement;
   }"
 }

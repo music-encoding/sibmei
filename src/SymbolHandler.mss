@@ -163,7 +163,7 @@ function HandleSymbol (sobj) {
 function HandleModifier(this, sobj, template){
     //$module(SymbolHandler.mss)
 
-    nobj = GetNoteObjectAtPosition(sobj);
+    nobj = GetNoteObjectAtPosition(sobj, 'Closest');
 
     if (nobj != null)
     {
