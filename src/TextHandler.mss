@@ -24,7 +24,7 @@ function InitTextHandlers() {
 }  //$end
 
 function InitTextSubstituteMap() {
-    return CreateDictionary(
+    tempSubstituteMap = CreateDictionary(
         'Title', CreateSparseArray('Title'),
         'Subtitle', CreateSparseArray('Title', CreateDictionary('type', 'subordinate')),
         // <dedication> is only allowed on <titlePage> and <creation>, so use
@@ -45,6 +45,19 @@ function InitTextSubstituteMap() {
         'MoreInfo', CreateSparseArray('Seg', CreateDictionary('type', 'MoreInfo')),
         'PartName', CreateSparseArray('Seg', CreateDictionary('type', 'PartName'))
     );
+
+    textSubstituteMap = CreateDictionary();
+
+    // The keys in the above table are the names of the properties on the Score
+    // objects. The same name can be used for referencing them in text, but the
+    // reference is case insensitive, so we register them as all-uppercase in
+    // final map.
+    for each Name name in tempSubstituteMap {
+        tempSubstituteMap[name]._property:propertyName = name;
+        textSubstituteMap[utils.UpperCase(name)] = tempSubstituteMap[name];
+    }
+
+    return textSubstituteMap;
 }  //$end
 
 
@@ -443,7 +456,7 @@ function GetStyleAttributes (state) {
 function AppendTextSubstitute (state, substituteName) {
     score = Self._property:ActiveScore;
 
-    textSubstituteTemplate = TextSubstituteMap[substituteName];
+    textSubstituteTemplate = TextSubstituteMap[utils.UpperCase(substituteName)];
     if (null = textSubstituteTemplate)
     {
         // No known substitution. Sibelius renders those literally.
@@ -451,7 +464,9 @@ function AppendTextSubstitute (state, substituteName) {
         return null;
     }
 
-    substitutedText = score.@substituteName;
+    propertyName = textSubstituteTemplate.propertyName;
+
+    substitutedText = score.@propertyName;
     if (substitutedText = '')
     {
         return null;
