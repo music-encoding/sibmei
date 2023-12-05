@@ -310,6 +310,10 @@ function ProcessLyric (lyricobj, objectPositions) {
             {
                 libmei.AddAttribute(sylel_last, 'con', 'b');
             }
+            else
+            {
+                libmei.AddAttribute(sylel_last, 'con', 's');
+            }
             sylel_last = libmei.Syl();
             libmei.SetText(sylel_last, elisionSyl);
             libmei.AddChild(verse, sylel_last);
