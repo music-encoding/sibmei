@@ -46,8 +46,8 @@ describe("Lyrics", () => {
     it("marks syllable extensions (undescore, @con='u')", () => {
       utils.assertAttrOnElements(syls, [10, 12], 'con', 'u');
     });
-    it("marks syllable elisions (breve, @con='b')", () => {
-      utils.assertAttrOnElements(syls, [0, 13, 18, 31, 33, 34], 'con', 'b');
+    it("marks underscore syllable elisions (breve, @con='b')", () => {
+      utils.assertAttrOnElements(syls, [0, 18, 31, 33, 34], 'con', 'b');
     });
   });
 
