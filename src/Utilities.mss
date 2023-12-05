@@ -1,39 +1,11 @@
 function MSplitString (string, delimiter) {
     //$module(Utilities.mss)
     /*
-        The default Splitstring method is buggy,
-        so I've re-implemented it here.
-
-        Delimiter is optional; if it is false, this will
-        split the string into an array of characters.
+        The default SplitString method returns a TreeNode Array which is hard
+        to handle and can lead to Sibelius crashes.  This is a more friendly
+        wrapper that returns a SparseArray instead.
     */
-    ret = CreateSparseArray();
-    pos = 0;
-    // If there is no delimiter, split the string
-    // into an array of characters.
-    if (delimiter = false)
-    {
-        for i = 0 to Length(string)
-        {
-            ret.Push(Substring(string, i, 1));
-        }
-        return ret;
-    }
-
-    for i = 0 to Length(string) + 1
-    {
-        if (utils.CharAt(string, i) = delimiter)
-        {
-            ret.Push(Substring(string, pos, i - pos));
-            pos = i + 1;
-        }
-
-        if (i = Length(string))
-        {
-            ret.Push(Substring(string, pos, Length(string) - pos));
-        }
-    }
-    return ret;
+    return SplitString(string, delimiter).ConvertToSparseArray();
 }  //$end
 
 function PrevPow2 (val) {
