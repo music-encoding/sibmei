@@ -2,6 +2,7 @@ function TestUtilities (suite) {
     //$module(TestUtilities)
     suite
         .Add('TestMSplitString')
+        .Add('TestSplitStringIncludeDelimiters')
         .Add('TestPrevPow2')
         ;
 } //$end
@@ -13,6 +14,20 @@ function TestMSplitString (assert, plugin) {
     assert.Equal(split.Length, 3, 'There should be three elements in the split string');
     assert.Equal(split[0], 'foo', 'The first element should be foo');
 }  //$end
+
+
+function TestSplitStringIncludeDelimiters (assert, plugin) {
+    //$module(TestUtilities)
+    split = sibmei.SplitStringIncludeDelimiters('foo-bar baz', ' -');
+    assert.Equal(split, CreateSparseArray('foo', '-', 'bar', ' ', 'baz'), 'Interspersed delimiters');
+
+    split = sibmei.SplitStringIncludeDelimiters('  foo--bar  baz  ', ' -');
+    assert.Equal(split, CreateSparseArray('', ' ', 'foo', '-', 'bar', ' ', 'baz', ' ', ''), 'Reduce multiple delimters to just one');
+
+    split = sibmei.SplitStringIncludeDelimiters('foo- bar', ' -');
+    assert.Equal(split, CreateSparseArray('foo', '-', '', ' ', 'bar'), 'Do not reduce adjacent delimiters');
+}  //$end
+
 
 function TestPrevPow2 (assert, plugin) {
     //$module(TestUtilities)

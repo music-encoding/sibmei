@@ -8,6 +8,52 @@ function MSplitString (string, delimiter) {
     return SplitString(string, delimiter).ConvertToSparseArray();
 }  //$end
 
+
+function SplitStringIncludeDelimiters (string, delimiters) {
+    //$module(Utilities.mss)
+    /*
+        This function is useful if a string should be split at more than one
+        delimiter, but the delimiter should be preserved to know at which
+        delimiter we split.  Example:
+
+          result = SplitStringIncludeDelimiters('foo-bar baz', '- ');
+          Trace(result); // =>  ['foo', '-', 'bar', ' ', 'baz']
+
+        Multiple delimiter chars of the same kind are treated as just one
+        delimiter, i.e. 'foo  bar' would be split in the same fashion as
+        'foo bar' with just one space.
+    */
+    components = SplitString(string, delimiters);
+    if (components.NumChildren = 1)
+    {
+        return CreateSparseArray(string);
+    }
+
+    ret = CreateSparseArray();
+    delimiterIndex = -1;
+    previousDelimiter = '';
+    for each component in components
+    {
+        delimiterIndex = delimiterIndex + Length(component) + 1;
+        delimiter = Substring(string, delimiterIndex, 1);
+        if (component != '' or delimiter != previousDelimiter)
+        {
+            // `component` is a TreeNode that we convert to a string with `& ''`
+            ret.Push(component & '');
+            ret.Push(delimiter);
+        }
+        previousDelimiter = delimiter;
+    }
+
+    // In the loop, we push the component and the following delimiter, but
+    // there is no delimiter following the last component, so we remove the last
+    // item again (which is always an empty string).
+    ret.Pop();
+
+    return ret;
+}  //$end
+
+
 function PrevPow2 (val) {
     //$module(Utilities.mss)
     if (val = 0)
