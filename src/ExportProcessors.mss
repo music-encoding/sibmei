@@ -297,16 +297,25 @@ function ProcessLyric (lyricobj, objectPositions) {
         sylel_last = sylel;
         libmei.AddChild(verse, sylel);
 
-        // Split syllable text by underscore, in case there is an elision
-        syllables = MSplitString(syl.Text, '_');
+        // Split lyrics text by underscore and space, in case there is an elision
+        syllables = SplitStringIncludeDelimiters(syl.Text, '_ ');
         libmei.SetText(sylel, syllables[0]);
 
         // Handle any found elisions
-        for s = 1 to syllables.Length
+        for s = 1 to syllables.Length step 2
         {
-            libmei.AddAttribute(sylel_last, 'con', 'b');
+            elisionDelimiter = syllables[s];
+            elisionSyl = syllables[s + 1];
+            if (elisionDelimiter = '_')
+            {
+                libmei.AddAttribute(sylel_last, 'con', 'b');
+            }
+            else
+            {
+                libmei.AddAttribute(sylel_last, 'con', 's');
+            }
             sylel_last = libmei.Syl();
-            libmei.SetText(sylel_last, syllables[s]);
+            libmei.SetText(sylel_last, elisionSyl);
             libmei.AddChild(verse, sylel_last);
         }
 

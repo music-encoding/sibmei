@@ -1,40 +1,58 @@
 function MSplitString (string, delimiter) {
     //$module(Utilities.mss)
     /*
-        The default Splitstring method is buggy,
-        so I've re-implemented it here.
-
-        Delimiter is optional; if it is false, this will
-        split the string into an array of characters.
+        The default SplitString method returns a TreeNode Array which is hard
+        to handle and can lead to Sibelius crashes.  This is a more friendly
+        wrapper that returns a SparseArray instead.
     */
+    return SplitString(string, delimiter).ConvertToSparseArray();
+}  //$end
+
+
+function SplitStringIncludeDelimiters (string, delimiters) {
+    //$module(Utilities.mss)
+    /*
+        This function is useful if a string should be split at more than one
+        delimiter, but the delimiter should be preserved to know at which
+        delimiter we split.  Example:
+
+          result = SplitStringIncludeDelimiters('foo-bar baz', '- ');
+          Trace(result); // =>  ['foo', '-', 'bar', ' ', 'baz']
+
+        Multiple delimiter chars of the same kind are treated as just one
+        delimiter, i.e. 'foo  bar' would be split in the same fashion as
+        'foo bar' with just one space.
+    */
+    components = SplitString(string, delimiters);
+    if (components.NumChildren = 1)
+    {
+        return CreateSparseArray(string);
+    }
+
     ret = CreateSparseArray();
-    pos = 0;
-    // If there is no delimiter, split the string
-    // into an array of characters.
-    if (delimiter = false)
+    delimiterIndex = -1;
+    previousDelimiter = '';
+    for each component in components
     {
-        for i = 0 to Length(string)
+        delimiterIndex = delimiterIndex + Length(component) + 1;
+        delimiter = Substring(string, delimiterIndex, 1);
+        if (component != '' or delimiter != previousDelimiter)
         {
-            ret.Push(Substring(string, i, 1));
+            // `component` is a TreeNode that we convert to a string with `& ''`
+            ret.Push(component & '');
+            ret.Push(delimiter);
         }
-        return ret;
+        previousDelimiter = delimiter;
     }
 
-    for i = 0 to Length(string) + 1
-    {
-        if (utils.CharAt(string, i) = delimiter)
-        {
-            ret.Push(Substring(string, pos, i - pos));
-            pos = i + 1;
-        }
+    // In the loop, we push the component and the following delimiter, but
+    // there is no delimiter following the last component, so we remove the last
+    // item again (which is always an empty string).
+    ret.Pop();
 
-        if (i = Length(string))
-        {
-            ret.Push(Substring(string, pos, Length(string) - pos));
-        }
-    }
     return ret;
 }  //$end
+
 
 function PrevPow2 (val) {
     //$module(Utilities.mss)
