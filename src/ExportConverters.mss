@@ -505,24 +505,6 @@ function HasVisibleAccidental (noteobj) {
     return False;
 }  //$end
 
-function ConvertNamedTimeSignature (timesig) {
-    //$module(ExportConverters.mss)
-    switch(timesig)
-    {
-        case(CommonTimeString)
-        {
-            return 'common';
-        }
-        case(AllaBreveTimeString)
-        {
-            return 'cut';
-        }
-        default
-        {
-            return ' ';
-        }
-    }
-}  //$end
 
 function ConvertBracket (bracket) {
     //$module(ExportConverters.mss)

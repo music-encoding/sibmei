@@ -242,7 +242,6 @@ function GenerateMEIMusic () {
             Self._property:PageBreak = null;
         }
 
-        currTimeS = systf.CurrentTimeSignature(j);
         currKeyS = systf.CurrentKeySignature(j);
 
         if (Self._property:SystemBreak != null)
@@ -255,27 +254,14 @@ function GenerateMEIMusic () {
         // Do not try to get the signatures for bar 0 -- will not work
         if (j > 1)
         {
-            prevTimeS = systf.CurrentTimeSignature(j - 1);
             prevKeyS = systf.CurrentKeySignature(j - 1);
         }
         else
         {
-            prevTimeS = systf.CurrentTimeSignature(j);
             prevKeyS = systf.CurrentKeySignature(j);
         }
 
-        /*
-            This will check for a change in the current time signature and create a new
-            scoredef element if it's changed. The key signature will always be processed later,
-            so by then we will either have a new scoredef with a timesig change, or we'll need
-            to create one just for the keysig change.
-        */
-        if ((currTimeS.Numerator != prevTimeS.Numerator) or (currTimeS.Denominator != prevTimeS.Denominator))
-        {
-            currentScoreDef = libmei.ScoreDef();
-            // Log('Time Signature Change in Bar ' & j);
-            GenerateMeterAttributes(currentScoreDef, currTimeS);
-        }
+        currentScoreDef = GenerateMeterAttributes(currentScoreDef, score, j);
 
         if (currKeyS.Sharps != prevKeyS.Sharps)
         {
@@ -1293,10 +1279,7 @@ function GenerateScoreDef (score, barnum) {
     libmei.AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
     libmei.AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
 
-    systf = score.SystemStaff;
-    timesig = systf.CurrentTimeSignature(1);
-
-    GenerateMeterAttributes(scoredef, timesig);
+    GenerateMeterAttributes(scoredef, score, 1);
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
     if (score.StaffCount > 0)
@@ -1308,14 +1291,67 @@ function GenerateScoreDef (score, barnum) {
     return scoredef;
 }  //$end
 
-function GenerateMeterAttributes (scoredef, timesig) {
-    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
-    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
-    libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
-    if (timesig.Hidden)
+function GenerateMeterAttributes (scoredef, score, barNumber) {
+    // If a timesignature is found in the bar, adds meter attributes to
+    // `scoredef`. If `scoredef` is null, will create a new <scoreDef> that is
+    // returned.
+    // If there is no time signature in bar 1, an invisible initial meter is
+    // added.
+
+    if (score.SystemStaff.BarCount < barNumber)
+    {
+        return scoredef;
+    }
+
+    timesig = null;
+    for each TimeSignature t in score.SystemStaff.NthBar(barNumber)
+    {
+        // This loop will find at max one time signature
+        timesig = t;
+    }
+
+    if (null = timesig and barNumber > 1)
+    {
+        // There is no meter we have to add
+        return scoredef;
+    }
+
+    if (null = scoredef)
+    {
+        scoredef = libmei.ScoreDef();
+    }
+    if (null = timesig or timesig.Hidden)
     {
         libmei.AddAttribute(scoredef, 'meter.form', 'invis');
     }
+    if (null = timesig)
+    {
+        // We're in bar 1 and there is no explicit time signature
+        timesig = score.SystemStaff.CurrentTimeSignature(barNumber);
+    }
+
+    // TimeSignature.Text is either the cut or common time signature character
+    // or a two-line string (with line separator `\n\`), where the first line
+    // is a number or a sum of numbers (e.g. 3+2) and the second line is a
+    // number.
+    meterFraction = SplitString(timesig.Text, '\\n', true);
+    if (meterFraction.NumChildren = 2)
+    {
+        libmei.AddAttribute(scoredef, 'meter.count', meterFraction[0]);
+        libmei.AddAttribute(scoredef, 'meter.unit', meterFraction[1]);
+        return scoredef;
+    }
+
+    meterSym = MeterSymMap[timesig.Text];
+    if (meterSym != '')
+    {
+        libmei.AddAttribute(scoredef, 'meter.sym', meterSym);
+    }
+
+    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
+    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
+
+    return scoredef;
 }  //$end
 
 function GenerateStaffGroups (score, barnum) {

@@ -46,14 +46,12 @@ function DoExport (filename) {
     // do some preliminary checks
     if (Sibelius.ProgramVersion < 7000)
     {
-        Sibelius.MessageBox(_VersionNotSupported);
-        return False;
+        return _VersionNotSupported;
     }
 
     if (Sibelius.ScoreCount = 0)
     {
-        Sibelius.MessageBox(_ScoreError);
-        return null;
+        return _ScoreError;
     }
 
     if (null = filename)
@@ -68,8 +66,7 @@ function DoExport (filename) {
 
     if (not Self._property:_Initialized)
     {
-        Trace('InitGlobals() must be called before running DoExport()');
-        return null;
+        return 'InitGlobals() must be called before running DoExport()';
     }
 
     // first, ensure we're running with a clean slate.
@@ -80,8 +77,7 @@ function DoExport (filename) {
     Self._property:ActiveScore = Sibelius.ActiveScore;
     if (Self._property:ActiveScore = null)
     {
-        Sibelius.MessageBox('Could not find an active score. Cannot export to ' & filename);
-        return false;
+        return 'Could not find an active score. Cannot export to ' & filename;
     }
 
     // Set up the warnings tracker
