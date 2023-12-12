@@ -40,6 +40,13 @@ function InitGlobals (extensions) {
         'Trill', true
     );
 
+    Self._property:MeterSymMap = CreateDictionary(
+        CommonTimeString, 'common',
+        AllaBreveTimeString, 'cut',
+        'c', 'common',
+        'C', 'cut'
+    );
+
     // Initialize symbol styles
     Self._property:SymbolHandlers = InitSymbolHandlers();
     Self._property:SymbolMap = InitSymbolMap();
