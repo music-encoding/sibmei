@@ -1298,6 +1298,11 @@ function GenerateMeterAttributes (scoredef, score, barNumber) {
     // If there is no time signature in bar 1, an invisible initial meter is
     // added.
 
+    if (score.SystemStaff.BarCount < barNumber)
+    {
+        return scoredef;
+    }
+
     timesig = null;
     for each TimeSignature t in score.SystemStaff.NthBar(barNumber)
     {
