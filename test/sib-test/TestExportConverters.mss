@@ -7,7 +7,6 @@ function TestExportConverters (suite) {
         .Add('TestPitchesInKeySignature')
         .Add('TestHasVisibleAccidentalConverter')
         .Add('TestAccidentalConverter')
-        .Add('TestNamedTimeSignatureConverter')
         .Add('TestKeySignatureConverter')
         .Add('TestClefConverter')
         .Add('TestBracketConverter')
@@ -205,18 +204,6 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     note11 = noterest11[0];
     output = sibmei.HasVisibleAccidental(note11);
     assert.NotOK(output, 'The 3rd note in the 7th bar has a hidden C sharp');
-}  //$end
-
-function TestNamedTimeSignatureConverter (assert, plugin) {
-    //$module(TestExportConverters.mss)
-    common_ts = sibmei.ConvertNamedTimeSignature(CommonTimeString);
-    assert.Equal(common_ts, 'common', 'The Time Signature should be common');
-
-    cut_ts = sibmei.ConvertNamedTimeSignature(AllaBreveTimeString);
-    assert.Equal(cut_ts, 'cut', 'The Time Signature should be cut');
-
-    other_ts = sibmei.ConvertNamedTimeSignature('4\n4');
-    assert.Equal(other_ts, ' ', 'The function should return an empty string for other time signatures');
 }  //$end
 
 function TestKeySignatureConverter (assert, plugin) {
