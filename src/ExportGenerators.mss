@@ -453,7 +453,7 @@ function GenerateMeasure (num) {
     }
 
     // If we've reached the end of the section, swap out the mdiv to a new one.
-    if (sysBar.SectionEnd = true)
+    if (sysBar.SectionEnd and sysBar.BarNumber < systf.BarCount)
     {
         body = Self._property:BodyElement;
         // create the mdiv for the next bar.
