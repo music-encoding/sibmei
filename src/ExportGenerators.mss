@@ -261,7 +261,10 @@ function GenerateMEIMusic () {
             prevKeyS = systf.CurrentKeySignature(j);
         }
 
-        currentScoreDef = GenerateMeterAttributes(currentScoreDef, score, j);
+        if (j > 1)
+        {
+            currentScoreDef = GenerateMeterAttributes(currentScoreDef, score, j);
+        }
 
         if (currKeyS.Sharps != prevKeyS.Sharps)
         {
