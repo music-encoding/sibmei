@@ -1,6 +1,6 @@
 # Extension API
 
-With extensions to Sibmei, text objects and symbols can be exported in a customized way. This allows addressing custom symbols and text styles and project specific needs.
+With extensions to Sibmei, text objects, symbols and lines can be exported in a customized way. This allows addressing custom symbols and text styles and project specific needs.
 
 Extensions are regular Sibelius plugins written in ManuScript. When running Sibmei, it scans for extension plugins. Users can choose which extensions to activate when running Sibmei. Multiple extensions can be activated simultaneously.
 
@@ -56,7 +56,7 @@ See [another example](./lib/sibmei4_extension_test.plg) for code handling symbol
 
 ## Required Data
 
-### `ExtensionAPIVersion`
+### `SibmeiExtensionAPIVersion`
 
 A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#Degree_of_compatibility) specifying for which version of the Sibmei extension
 API the extension was written. The current API version of Sibmei can be found in
@@ -90,6 +90,82 @@ Register your symbol and text handlers in this function using `RegisterSymbolHan
 
 Extensions must only interact with Sibmei through the API dictionary passed to `InitSibmeiExtension()` because Sibmei's core methods may change at any point. If an extension requires access to functionality that is not exposed by the API dictionary, [create an issue](https://github.com/music-encoding/sibmei/issues/new) or a pull request on GitHub.
 
+### Element templates
+
+The API supports element templates in different places. A template is a SparseArray with the following content:
+
+* The capitalized tag name (e.g. `Dynam` for `<dynam>` elements)
+
+* A Dictionary with attribute names and values, or `null`, if no attributes are declared. Unlike tag names, attribute names are not capitalized.
+
+* A child node (optional). This can be a string for text nodes, or a template SparseArray of the same form for a child element.
+
+* Another child node
+
+* ...
+
+Example:
+
+```js
+CreateSparseArray(
+	'P', null,
+	'This is ',
+	CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
+		'declarative'
+	),
+	' MEI generation.'
+)
+```
+
+Output:
+
+```xml
+<p>This is <rend rend='italic'>declarative</rend> MEI generation.</p>
+```
+
+#### Dynamic template fields
+
+Sibmei has a few capabilities to dynamically fill in text and attribute values in templates, based on data from a text or line object.
+
+##### Text
+
+For filling in formatted or unformatted text, it supplies the special placeholder objects `api.AddFormattedText` and `api.AddUnformattedText`.
+
+Example:
+
+```js
+CreateSparseArray(
+	'PersName', null, CreateSparseArray(
+        'Composer', null, api.AddUnformattedText
+    )
+)
+```
+
+Output for a text object with `Text` property 'Joseph Haydn':
+
+```xml
+<persName><composer>Joseph Haydn</composer></persName>
+```
+
+Where `api.AddFormattedText` is used, any formatting like bold or italic will be converted to the respective MEI markup.  For `api.AddUnformattedText`, any such formatting is stripped.
+
+##### Line `@endid`
+
+When exporting Sibelius line objects (lines, hairpins, highlights etc.), the MEI object can be given an `endid` attribute that will be written automatically.  In the template, the value of the attribute should be set to one of the placeholders described below.
+
+Example:
+
+```js
+CreateSparseArray('Line', CreateDictionary('func', 'coloration', 'endid', 'PreciseMatch'))
+```
+
+The placeholder will be replaced by an ID reference when writing the XML. Which ID is written depends on the line's end position and the value of the placeholder:
+
+* `'PreciseMatch'`: `@endid` will only be written if there is a NoteRest precisely at the `EndPosition` in the same voice as the line.
+* `'Next'`: If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest following NoteRest, if there is one in the same voice as the line.
+* `'Previous'`:  If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest preceding NoteRest, if there is one in the same voice as the line.
+* `'Closest'`: Writes an `@endid` that points to the closest NoteRest to the `EndPosition` in the same voice as the line.
+
 ### API data and methods
 
 The API dictionary exposes the following object:
@@ -97,10 +173,11 @@ The API dictionary exposes the following object:
 * **`libmei`**: A reference to libmei that can be used to construct and
    manipulate MEI elements. *This dictionary must not be modified.*
 
+#### Registering Text, Symbol and Line styles
+
 It exposes the following methods that must only be called in the initialization phase:
 
-* **`RegisterSymbolHandlers()`**: Call this function to make a symbol handler
-   known to Sibmei. To tell Sibmei which symbols the extension handles, the symbols must be
+* **`RegisterSymbolHandlers()`**: Call this function to tell Sibmei how to handle a specific Symbolitem or SystemSymbolItem. To tell Sibmei which symbols the extension handles, the symbols must be
    registered by their `Index` or `Name` property. For built-in
    symbols, always use the `Index` property, for custom symbols, always use the
    `Name` property.
@@ -115,8 +192,8 @@ It exposes the following methods that must only be called in the initialization 
          'My other custom symbol', 'MyAlternativeCustomSymbolHandler'
       ),
       'Index', CreateDictionary(
-         myIndex, 'MyCustomSymbolHandler',
-         myOtherIndex, 'MyCustomSymbolHandler'
+         builtInIndex, 'MyCustomSymbolHandler',
+         otherBuiltInIndex, 'MyCustomSymbolHandler'
       )
    )
    ```
@@ -131,23 +208,21 @@ It exposes the following methods that must only be called in the initialization 
 
    Second argument of `RegisterSymbolHandler()` must be `Self`.
 
-* **`RegisterTextHandlers()`**: Works the same way as
-   `RegisterSymbolHandlers()`, with the difference that sub-Dictionary keys are
-   `StyleId` and `StyleAsText` instead of `Index` and `Name`. Always use
-   `StyleId` for built-in text styles and `StyleAsText` for custom text styles.
+* **`RegisterTextHandlers()`**: Works the same way as `RegisterSymbolHandlers()`, with two differences:
 
-* **`RegisterLineHandlers()`**: Works the same way as
-   `RegisterTextHandlers()`, with the difference that instead of a handler method names, a template suitable for passing to `MeiFactory()` can be used.
+   * Sub-Dictionary keys are `StyleId` and `StyleAsText` instead of `Index` and `Name`. Always use `StyleId` for built-in text styles and `StyleAsText` for custom text styles.
+   
+   * Sub-Dictionary values can also be templates.  At the moment, this is only possible for control events (i.e. elements that will be attached to the measure).  For creating modifiers (that are attached to a note, rest or chord), registering a handler methods that calls `HandleModifier()` is required instead.
+
+* **`RegisterLineHandlers()`**: Works the same way as `RegisterTextHandlers()`.
+
+   If a line element (generated by a template or by a handler method) has an `endid` attribute, the value of the attribute should be set to one of the placeholders [described above](#line-@endid).
 
 The following methods must only be used by handler methods:
 
-* **`MeiFactory()`**: A convenience method that takes a template SparseArray as
-   argument and generates an MEI element from it. For detailed information, see
-   the documentation comments in [`Utilities.mss`](./src/Utilities.mss).
+* **`MeiFactory()`**: Takes a [template](#element-templates) as argument and generates an MEI element from it that is returned.
 
-   It is recommended to define template dictionaries as global variables in the
-   `InitSibmeiExtension()` method instead of defining them locally in the symbol
-   handler methods.
+   Instead of calling `MeiFactory()` directly, consider leaving template handling to `HandleControlEvent()` or `HandleModifier()`, or even better `RegisterTextHandlers()` or `RegisterLineHandlers()` where possible.
 
 * **`HandleControlEvent()`**:  Pass this function two arguments:
 
@@ -160,12 +235,8 @@ The following methods must only be used by handler methods:
 
 * **`HandleLineTemplate()`**: Takes two arguments:
 
-   * The line-like object (basically any of the ManuScript classes that has the `IsALine` flag set)
-   * A template suitable for passing to `MeiFactory()`. If an `@endid` attribute should be written, add an `endid` attribute in the template. Instead of the attribute value, use one of the following placeholders. The placeholder will be replaced by an ID reference when writing to XML. Which ID is written depends on the line's `EndPosition` in its end bar and the value of the placeholder:
-      * `'PreciseMatch'`: `@endid` will only be written if there is a NoteRest precisely at the `EndPosition` in the same voice as the line.
-      * `'Next'`: If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest following NoteRest, if there is one in the same voice as the line.
-      * `'Previous'`:  If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest preceding NoteRest, if there is one in the same voice as the line.
-      * `'Closest'`: Writes an `@endid` that points to the closest NoteRest to the `EndPosition` in the same voice as the line.
+   * The line-like object (basically any of the ManuScript classes that has the `IsALine` flag set)
+   * A template suitable for passing to `MeiFactory()`.
 
 * **`AddFormattedText()`**: Takes arguments:
 
@@ -177,7 +248,9 @@ The following methods must only be used by handler methods:
    * `bobj`: A `BarObject`
    * `elementName`: Capitalized MEI element name, e.g. `'Line'`.
 
-   Uses the `elementName` to generate an MEI element and adds applicable control event attributes (see  `AddControlEventAttributes`)
+   Uses the `elementName` to generate an MEI element and adds applicable control event attributes (see  `AddControlEventAttributes`). Returns the created element.
+
+   When calling this function in a handler method that was registered with `RegisterSymbolHandler()` or `RegisterLineHandler()`, the handler method has to return the created element.
 
 * **`AddControlEventAttributes()`**:  Takes two arguments:
 

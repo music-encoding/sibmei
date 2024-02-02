@@ -819,37 +819,15 @@ function AppendToLayer (meielement, l, beam, tuplet) {
 
 
 function MeiFactory (data) {
-    /*
-        Allows creating MEI from data structures, e.g. for templating purposes.
-        Takes an array with the following content:
+    // Parameter `data` is a template SparseArray with the following entries:
+    //
+    // 0. The capitalized tag name
+    // 1. A dictionary with attribute names and values
+    // 2., 3., ... Child nodes (optional) as strings (for text nodes) or as
+    //    template SparseArrays (for child elements)
+    //
+    // For further documentation, see Extensions.md
 
-            0.  The capitalized tag name
-            1.  A dictionary with attribute names and values (unlike tag names,
-                attribute names are not capitalized). Can be null if no
-                attributes are declared.
-            2.  A child node (optional), represented by either a string for text
-                or a SparseArray of the same form for a child element.
-            3.  Any number of additional child nodes.
-            ...
-
-        Note that all element names are capitalized, but attribute names remain
-        lower case.
-
-        Example:
-
-        MeiFactory(CreateSparseArray(
-            'P', null,
-            'This is ',
-            CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
-                'declarative'
-            ),
-            ' MEI generation.'
-        ));
-
-        Output:
-
-        <p>This is <rend rend='italic'>declarative</rend> MEI generation.</p>
-    */
     tagName = data[0];
     element = libmei.@tagName();
 
