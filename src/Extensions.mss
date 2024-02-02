@@ -115,7 +115,6 @@ function InitExtensions (extensions) {
     if (null != errors)
     {
         Sibelius.MessageBox(errors);
-        return false;
     }
 
     chosenExtensions = CreateDictionary();
