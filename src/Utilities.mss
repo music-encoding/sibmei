@@ -818,7 +818,7 @@ function AppendToLayer (meielement, l, beam, tuplet) {
 }  //$end
 
 
-function MeiFactory (data) {
+function MeiFactory (data, bobj) {
     // Parameter `data` is a template SparseArray with the following entries:
     //
     // 0. The capitalized tag name
@@ -847,22 +847,39 @@ function MeiFactory (data) {
         for i = 2 to data.Length
         {
             childData = data[i];
-            if (IsObject(childData))
+            unformattedText = '';
+            switch (true)
             {
-                // We have a child element
-                currentChild = MeiFactory(childData);
-                libmei.AddChild(element, currentChild);
+                case (not IsObject(childData))
+                {
+                    unformattedText = childData;
+                }
+                case (childData._property:AddUnformattedText)
+                {
+                    unformattedText = bobj.Text;
+                }
+                case (childData._property:AddFormattedText)
+                {
+                    AddFormattedText(element, bobj);
+                }
+                default
+                {
+                    // We have a child element
+                    currentChild = MeiFactory(childData, bobj);
+                    libmei.AddChild(element, currentChild);
+                }
             }
-            else
+
+
+            if (unformattedText != '')
             {
-                // We have a text child
                 if (currentChild = null)
                 {
-                    libmei.SetText(element, libmei.GetText(element) & childData);
+                    libmei.SetText(element, libmei.GetText(element) & unformattedText);
                 }
                 else
                 {
-                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & childData);
+                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & unformattedText);
                 }
             }
         }
@@ -870,3 +887,17 @@ function MeiFactory (data) {
 
     return element;
 }  //$end
+
+
+function HandleControlEvent (this, bobj, template) {
+    element = MeiFactory(template, bobj);
+    AddControlEventAttributes(bobj, element);
+
+    if (bobj.IsALine and element.attrs.PropertyExists('endid'))
+    {
+        bobj._property:mobj = element;
+        PushToHashedLayer(Self._property:LineEndResolver, bobj.EndBarNumber, bobj);
+    }
+
+    return element;
+}   //$end

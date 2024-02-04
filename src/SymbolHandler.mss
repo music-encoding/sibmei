@@ -129,15 +129,6 @@ function HandleSymbol (sobj) {
         warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Symbol'));
     }
 
-    // trills are special
-    if (sobj.Index = '32')
-    {
-        // trill
-        trill = GenerateTrill(sobj);
-        mlines = Self._property:MeasureObjects;
-        mlines.Push(trill._id);
-    }
-
     // get SymbolIndexHandlers and SymbolIndexMap
     symbolHandlers = Self._property:SymbolHandlers;
     symbolMap = Self._property:SymbolMap;
@@ -146,18 +137,23 @@ function HandleSymbol (sobj) {
     if(symbolHandlers.Index.MethodExists(sobj.Index))
     {
         symbId = sobj.Index;
-        symbolHandlers.Index.@symbId(sobj, symbolMap[symbId]);
-    }
-    else
-    {
-        // look for symbol name in symbolHandlers.Name
-        if(symbolHandlers.Name.MethodExists(sobj.Name))
-        {
-            symbName = sobj.Name;
-            symbolHandlers.Name.@symbName(sobj, symbolMap[symbName]);
-        }
+        return symbolHandlers.Index.@symbId(sobj, symbolMap[symbId]);
     }
 
+    // look for symbol name in symbolHandlers.Name
+    if(symbolHandlers.Name.MethodExists(sobj.Name))
+    {
+        symbName = sobj.Name;
+        return symbolHandlers.Name.@symbName(sobj, symbolMap[symbName]);
+    }
+
+    // trills are special
+    if (sobj.Index = '32')
+    {
+        return GenerateTrill(sobj);
+    }
+
+    return null;
 } //$end
 
 function HandleModifier(this, sobj, template){
@@ -167,9 +163,8 @@ function HandleModifier(this, sobj, template){
 
     if (nobj != null)
     {
-        modifier = MeiFactory(template);
+        modifier = MeiFactory(template, sobj);
         libmei.AddChild(nobj, modifier);
-        return modifier;
     }
     else
     {
@@ -178,17 +173,4 @@ function HandleModifier(this, sobj, template){
         voiceNum = sobj.VoiceNumber;
         warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, sobj.Name));
     }
-}   //$end
-
-function HandleControlEvent(this, sobj, template){
-    //$module(SymbolHandler.mss)
-
-    symbol = MeiFactory(template);
-
-    symbol = AddControlEventAttributes(sobj, symbol);
-    mlines = Self._property:MeasureObjects;
-    mlines.Push(symbol._id);
-
-    return symbol;
-
 }   //$end

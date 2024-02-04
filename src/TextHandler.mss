@@ -2,6 +2,9 @@ function InitTextHandlers() {
     // QUESTION: We could also take an argument and throw all text handlers from
     // extensions into the same dictionary
 
+    addFormattedText = CreateDictionary('AddFormattedText', true);
+    noAttributes = CreateDictionary();
+
     textHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
@@ -9,16 +12,24 @@ function InitTextHandlers() {
 
     RegisterHandlers(textHandlers, CreateDictionary(
         'StyleId', CreateDictionary(
-            'text.staff.expression', 'ExpressionTextHandler',
-            'text.staff.plain', 'CreateAnchoredText',
+            'text.staff.expression', CreateSparseArray('Dynam', noAttributes, addFormattedText),
+            'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
             'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-            'text.staff.technique', 'CreateDirective',
-            'text.system.page_aligned.composer', 'PageComposerTextHandler',
-            'text.system.page_aligned.subtitle', 'PageTitleHandler',
-            'text.system.page_aligned.title', 'PageTitleHandler',
-            'text.system.tempo', 'TempoTextHandler'
+            'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), addFormattedText),
+            'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
+            'text.system.page_aligned.subtitle', CreateSparseArray(
+                'AnchoredText',
+                noAttributes,
+                CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), addFormattedText)
+            ),
+            'text.system.page_aligned.title', CreateSparseArray(
+                'AnchoredText',
+                noAttributes,
+                CreateSparseArray('Title', noAttributes, addFormattedText)
+            ),
+            'text.system.tempo', CreateSparseArray('Tempo', noAttributes, addFormattedText)
         )
-    ), Self);
+    ), Self, 'HandleControlEvent');
 
     return textHandlers;
 }  //$end
@@ -69,49 +80,11 @@ function HandleText (textObject) {
     {
         handlersForIdType = textHandlers.@idType;
         idValue = textObject.@idType;
-        if(handlersForIdType.MethodExists(idValue))
+        if (handlersForIdType.MethodExists(idValue))
         {
-            return handlersForIdType.@idValue(textObject);
+            return handlersForIdType.@idValue(textObject, handlersForIdType[idValue]);
         }
     }
-}  //$end
-
-
-function ExpressionTextHandler (this, textObject) {
-    dynam = GenerateControlEvent(textObject, 'Dynam');
-    AddFormattedText(dynam, textObject);
-    return dynam;
-}  //$end
-
-
-function PageTitleHandler (this, textObject) {
-    anchoredText = libmei.AnchoredText();
-    title = libmei.Title();
-    if (textObject.StyleId = 'text.system.page_aligned.subtitle')
-    {
-        libmei.AddAttribute(title, 'type', 'subordinate');
-    }
-
-    libmei.AddChild(anchoredText, title);
-    AddFormattedText(title, textObject);
-
-    return anchoredText;
-}  //$end
-
-
-function PageComposerTextHandler (this, textObject) {
-    // 'text.system.page_aligned.composer'
-    anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObject);
-    return anchoredText;
-}  //$end
-
-
-function TempoTextHandler (this, textObject) {
-    // 'text.system.tempo'
-    tempo = GenerateControlEvent(textObject, 'Tempo');
-    AddFormattedText(tempo, textObject);
-    return tempo;
 }  //$end
 
 
@@ -133,25 +106,6 @@ function FiguredBassTextHandler (this, textObject) {
     return harm;
 }  //$end
 
-
-function CreateAnchoredText (this, textObject) {
-    anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObject);
-    return anchoredText;
-}  //$end
-
-function CreateDirective (this, textObject) {
-    directive = GenerateControlEvent(textObject, 'Dir');
-    AddFormattedText(directive, textObject);
-    styleIdPrefix = 'text.staff.';
-    textStyle = Substring(textObject.StyleId, Length(styleIdPrefix));
-    if (MSplitString(textObject.StyleId, '.')[-2] = 'user')
-    {
-        textStyle = textObject.StyleAsText;
-    }
-    libmei.AddAttribute(directive, 'label', textStyle);
-    return directive;
-}  //$end
 
 function AddFormattedText (parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
@@ -474,7 +428,7 @@ function AppendTextSubstitute (state, substituteName) {
 
     PushStyledText(state);
 
-    element = MeiFactory(textSubstituteTemplate);
+    element = MeiFactory(textSubstituteTemplate, null);
     state.meiNodes.Push(element);
 
     styleAttributes = GetStyleAttributes(state);

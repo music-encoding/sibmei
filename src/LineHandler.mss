@@ -10,7 +10,7 @@ function InitLineHandlers () {
 
     // Commented out line styles are not supported yet.  Some of them might need
     // to be registered to a more specialized line handler than the standard
-    // HandleLineTemplate().
+    // HandleControlEvent().
 
     lineTemplates = CreateDictionary(
         ///////////////////////
@@ -167,7 +167,7 @@ function InitLineHandlers () {
     //   line.system.tempo.rit.poco.textonly
     //   line.system.tempo.rit.textonly
 
-    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self, 'HandleLineTemplate');
+    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self, 'HandleControlEvent');
 
     return lineHandlers;
 } //$end
@@ -201,19 +201,3 @@ function HandleLine (lobj) {
         return lineHandlers.StyleAsText.@styleAsText(lobj, lineHandlers.StyleAsText[styleAsText]);
     }
 } //$end
-
-
-function HandleLineTemplate (this, lobj, template) {
-    //$module(LineHandler.mss)
-
-    line = MeiFactory(template);
-    AddControlEventAttributes(lobj, line);
-    lobj._property:mobj = line;
-
-    if (line.attrs.PropertyExists('endid'))
-    {
-        PushToHashedLayer(Self._property:LineEndResolver, lobj.EndBarNumber, lobj);
-    }
-
-    return line;
-}   //$end

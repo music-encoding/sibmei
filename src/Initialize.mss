@@ -77,7 +77,7 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateH
     // {
     //     StyleId: {
     //         // the ID is mapped to the handler method
-    //         method 'line.staff.slur.down': HandleLineTemplate,
+    //         method 'line.staff.slur.down': HandleControlEvent,
     //         // ...as well as to the template (if the handler is template-based).
     //         'line.staff.slur.down': ['Slur', {endid: 'PreciseMatch'}],
     //         // Dictionaries allow values and methods to live under the same
@@ -95,7 +95,7 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateH
     //         // handler method:
     //         method 'My Line': HandleMyLine,
     //         // And another one that uses a template:
-    //         method 'My template based line': HandleLineTemplate,
+    //         method 'My template based line': HandleControlEvent,
     //         'My template based line': ['Line', {type: 'My other line'}]
     //     },
     // }
@@ -124,8 +124,8 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateH
     //
     // `defaultTemplateHandler` is the name of the default template handler for
     // the type of objects that `handlers` works with.  This handler must be
-    // supplied by Sibmei itself.  Currently, only `HandleLineTemplate` is
-    // available.  For the other types (Text and Symbols) and if there are no
+    // supplied by Sibmei itself.  Currently, only `HandleControlEvent`
+    // is available.  For the other types (Text and Symbols) and if there are no
     // templates in `handlerDefinitions`, this paramter can be omitted.
 
     for each Name idType in handlers

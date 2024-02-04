@@ -1,4 +1,4 @@
-function RegisterAvailableExtensions (availableExtensions) {
+function RegisterAvailableExtensions (availableExtensions, apiVersionByPlgName) {
     //$module(Initialize.mss)
     // Expects and empty TreeNode Hash map object as argument.
     // Looks for existing extensions and registers them in this Hash map.
@@ -17,6 +17,7 @@ function RegisterAvailableExtensions (availableExtensions) {
             plgName = pluginObject.File.NameNoPath;
             extensionSemverString = @plgName.SibmeiExtensionAPIVersion;
             extensionSemver = SplitString(extensionSemverString, '.');
+            apiVersion = apiSemver[0];
 
             switch (true)
             {
@@ -28,7 +29,10 @@ function RegisterAvailableExtensions (availableExtensions) {
                 {
                     error = null;
                 }
-                case ((apiSemver[0] < extensionSemver[0]) or (apiSemver[1] < extensionSemver[1]))
+                case (
+                    (apiSemver[0] < extensionSemver[0])
+                    or (apiSemver[0] = extensionSemver[0] and apiSemver[1] < extensionSemver[1])
+                )
                 {
                     error = 'Extension %s requires extension API version %s, but Sibmei %s only supports extension API version %s. Check for Sibmei updates supporting that extension API version.';
                 }
@@ -37,6 +41,8 @@ function RegisterAvailableExtensions (availableExtensions) {
                     error = 'Extension %s needs to be updated to be compatible with the current Sibmei version';
                 }
             }
+
+            apiVersionByPlgName[plgName] = extensionSemver[0] + 0;
 
             if (null = error)
             {
@@ -111,7 +117,8 @@ function InitExtensions (extensions) {
     // are any errors, otherwise returns true.
 
     AvailableExtensions = CreateHash();
-    errors = RegisterAvailableExtensions(AvailableExtensions);
+    apiVersionByPlgName = CreateDictionary();
+    errors = RegisterAvailableExtensions(AvailableExtensions, apiVersionByPlgName);
     if (null != errors)
     {
         Sibelius.MessageBox(errors);
@@ -134,11 +141,13 @@ function InitExtensions (extensions) {
         }
     }
 
-    apiObject = CreateApiObject();
+    apiObjects = CreateSparseArray();
+    apiObjects[1] = CreateApiObject(1);
+    apiObjects[2] = CreateApiObject(2);
 
     for each Name plgName in chosenExtensions
     {
-        @plgName.InitSibmeiExtension(apiObject);
+        @plgName.InitSibmeiExtension(apiObjects[apiVersionByPlgName[plgName]]);
     }
 
     // store chosenExtensions as global to add application info
@@ -148,35 +157,58 @@ function InitExtensions (extensions) {
 }  //$end
 
 
-function CreateApiObject () {
-    apiObject = CreateDictionary('libmei', libmei);
+function CreateApiObject (apiVersion) {
+    apiObject = CreateDictionary(
+        'libmei', libmei,
+        'AddFormattedText', CreateDictionary('AddFormattedText', true),
+        'AddUnformattedText', CreateDictionary('AddUnformattedText', true)
+    );
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
     apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
-    apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
+    switch (apiVersion)
+    {
+        case (1)
+        {
+            apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory_LegacyApiVersion1');
+            apiObject.SetMethod('HandleLineTemplate', Self, 'HandleControlEvent');
+        }
+        case (2) {
+            apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
+        }
+        default
+        {
+            ExitPlugin('Unsupported extension API version: ' & apiVersion);
+        }
+    }
     apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
     apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
     apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
     apiObject.SetMethod('AddControlEventAttributes', Self, 'ExtensionAPI_AddControlEventAttributes');
-    apiObject.SetMethod('HandleLineTemplate', Self, 'HandleLineTemplate');
+    // TODO: Deprecate HandleLineTemplate and replace with HandleControlEvent?
+    apiObject.SetMethod('HandleLineTemplate', Self, 'HandleControlEvent');
     return apiObject;
 }  //$end
 
 function ExtensionAPI_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
-    RegisterHandlers(Self._property:SymbolHandlers, symbolHandlerDict, plugin);
+    RegisterHandlers(Self._property:SymbolHandlers, symbolHandlerDict, plugin, 'HandleTemplate');
 }  //$end
 
 function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
-    RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin);
+    RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin, 'HandleControlEvent');
 }  //$end
 
 function ExtensionAPI_RegisterLineHandlers (this, lineHandlerDict, plugin) {
-    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin, 'HandleLineTemplate');
+    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin, 'HandleControlEvent');
 }  //$end
 
-function ExtensionAPI_MeiFactory (this, templateObject) {
-    MeiFactory(templateObject);
+function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
+    MeiFactory(templateObject, bobj);
+}  //$end
+
+function ExtensionAPI_MeiFactory_LegacyApiVersion1 (this, templateObject) {
+    MeiFactory(templateObject, null);
 }  //$end
 
 function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
@@ -189,4 +221,11 @@ function ExtensionAPI_GenerateControlEvent (this, bobj, elementName) {
 
 function ExtensionAPI_AddControlEventAttributes (this, bobj, element) {
     AddControlEventAttributes(bobj, element);
+}   //$end
+
+
+function HandleTemplate (this, bobj, template) {
+    element = MeiFactory(template, bobj);
+    AddControlEventAttributes(bobj, element);
+    return element;
 }   //$end

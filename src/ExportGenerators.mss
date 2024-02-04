@@ -690,6 +690,9 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 mobj = HandleText(bobj);
             }
+            case('SymbolItem') {
+                mobj = HandleSymbol(bobj);
+            }
         }
 
         // add element to the measure objects so that they get added to the
@@ -707,11 +710,6 @@ function GenerateLayers (staffnum, measurenum) {
     for each LyricItem lobj in bar
     {
         ProcessLyric(lobj, objectPositions);
-    }
-
-    for each SymbolItem sobj in bar
-    {
-        HandleSymbol(sobj);
     }
 
     ProcessEndingLines(bar);
