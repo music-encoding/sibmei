@@ -398,11 +398,9 @@ function GenerateMeasure (num) {
         m.children.Push(tie);
     }
 
-    mlines = Self._property:MeasureObjects;
-
-    for each line in mlines
+    for each mobj in MeasureObjects
     {
-        m.children.Push(line);
+        m.children.Push(mobj);
     }
 
     specialbarlines = Self._property:SpecialBarlines;
@@ -492,8 +490,6 @@ function GenerateLayers (staffnum, measurenum) {
     bar = this_staff[measurenum];
     l = null;
 
-    mobjs = Self._property:MeasureObjects;
-
     for each bobj in bar
     {
         voicenumber = bobj.VoiceNumber;
@@ -523,7 +519,6 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
-        mobj = null;
         parent = null;
         beam = null;
         tuplet = null;
@@ -623,9 +618,6 @@ function GenerateLayers (staffnum, measurenum) {
 
                 if (bobj.ArpeggioType != ArpeggioTypeNone) {
                     arpeg = GenerateArpeggio(bobj);
-                    mobjs = Self._property:MeasureObjects;
-                    mobjs.Push(arpeg._id);
-                    Self._property:MeasureObjects = mobjs;
                 }
             }
             case('BarRest')
@@ -642,41 +634,39 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each bobj in bar
     {
-        mobj = null;
-
         switch (bobj.Type)
         {
             case('GuitarFrame')
             {
-                mobj = GenerateChordSymbol(bobj);
+                GenerateChordSymbol(bobj);
             }
             case('Slur')
             {
-                mobj = HandleStyle(LineHandlers, bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('CrescendoLine')
             {
-                mobj = HandleStyle(LineHandlers, bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('DiminuendoLine')
             {
-                mobj = HandleStyle(LineHandlers, bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('OctavaLine')
             {
-                mobj = HandleStyle(LineHandlers, bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('GlissandoLine')
             {
-                mobj = HandleStyle(LineHandlers, bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('Trill')
             {
-                mobj = GenerateTrill(bobj);
+                GenerateTrill(bobj);
             }
             case('ArpeggioLine')
             {
-                mobj = GenerateArpeggio(bobj);
+                GenerateArpeggio(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -684,22 +674,15 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                mobj = HandleStyle(LineHandlers, bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('Text')
             {
-                mobj = HandleStyle(TextHandlers, bobj);
+                HandleStyle(TextHandlers, bobj);
             }
             case('SymbolItem') {
-                mobj = HandleSymbol(bobj);
+                HandleSymbol(bobj);
             }
-        }
-
-        // add element to the measure objects so that they get added to the
-        // measure later in the processing cycle.
-        if (mobj != null)
-        {
-            MeasureObjects.Push(mobj._id);
         }
     }
 
@@ -1497,7 +1480,11 @@ function GenerateControlEvent (bobj, element) {
         PushToHashedLayer(Self._property:LineEndResolver, bobj.EndBarNumber, bobj);
     }
 
-    return AddControlEventAttributes(bobj, element);
+    AddControlEventAttributes(bobj, element);
+    // add element to the measure objects so that they get added to the measure
+    // later in the processing cycle.
+    MeasureObjects.Push(element._id);
+    return element;
 }  //$end
 
 function GenerateTuplet(tupletObj) {
@@ -1634,9 +1621,6 @@ function GenerateFermata (bobj, shape, form) {
 
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
-
-    measureObjs = Self._property:MeasureObjects;
-    measureObjs.Push(fermata._id);
 
     return fermata;
 }  //$end
