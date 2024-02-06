@@ -107,6 +107,17 @@ function InitLineHandlers () {
         // Lines without @endid //
         //////////////////////////
 
+        // Type = 'Trill'
+        // TODO: @endid should be set, but we need a special mechanism here:
+        // The way Sibelius creates trill lines is that the trill line ends at
+        // the next note (or rest) that does not belong to the trill any more.
+        // @endid should point to the last note in the trill. Setting `endid`
+        // to 'Previous' in the template does not work as the it will give us
+        // the note we don't want, if the line goes until that note.
+        // This means, we need to change the search strategies, or add an
+        // an additional one.
+        'line.staff.trill', CreateSparseArray('Trill', CreateDictionary()),
+
         // Type = 'Line'
         // Idea for a different declaration approach
         // 'line.staff.bracket.above.start',      CreateSparseArray('<', 'Line', 'form=', 'solid', 'startsym=', 'angledown', '/>'),

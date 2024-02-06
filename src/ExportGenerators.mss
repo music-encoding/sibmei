@@ -662,7 +662,7 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Trill')
             {
-                GenerateTrill(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('ArpeggioLine')
             {
@@ -1596,23 +1596,6 @@ function GenerateArpeggio (bobj) {
     }
 
     return arpeg;
-}  //$end
-
-
-function GenerateTrill (bobj) {
-    //$module(ExportGenerators.mss)
-    /* There are two types of trills in Sibelius: A line object and a
-        symbol object. This method normalizes both of these.
-    */
-    trill = GenerateControlEvent(bobj, 'Trill');
-    obj = GetNoteObjectAtPosition(bobj, 'Closest', 'Position');
-
-    if (obj != null)
-    {
-        libmei.AddAttribute(trill, 'startid', '#' & obj._id);
-    }
-
-    return trill;
 }  //$end
 
 
