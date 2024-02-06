@@ -6,7 +6,7 @@ function Run() {
         return null;
     }
 
-    error = DoExport(null);
+    error = DoExport(Sibelius.ActiveScore, null);
 
     if (null != error)
     {
@@ -36,7 +36,7 @@ function GetExportFileName () {
 } //$end
 
 
-function DoExport (filename) {
+function DoExport (score, filename) {
     //$module(Run.mss)
 
     // Argument filename is optional and will be determined automatically if
@@ -74,7 +74,7 @@ function DoExport (filename) {
     libmei.destroy();
 
     // set the active score here so we can refer to it throughout the plugin
-    Self._property:ActiveScore = Sibelius.ActiveScore;
+    Self._property:ActiveScore = score;
     if (Self._property:ActiveScore = null)
     {
         return 'Could not find an active score. Cannot export to ' & filename;
@@ -130,8 +130,9 @@ function ExportBatch (files, extensions) {
     {
         file = Sibelius.GetFile(files[index]);
 
-        open = Sibelius.Open(file, True);
-        if (not open)
+        score = GetScore(file);
+
+        if (null = score)
         {
             continue = Sibelius.YesNoMessageBox('File could not be opened:\n\n' & file & '\n\nContinue anyway?');
             if (not continue)
@@ -142,7 +143,7 @@ function ExportBatch (files, extensions) {
         else
         {
             // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
-            error = DoExport(file.Name & '.mei');
+            error = DoExport(score, file.Name & '.mei');
             if (Sibelius.ProgramVersion >= 20201200)
             {
                 Sibelius.CloseAllWindowsForScore(Sibelius.ActiveScore, false);
@@ -170,4 +171,24 @@ function ExportBatch (files, extensions) {
     Sibelius.MessageBox(exportCount & ' of ' & numFiles & ' files were exported.');
 
     return true;
+}  //$end
+
+
+function GetScore (file) {
+    Sibelius.Open(file, true);
+
+    // If the score was already open, it can happen that it is not made the
+    // ActiveScore by Sibelius.Open(). So we can't rely on Sibelius.ActiveScore
+    // and loop over all the scores to fetch the score.
+    for each score in Sibelius
+    {
+        // As FileName and file are objects, cast them to strings,
+        // otherwise the comparison does not work
+        if ((score.FileName & '') = (file & ''))
+        {
+            return score;
+        }
+    }
+
+    return null;
 }  //$end
