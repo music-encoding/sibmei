@@ -1635,11 +1635,6 @@ function GenerateFermata (bobj, shape, form) {
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
 
-    if (bobj.Color != 0)
-    {
-        libmei.AddAttribute(fermata, 'color', ConvertColor(bobj));
-    }
-
     measureObjs = Self._property:MeasureObjects;
     measureObjs.Push(fermata._id);
 
@@ -1651,10 +1646,7 @@ function GenerateChordSymbol (bobj) {
     /*
         Generates a <harm> element containing chord symbol information
     */
-    harm = libmei.Harm();
-
-    libmei.AddAttribute(harm, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
-    libmei.AddAttribute(harm, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    harm = GenerateControlEvent('Harm', bobj);
     libmei.SetText(harm, bobj.ChordNameAsPlainText);
 
     return harm;
