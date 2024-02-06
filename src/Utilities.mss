@@ -199,7 +199,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
         return libmei.getElementById(objId);
     }
 
-    // `bobj` was not precisely attched to a NoteRest in the same voice.
+    // `bobj` was not precisely attached to a NoteRest in the same voice.
     if (searchStrategy = 'PreciseMatch')
     {
         return null;
@@ -242,7 +242,7 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
         }
         case (searchStrategy != 'Closest')
         {
-            Trace(searchStrategy & ' is not an accepted value for parameter `searchStrategy`');
+            Trace('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
             ExitPlugin();
         }
         // `'' = x` is testig if x is null. We can not use `x = null` or

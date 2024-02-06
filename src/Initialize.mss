@@ -137,7 +137,7 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateH
             for each Name id in handlerDefinitions[idType]
             {
                 // handlerDefinition is either the name of the handler function
-                // or a template Dictionary
+                // or a template SparseArray
                 handlerDefinition = handlerDefinitionsForIdType[id];
                 if (IsObject(handlerDefinition))
                 {

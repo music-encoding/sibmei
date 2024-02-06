@@ -320,6 +320,11 @@ function SwitchTextStyle (state, property, value) {
 
 
 function PushStyledText (state) {
+    // Any text that has accumulated as `state.currentText` while parsing the
+    // styled text is converted to MEI nodes and pushed to `state.meiNodes`,
+    // respecting the styling state (`state.style`). `state.currentText` is
+    // reset.
+
     if (state.currentText = '')
     {
         return null;
