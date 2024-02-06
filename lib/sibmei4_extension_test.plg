@@ -22,10 +22,6 @@
       'glyph.name', 'mySymbolGlyph'
     ));
 
-    Self._property:MyLineTemplate = CreateSparseArray(
-      'Line', CreateDictionary('type', 'myline', 'endid')
-    );
-
     api.RegisterSymbolHandlers(CreateDictionary(
       'Name', CreateDictionary(
         'My symbol', 'HandleMySymbol'
@@ -44,7 +40,7 @@
     api.RegisterLineHandlers(CreateDictionary(
       'StyleAsText', CreateDictionary(
         'My line', CreateSparseArray(
-          'Line', CreateDictionary('type', 'myline', 'endid')
+          'Line', CreateDictionary('type', 'myline', 'endid', 'PreciseMatch')
         )
       )
     ), Self);
