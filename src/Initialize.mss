@@ -74,18 +74,18 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
     // {
     //     StyleId: {
     //         'line.staff.slur.down': {
-    //              HandleObject: function() ControlEventTemplateHandler(this, bobj){...},
+    //              HandleObject: func() ControlEventTemplateHandler(this, bobj){...},
     //              template: ['Slur', {endid: 'PreciseMatch'}],
     //         }
     //     },
     //     StyleAsText: {
     //         // A line style that is handled with a custom, non-template based
     //         // handler method:
-    //         'My Line': {HandleObject: function HandleMyLine(this, bobj){...}},
+    //         'My Line': {HandleObject: func HandleMyLine(this, bobj){...}},
     //         // And another one that uses a template:
     //         'My template based line': {
     //              template: ['Line', {type: 'My other line'}],
-    //              HandleObject: function ControlEventTemplateHandler(this, bobj){...},
+    //              HandleObject: func ControlEventTemplateHandler(this, bobj){...},
     //         },
     //     },
     // }
