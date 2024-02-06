@@ -889,15 +889,49 @@ function MeiFactory (data, bobj) {
 }  //$end
 
 
-function HandleControlEvent (this, bobj, template) {
-    element = MeiFactory(template, bobj);
-    AddControlEventAttributes(bobj, element);
+function ModifierTemplateHandler (this, bobj) {
+    element = MeiFactory(this.template, bobj);
 
-    if (bobj.IsALine and element.attrs.PropertyExists('endid'))
+    nobj = GetNoteObjectAtPosition(bobj, 'Closest');
+
+    if (nobj != null)
     {
-        bobj._property:mobj = element;
-        PushToHashedLayer(Self._property:LineEndResolver, bobj.EndBarNumber, bobj);
+        libmei.AddChild(nobj, element);
     }
+    else
+    {
+        warnings = Self._property:warnings;
+        barNum = bobj.ParentBar.BarNumber;
+        voiceNum = bobj.VoiceNumber;
+        if (bobj.Type = 'SymbolItem' or bobj.Type = 'SystemSymbolitem')
+        {
+            name = bobj.Name;
+        }
+        else
+        {
+            name = bobj.StyleAsText;
+        }
+        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, name));
+    }
+}  //$end
 
-    return element;
-}   //$end
+
+function ControlEventTemplateHandler (this, bobj) {
+    return GenerateControlEvent(bobj, this.template);
+}  //$end
+
+
+function HandleStyle (handlers, bobj) {
+    // bobj must be an object with StyleId and StyleAsText properties (i.e. a
+    // Line or Text object).  A matching handler for the style is looked up and
+    // and applied.
+    handler = handlers.StyleId[bobj.StyleId];
+    if (null = handler)
+    {
+        handler = handlers.StyleAsText[bobj.StyleAsText];
+    }
+    if (null != handler)
+    {
+        return handler.HandleObject(bobj);
+    }
+} //$end

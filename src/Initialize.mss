@@ -47,9 +47,7 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
-    // Initialize symbol styles
     Self._property:SymbolHandlers = InitSymbolHandlers();
-    Self._property:SymbolMap = InitSymbolMap();
     Self._property:LineHandlers = InitLineHandlers();
     Self._property:TextHandlers = InitTextHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
@@ -64,39 +62,31 @@ function InitGlobals (extensions) {
     return true;
 }  //$end
 
-function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateHandler) {
+function RegisterHandlers(handlers, handlerDefinitions, plugin) {
     //$module(Initialize.mss)
     // `handlers` is a Dictionary that registers handler methods which transform
     // Sibelius objects to MEI elements.  RegisterHandlers() will create new
     // entries in `handlers` based on `handlerDefinitions`.
     // For the structure of a `handlers` Dictionary, see the following
-    // pseudo-code example for lines.  Lines use the `StyleId` and `StyleAsText`
-    // properties of the handled object for registering the handler methods.
-    // Text handlers use the same properties, while symbol handlers use `Index`
-    // and `Name`.
+    // pseudo-code example.  For Lines and Textm the `StyleId` and `StyleAsText`
+    // properties of the handled object are used for registering the handler
+    // methods.  For Symbols, the `Index` and `Name` properties are used.
     // {
     //     StyleId: {
-    //         // the ID is mapped to the handler method
-    //         method 'line.staff.slur.down': HandleControlEvent,
-    //         // ...as well as to the template (if the handler is template-based).
-    //         'line.staff.slur.down': ['Slur', {endid: 'PreciseMatch'}],
-    //         // Dictionaries allow values and methods to live under the same
-    //         // name, which means:
-    //         //   dictionary.SetMethod('key', Self, 'method');
-    //         // ... will not be overriden by:
-    //         //   dictionary['key'] = 'value';
-    //         // ... (and vice versa), and we can both do:
-    //         //   Trace(dictionary.key); // => 'value'
-    //         // ... and
-    //         //   Trace(dictionary.key()); // => whatever value the method returns
+    //         'line.staff.slur.down': {
+    //              HandleObject: function() ControlEventTemplateHandler(this, bobj){...},
+    //              template: ['Slur', {endid: 'PreciseMatch'}],
+    //         }
     //     },
     //     StyleAsText: {
     //         // A line style that is handled with a custom, non-template based
     //         // handler method:
-    //         method 'My Line': HandleMyLine,
+    //         'My Line': {HandleObject: function HandleMyLine(this, bobj){...}},
     //         // And another one that uses a template:
-    //         method 'My template based line': HandleControlEvent,
-    //         'My template based line': ['Line', {type: 'My other line'}]
+    //         'My template based line': {
+    //              template: ['Line', {type: 'My other line'}],
+    //              HandleObject: function ControlEventTemplateHandler(this, bobj){...},
+    //         },
     //     },
     // }
     //
@@ -121,12 +111,6 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateH
     // `plugin` is either sibmei itself (`Self`) or an extension plugin. Any
     // handler method names found in `handlerDefinitions` will be looked up in
     // this plugin.
-    //
-    // `defaultTemplateHandler` is the name of the default template handler for
-    // the type of objects that `handlers` works with.  This handler must be
-    // supplied by Sibmei itself.  Currently, only `HandleControlEvent`
-    // is available.  For the other types (Text and Symbols) and if there are no
-    // templates in `handlerDefinitions`, this paramter can be omitted.
 
     for each Name idType in handlers
     {
@@ -139,17 +123,32 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin, defaultTemplateH
                 // handlerDefinition is either the name of the handler function
                 // or a template SparseArray
                 handlerDefinition = handlerDefinitionsForIdType[id];
-                if (IsObject(handlerDefinition))
+                handler = CreateDictionary();
+                handlersForIdType[id] = handler;
+                if (not IsObject(handlerDefinition))
                 {
-                    handlersForIdType[id] = handlerDefinition;
+                    handler.SetMethod('HandleObject', plugin, handlerDefinition);
+                } else {
                     // We have a template. Use the default handler.
-                    handlersForIdType.SetMethod(id, Self, defaultTemplateHandler);
-                }
-                else
-                {
-                    handlersForIdType.SetMethod(id, plugin, handlerDefinition);
+                    handler['template'] = handlerDefinition;
+                    if (handlerDefinition._property:createModifier)
+                    {
+                        handler.SetMethod('HandleObject', Self, 'ModifierTemplateHandler');
+                    }
+                    else
+                    {
+                        handler.SetMethod('HandleObject', Self, 'ControlEventTemplateHandler');
+                    }
                 }
             }
         }
     }
 }   //$end
+
+
+function AsModifier (template) {
+    // Flags the template so that RegisterHandlers() will register the
+    // ModifierTemplateHandler for it.
+    template._property:createModifier = true;
+    return template;
+}  //$end

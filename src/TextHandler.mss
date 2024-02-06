@@ -29,7 +29,7 @@ function InitTextHandlers() {
             ),
             'text.system.tempo', CreateSparseArray('Tempo', noAttributes, addFormattedText)
         )
-    ), Self, 'HandleControlEvent');
+    ), Self);
 
     return textHandlers;
 }  //$end
@@ -69,22 +69,6 @@ function InitTextSubstituteMap() {
     }
 
     return textSubstituteMap;
-}  //$end
-
-
-function HandleText (textObject) {
-    // Step through the different ID types ('StyleId' and 'StyleAsText') and
-    // check for text handlers for this type
-    textHandlers = Self._property:TextHandlers;
-    for each Name idType in textHandlers
-    {
-        handlersForIdType = textHandlers.@idType;
-        idValue = textObject.@idType;
-        if (handlersForIdType.MethodExists(idValue))
-        {
-            return handlersForIdType.@idValue(textObject, handlersForIdType[idValue]);
-        }
-    }
 }  //$end
 
 

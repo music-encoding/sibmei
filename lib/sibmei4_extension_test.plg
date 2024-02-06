@@ -47,7 +47,7 @@
   }"
 
   HandleMySymbol "(this, obj) {
-    symbolElement = api.HandleControlEventTemplate(obj, MySymbolTemplate);
+    symbolElement = api.GenerateControlEvent(obj, MySymbolTemplate);
     if (obj.ColorRed = 255) {
       libmei.AddAttribute(symbolElement, 'type', 'myRedType');
     }

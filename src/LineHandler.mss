@@ -167,37 +167,7 @@ function InitLineHandlers () {
     //   line.system.tempo.rit.poco.textonly
     //   line.system.tempo.rit.textonly
 
-    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self, 'HandleControlEvent');
+    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self);
 
     return lineHandlers;
-} //$end
-
-
-function HandleLine (lobj) {
-    //$module(LineHandler.mss)
-    voicenum = lobj.VoiceNumber;
-    bar = lobj.ParentBar;
-
-    if (voicenum = 0)
-    {
-        // assign it to the first voice, since we don't have any notes in voice/layer 0.
-        lobj.VoiceNumber = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, lobj.Type));
-    }
-
-    lineHandlers = Self._property:LineHandlers;
-
-    // look for line style ID in lineHandlers.StyleId
-    if (lineHandlers.StyleId.MethodExists(lobj.StyleId))
-    {
-        styleId = lobj.StyleId;
-        return lineHandlers.StyleId.@styleId(lobj, lineHandlers.StyleId[styleId]);
-    }
-    // look for line name in lineHandlers.StyleAsText
-    if (lineHandlers.StyleAsText.MethodExists(lobj.StyleAsText))
-    {
-        styleAsText = lobj.StyleAsText;
-        return lineHandlers.StyleAsText.@styleAsText(lobj, lineHandlers.StyleAsText[styleAsText]);
-    }
 } //$end

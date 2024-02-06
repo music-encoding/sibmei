@@ -432,7 +432,7 @@ function GenerateMeasure (num) {
         textobjs = systemtext[num];
         for each textobj in textobjs
         {
-            text = HandleText(textobj);
+            text = HandleStyle(TextHandlers, textobj);
 
             if (text != null)
             {
@@ -652,23 +652,23 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Slur')
             {
-                mobj = HandleLine(bobj);
+                mobj = HandleStyle(LineHandlers, bobj);
             }
             case('CrescendoLine')
             {
-                mobj = HandleLine(bobj);
+                mobj = HandleStyle(LineHandlers, bobj);
             }
             case('DiminuendoLine')
             {
-                mobj = HandleLine(bobj);
+                mobj = HandleStyle(LineHandlers, bobj);
             }
             case('OctavaLine')
             {
-                mobj = HandleLine(bobj);
+                mobj = HandleStyle(LineHandlers, bobj);
             }
             case('GlissandoLine')
             {
-                mobj = HandleLine(bobj);
+                mobj = HandleStyle(LineHandlers, bobj);
             }
             case('Trill')
             {
@@ -684,11 +684,11 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                mobj = HandleLine(bobj);
+                mobj = HandleStyle(LineHandlers, bobj);
             }
             case('Text')
             {
-                mobj = HandleText(bobj);
+                mobj = HandleStyle(TextHandlers, bobj);
             }
             case('SymbolItem') {
                 mobj = HandleSymbol(bobj);
@@ -1469,10 +1469,35 @@ function GenerateStaffGroups (score, barnum) {
     return parentstgrp;
 }  //$end
 
-function GenerateControlEvent (bobj, elementName) {
+function GenerateControlEvent (bobj, element) {
     //$module(ExportGenerators.mss)
 
-    return AddControlEventAttributes(bobj, libmei.@elementName());
+    // element can be a libmei element object, a MeiFactory template
+    // SparseArray or the element name. We want to work with a libmei element.
+
+    if (IsObject(element))
+    {
+        if (element[0] != '')
+        {
+            // Parameter `element` is a template
+            element = MeiFactory(element, bobj);
+        }
+    }
+    else
+    {
+        // parameter `element` is the tag name as string. Create the element
+        element = libmei.@element();
+    }
+
+    // @endid can not yet be set.  Register the line until the layer where it
+    // ends is processed
+    if (bobj.IsALine and element.attrs.PropertyExists('endid'))
+    {
+        bobj._property:mobj = element;
+        PushToHashedLayer(Self._property:LineEndResolver, bobj.EndBarNumber, bobj);
+    }
+
+    return AddControlEventAttributes(bobj, element);
 }  //$end
 
 function GenerateTuplet(tupletObj) {

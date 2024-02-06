@@ -166,41 +166,22 @@ function CreateApiObject (apiVersion) {
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
     apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
-    switch (apiVersion)
-    {
-        case (1)
-        {
-            apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory_LegacyApiVersion1');
-            apiObject.SetMethod('HandleLineTemplate', Self, 'HandleControlEvent');
-        }
-        case (2) {
-            apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
-        }
-        default
-        {
-            ExitPlugin('Unsupported extension API version: ' & apiVersion);
-        }
-    }
-    apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
-    apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
+    apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
     apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
-    apiObject.SetMethod('AddControlEventAttributes', Self, 'ExtensionAPI_AddControlEventAttributes');
-    // TODO: Deprecate HandleLineTemplate and replace with HandleControlEvent?
-    apiObject.SetMethod('HandleLineTemplate', Self, 'HandleControlEvent');
     return apiObject;
 }  //$end
 
 function ExtensionAPI_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
-    RegisterHandlers(Self._property:SymbolHandlers, symbolHandlerDict, plugin, 'HandleTemplate');
+    RegisterHandlers(Self._property:SymbolHandlers, symbolHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
-    RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin, 'HandleControlEvent');
+    RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_RegisterLineHandlers (this, lineHandlerDict, plugin) {
-    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin, 'HandleControlEvent');
+    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
@@ -215,17 +196,13 @@ function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
     AddFormattedText (parentElement, textObj);
 }   //$end
 
-function ExtensionAPI_GenerateControlEvent (this, bobj, elementName) {
-    GenerateControlEvent(bobj, elementName);
-}   //$end
-
-function ExtensionAPI_AddControlEventAttributes (this, bobj, element) {
-    AddControlEventAttributes(bobj, element);
+function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
+    GenerateControlEvent(bobj, element);
 }   //$end
 
 
 function HandleTemplate (this, bobj, template) {
     element = MeiFactory(template, bobj);
-    AddControlEventAttributes(bobj, element);
+    GenerateControlEvent(bobj, element);
     return element;
 }   //$end
