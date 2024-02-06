@@ -12,7 +12,7 @@ function InitLineHandlers () {
     // to be registered to a more specialized line handler than the standard
     // HandleControlEvent().
 
-    lineTemplates = CreateDictionary(
+    RegisterHandlers(lineHandlers.StyleId, CreateDictionary(
         ///////////////////////
         // Lines with @endid //
         ///////////////////////
@@ -141,7 +141,7 @@ function InitLineHandlers () {
         'line.staff.hairpin.diminuendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dashed')),
         'line.staff.hairpin.diminuendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dotted')),
         'line.staff.hairpin.diminuendo.tosilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'niente', 'true'))
-    );
+    ), Self);
 
     // Line types not handled yet:
     // Type = 'BeamLine'
@@ -177,8 +177,6 @@ function InitLineHandlers () {
     //   line.system.tempo.rit.poco
     //   line.system.tempo.rit.poco.textonly
     //   line.system.tempo.rit.textonly
-
-    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self);
 
     return lineHandlers;
 } //$end

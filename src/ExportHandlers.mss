@@ -27,36 +27,28 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
     // handler method names found in `handlerDefinitions` will be looked up in
     // this plugin.
 
-    for each Name idType in handlers
+    for each Name id in handlerDefinitions
     {
-        if (null != handlerDefinitions[idType])
+        // handlerDefinition is either the name of the handler function
+        // or a template SparseArray
+        handlerDefinition = handlerDefinitions[id];
+        handler = CreateDictionary();
+        handlers[id] = handler;
+        if (not IsObject(handlerDefinition))
         {
-            handlerDefinitionsForIdType = handlerDefinitions[idType];
-            handlersForIdType = handlers[idType];
-            for each Name id in handlerDefinitions[idType]
+            handler.SetMethod('HandleObject', plugin, handlerDefinition);
+        }
+        else
+        {
+            // We have a template. Use the default handler.
+            handler['template'] = handlerDefinition;
+            if (handlerDefinition._property:createModifier)
             {
-                // handlerDefinition is either the name of the handler function
-                // or a template SparseArray
-                handlerDefinition = handlerDefinitionsForIdType[id];
-                handler = CreateDictionary();
-                handlersForIdType[id] = handler;
-                if (not IsObject(handlerDefinition))
-                {
-                    handler.SetMethod('HandleObject', plugin, handlerDefinition);
-                }
-                else
-                {
-                    // We have a template. Use the default handler.
-                    handler['template'] = handlerDefinition;
-                    if (handlerDefinition._property:createModifier)
-                    {
-                        handler.SetMethod('HandleObject', Self, 'ModifierTemplateHandler');
-                    }
-                    else
-                    {
-                        handler.SetMethod('HandleObject', Self, 'ControlEventTemplateHandler');
-                    }
-                }
+                handler.SetMethod('HandleObject', Self, 'ModifierTemplateHandler');
+            }
+            else
+            {
+                handler.SetMethod('HandleObject', Self, 'ControlEventTemplateHandler');
             }
         }
     }

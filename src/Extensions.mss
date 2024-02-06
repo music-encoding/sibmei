@@ -147,6 +147,7 @@ function InitExtensions (extensions) {
 
     for each Name plgName in chosenExtensions
     {
+        Self._property:CurrentlyInitializedExtension = plgName;
         @plgName.InitSibmeiExtension(apiObjects[apiVersionByPlgName[plgName]]);
     }
 
@@ -173,16 +174,19 @@ function CreateApiObject (apiVersion) {
     return apiObject;
 }  //$end
 
-function ExtensionAPI_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
-    RegisterHandlers(Self._property:SymbolHandlers, symbolHandlerDict, plugin);
+function ExtensionAPI_RegisterSymbolHandlers (this, symbolIdType, symbolHandlerDict, plugin) {
+    AssertIdType(IsSymbolIdType, symbolIdType, 'RegisterSymbolHandlers');
+    RegisterHandlers(SymbolHandlers[symbolIdType], symbolHandlerDict, plugin);
 }  //$end
 
-function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
-    RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin);
+function ExtensionAPI_RegisterTextHandlers (this, styleIdType, textHandlerDict, plugin) {
+    AssertIdType(IsStyleIdType, styleIdType, 'RegisterTextHandlers');
+    RegisterHandlers(TextHandlers[styleIdType], textHandlerDict, plugin);
 }  //$end
 
-function ExtensionAPI_RegisterLineHandlers (this, lineHandlerDict, plugin) {
-    RegisterHandlers(Self._property:LineHandlers, lineHandlerDict, plugin);
+function ExtensionAPI_RegisterLineHandlers (this, styleIdType, lineHandlerDict, plugin) {
+    AssertIdType(IsStyleIdType, styleIdType, 'RegisterLineHandlers');
+    RegisterHandlers(LineHandlers[styleIdType], lineHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
@@ -211,3 +215,27 @@ function HandleTemplate (this, bobj, template) {
     GenerateControlEvent(bobj, element);
     return element;
 }   //$end
+
+
+function AssertIdType (isIdType, idType, functionName) {
+    if (not isIdType[idType])
+    {
+        validIdTypes = CreateSparseArray();
+        for each Name idType in isIdType
+        {
+            validIdTypes.Push(idType);
+        }
+        Sibelius.MessageBox(
+            'Error in extension plugin \''
+            & CurrentlyInitializedExtension
+            & '\': Expected either of \''
+            & validIdTypes.Join('\' or \'')
+            & ' as first paramter of '
+            & functionName & '(), but found \''
+            & idType
+            & '\'.\n\nPlugin execution is aborted. To continue, deactivate \''
+            & CurrentlyInitializedExtension
+            & '\'.'
+        );
+    }
+}  //$end

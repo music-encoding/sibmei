@@ -52,6 +52,9 @@ function InitGlobals (extensions) {
     Self._property:TextHandlers = InitTextHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
+    Self._property:IsStyleIdType = CreateDictionary('StyleId', true, 'StyleAsText', true);
+    Self._property:IsSymbolIdType = CreateDictionary('Index', true, 'Name', true);
+
     if (not InitExtensions(extensions))
     {
         return false;

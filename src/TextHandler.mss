@@ -10,25 +10,23 @@ function InitTextHandlers() {
         'StyleAsText', CreateDictionary()
     );
 
-    RegisterHandlers(textHandlers, CreateDictionary(
-        'StyleId', CreateDictionary(
-            'text.staff.expression', CreateSparseArray('Dynam', noAttributes, addFormattedText),
-            'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
-            'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-            'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), addFormattedText),
-            'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
-            'text.system.page_aligned.subtitle', CreateSparseArray(
-                'AnchoredText',
-                noAttributes,
-                CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), addFormattedText)
-            ),
-            'text.system.page_aligned.title', CreateSparseArray(
-                'AnchoredText',
-                noAttributes,
-                CreateSparseArray('Title', noAttributes, addFormattedText)
-            ),
-            'text.system.tempo', CreateSparseArray('Tempo', noAttributes, addFormattedText)
-        )
+    RegisterHandlers(textHandlers.StyleId, CreateDictionary(
+        'text.staff.expression', CreateSparseArray('Dynam', noAttributes, addFormattedText),
+        'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
+        'text.staff.space.figuredbass', 'FiguredBassTextHandler',
+        'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), addFormattedText),
+        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
+        'text.system.page_aligned.subtitle', CreateSparseArray(
+            'AnchoredText',
+            noAttributes,
+            CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), addFormattedText)
+        ),
+        'text.system.page_aligned.title', CreateSparseArray(
+            'AnchoredText',
+            noAttributes,
+            CreateSparseArray('Title', noAttributes, addFormattedText)
+        ),
+        'text.system.tempo', CreateSparseArray('Tempo', noAttributes, addFormattedText)
     ), Self);
 
     return textHandlers;
