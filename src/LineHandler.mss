@@ -1,7 +1,7 @@
 function InitLineHandlers () {
     //$module(LineHandler.mss)
 
-    lineHandlers = CreateDictionary(
+    Self._property:LineHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
@@ -12,7 +12,7 @@ function InitLineHandlers () {
     // to be registered to a more specialized line handler than the standard
     // HandleControlEvent().
 
-    RegisterHandlers(lineHandlers.StyleId, CreateDictionary(
+    RegisterLineHandlers('StyleId', CreateDictionary(
         ///////////////////////
         // Lines with @endid //
         ///////////////////////
@@ -177,6 +177,9 @@ function InitLineHandlers () {
     //   line.system.tempo.rit.poco
     //   line.system.tempo.rit.poco.textonly
     //   line.system.tempo.rit.textonly
-
-    return lineHandlers;
 } //$end
+
+
+function RegisterLineHandlers (styleIdType, lineHandlerDict, plugin) {
+    RegisterHandlers(LineHandlers[styleIdType], lineHandlerDict, plugin);
+}  //$end

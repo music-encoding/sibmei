@@ -176,17 +176,17 @@ function CreateApiObject (apiVersion) {
 
 function ExtensionAPI_RegisterSymbolHandlers (this, symbolIdType, symbolHandlerDict, plugin) {
     AssertIdType(IsSymbolIdType, symbolIdType, 'RegisterSymbolHandlers');
-    RegisterHandlers(SymbolHandlers[symbolIdType], symbolHandlerDict, plugin);
+    RegisterSymbolHandlers(symbolIdType, symbolHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_RegisterTextHandlers (this, styleIdType, textHandlerDict, plugin) {
     AssertIdType(IsStyleIdType, styleIdType, 'RegisterTextHandlers');
-    RegisterHandlers(TextHandlers[styleIdType], textHandlerDict, plugin);
+    RegisterTextHandlers(styleIdType, textHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_RegisterLineHandlers (this, styleIdType, lineHandlerDict, plugin) {
     AssertIdType(IsStyleIdType, styleIdType, 'RegisterLineHandlers');
-    RegisterHandlers(LineHandlers[styleIdType], lineHandlerDict, plugin);
+    RegisterLineHandlers(styleIdType, lineHandlerDict, plugin);
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject, bobj) {

@@ -3,14 +3,14 @@ function InitTextHandlers() {
     // extensions into the same dictionary
 
     addFormattedText = CreateDictionary('AddFormattedText', true);
-    noAttributes = CreateDictionary();
+    noAttributes = null;
 
-    textHandlers = CreateDictionary(
+    Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
 
-    RegisterHandlers(textHandlers.StyleId, CreateDictionary(
+    RegisterTextHandlers('StyleId', CreateDictionary(
         'text.staff.expression', CreateSparseArray('Dynam', noAttributes, addFormattedText),
         'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
@@ -28,8 +28,11 @@ function InitTextHandlers() {
         ),
         'text.system.tempo', CreateSparseArray('Tempo', noAttributes, addFormattedText)
     ), Self);
+}  //$end
 
-    return textHandlers;
+
+function RegisterTextHandlers (styleIdType, textHandlerDict, plugin) {
+    RegisterHandlers(TextHandlers[styleIdType], textHandlerDict, plugin);
 }  //$end
 
 function InitTextSubstituteMap() {

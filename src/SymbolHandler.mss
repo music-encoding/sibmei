@@ -6,12 +6,12 @@
 function InitSymbolHandlers () {
     //$module(SymbolHandler.mss)
 
-    symbolHandlers = CreateDictionary(
+    Self._property:SymbolHandlers = CreateDictionary(
         'Index', CreateDictionary(),
         'Name', CreateDictionary()
     );
 
-    RegisterHandlers(symbolHandlers.Index, CreateDictionary(
+    RegisterSymbolHandlers('Index', CreateDictionary(
         //inverted mordent
         36, CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),
         //mordent
@@ -92,10 +92,12 @@ function InitSymbolHandlers () {
         495, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','plop')))
         // 'Pedal', CreateSparseArray('Pedal', CreateDictionary('dir', 'down', 'func', 'sustain')) //Pedal
     ), Self);
-
-    return symbolHandlers;
-
 }//$end
+
+
+function RegisterSymbolHandlers (symbolIdType, symbolHandlerDict, plugin) {
+    RegisterHandlers(SymbolHandlers[symbolIdType], symbolHandlerDict, plugin);
+}  //$end
 
 
 function HandleSymbol (sobj) {

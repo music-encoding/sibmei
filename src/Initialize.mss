@@ -47,9 +47,9 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
-    Self._property:SymbolHandlers = InitSymbolHandlers();
-    Self._property:LineHandlers = InitLineHandlers();
-    Self._property:TextHandlers = InitTextHandlers();
+    InitSymbolHandlers();
+    InitLineHandlers();
+    InitTextHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
     Self._property:IsStyleIdType = CreateDictionary('StyleId', true, 'StyleAsText', true);
