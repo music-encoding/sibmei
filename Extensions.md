@@ -45,7 +45,7 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
   HandleMyText "(_, textObj) {
     // Create and return an MEI element that Sibmei will append as a child to
     // the measure element.
-    textElement = api.GenerateControlEvent(textObj, 'AnchoredText');
+    textElement = api.GenerateControlEvent(textObj, api.libmei.AnchoredText());
     api.AddFormattedText(textElement, textObj);
     return textElement;
   }"
@@ -185,7 +185,7 @@ It exposes the following methods that must only be called in the initialization 
    The Dictionary that needs to be passed to `RegisterSymbolHandlers()` has the
    following structure:
 
-   ```
+   ```js
    CreateDictionary(
       'Name', CreateDictionary(
          'My custom symbol', 'MyCustomSymbolHandler',
@@ -211,7 +211,7 @@ It exposes the following methods that must only be called in the initialization 
 * **`RegisterTextHandlers()`**: Works the same way as `RegisterSymbolHandlers()`, with two differences:
 
    * Sub-Dictionary keys are `StyleId` and `StyleAsText` instead of `Index` and `Name`. Always use `StyleId` for built-in text styles and `StyleAsText` for custom text styles.
-   
+
    * Sub-Dictionary values can also be templates.  At the moment, this is only possible for control events (i.e. elements that will be attached to the measure).  For creating modifiers (that are attached to a note, rest or chord), registering a handler methods that calls `HandleModifier()` is required instead.
 
 * **`RegisterLineHandlers()`**: Works the same way as `RegisterTextHandlers()`.
@@ -224,20 +224,6 @@ The following methods must only be used by handler methods:
 
    Instead of calling `MeiFactory()` directly, consider leaving template handling to `HandleControlEvent()` or `HandleModifier()`, or even better `RegisterTextHandlers()` or `RegisterLineHandlers()` where possible.
 
-* **`HandleControlEvent()`**:  Pass this function two arguments:
-
-   * The to be exported `SymbolItem` or `SystemSymbolItem`
-   * A template suitable for passing to `MeiFactory()`
-
-   `HandleControlEvent()` creates an MEI element and attaches it to the `<measure>` element. It returns the element for further manipulation by the extension plugin.
-
-* **`HandleModifier()`**: Works similarly to `HandleControlEvent()`, but attaches the generated MEI element to an event element (`<note>`, `<chord>` etc.) instead of the `<measure>` element.
-
-* **`HandleLineTemplate()`**: Takes two arguments:
-
-   * The line-like object (basically any of the ManuScript classes that has the `IsALine` flag set)
-   * A template suitable for passing to `MeiFactory()`.
-
 * **`AddFormattedText()`**: Takes arguments:
 
    * `parentElement`: MEI element that the formatted text nodes should be appended to
@@ -246,20 +232,12 @@ The following methods must only be used by handler methods:
 * **`GenerateControlEvent()`**: Takes two arguments:
 
    * `bobj`: A `BarObject`
-   * `elementName`: Capitalized MEI element name, e.g. `'Line'`.
+   * `element`: An element that is either created by means of libmei or `MeiFactory()`.
 
-   Uses the `elementName` to generate an MEI element and adds applicable control event attributes (see  `AddControlEventAttributes`). Returns the created element.
-
-   When calling this function in a handler method that was registered with `RegisterSymbolHandler()` or `RegisterLineHandler()`, the handler method has to return the created element.
-
-* **`AddControlEventAttributes()`**:  Takes two arguments:
-
-   * `bobj`: A `BarObject`
-   * `element`: An MEI element
-
-   Adds the following control event attributes:
+   `GenerateControlEvent()` takes care of adding the element to the `<measures>` and adds the following control event attributes:
 
    * `@startid` (if a start object could be identified) and `@tstamp`
+
    * If applicable (e.g. for lines), `@endid` (if an end object could be identified) and `@tstamp2`
    * `@staff` (if object is staff-attached)
    * `@layer`
@@ -268,3 +246,9 @@ The following methods must only be used by handler methods:
      * `@startho`, `@startvo`, `@endho`, `@endvo`
    * For elements other than lines:
      * `@ho`, `@vo`
+
+   `GenerateControlEvent()` returns `element`, which allow patterns like:
+
+   ```
+   element = api.GenerateControlEvent(bobj, api.MeiFactory(template));
+   ```

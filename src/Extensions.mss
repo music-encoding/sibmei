@@ -169,6 +169,7 @@ function CreateApiObject (apiVersion) {
     apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
     apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
+    apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
     return apiObject;
 }  //$end
 
@@ -198,6 +199,10 @@ function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
 
 function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
     GenerateControlEvent(bobj, element);
+}   //$end
+
+function ExtensionAPI_GenerateModifier (this, bobj, element) {
+    GenerateModifier(bobj, element);
 }   //$end
 
 
