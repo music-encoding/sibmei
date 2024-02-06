@@ -1469,6 +1469,32 @@ function GenerateControlEvent (bobj, element) {
     return element;
 }  //$end
 
+
+function GenerateModifier (bobj, element) {
+    nobj = GetNoteObjectAtPosition(bobj, 'Closest');
+
+    if (nobj != null)
+    {
+        libmei.AddChild(nobj, element);
+    }
+    else
+    {
+        warnings = Self._property:warnings;
+        barNum = bobj.ParentBar.BarNumber;
+        voiceNum = bobj.VoiceNumber;
+        if (bobj.Type = 'SymbolItem' or bobj.Type = 'SystemSymbolitem')
+        {
+            name = bobj.Name;
+        }
+        else
+        {
+            name = bobj.StyleAsText;
+        }
+        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, name));
+    }
+}  //$end
+
+
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
     tuplet = libmei.Tuplet();
