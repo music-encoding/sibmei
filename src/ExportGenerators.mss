@@ -680,7 +680,8 @@ function GenerateLayers (staffnum, measurenum) {
             {
                 HandleStyle(TextHandlers, bobj);
             }
-            case('SymbolItem') {
+            case('SymbolItem')
+            {
                 HandleSymbol(bobj);
             }
         }

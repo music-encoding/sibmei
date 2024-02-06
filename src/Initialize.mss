@@ -128,7 +128,9 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
                 if (not IsObject(handlerDefinition))
                 {
                     handler.SetMethod('HandleObject', plugin, handlerDefinition);
-                } else {
+                }
+                else
+                {
                     // We have a template. Use the default handler.
                     handler['template'] = handlerDefinition;
                     if (handlerDefinition._property:createModifier)
