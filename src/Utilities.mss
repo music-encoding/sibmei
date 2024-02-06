@@ -917,7 +917,7 @@ function ModifierTemplateHandler (this, bobj) {
 
 
 function ControlEventTemplateHandler (this, bobj) {
-    return GenerateControlEvent(bobj, this.template);
+    return GenerateControlEvent(bobj, MeiFactory(this.template, bobj));
 }  //$end
 
 

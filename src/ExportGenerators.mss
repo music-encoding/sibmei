@@ -1454,25 +1454,6 @@ function GenerateStaffGroups (score, barnum) {
 }  //$end
 
 function GenerateControlEvent (bobj, element) {
-    //$module(ExportGenerators.mss)
-
-    // element can be a libmei element object, a MeiFactory template
-    // SparseArray or the element name. We want to work with a libmei element.
-
-    if (IsObject(element))
-    {
-        if (element[0] != '')
-        {
-            // Parameter `element` is a template
-            element = MeiFactory(element, bobj);
-        }
-    }
-    else
-    {
-        // parameter `element` is the tag name as string. Create the element
-        element = libmei.@element();
-    }
-
     // @endid can not yet be set.  Register the line until the layer where it
     // ends is processed
     if (bobj.IsALine and element.attrs.PropertyExists('endid'))
@@ -1575,7 +1556,7 @@ function GenerateArpeggio (bobj) {
         }
     }
 
-    arpeg = GenerateControlEvent(bobj, 'Arpeg');
+    arpeg = GenerateControlEvent(bobj, libmei.Arpeg());
 
     if (orientation = null)
     {
@@ -1601,7 +1582,7 @@ function GenerateArpeggio (bobj) {
 
 function GenerateFermata (bobj, shape, form) {
     //$module(ExportGenerators.mss)
-    fermata = GenerateControlEvent(bobj, 'Fermata');
+    fermata = GenerateControlEvent(bobj, libmei.Fermata());
 
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
@@ -1614,7 +1595,7 @@ function GenerateChordSymbol (bobj) {
     /*
         Generates a <harm> element containing chord symbol information
     */
-    harm = GenerateControlEvent('Harm', bobj);
+    harm = GenerateControlEvent(bobj, libmei.Harm());
     libmei.SetText(harm, bobj.ChordNameAsPlainText);
 
     return harm;

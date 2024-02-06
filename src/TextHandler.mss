@@ -74,7 +74,7 @@ function InitTextSubstituteMap() {
 
 function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
-    harm = GenerateControlEvent(textObject, 'Harm');
+    harm = GenerateControlEvent(textObject, libmei.Harm());
 
     // uniquely, for figured bass we do not use the startid here,
     // since a figure can change halfway through a note. So we remove

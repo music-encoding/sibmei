@@ -47,7 +47,7 @@
   }"
 
   HandleMySymbol "(this, obj) {
-    symbolElement = api.GenerateControlEvent(obj, MySymbolTemplate);
+    symbolElement = api.GenerateControlEvent(obj, api.MeiFactory(MySymbolTemplate, obj));
     if (obj.ColorRed = 255) {
       libmei.AddAttribute(symbolElement, 'type', 'myRedType');
     }
@@ -56,7 +56,7 @@
 
   HandleXPathTest "(this, textObj) {
     // This text style is used by the sibmei test suite
-    annotElement = api.GenerateControlEvent(textObj, 'Annot');
+    annotElement = api.GenerateControlEvent(textObj, api.libmei.Annot());
     libmei.AddAttribute(annotElement, 'type', 'xpath-test');
     textWithFormatting = textObj.TextWithFormatting;
     for i = 0 to textWithFormatting.NumChildren {
