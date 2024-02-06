@@ -699,13 +699,9 @@ function GenerateLayers (staffnum, measurenum) {
         // measure later in the processing cycle.
         if (mobj != null)
         {
-            mobjs = Self._property:MeasureObjects;
-            mobjs.Push(mobj._id);
-            Self._property:MeasureObjects = mobjs;
+            MeasureObjects.Push(mobj._id);
         }
     }
-
-    Self._property:MeasureObjects = mobjs;
 
     for each LyricItem lobj in bar
     {
