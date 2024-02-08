@@ -4,8 +4,11 @@ const assert = require('assert');
 const xpath = require('fontoxpath');
 const utils = require('./utils');
 
-describe("Extensions", function() {
-  const mei = utils.getTestMeiDom('extensions.mei');
+describe("Extensions", function() {testExtension('extensions.mei');});
+describe("Legacy extension API v1", function() {testExtension('legacy_extensions_api_v1.mei');});
+
+function testExtension(meiFile) {
+  const mei = utils.getTestMeiDom(meiFile);
   const symbols = xpath.evaluateXPath('//*:symbol', mei);
   const text = xpath.evaluateXPath('//*:anchoredText', mei);
   const line = xpath.evaluateXPath('//*:line', mei);
@@ -32,4 +35,4 @@ describe("Extensions", function() {
   it("exports custom lines by name", function(){
     utils.assertAttrValueFormat([line], 'type', 'myline');
   });
-});
+}

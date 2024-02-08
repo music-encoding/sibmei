@@ -29,6 +29,10 @@ function RegisterAvailableExtensions (availableExtensions, apiVersionByPlgName) 
                 {
                     error = null;
                 }
+                case (extensionSemver[0] = '1') {
+                    // It's O.K., we're giving it a legacy version of the API
+                    error = null;
+                }
                 case (
                     (apiSemver[0] < extensionSemver[0])
                     or (apiSemver[0] = extensionSemver[0] and apiSemver[1] < extensionSemver[1])
@@ -164,13 +168,40 @@ function CreateApiObject (apiVersion) {
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText
     );
-    apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
-    apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
-    apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
-    apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
-    apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
-    apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
-    apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
+
+
+    switch (apiVersion)
+    {
+        case (2)
+        {
+            // Current version
+            apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
+            apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
+            apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
+            apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
+            apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
+            apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
+            apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
+        }
+        case (1) {
+            // Legacy version
+            apiObject.SetMethod('RegisterSymbolHandlers', Self, 'LegacyExtensionAPIv1_RegisterSymbolHandlers');
+            apiObject.SetMethod('RegisterTextHandlers', Self, 'LegacyExtensionAPIv1_RegisterTextHandlers');
+            apiObject.SetMethod('RegisterLineHandlers', Self, 'LegacyExtensionAPIv1_RegisterLineHandlers');
+            apiObject.SetMethod('HandleControlEvent', Self, 'LegacyExtensionAPIv1_HandleControlEvent');
+            apiObject.SetMethod('HandleModifier', Self, 'LegacyExtensionAPIv1_HandleModifier');
+            apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
+            apiObject.SetMethod('GenerateControlEvent', Self, 'LegacyExtensionAPIv1_GenerateControlEvent');
+            apiObject.SetMethod('AddControlEventAttributes', Self, 'LegacyExtensionAPIv1_AddControlEventAttributes');
+            apiObject.SetMethod('HandleLineTemplate', Self, 'LegacyExtensionAPIv1_HandleLineTemplate');
+            apiObject.SetMethod('MeiFactory', Self, 'LegacyExtensionAPIv1_MeiFactory');
+        }
+        default
+        {
+            ExitPlugin('Unsupported extension API version: ' & apiVersion);
+        }
+    }
+
     return apiObject;
 }  //$end
 
@@ -210,11 +241,53 @@ function ExtensionAPI_GenerateModifier (this, bobj, element) {
 }   //$end
 
 
-function HandleTemplate (this, bobj, template) {
-    element = MeiFactory(template, bobj);
-    GenerateControlEvent(bobj, element);
-    return element;
-}   //$end
+
+/////  Legacy methods
+function LegacyExtensionAPIv1_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
+    for each Name symbolIdType in symbolHandlerDict
+    {
+        RegisterHandlers(SymbolHandlers[symbolIdType], symbolHandlerDict[symbolIdType], plugin);
+    }
+} //$end
+
+function LegacyExtensionAPIv1_RegisterTextHandlers (this, textHandlerDict, plugin) {
+    for each Name styleType in textHandlerDict
+    {
+        RegisterHandlers(TextHandlers[styleType], textHandlerDict[styleType], plugin);
+    }
+} //$end
+
+function LegacyExtensionAPIv1_RegisterLineHandlers (this, lineHandlerDict, plugin) {
+    for each Name styleType in lineHandlerDict
+    {
+        RegisterHandlers(LineHandlers[styleType], lineHandlerDict[styleType], plugin);
+    }
+} //$end
+
+function LegacyExtensionAPIv1_HandleControlEvent (this, bobj, template) {
+    return GenerateControlEvent(bobj, MeiFactory(template));
+} //$end
+
+function LegacyEtensionAPIv1_HandleModifier (this, bobj, template) {
+    return GenerateModifier(bobj, MeiFactory(template));
+} //$end
+
+function LegacyExtensionAPIv1_GenerateControlEvent (this, bobj, elementName) {
+    Trace(NGBLib.TypeOf(bobj));
+    return AddControlEventAttributes(bobj, libmei.@elementName());
+} //$end
+
+function LegacyExtensionAPIv1_AddControlEventAttributes (this, bobj, element) {
+    return AddControlEventAttributes(bobj, element);
+} //$end
+
+function LegacyExtensionAPIv1_HandleLineTemplate (this, lobj, template) {
+    return GenerateControlEvent(lobj, MeiFactory(template));
+} //$end
+
+function LegacyExtensionAPIv1_MeiFactory (this, templateObject, bobj) {
+    return MeiFactory(templateObject, bobj);
+}  //$end
 
 
 function AssertIdType (isIdType, idType, functionName) {

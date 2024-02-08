@@ -46,6 +46,11 @@ function Run() {
         CreateSparseArray('sibmei4_extension_test')
     );
 
+    // Export with legacy API
+    sibmei4.InitGlobals(CreateSparseArray('sibmei4_legacy_extension_api_v1_test'));
+    score = sibmei4.GetScore(_SibTestFileDirectory & 'extensions.sib');
+    sibmei4.DoExport(score, _SibTestFileDirectory & 'legacy_extensions_api_v1.mei');
+
     // Make sure we have an open window so Sibelius will neither crash nor
     // decide to open a new window later that will force the mocha test results
     // into the background.
