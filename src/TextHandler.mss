@@ -1,8 +1,4 @@
 function InitTextHandlers() {
-    // QUESTION: We could also take an argument and throw all text handlers from
-    // extensions into the same dictionary
-
-    addFormattedText = CreateDictionary('AddFormattedText', true);
     noAttributes = null;
 
     Self._property:TextHandlers = CreateDictionary(
@@ -11,22 +7,22 @@ function InitTextHandlers() {
     );
 
     RegisterTextHandlers('StyleId', CreateDictionary(
-        'text.staff.expression', CreateSparseArray('Dynam', noAttributes, addFormattedText),
-        'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
+        'text.staff.expression', CreateSparseArray('Dynam', noAttributes, FormattedText),
+        'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-        'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), addFormattedText),
-        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, addFormattedText),
+        'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), FormattedText),
+        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, FormattedText),
         'text.system.page_aligned.subtitle', CreateSparseArray(
             'AnchoredText',
             noAttributes,
-            CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), addFormattedText)
+            CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), FormattedText)
         ),
         'text.system.page_aligned.title', CreateSparseArray(
             'AnchoredText',
             noAttributes,
-            CreateSparseArray('Title', noAttributes, addFormattedText)
+            CreateSparseArray('Title', noAttributes, FormattedText)
         ),
-        'text.system.tempo', CreateSparseArray('Tempo', noAttributes, addFormattedText)
+        'text.system.tempo', CreateSparseArray('Tempo', noAttributes, FormattedText)
     ), Self);
 }  //$end
 

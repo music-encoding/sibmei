@@ -47,6 +47,9 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
+    Self._property:FormattedText = CreateDictionary('AddFormattedText', true);
+    Self._property:UnformattedText = CreateDictionary('AddUnformattedText', true);
+
     InitSymbolHandlers();
     InitLineHandlers();
     InitTextHandlers();

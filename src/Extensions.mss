@@ -161,8 +161,8 @@ function InitExtensions (extensions) {
 function CreateApiObject (apiVersion) {
     apiObject = CreateDictionary(
         'libmei', libmei,
-        'AddFormattedText', CreateDictionary('AddFormattedText', true),
-        'AddUnformattedText', CreateDictionary('AddUnformattedText', true)
+        'FormattedText', FormattedText,
+        'UnformattedText', UnformattedText
     );
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
@@ -198,7 +198,7 @@ function ExtensionAPI_MeiFactory_LegacyApiVersion1 (this, templateObject) {
 }  //$end
 
 function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
-    AddFormattedText (parentElement, textObj);
+    AddFormattedText(parentElement, textObj);
 }   //$end
 
 function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
