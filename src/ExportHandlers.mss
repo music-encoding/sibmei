@@ -32,16 +32,25 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
         // handlerDefinition is either the name of the handler function
         // or a template SparseArray
         handlerDefinition = handlerDefinitions[id];
-        handler = CreateDictionary();
-        handlers[id] = handler;
         if (not IsObject(handlerDefinition))
         {
+            if (Self = plugin)
+            {
+                handler = CreateDictionary();
+            }
+            else
+            {
+                // Extension handlers get the API object as first argument,
+                // basically the `this` argument.
+                extensionApiVersion = SplitString(plugin.SibmeiExtensionAPIVersion, '.')[0] + 0;
+                handler = CreateApiObject(extensionApiVersion);
+            }
             handler.SetMethod('HandleObject', plugin, handlerDefinition);
         }
         else
         {
             // We have a template. Use the default handler.
-            handler['template'] = handlerDefinition;
+            handler = CreateDictionary('template', handlerDefinition);
             if (handlerDefinition._property:createModifier)
             {
                 handler.SetMethod('HandleObject', Self, 'ModifierTemplateHandler');
@@ -51,6 +60,7 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
                 handler.SetMethod('HandleObject', Self, 'ControlEventTemplateHandler');
             }
         }
+        handlers[id] = handler;
     }
 }   //$end
 

@@ -14,9 +14,6 @@
   }"
 
   InitSibmeiExtension "(api) {
-    Self._property:api = api;
-    Self._property:libmei = api.libmei;
-
     Self._property:MySymbolTemplate = CreateSparseArray('Symbol', CreateDictionary(
       'fontfam', 'myCustomFont',
       'glyph.name', 'mySymbolGlyph'
@@ -40,18 +37,18 @@
     ), Self);
   }"
 
-  HandleMySymbol "(this, obj) {
+  HandleMySymbol "(api, obj) {
     symbolElement = api.GenerateControlEvent(obj, api.MeiFactory(MySymbolTemplate, obj));
     if (obj.ColorRed = 255) {
-      libmei.AddAttribute(symbolElement, 'type', 'myRedType');
+      api.libmei.AddAttribute(symbolElement, 'type', 'myRedType');
     }
     return symbolElement;
   }"
 
-  HandleXPathTest "(this, textObj) {
+  HandleXPathTest "(api, textObj) {
     // This text style is used by the sibmei test suite
     annotElement = api.GenerateControlEvent(textObj, api.libmei.Annot());
-    libmei.AddAttribute(annotElement, 'type', 'xpath-test');
+    api.libmei.AddAttribute(annotElement, 'type', 'xpath-test');
     textWithFormatting = textObj.TextWithFormatting;
     for i = 0 to textWithFormatting.NumChildren {
       if (CharAt(textWithFormatting[i], 0) = '\\') {
@@ -60,7 +57,7 @@
         textWithFormatting[i] = '';
       }
     }
-    libmei.SetText(annotElement, JoinStrings(textWithFormatting, ''));
+    api.libmei.SetText(annotElement, JoinStrings(textWithFormatting, ''));
     return annotElement;
   }"
 }
