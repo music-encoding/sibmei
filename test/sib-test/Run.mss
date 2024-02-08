@@ -41,10 +41,13 @@ function Run() {
 
     Sibelius.CloseAllWindows(false);
 
-    sibmei4_batch_sib.ConvertFolder(
-        Sibelius.GetFolder(_SibTestFileDirectory),
-        CreateSparseArray('sibmei4_extension_test')
-    );
+    testFolder = Sibelius.GetFolder(_SibTestFileDirectory);
+    testFiles = CreateSparseArray();
+    for each SIB file in testFolder
+    {
+        testFiles.Push(file);
+    }
+    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
 
     // Export with legacy API
     sibmei4.InitGlobals(CreateSparseArray('sibmei4_legacy_extension_api_v1_test'));
