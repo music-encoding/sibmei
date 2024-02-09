@@ -21,8 +21,7 @@ function Run() {
         ExitPlugin();
     }
 
-    Sibelius.CloseAllWindows(false);
-    Sibelius.New();
+    CloseAllWindows();
 
     Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
     Self._property:tempDir = CreateNewTempDir();
@@ -39,7 +38,7 @@ function Run() {
 
     suite.Run();
 
-    Sibelius.CloseAllWindows(false);
+    CloseAllWindows();
 
     testFolder = Sibelius.GetFolder(_SibTestFileDirectory);
     testFiles = CreateSparseArray();
@@ -53,11 +52,6 @@ function Run() {
     sibmei4.InitGlobals(CreateSparseArray('sibmei4_legacy_extension_api_v1_test'));
     score = sibmei4.GetScore(_SibTestFileDirectory & 'extensions.sib');
     sibmei4.DoExport(score, _SibTestFileDirectory & 'legacy_extensions_api_v1.mei');
-
-    // Make sure we have an open window so Sibelius will neither crash nor
-    // decide to open a new window later that will force the mocha test results
-    // into the background.
-    Sibelius.New();
 
     if (Sibelius.PathSeparator = '/') {
         mochaScript = pluginDir & 'test.sh';
@@ -208,4 +202,22 @@ function DateTimeString(date) {
         date.Seconds
     );
     return dateComponents.Join('-');
+}  //$end
+
+
+function CloseAllWindows () {
+    scores = CreateSparseArray();
+    for each score in Sibelius
+    {
+        scores.Push(score);
+    }
+    for each score in score
+    {
+        if (Sibelius.ScoreCount <= 1)
+        {
+            // Make sure we have an open window so Sibelius will not crash
+            Sibelius.New();
+        }
+        Sibelius.CloseAllWindowsForScore(score, false);
+    }
 }  //$end

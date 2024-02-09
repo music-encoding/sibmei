@@ -146,7 +146,7 @@ function ExportBatch (files, extensions) {
             error = DoExport(score, file.Name & '.mei');
             if (Sibelius.ProgramVersion >= 20201200)
             {
-                Sibelius.CloseAllWindowsForScore(Sibelius.ActiveScore, false);
+                Sibelius.CloseAllWindowsForScore(score, false);
             }
             else
             {
