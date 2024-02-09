@@ -207,12 +207,12 @@ Takes two arguments:
 `GenerateControlEvent()` returns `element`, which allow patterns like:
 
 ```js
-element = api.GenerateControlEvent(bobj, api.MeiFactory(template));
+element = api.GenerateControlEvent(bobj, api.MeiFactory(template, bobj));
 ```
 
 #### `GenerateModifier()` 
 
-Works in the same way as `GenerateControlEvent()`, but attaches the element to `<note>`, `<chord>` or `<rest>` (depending on what's found at the position in the object's voice), and unlike `GenerateControlEvent()` it does not add any attributes automatically.
+Works in the same way as `GenerateControlEvent()`, but attaches the element to `<note>`, `<chord>` or `<rest>` (depending on what's found at the position in the object's voice).  Unlike `GenerateControlEvent()`, it does not add any attributes automatically.
 
 #### `MeiFactory()`
 
