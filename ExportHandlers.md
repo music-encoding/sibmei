@@ -22,24 +22,24 @@ Handlers are tiny objects with a method `HandleObject()`. The line, text or symb
 >
 > ```js
 > {
->    StyleId: {
->        'line.staff.slur.down': {
->          HandleObject: function ControlEventTemplateHandler(this, bobj){...},
->          template: ['Slur', {endid: 'PreciseMatch'}],
->        }
->    },
->    StyleAsText: {
->        // A line style that is handled with a custom, non-template based
->        // handler method:
->        'My Line': {
->          HandleObject: function HandleMyLine(this, bobj){...},
->        },
->        // And another one that uses a template:
->        'My template based line': {
->          HandleObject: function ControlEventTemplateHandler(this, bobj){...},
->          template: ['Line', {type: 'My other line'}],
->        },
->    },
+>   StyleId: {
+>     'line.staff.slur.down': {
+>       HandleObject: function ControlEventTemplateHandler(this, bobj){...},
+>       template: ['Slur', {endid: 'PreciseMatch'}],
+>     }
+>   },
+>   StyleAsText: {
+>     // A line style that is handled with a custom, non-template based
+>     // handler method:
+>     'My Line': {
+>       HandleObject: function HandleMyLine(this, bobj){...},
+>     },
+>     // And another one that uses a template:
+>     'My template based line': {
+>       HandleObject: function ControlEventTemplateHandler(this, bobj){...},
+>       template: ['Line', {type: 'My other line'}],
+>     },
+>   },
 > }
 > ```
 >
@@ -62,7 +62,11 @@ Example:
 
 ```js
 api.RegisterTextHandlers('StyleId', CreateDictionary(
-    'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), api.FormattedText)
+    'text.staff.technique', CreateSparseArray(
+        'Dir',
+        CreateDictionary('label', 'technique'),
+        api.FormattedText
+    )
 ), Self);
 ```
 
@@ -70,12 +74,15 @@ Templates declaratively describe an MEI element by means of ManuScript data stru
 
 ```js
 CreateSparseArray(
-	'P', null,
-	'This is ',
-	CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
-		'declarative'
-	),
-	' MEI generation.'
+    'P',
+    null,
+    'This is ',
+    CreateSparseArray(
+        'Rend',
+        CreateDictionary('rend', 'italic'),
+        'declarative'
+    ),
+    ' MEI generation.'
 )
 ```
 
@@ -105,7 +112,10 @@ By default, the built-in template Handler adds the created element to `<measure>
 
 ```js
 api.RegisterSymbolHandlers('Index', CreateDictionary(
-    209, api.AsModifier(CreateSparseArray('Artic', CreateDictionary('artic', 'stacc', 'place', 'above')))
+  209, api.AsModifier(CreateSparseArray(
+    'Artic',
+    CreateDictionary('artic', 'stacc', 'place', 'above')
+  ))
 ));
 ```
 
@@ -142,7 +152,13 @@ When exporting Sibelius line objects (lines, hairpins, highlights etc.), the MEI
 Example:
 
 ```js
-CreateSparseArray('Line', CreateDictionary('func', 'coloration', 'endid', 'PreciseMatch'))
+CreateSparseArray(
+    'Line',
+    CreateDictionary(
+        'func', 'coloration',
+        'endid', 'PreciseMatch'
+	)
+)
 ```
 
 The placeholder will be replaced by an ID reference when writing the XML. Which ID is written depends on the line's end position and the value of the placeholder:
@@ -169,7 +185,7 @@ function HandleMySymbol (api, obj) {
 
 A Handler method receives the Handler object as first argument and the symbol, text or line object as second argument.  It has to call `api.GenerateControlEvent()` or `api.GenerateModifier()`, otherwise the created MEI element will note be attached to the score.
 
-In the above example, the MEI element is initially also generated from a template (that is defined as a global variable) by calling `api.MeiFactory()` directly.  The very same MEI element can also be created by means of libmei:
+In the above example, the MEI element is initially also generated from a template (that is defined as global variable `MySymbolTable`) by calling `api.MeiFactory()` directly.  The very same MEI element can also be created by means of libmei:
 
 ```js
 function HandleMySymbol (api, obj) {
