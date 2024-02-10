@@ -273,7 +273,6 @@ function LegacyEtensionAPIv1_HandleModifier (this, bobj, template) {
 } //$end
 
 function LegacyExtensionAPIv1_GenerateControlEvent (this, bobj, elementName) {
-    Trace(NGBLib.TypeOf(bobj));
     return AddControlEventAttributes(bobj, libmei.@elementName());
 } //$end
 
