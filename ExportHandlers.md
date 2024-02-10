@@ -131,7 +131,7 @@ Example:
 
 ```js
 CreateSparseArray(
-	'PersName', null, CreateSparseArray(
+    'PersName', null, CreateSparseArray(
         'Composer', null, api.UnformattedText
     )
 )
@@ -157,7 +157,7 @@ CreateSparseArray(
     CreateDictionary(
         'func', 'coloration',
         'endid', 'PreciseMatch'
-	)
+    )
 )
 ```
 
