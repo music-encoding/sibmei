@@ -82,16 +82,14 @@ The API dictionary exposes the following object:
 The API dictionary exposes the following [methods for registering Handlers](ExportHandlers.md#creating-and-registering-handlers) that must only be used inside the `InitSibmeiExtension()` method:
 
 * **`RegisterSymbolHandlers()`**
-   
+
 * **`RegisterTextHandlers()`**
 
 * **`RegisterLineHandlers()`**
 
-The following methods are can be used by Handler methods:
+The following methods can be used by Handler methods:
 
-* **`AddFormattedText()`**: Takes arguments:
-   * `parentElement`: MEI element that the formatted text nodes should be appended to
-   * `textObj`: A  `Text` or `SystemTextItem` object. Its `TextWithFormatting` property is converted to MEI markup.
+* [**`AddFormattedText()`** ](ExportHandlers.md#addformattedtext)
 * [**`GenerateControlEvent()`**](ExportHandlers.md#generatecontrolevent)
 * [**`GenerateModifier()`**]((ExportHandlers.md#generatemodifier))
 * [**`MeiFactory()`**](ExportHandlers.md#meifactory)
