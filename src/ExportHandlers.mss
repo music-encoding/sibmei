@@ -5,24 +5,6 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
     // information.)  RegisterHandlers() will create new entries in `handlers`
     // based on `handlerDefinitions`.
     //
-    // The `handlerDefinitions` Dictionary describes all the object styles and
-    // their handlers that will be registered in `handlers`.
-    // Pseudo-code that results in the `handlers` entries illustrated above:
-    // {
-    //     StyleId: {
-    //         'line.staff.slur.down': ['Slur', {endid: 'PreciseMatch'}]
-    //     },
-    //     StyleAsText: {
-    //         // For non-template based handlers, the value is the handler
-    //         // method name.  A method of this name must exists in the plugin
-    //         // that is passed as parameter `plugin`.
-    //         'My Line', 'HandleMyLine',
-    //         // For template-based styles, a template that is suitable for
-    //         // passing to `MeiFactory()`
-    //         'My template based line': ['Line', {type: 'My other line'}]
-    //     }
-    // }
-    //
     // `plugin` is either sibmei itself (`Self`) or an extension plugin. Any
     // handler method names found in `handlerDefinitions` will be looked up in
     // this plugin.
