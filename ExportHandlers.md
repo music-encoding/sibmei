@@ -163,10 +163,10 @@ CreateSparseArray(
 
 The placeholder will be replaced by an ID reference when writing the XML. Which ID is written depends on the line's end position and the value of the placeholder:
 
-* `'PreciseMatch'`: `@endid` will only be written if there is a NoteRest precisely at the `EndPosition` in the same voice as the line.
-* `'Next'`: If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest following NoteRest, if there is one in the same voice as the line.
-* `'Previous'`: If there is no NoteRest at the `EndPosition`, will write an `@endid` pointing to the closest preceding NoteRest, if there is one in the same voice as the line.
-* `'Closest'`: Writes an `@endid` that points to the closest NoteRest at the `EndPosition` in the same voice as the line.
+* `'PreciseMatch'`: `@endid` will only be written if there is a `NoteRest` precisely at the `EndPosition` in the same voice as the line.
+* `'Next'`: If there is no `NoteRest` at the `EndPosition`, will write an `@endid` pointing to the closest following `NoteRest`, if there is one in the same voice as the line.
+* `'Previous'`: If there is no `NoteRest` at the `EndPosition`, will write an `@endid` pointing to the closest preceding `NoteRest`, if there is one in the same voice as the line.
+* `'Closest'`: Writes an `@endid` that points to the closest `NoteRest` at the `EndPosition` in the same voice as the line.
 
 ### Registering a Handler method
 
