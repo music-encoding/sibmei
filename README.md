@@ -80,14 +80,14 @@ There are two kinds of tests in two subfolders of the `test` folder:
 
 ### sib-test
 
-These unit tests are primarily used to test specific Sibmei functions.  They use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first. After unloading and reloading the Testsibmei plugin (as described above), tests can be run by either
+These unit tests are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, also developed by Tido. You should download and install this plugin first. After unloading and reloading the Testsibmei plugin (as described above), tests can be run by either
 
 * starting Testsibmei from the plugin editing window or
 * starting "Sibmei Test Runner" from the menu/ribbon.
 
 ### mocha
 
-[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files.  After exporting the test file set with sibmei (Testsibmei will automatically do that), either run `npm test` from the root directory of this git repository or have Testsibmei automatically trigger the tests.  The latter requires a `test.bat` or `test.sh` file in the same directory as the Sibmei `*.plg` files, depending on the operating system. Create a file that looks like this:
+[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files. After exporting the test file set with sibmei (Testsibmei will automatically do that), either run `npm test` from the root directory of this git repository or have Testsibmei automatically trigger the tests. The latter requires a `test.bat` or `test.sh` file in the same directory as the Sibmei `*.plg` files, depending on the operating system. Create a file that looks like this:
 
 #### Windows: test.bat
 
