@@ -10,7 +10,7 @@ Symbols are similar, but instead of `StyleId` and `StyleAsText`, the properties 
 
 ## Handlers
 
-To handle the multitude of styles and symbols, we have a mechanism to associate Handlers with the different styles and symbols. For user-defined styles and symbols, extension plugins can register additional Handlers.
+To handle the multitude of styles and symbols, we have a mechanism to associate Handlers with the different styles and symbols. [Extension plugins](Extensions.md) can register additional Handlers to export user-defined styles and symbols, and also to change the export for built-in styles and symbols.
 
 Handlers are tiny objects with a method `HandleObject()`. The line, text or symbol object is passed to this method and the method has to generate and return an MEI element. It is also responsible for inserting them in the score. This is done by calling `GenerateControlEvent()` for control events (which adds them to `<measure>`) and `GenerateModifier()` for modifiers (which adds them to `<note>`, `<rest>` or `<chord>`).
 
