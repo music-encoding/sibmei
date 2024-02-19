@@ -21,8 +21,7 @@ function Run() {
         ExitPlugin();
     }
 
-    Sibelius.CloseAllWindows(false);
-    Sibelius.New();
+    CloseAllWindows();
 
     Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
     Self._property:tempDir = CreateNewTempDir();
@@ -39,17 +38,22 @@ function Run() {
 
     suite.Run();
 
-    Sibelius.CloseAllWindows(false);
+    CloseAllWindows();
 
-    sibmei4_batch_sib.ConvertFolder(
-        Sibelius.GetFolder(_SibTestFileDirectory),
-        CreateSparseArray('sibmei4_extension_test')
-    );
+    // Export with legacy API before batch exporting all the test files because
+    // batch export shows a dialog, and we'd rather have that dialog pop up
+    // when everything is finished.
+    sibmei4.InitGlobals(CreateSparseArray('sibmei4_legacy_extension_api_v1_test'));
+    score = sibmei4.GetScore(_SibTestFileDirectory & 'extensions.sib');
+    sibmei4.DoExport(score, _SibTestFileDirectory & 'legacy_extensions_api_v1.mei');
 
-    // Make sure we have an open window so Sibelius will neither crash nor
-    // decide to open a new window later that will force the mocha test results
-    // into the background.
-    Sibelius.New();
+    testFolder = Sibelius.GetFolder(_SibTestFileDirectory);
+    testFiles = CreateSparseArray();
+    for each SIB file in testFolder
+    {
+        testFiles.Push(file);
+    }
+    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
 
     if (Sibelius.PathSeparator = '/') {
         mochaScript = pluginDir & 'test.sh';
@@ -200,4 +204,22 @@ function DateTimeString(date) {
         date.Seconds
     );
     return dateComponents.Join('-');
+}  //$end
+
+
+function CloseAllWindows () {
+    scores = CreateSparseArray();
+    for each score in Sibelius
+    {
+        scores.Push(score);
+    }
+    for each score in score
+    {
+        if (Sibelius.ScoreCount <= 1)
+        {
+            // Make sure we have an open window so Sibelius will not crash
+            Sibelius.New();
+        }
+        Sibelius.CloseAllWindowsForScore(score, false);
+    }
 }  //$end

@@ -398,11 +398,9 @@ function GenerateMeasure (num) {
         m.children.Push(tie);
     }
 
-    mlines = Self._property:MeasureObjects;
-
-    for each line in mlines
+    for each mobj in MeasureObjects
     {
-        m.children.Push(line);
+        m.children.Push(mobj);
     }
 
     specialbarlines = Self._property:SpecialBarlines;
@@ -432,7 +430,7 @@ function GenerateMeasure (num) {
         textobjs = systemtext[num];
         for each textobj in textobjs
         {
-            text = HandleText(textobj);
+            text = HandleStyle(TextHandlers, textobj);
 
             if (text != null)
             {
@@ -492,8 +490,6 @@ function GenerateLayers (staffnum, measurenum) {
     bar = this_staff[measurenum];
     l = null;
 
-    mobjs = Self._property:MeasureObjects;
-
     for each bobj in bar
     {
         voicenumber = bobj.VoiceNumber;
@@ -523,7 +519,6 @@ function GenerateLayers (staffnum, measurenum) {
         }
 
         obj = null;
-        mobj = null;
         parent = null;
         beam = null;
         tuplet = null;
@@ -623,9 +618,6 @@ function GenerateLayers (staffnum, measurenum) {
 
                 if (bobj.ArpeggioType != ArpeggioTypeNone) {
                     arpeg = GenerateArpeggio(bobj);
-                    mobjs = Self._property:MeasureObjects;
-                    mobjs.Push(arpeg._id);
-                    Self._property:MeasureObjects = mobjs;
                 }
             }
             case('BarRest')
@@ -642,41 +634,39 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each bobj in bar
     {
-        mobj = null;
-
         switch (bobj.Type)
         {
             case('GuitarFrame')
             {
-                mobj = GenerateChordSymbol(bobj);
+                GenerateChordSymbol(bobj);
             }
             case('Slur')
             {
-                mobj = HandleLine(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('CrescendoLine')
             {
-                mobj = HandleLine(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('DiminuendoLine')
             {
-                mobj = HandleLine(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('OctavaLine')
             {
-                mobj = HandleLine(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('GlissandoLine')
             {
-                mobj = HandleLine(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('Trill')
             {
-                mobj = GenerateTrill(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('ArpeggioLine')
             {
-                mobj = GenerateArpeggio(bobj);
+                GenerateArpeggio(bobj);
             }
             case('RepeatTimeLine')
             {
@@ -684,34 +674,22 @@ function GenerateLayers (staffnum, measurenum) {
             }
             case('Line')
             {
-                mobj = HandleLine(bobj);
+                HandleStyle(LineHandlers, bobj);
             }
             case('Text')
             {
-                mobj = HandleText(bobj);
+                HandleStyle(TextHandlers, bobj);
+            }
+            case('SymbolItem')
+            {
+                HandleSymbol(bobj);
             }
         }
-
-        // add element to the measure objects so that they get added to the
-        // measure later in the processing cycle.
-        if (mobj != null)
-        {
-            mobjs = Self._property:MeasureObjects;
-            mobjs.Push(mobj._id);
-            Self._property:MeasureObjects = mobjs;
-        }
     }
-
-    Self._property:MeasureObjects = mobjs;
 
     for each LyricItem lobj in bar
     {
         ProcessLyric(lobj, objectPositions);
-    }
-
-    for each SymbolItem sobj in bar
-    {
-        HandleSymbol(sobj);
     }
 
     ProcessEndingLines(bar);
@@ -1475,11 +1453,47 @@ function GenerateStaffGroups (score, barnum) {
     return parentstgrp;
 }  //$end
 
-function GenerateControlEvent (bobj, elementName) {
-    //$module(ExportGenerators.mss)
+function GenerateControlEvent (bobj, element) {
+    // @endid can not yet be set.  Register the line until the layer where it
+    // ends is processed
+    if (bobj.IsALine and element.attrs.PropertyExists('endid'))
+    {
+        bobj._property:mobj = element;
+        PushToHashedLayer(Self._property:LineEndResolver, bobj.EndBarNumber, bobj);
+    }
 
-    return AddControlEventAttributes(bobj, libmei.@elementName());
+    AddControlEventAttributes(bobj, element);
+    // add element to the measure objects so that they get added to the measure
+    // later in the processing cycle.
+    MeasureObjects.Push(element._id);
+    return element;
 }  //$end
+
+
+function GenerateModifier (bobj, element) {
+    nobj = GetNoteObjectAtPosition(bobj, 'Closest');
+
+    if (nobj != null)
+    {
+        libmei.AddChild(nobj, element);
+    }
+    else
+    {
+        warnings = Self._property:warnings;
+        barNum = bobj.ParentBar.BarNumber;
+        voiceNum = bobj.VoiceNumber;
+        if (bobj.Type = 'SymbolItem' or bobj.Type = 'SystemSymbolitem')
+        {
+            name = bobj.Name;
+        }
+        else
+        {
+            name = bobj.StyleAsText;
+        }
+        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, name));
+    }
+}  //$end
+
 
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
@@ -1568,7 +1582,7 @@ function GenerateArpeggio (bobj) {
         }
     }
 
-    arpeg = GenerateControlEvent(bobj, 'Arpeg');
+    arpeg = GenerateControlEvent(bobj, libmei.Arpeg());
 
     if (orientation = null)
     {
@@ -1592,37 +1606,12 @@ function GenerateArpeggio (bobj) {
 }  //$end
 
 
-function GenerateTrill (bobj) {
-    //$module(ExportGenerators.mss)
-    /* There are two types of trills in Sibelius: A line object and a
-        symbol object. This method normalizes both of these.
-    */
-    trill = GenerateControlEvent(bobj, 'Trill');
-    obj = GetNoteObjectAtPosition(bobj, 'Closest', 'Position');
-
-    if (obj != null)
-    {
-        libmei.AddAttribute(trill, 'startid', '#' & obj._id);
-    }
-
-    return trill;
-}  //$end
-
-
 function GenerateFermata (bobj, shape, form) {
     //$module(ExportGenerators.mss)
-    fermata = GenerateControlEvent(bobj, 'Fermata');
+    fermata = GenerateControlEvent(bobj, libmei.Fermata());
 
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
-
-    if (bobj.Color != 0)
-    {
-        libmei.AddAttribute(fermata, 'color', ConvertColor(bobj));
-    }
-
-    measureObjs = Self._property:MeasureObjects;
-    measureObjs.Push(fermata._id);
 
     return fermata;
 }  //$end
@@ -1632,10 +1621,7 @@ function GenerateChordSymbol (bobj) {
     /*
         Generates a <harm> element containing chord symbol information
     */
-    harm = libmei.Harm();
-
-    libmei.AddAttribute(harm, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
-    libmei.AddAttribute(harm, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    harm = GenerateControlEvent(bobj, libmei.Harm());
     libmei.SetText(harm, bobj.ChordNameAsPlainText);
 
     return harm;

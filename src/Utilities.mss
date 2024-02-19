@@ -199,7 +199,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
         return libmei.getElementById(objId);
     }
 
-    // `bobj` was not precisely attched to a NoteRest in the same voice.
+    // `bobj` was not precisely attached to a NoteRest in the same voice.
     if (searchStrategy = 'PreciseMatch')
     {
         return null;
@@ -242,7 +242,7 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
         }
         case (searchStrategy != 'Closest')
         {
-            Trace(searchStrategy & ' is not an accepted value for parameter `searchStrategy`');
+            Trace('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
             ExitPlugin();
         }
         // `'' = x` is testig if x is null. We can not use `x = null` or
@@ -818,38 +818,16 @@ function AppendToLayer (meielement, l, beam, tuplet) {
 }  //$end
 
 
-function MeiFactory (data) {
-    /*
-        Allows creating MEI from data structures, e.g. for templating purposes.
-        Takes an array with the following content:
+function MeiFactory (data, bobj) {
+    // Parameter `data` is a template SparseArray with the following entries:
+    //
+    // 0. The capitalized tag name
+    // 1. A dictionary with attribute names and values
+    // 2., 3., ... Child nodes (optional) as strings (for text nodes) or as
+    //    template SparseArrays (for child elements)
+    //
+    // For further documentation, see Extensions.md
 
-            0.  The capitalized tag name
-            1.  A dictionary with attribute names and values (unlike tag names,
-                attribute names are not capitalized). Can be null if no
-                attributes are declared.
-            2.  A child node (optional), represented by either a string for text
-                or a SparseArray of the same form for a child element.
-            3.  Any number of additional child nodes.
-            ...
-
-        Note that all element names are capitalized, but attribute names remain
-        lower case.
-
-        Example:
-
-        MeiFactory(CreateSparseArray(
-            'P', null,
-            'This is ',
-            CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
-                'declarative'
-            ),
-            ' MEI generation.'
-        ));
-
-        Output:
-
-        <p>This is <rend rend='italic'>declarative</rend> MEI generation.</p>
-    */
     tagName = data[0];
     element = libmei.@tagName();
 
@@ -869,22 +847,39 @@ function MeiFactory (data) {
         for i = 2 to data.Length
         {
             childData = data[i];
-            if (IsObject(childData))
+            unformattedText = '';
+            switch (true)
             {
-                // We have a child element
-                currentChild = MeiFactory(childData);
-                libmei.AddChild(element, currentChild);
+                case (not IsObject(childData))
+                {
+                    unformattedText = childData;
+                }
+                case (childData._property:AddUnformattedText)
+                {
+                    unformattedText = bobj.Text;
+                }
+                case (childData._property:AddFormattedText)
+                {
+                    AddFormattedText(element, bobj);
+                }
+                default
+                {
+                    // We have a child element
+                    currentChild = MeiFactory(childData, bobj);
+                    libmei.AddChild(element, currentChild);
+                }
             }
-            else
+
+
+            if (unformattedText != '')
             {
-                // We have a text child
                 if (currentChild = null)
                 {
-                    libmei.SetText(element, libmei.GetText(element) & childData);
+                    libmei.SetText(element, libmei.GetText(element) & unformattedText);
                 }
                 else
                 {
-                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & childData);
+                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & unformattedText);
                 }
             }
         }

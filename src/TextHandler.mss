@@ -1,26 +1,34 @@
 function InitTextHandlers() {
-    // QUESTION: We could also take an argument and throw all text handlers from
-    // extensions into the same dictionary
+    noAttributes = null;
 
-    textHandlers = CreateDictionary(
+    Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
 
-    RegisterHandlers(textHandlers, CreateDictionary(
-        'StyleId', CreateDictionary(
-            'text.staff.expression', 'ExpressionTextHandler',
-            'text.staff.plain', 'CreateAnchoredText',
-            'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-            'text.staff.technique', 'CreateDirective',
-            'text.system.page_aligned.composer', 'PageComposerTextHandler',
-            'text.system.page_aligned.subtitle', 'PageTitleHandler',
-            'text.system.page_aligned.title', 'PageTitleHandler',
-            'text.system.tempo', 'TempoTextHandler'
-        )
+    RegisterTextHandlers('StyleId', CreateDictionary(
+        'text.staff.expression', CreateSparseArray('Dynam', noAttributes, FormattedText),
+        'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, FormattedText),
+        'text.staff.space.figuredbass', 'FiguredBassTextHandler',
+        'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), FormattedText),
+        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, FormattedText),
+        'text.system.page_aligned.subtitle', CreateSparseArray(
+            'AnchoredText',
+            noAttributes,
+            CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), FormattedText)
+        ),
+        'text.system.page_aligned.title', CreateSparseArray(
+            'AnchoredText',
+            noAttributes,
+            CreateSparseArray('Title', noAttributes, FormattedText)
+        ),
+        'text.system.tempo', CreateSparseArray('Tempo', noAttributes, FormattedText)
     ), Self);
+}  //$end
 
-    return textHandlers;
+
+function RegisterTextHandlers (styleIdType, textHandlerDict, plugin) {
+    RegisterHandlers(TextHandlers[styleIdType], textHandlerDict, plugin);
 }  //$end
 
 function InitTextSubstituteMap() {
@@ -61,63 +69,9 @@ function InitTextSubstituteMap() {
 }  //$end
 
 
-function HandleText (textObject) {
-    // Step through the different ID types ('StyleId' and 'StyleAsText') and
-    // check for text handlers for this type
-    textHandlers = Self._property:TextHandlers;
-    for each Name idType in textHandlers
-    {
-        handlersForIdType = textHandlers.@idType;
-        idValue = textObject.@idType;
-        if(handlersForIdType.MethodExists(idValue))
-        {
-            return handlersForIdType.@idValue(textObject);
-        }
-    }
-}  //$end
-
-
-function ExpressionTextHandler (this, textObject) {
-    dynam = GenerateControlEvent(textObject, 'Dynam');
-    AddFormattedText(dynam, textObject);
-    return dynam;
-}  //$end
-
-
-function PageTitleHandler (this, textObject) {
-    anchoredText = libmei.AnchoredText();
-    title = libmei.Title();
-    if (textObject.StyleId = 'text.system.page_aligned.subtitle')
-    {
-        libmei.AddAttribute(title, 'type', 'subordinate');
-    }
-
-    libmei.AddChild(anchoredText, title);
-    AddFormattedText(title, textObject);
-
-    return anchoredText;
-}  //$end
-
-
-function PageComposerTextHandler (this, textObject) {
-    // 'text.system.page_aligned.composer'
-    anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObject);
-    return anchoredText;
-}  //$end
-
-
-function TempoTextHandler (this, textObject) {
-    // 'text.system.tempo'
-    tempo = GenerateControlEvent(textObject, 'Tempo');
-    AddFormattedText(tempo, textObject);
-    return tempo;
-}  //$end
-
-
 function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
-    harm = GenerateControlEvent(textObject, 'Harm');
+    harm = GenerateControlEvent(textObject, libmei.Harm());
 
     // uniquely, for figured bass we do not use the startid here,
     // since a figure can change halfway through a note. So we remove
@@ -133,25 +87,6 @@ function FiguredBassTextHandler (this, textObject) {
     return harm;
 }  //$end
 
-
-function CreateAnchoredText (this, textObject) {
-    anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObject);
-    return anchoredText;
-}  //$end
-
-function CreateDirective (this, textObject) {
-    directive = GenerateControlEvent(textObject, 'Dir');
-    AddFormattedText(directive, textObject);
-    styleIdPrefix = 'text.staff.';
-    textStyle = Substring(textObject.StyleId, Length(styleIdPrefix));
-    if (MSplitString(textObject.StyleId, '.')[-2] = 'user')
-    {
-        textStyle = textObject.StyleAsText;
-    }
-    libmei.AddAttribute(directive, 'label', textStyle);
-    return directive;
-}  //$end
 
 function AddFormattedText (parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
@@ -366,6 +301,11 @@ function SwitchTextStyle (state, property, value) {
 
 
 function PushStyledText (state) {
+    // Any text that has accumulated as `state.currentText` while parsing the
+    // styled text is converted to MEI nodes and pushed to `state.meiNodes`,
+    // respecting the styling state (`state.style`). `state.currentText` is
+    // reset.
+
     if (state.currentText = '')
     {
         return null;
@@ -474,7 +414,7 @@ function AppendTextSubstitute (state, substituteName) {
 
     PushStyledText(state);
 
-    element = MeiFactory(textSubstituteTemplate);
+    element = MeiFactory(textSubstituteTemplate, null);
     state.meiNodes.Push(element);
 
     styleAttributes = GetStyleAttributes(state);

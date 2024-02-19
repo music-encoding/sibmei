@@ -1,7 +1,7 @@
 function InitLineHandlers () {
     //$module(LineHandler.mss)
 
-    lineHandlers = CreateDictionary(
+    Self._property:LineHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
@@ -10,9 +10,9 @@ function InitLineHandlers () {
 
     // Commented out line styles are not supported yet.  Some of them might need
     // to be registered to a more specialized line handler than the standard
-    // HandleLineTemplate().
+    // HandleControlEvent().
 
-    lineTemplates = CreateDictionary(
+    RegisterLineHandlers('StyleId', CreateDictionary(
         ///////////////////////
         // Lines with @endid //
         ///////////////////////
@@ -107,6 +107,17 @@ function InitLineHandlers () {
         // Lines without @endid //
         //////////////////////////
 
+        // Type = 'Trill'
+        // TODO: @endid should be set, but we need a special mechanism here:
+        // The way Sibelius creates trill lines is that the trill line ends at
+        // the next note (or rest) that does not belong to the trill any more.
+        // @endid should point to the last note in the trill. Setting `endid`
+        // to 'Previous' in the template does not work as the it will give us
+        // the note we don't want, if the line goes until that note.
+        // This means, we need to change the search strategies, or add an
+        // an additional one.
+        'line.staff.trill', CreateSparseArray('Trill', CreateDictionary()),
+
         // Type = 'Line'
         // Idea for a different declaration approach
         // 'line.staff.bracket.above.start',      CreateSparseArray('<', 'Line', 'form=', 'solid', 'startsym=', 'angledown', '/>'),
@@ -130,7 +141,7 @@ function InitLineHandlers () {
         'line.staff.hairpin.diminuendo.dashed', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dashed')),
         'line.staff.hairpin.diminuendo.dotted', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'lform', 'dotted')),
         'line.staff.hairpin.diminuendo.tosilence', CreateSparseArray('Hairpin', CreateDictionary('form', 'dim', 'niente', 'true'))
-    );
+    ), Self);
 
     // Line types not handled yet:
     // Type = 'BeamLine'
@@ -166,54 +177,9 @@ function InitLineHandlers () {
     //   line.system.tempo.rit.poco
     //   line.system.tempo.rit.poco.textonly
     //   line.system.tempo.rit.textonly
-
-    RegisterHandlers(lineHandlers, CreateDictionary('StyleId', lineTemplates), Self, 'HandleLineTemplate');
-
-    return lineHandlers;
 } //$end
 
 
-function HandleLine (lobj) {
-    //$module(LineHandler.mss)
-    voicenum = lobj.VoiceNumber;
-    bar = lobj.ParentBar;
-
-    if (voicenum = 0)
-    {
-        // assign it to the first voice, since we don't have any notes in voice/layer 0.
-        lobj.VoiceNumber = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, lobj.Type));
-    }
-
-    lineHandlers = Self._property:LineHandlers;
-
-    // look for line style ID in lineHandlers.StyleId
-    if (lineHandlers.StyleId.MethodExists(lobj.StyleId))
-    {
-        styleId = lobj.StyleId;
-        return lineHandlers.StyleId.@styleId(lobj, lineHandlers.StyleId[styleId]);
-    }
-    // look for line name in lineHandlers.StyleAsText
-    if (lineHandlers.StyleAsText.MethodExists(lobj.StyleAsText))
-    {
-        styleAsText = lobj.StyleAsText;
-        return lineHandlers.StyleAsText.@styleAsText(lobj, lineHandlers.StyleAsText[styleAsText]);
-    }
-} //$end
-
-
-function HandleLineTemplate (this, lobj, template) {
-    //$module(LineHandler.mss)
-
-    line = MeiFactory(template);
-    AddControlEventAttributes(lobj, line);
-    lobj._property:mobj = line;
-
-    if (line.attrs.PropertyExists('endid'))
-    {
-        PushToHashedLayer(Self._property:LineEndResolver, lobj.EndBarNumber, lobj);
-    }
-
-    return line;
-}   //$end
+function RegisterLineHandlers (styleIdType, lineHandlerDict, plugin) {
+    RegisterHandlers(LineHandlers[styleIdType], lineHandlerDict, plugin);
+}  //$end

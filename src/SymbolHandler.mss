@@ -6,189 +6,108 @@
 function InitSymbolHandlers () {
     //$module(SymbolHandler.mss)
 
-    symbolHandlers = CreateDictionary(
+    Self._property:SymbolHandlers = CreateDictionary(
         'Index', CreateDictionary(),
         'Name', CreateDictionary()
     );
 
-    RegisterHandlers(symbolHandlers, CreateDictionary(
-        'Index', CreateDictionary(
-            '36', 'HandleControlEvent',                 //inverted mordent
-            '37', 'HandleControlEvent',                 //mordent
-            '38', 'HandleControlEvent',                 //turn
-            '39', 'HandleControlEvent',                 //inverted turn
-            '52', 'HandleModifier',                     //heel 1
-            '53', 'HandleModifier',                     //heel 2
-            '54', 'HandleModifier',                     //toe 1
-            '55', 'HandleModifier',                     //toe 2
-            '160', 'HandleModifier',                    //stop
-            '162', 'HandleModifier',                    //open
-            '163', 'HandleModifier',                    //damp
-            '164', 'HandleModifier',                    //damp (2)
-            '165', 'HandleModifier',                    //damp (3)
-            '166', 'HandleModifier',                    //damp (4)
-            '209', 'HandleModifier',                    //staccato above
-            '210', 'HandleModifier',                    //staccatissimo above
-            '211', 'HandleModifier',                    //spiccato above
-            '212', 'HandleModifier',                    //ten above
-            '214', 'HandleModifier',                    //marc above
-            '217', 'HandleModifier',                    //upbow above
-            '218', 'HandleModifier',                    //dnbow above
-            '220', 'HandleControlEvent',                // square fermata above
-            '221', 'HandleControlEvent',                // round fermata above
-            '222', 'HandleControlEvent',                // triangular fermata above
-            '225', 'HandleModifier',                    // staccato below
-            '226', 'HandleModifier',                    // staccatissimo below
-            '227', 'HandleModifier',                    // spiccato below
-            '230', 'HandleModifier',                    // marcato below
-            '236', 'HandleControlEvent',                // square fermata below
-            '237', 'HandleControlEvent',                // round fermata below
-            '238', 'HandleControlEvent',                // triangular fermata below
-            '233', 'HandleModifier',                    //upbow below
-            '234', 'HandleModifier',                    //dnbow below
-            '243', 'HandleModifier',                    //snap
-            '480', 'HandleModifier',                    //scoop
-            '481', 'HandleModifier',                    //fall
-            '490', 'HandleModifier',                    //fingernail
-            '494', 'HandleModifier',                    //doit
-            '495', 'HandleModifier'                     //plop
-        )
-        // 'Name', CreateDictionary(
-        //     'Pedal', 'HandleControlEvent'
-        // )
+    RegisterSymbolHandlers('Index', CreateDictionary(
+        //inverted mordent
+        36, CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),
+        //mordent
+        37, CreateSparseArray('Mordent', CreateDictionary('form','upper')),
+        //turn
+        38, CreateSparseArray('Turn', CreateDictionary('form', 'upper')),
+        //inverted turn
+        39, CreateSparseArray('Turn', CreateDictionary('form', 'lower')),
+        //heel 1
+        52, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','heel'))),
+        //heel 2
+        53, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','heel'))),
+        //toe 1
+        54, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','toe'))),
+        //toe 2
+        55, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','toe'))),
+        //stop
+        160, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','stop'))),
+        //open
+        162, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','open'))),
+        //damp
+        163, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','damp'))),
+        //damp (2)
+        164, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','damp'))),
+        //damp (3)
+        165, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','damp'))),
+        //damp (4)
+        166, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','damp'))),
+        //staccato above
+        209, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','stacc', 'place','above'))),
+        //staccatissimo above
+        210, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','stacciss', 'place','above'))),
+        //spiccato above
+        211, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','above'))),
+        //ten above
+        212, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','ten', 'place','above'))),
+        //marc above
+        214, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','above'))),
+        //upbow above
+        217, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','above'))),
+        //dnbow above
+        218, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','dnbow', 'place','above'))),
+        // square fermata above
+        220, CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'norm')),
+        // round fermata above
+        221, CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'norm')),
+        // triangular fermata above
+        222, CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'norm')),
+        // staccato below
+        225, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','stacc', 'place','below'))),
+        // staccatissimo below
+        226, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','stacciss', 'place','below'))),
+        // spiccato below
+        227, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','below'))),
+        // marcato below
+        230, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','below'))),
+        // square fermata below
+        236, CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'inv')),
+        // round fermata below
+        237, CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'inv')),
+        // triangular fermata below
+        238, CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'inv')),
+        //upbow below
+        233, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','below'))),
+        //dnbow below
+        234, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','dnbow', 'place','below'))),
+        //snap
+        243, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','snap'))),
+        //scoop
+        480, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','scoop'))),
+        //fall
+        481, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','fall'))),
+        //fingernail
+        490, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','fingernail'))),
+        //doit
+        494, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','doit'))),
+        //plop
+        495, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','plop')))
+        // 'Pedal', CreateSparseArray('Pedal', CreateDictionary('dir', 'down', 'func', 'sustain')) //Pedal
     ), Self);
-
-    return symbolHandlers;
-
 }//$end
 
-function InitSymbolMap () {
-    //$module(SymbolHandler.mss)
-    // Create a dictionary with symbol index number as key (sobj.Index) and a value that determines the element that has to be created
-    // 0th element in SparseArray is the element name as function call
-    // see for further instructions Utilities/MeiFactory()
 
-     return CreateDictionary(
-        '36', CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),                  //inverted mordent
-        '37', CreateSparseArray('Mordent', CreateDictionary('form','upper')),                   //mordent
-        '38', CreateSparseArray('Turn', CreateDictionary('form', 'upper')),                     //turn
-        '39', CreateSparseArray('Turn', CreateDictionary('form', 'lower')),                     //inverted turn
-        '52', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel 1
-        '53', CreateSparseArray('Artic', CreateDictionary('artic','heel')),                     //heel 2
-        '54', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe 1
-        '55', CreateSparseArray('Artic', CreateDictionary('artic','toe')),                      //toe 2
-        '160', CreateSparseArray('Artic', CreateDictionary('artic','stop')),                    //stop
-        '162', CreateSparseArray('Artic', CreateDictionary('artic','open')),                    //open
-        '163', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp
-        '164', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (2)
-        '165', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (3)
-        '166', CreateSparseArray('Artic', CreateDictionary('artic','damp')),                    //damp (4)
-        '209', CreateSparseArray('Artic', CreateDictionary('artic','stacc', 'place','above')),  //staccato above
-        '210', CreateSparseArray('Artic', CreateDictionary('artic','stacciss', 'place','above')), //staccatissimo above
-        '211', CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','above')),  //spiccato above
-        '212', CreateSparseArray('Artic', CreateDictionary('artic','ten', 'place','above')),    //ten above
-        '214', CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','above')),   //marc above
-        '217', CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','above')),  //upbow above
-        '218', CreateSparseArray('Artic', CreateDictionary('artic','dnbow', 'place','above')),  //dnbow above
-        '220', CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'norm')),  // square fermata above
-        '221', CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'norm')),  // round fermata above
-        '222', CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'norm')), // triangular fermata above
-        '225', CreateSparseArray('Artic', CreateDictionary('artic','stacc', 'place','below')),     //staccato below
-        '226', CreateSparseArray('Artic', CreateDictionary('artic','stacciss', 'place','below')),  //staccatissimo below
-        '227', CreateSparseArray('Artic', CreateDictionary('artic','spicc', 'place','below')),     //spiccato below
-        '230', CreateSparseArray('Artic', CreateDictionary('artic','marc', 'place','below')),      //marcato below
-        '236', CreateSparseArray('Fermata', CreateDictionary('shape', 'square', 'form', 'inv')),   // square fermata below
-        '237', CreateSparseArray('Fermata', CreateDictionary('shape', 'curved', 'form', 'inv')),   // round fermata below
-        '238', CreateSparseArray('Fermata', CreateDictionary('shape', 'angular', 'form', 'inv')),  // triangular fermata below
-        '233', CreateSparseArray('Artic', CreateDictionary('artic','upbow', 'place','below')),  //upbow below
-        '234', CreateSparseArray('Artic', CreateDictionary('artic','dnbow', 'place','below')),  //dnbow below
-        '243', CreateSparseArray('Artic', CreateDictionary('artic','snap')),                    //snap
-        '480', CreateSparseArray('Artic', CreateDictionary('artic','scoop')),                   //scoop
-        '481', CreateSparseArray('Artic', CreateDictionary('artic','fall')),                    //fall
-        '490', CreateSparseArray('Artic', CreateDictionary('artic','fingernail')),              //fingernail
-        '494', CreateSparseArray('Artic', CreateDictionary('artic','doit')),                    //doit
-        '495', CreateSparseArray('Artic', CreateDictionary('artic','plop'))                     //plop
-        // 'Pedal', CreateSparseArray('Pedal', CreateDictionary('dir', 'down', 'func', 'sustain')) //Pedal
-    );
-
-}   //$end
+function RegisterSymbolHandlers (symbolIdType, symbolHandlerDict, plugin) {
+    RegisterHandlers(SymbolHandlers[symbolIdType], symbolHandlerDict, plugin);
+}  //$end
 
 
 function HandleSymbol (sobj) {
-    //$module(SymbolHandler.mss)
-    Log('symbol index: ' & sobj.Index & ' name: ' & sobj.Name);
-    Log(sobj.VoiceNumber);
-    voicenum = sobj.VoiceNumber;
-    bar = sobj.ParentBar;
-
-    if (voicenum = 0)
+    handler = SymbolHandlers.Index[sobj.Index];
+    if (null = handler)
     {
-        // assign it to the first voice, since we don't have any notes in voice/layer 0.
-        sobj.VoiceNumber = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Symbol'));
+        handler = SymbolHandlers.Name[sobj.Name];
     }
-
-    // trills are special
-    if (sobj.Index = '32')
+    if (null != handler)
     {
-        // trill
-        trill = GenerateTrill(sobj);
-        mlines = Self._property:MeasureObjects;
-        mlines.Push(trill._id);
+        return handler.HandleObject(sobj);
     }
-
-    // get SymbolIndexHandlers and SymbolIndexMap
-    symbolHandlers = Self._property:SymbolHandlers;
-    symbolMap = Self._property:SymbolMap;
-
-    // look for symbol index in symbolHandlers.Index
-    if(symbolHandlers.Index.MethodExists(sobj.Index))
-    {
-        symbId = sobj.Index;
-        symbolHandlers.Index.@symbId(sobj, symbolMap[symbId]);
-    }
-    else
-    {
-        // look for symbol name in symbolHandlers.Name
-        if(symbolHandlers.Name.MethodExists(sobj.Name))
-        {
-            symbName = sobj.Name;
-            symbolHandlers.Name.@symbName(sobj, symbolMap[symbName]);
-        }
-    }
-
 } //$end
-
-function HandleModifier(this, sobj, template){
-    //$module(SymbolHandler.mss)
-
-    nobj = GetNoteObjectAtPosition(sobj, 'Closest');
-
-    if (nobj != null)
-    {
-        modifier = MeiFactory(template);
-        libmei.AddChild(nobj, modifier);
-        return modifier;
-    }
-    else
-    {
-        warnings = Self._property:warnings;
-        barNum = sobj.ParentBar.BarNumber;
-        voiceNum = sobj.VoiceNumber;
-        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, sobj.Name));
-    }
-}   //$end
-
-function HandleControlEvent(this, sobj, template){
-    //$module(SymbolHandler.mss)
-
-    symbol = MeiFactory(template);
-
-    symbol = AddControlEventAttributes(sobj, symbol);
-    mlines = Self._property:MeasureObjects;
-    mlines.Push(symbol._id);
-
-    return symbol;
-
-}   //$end
