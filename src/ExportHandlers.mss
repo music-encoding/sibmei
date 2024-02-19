@@ -60,7 +60,7 @@ function ControlEventTemplateHandler (this, bobj) {
 function HandleStyle (handlers, bobj) {
     // bobj must be an object with StyleId and StyleAsText properties (i.e. a
     // Line or Text object).  A matching handler for the style is looked up and
-    // and applied.
+    // applied.
     handler = handlers.StyleId[bobj.StyleId];
     if (null = handler)
     {
