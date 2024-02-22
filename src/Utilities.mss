@@ -292,7 +292,12 @@ function AddControlEventAttributes (bobj, element) {
         warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
     }
 
-    libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+    if (not element.attrs.PropertyExists('tstamp'))
+    {
+        // Some templates might set `@tstamp` explicitly, especially to prevent
+        // `@tstamp` from being output for elements that don't allow it.
+        libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+    }
 
     start_obj = GetNoteObjectAtPosition(bobj, 'PreciseMatch', 'Position');
     if (start_obj != null)
@@ -309,8 +314,8 @@ function AddControlEventAttributes (bobj, element) {
     {
         // Only add @staff if this is not attached to the SystemStaff
         libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+        libmei.AddAttribute(element, 'layer', voicenum);
     }
-    libmei.AddAttribute(element, 'layer', voicenum);
 
     if (bobj.Type = 'Line')
     {

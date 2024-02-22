@@ -1,5 +1,6 @@
 function InitTextHandlers() {
     noAttributes = null;
+    noTstamp = CreateDictionary('tstamp', ' ');
 
     Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
@@ -8,18 +9,17 @@ function InitTextHandlers() {
 
     RegisterTextHandlers('StyleId', CreateDictionary(
         'text.staff.expression', CreateSparseArray('Dynam', noAttributes, FormattedText),
-        'text.staff.plain', CreateSparseArray('AnchoredText', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), FormattedText),
-        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noAttributes, FormattedText),
+        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noTstamp, FormattedText),
         'text.system.page_aligned.subtitle', CreateSparseArray(
             'AnchoredText',
-            noAttributes,
+            noTstamp,
             CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), FormattedText)
         ),
         'text.system.page_aligned.title', CreateSparseArray(
             'AnchoredText',
-            noAttributes,
+            noTstamp,
             CreateSparseArray('Title', noAttributes, FormattedText)
         ),
         'text.system.tempo', CreateSparseArray('Tempo', noAttributes, FormattedText)
