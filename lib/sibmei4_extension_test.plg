@@ -20,7 +20,13 @@
     ));
 
     api.RegisterSymbolHandlers('Name', CreateDictionary(
-      'My symbol', 'HandleMySymbol'
+      'My symbol', 'HandleMySymbol',
+      'My soft accent', api.AsModifier(CreateSparseArray('Artic', CreateDictionary(
+        'artic', 'acc',
+        'glyph.auth', 'smufl',
+        'glyph.name', 'articSoftAccentAbove',
+        'glyph.num', 'U+ED40'
+      )))
     ), Self);
 
     api.RegisterTextHandlers('StyleAsText', CreateDictionary(
