@@ -12,14 +12,6 @@ function InitSymbolHandlers () {
     );
 
     RegisterSymbolHandlers('Index', CreateDictionary(
-        //inverted mordent
-        36, CreateSparseArray('Mordent', CreateDictionary('form', 'lower')),
-        //mordent
-        37, CreateSparseArray('Mordent', CreateDictionary('form','upper')),
-        //turn
-        38, CreateSparseArray('Turn', CreateDictionary('form', 'upper')),
-        //inverted turn
-        39, CreateSparseArray('Turn', CreateDictionary('form', 'lower')),
         //heel 1
         52, AsModifier(CreateSparseArray('Artic', CreateDictionary('artic','heel'))),
         //heel 2

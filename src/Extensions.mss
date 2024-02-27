@@ -152,6 +152,10 @@ function InitExtensions (extensions) {
     for each Name plgName in chosenExtensions
     {
         Self._property:CurrentlyInitializedExtension = plgName;
+        if (apiVersionByPlgName[plgName] >= 2)
+        {
+            InitGlobalAliases(@plgName);
+        }
         @plgName.InitSibmeiExtension(apiObjects[apiVersionByPlgName[plgName]]);
     }
 

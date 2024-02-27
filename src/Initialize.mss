@@ -50,6 +50,8 @@ function InitGlobals (extensions) {
     Self._property:FormattedText = CreateDictionary('AddFormattedText', true);
     Self._property:UnformattedText = CreateDictionary('AddUnformattedText', true);
 
+    InitGlobalAliases(Self);
+
     InitSymbolHandlers();
     InitLineHandlers();
     InitTextHandlers();
@@ -66,4 +68,11 @@ function InitGlobals (extensions) {
     Self._property:_Initialized = true;
 
     return true;
+}  //$end
+
+
+function InitGlobalAliases (plugin) {
+    // Aliases that make writing/reading templates clearer
+    plugin._property:Element = 'CreateSparseArray';
+    plugin._property:Attrs = 'CreateDictionary';
 }  //$end
