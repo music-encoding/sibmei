@@ -262,6 +262,8 @@ function AddFormattedText (parentElement, textObject) {
         }
         nodeIndex = nodeIndex + 1;
     }
+
+    return parentElement;
 }  //$end
 
 
