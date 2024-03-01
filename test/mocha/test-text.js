@@ -29,11 +29,6 @@ describe("Text elements", function() {
         const subTitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
         assert.notStrictEqual(subTitle.length, 0, "The subtitle is missing");
     });
-    // test for plain text (not implemented yet)
-    it("check for plain text in measure 2", function() {
-        const plain = xpath.evaluateXPath("//*:measure[@n='2']/*:anchoredText", meiText);
-        assert.notStrictEqual(plain.length, 0 ,"plain text in measure 2 is missing");
-    });
     // test formatting: subscript, superscript
     it("check for superscript", function() {
         const superscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sup']", meiText);
@@ -92,5 +87,13 @@ describe("Text elements", function() {
     it("exports color", function() {
         const dir = xpath.evaluateXPath("//*:measure[@n='7']/*:dir", meiText);
         assert.strictEqual(dir.getAttribute("color"), "rgba(255,0,0,1)");
+    });
+    it("does not set @staff, @layer or @tstamp on <anchoredText>", function() {
+        const anchoredTexts = xpath.evaluateXPath("//*:anchoredText", meiText);
+        for (const attribute of ['staff', 'layer', 'tstamp']) {
+            for (const anchoredText of anchoredTexts) {
+                assert.strictEqual(anchoredText.getAttribute(attribute), null);
+            }
+        }
     });
 });

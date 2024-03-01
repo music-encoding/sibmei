@@ -209,11 +209,10 @@ Takes two arguments:
 
 `GenerateControlEvent()` takes care of adding the element to the `<measures>` and adds the following control event attributes:
 
-* `@startid` (if a start object could be identified) and `@tstamp`
+* `@startid` (if a start object could be identified) and `@tstamp`. The addition of `@tstamp` can be suppressed by setting `@tstamp` to `' '` (e.g. in the template).
 
 * If applicable (e.g. for lines), `@endid` (if an end object could be identified) and `@tstamp2`
-* `@staff` (if object is staff-attached)
-* `@layer`
+* `@staff` and `@layer` (if object is staff-attached)
 * For lines:
   * `@dur.ppq` (unless `Duration` is 0)
   * `@startho`, `@startvo`, `@endho`, `@endvo`
