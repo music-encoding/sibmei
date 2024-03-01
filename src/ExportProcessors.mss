@@ -440,7 +440,7 @@ function ProcessFrontMatter (bobj) {
         frontmatter[pnum] = CreateSparseArray(pb);
     }
 
-    text = AddFormattedText(libmei.Div(), bobj);
+    text = AddFormattedText(null, libmei.Div(), bobj);
     frontmatter[pnum].Push(text);
 
 }  //$end

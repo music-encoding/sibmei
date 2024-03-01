@@ -2,6 +2,11 @@ function InitTextHandlers() {
     noAttributes = null;
     noTstamp = CreateDictionary('tstamp', ' ');
 
+    Self._property:FormattedText = CreateDictionary('templateAction', CreateDictionary());
+    FormattedText.templateAction.SetMethod('action', Self, 'AddFormattedText');
+    Self._property:UnformattedText = CreateDictionary('templateAction', CreateDictionary());
+    UnformattedText.templateAction.SetMethod('action', Self, 'AppendText');
+
     Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
@@ -88,7 +93,7 @@ function FiguredBassTextHandler (this, textObject) {
 }  //$end
 
 
-function AddFormattedText (parentElement, textObject) {
+function AddFormattedText (self, parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
@@ -101,7 +106,7 @@ function AddFormattedText (parentElement, textObject) {
         }
         else
         {
-            libmei.SetText(parentElement, textObject.Text);
+            AppendText(null, parentElement, textObject.Text);
         }
         return parentElement;
     }

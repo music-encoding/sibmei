@@ -848,24 +848,18 @@ function MeiFactory (data, bobj) {
     if (data.Length > 2)
     {
         // Add children
-        currentChild = null;
         for i = 2 to data.Length
         {
             childData = data[i];
-            unformattedText = '';
             switch (true)
             {
                 case (not IsObject(childData))
                 {
-                    unformattedText = childData;
+                    AppendText(null, element, childData);
                 }
-                case (childData._property:AddUnformattedText)
+                case (null != childData._property:templateAction)
                 {
-                    unformattedText = bobj.Text;
-                }
-                case (childData._property:AddFormattedText)
-                {
-                    AddFormattedText(element, bobj);
+                    childData.templateAction.action(element, bobj);
                 }
                 default
                 {
@@ -874,21 +868,22 @@ function MeiFactory (data, bobj) {
                     libmei.AddChild(element, currentChild);
                 }
             }
-
-
-            if (unformattedText != '')
-            {
-                if (currentChild = null)
-                {
-                    libmei.SetText(element, libmei.GetText(element) & unformattedText);
-                }
-                else
-                {
-                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & unformattedText);
-                }
-            }
         }
     }
 
     return element;
+}  //$end
+
+
+function AppendText (self, element, text) {
+    if (element.children.Length = 0)
+    {
+        libmei.SetText(element, element.text & text);
+    }
+    else
+    {
+        lastChildIndex = element.children.Length - 1;
+        lastChild = libmei.getElementById(element.children[lastChildIndex]);
+        lastChild.tail = lastChild.tail & text;
+    }
 }  //$end

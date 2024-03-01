@@ -179,7 +179,7 @@ function CreateApiObject (apiVersion) {
             apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
             apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
             apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
-            apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
+            apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
             apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
             apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
             apiObject.SetMethod('AsModifier', Self, 'ExtensionAPI_AsModifier');
@@ -191,7 +191,7 @@ function CreateApiObject (apiVersion) {
             apiObject.SetMethod('RegisterLineHandlers', Self, 'LegacyExtensionAPIv1_RegisterLineHandlers');
             apiObject.SetMethod('HandleControlEvent', Self, 'LegacyExtensionAPIv1_HandleControlEvent');
             apiObject.SetMethod('HandleModifier', Self, 'LegacyExtensionAPIv1_HandleModifier');
-            apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
+            apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
             apiObject.SetMethod('GenerateControlEvent', Self, 'LegacyExtensionAPIv1_GenerateControlEvent');
             apiObject.SetMethod('AddControlEventAttributes', Self, 'LegacyExtensionAPIv1_AddControlEventAttributes');
             apiObject.SetMethod('HandleLineTemplate', Self, 'LegacyExtensionAPIv1_HandleLineTemplate');
@@ -228,10 +228,6 @@ function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
 function ExtensionAPI_MeiFactory_LegacyApiVersion1 (this, templateObject) {
     MeiFactory(templateObject, null);
 }  //$end
-
-function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
-    AddFormattedText(parentElement, textObj);
-}   //$end
 
 function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
     GenerateControlEvent(bobj, element);
