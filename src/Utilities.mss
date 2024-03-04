@@ -892,10 +892,14 @@ function GetTemplateElementsByTagName (template, tagName) {
 
     for childIndex = 2 to template.Length
     {
-        childTemplate = template[childIndex];
-        for each element in GetTemplateElementsByTagName(childTemplate, tagName)
+        childNode = template[childIndex];
+        if (IsObject(childNode) and childNode[0] != '')
         {
-            elements.Push(element);
+            // The child node is an element template
+            for each element in GetTemplateElementsByTagName(childNode, tagName)
+            {
+                elements.Push(element);
+            }
         }
     }
 

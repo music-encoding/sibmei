@@ -48,7 +48,7 @@ function TestGetTemplateElementsByTagName (assert, plugin) {
         @Element('Bar', null,
             @Element('Foo', @Attrs('n', 1))
         ),
-        @Element('Foo', @Attrs('n', 2))
+        @Element('Foo', @Attrs('n', 2), 'Text child')
     );
 
     fooElements = sibmei.GetTemplateElementsByTagName(template, 'Foo');
