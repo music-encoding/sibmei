@@ -4,6 +4,7 @@ function TestUtilities (suite) {
         .Add('TestMSplitString')
         .Add('TestSplitStringIncludeDelimiters')
         .Add('TestPrevPow2')
+        .Add('TestGetTemplateElementsByTagName')
         ;
 } //$end
 
@@ -39,4 +40,22 @@ function TestPrevPow2 (assert, plugin) {
 
     pow = sibmei.PrevPow2(7);
     assert.Equal(pow, 4, 'Previous Power of two of 7 is 4');
+}  //$end
+
+
+function TestGetTemplateElementsByTagName (assert, plugin) {
+    template = @Element('Foo', @Attrs('n', 0),
+        @Element('Bar', null,
+            @Element('Foo', @Attrs('n', 1))
+        ),
+        @Element('Foo', @Attrs('n', 2))
+    );
+
+    fooElements = sibmei.GetTemplateElementsByTagName(template, 'Foo');
+    assert.Equal(fooElements.Length, 3, 'Expected number of <foo> elements');
+    for n = 0 to fooElements.Length
+    {
+        fooElement = fooElements[n];
+        assert.Equal(fooElement[1].n, n, 'Expected order');
+    }
 }  //$end

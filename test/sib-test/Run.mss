@@ -3,6 +3,7 @@ function Run() {
     Self._property:sibmei = sibmei4;
     sibmei4._property:libmei = libmei;
     sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
+    sibmei.InitGlobalAliases(Self);
 
     plugins = Sibelius.Plugins;
 

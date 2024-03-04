@@ -875,6 +875,34 @@ function MeiFactory (data, bobj) {
 }  //$end
 
 
+function GetTemplateElementsByTagName (template, tagName) {
+    // Works basically like getElementsByTagName() in XML/HTML DOM
+
+    elements = CreateSparseArray();
+
+    if (template[0] = tagName)
+    {
+        elements.Push(template);
+    }
+
+    if (template.Length < 3)
+    {
+        return elements;
+    }
+
+    for childIndex = 2 to template.Length
+    {
+        childTemplate = template[childIndex];
+        for each element in GetTemplateElementsByTagName(childTemplate, tagName)
+        {
+            elements.Push(element);
+        }
+    }
+
+    return elements;
+}  //$end
+
+
 function AppendText (self, element, text) {
     if (element.children.Length = 0)
     {
