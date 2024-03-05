@@ -2,10 +2,8 @@ function InitTextHandlers() {
     noAttributes = null;
     noTstamp = CreateDictionary('tstamp', ' ');
 
-    Self._property:FormattedText = CreateDictionary('templateAction', CreateDictionary());
-    FormattedText.templateAction.SetMethod('action', Self, 'AddFormattedText');
-    Self._property:UnformattedText = CreateDictionary('templateAction', CreateDictionary());
-    UnformattedText.templateAction.SetMethod('action', Self, 'AppendText');
+    Self._property:FormattedText = SetTemplateAction(CreateDictionary(), Self, 'AddFormattedText');
+    Self._property:UnformattedText = SetTemplateAction(CreateDictionary(), Self, 'AppendText');
 
     Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),

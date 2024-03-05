@@ -875,6 +875,26 @@ function MeiFactory (data, bobj) {
 }  //$end
 
 
+function SetTemplateAction (templateNode, plugin, functionName) {
+    // Associates a template action Dictionary with the templateNode. When
+    // MeiFactory() finds a descendant template that has an action Dictionary
+    // as user property `templateAction`, it calls the Dictionary's action()
+    // method to take over control instead of converting it to MEI itself.
+
+    // `templateNode` can be a Dictionary that works as a placeholder, or it
+    // can be an actual element template (a SparseArray) that the action method
+    // can retrieve from the action Dictionary to work with it (e.g. pass it
+    // bacl tp MeiFactory() and then add more attributes dynamically, or only
+    // pass it to MeiFactory() if certain conditions are met etc.).
+
+    // Depending on what the function specified by `functionName` needs, either
+    // the placholder or template form of `templateNode` should be chosen.
+    templateNode._property:templateAction = CreateDictionary('templateNode', templateNode);
+    templateNode.templateAction.SetMethod('action', plugin, functionName);
+    return templateNode;
+}  //$end
+
+
 function GetTemplateElementsByTagName (template, tagName) {
     // Works basically like getElementsByTagName() in XML/HTML DOM
 
