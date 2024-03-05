@@ -55,6 +55,7 @@ function InitGlobals (extensions) {
     InitSymbolHandlers();
     InitLineHandlers();
     InitTextHandlers();
+    InitLyricHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
     Self._property:IsStyleIdType = CreateDictionary('StyleId', true, 'StyleAsText', true);

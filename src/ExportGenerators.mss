@@ -689,7 +689,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each LyricItem lobj in bar
     {
-        HandleLyric(lobj, objectPositions);
+        HandleLyricItem(lobj, objectPositions);
     }
 
     ProcessEndingLines(bar);
