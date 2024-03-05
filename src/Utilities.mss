@@ -166,12 +166,12 @@ function PushToHashedLayer (hashedLayers, bar, bobj) {
 
 function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     //$module(Utilities.mss)
-    // takes a bar object, and returns the NoteRest object closest to its
-    // position, in the same voice as `bobj`. If `bobj` is in voice 0, no
-    // NoteRest will be returned.
+    // takes a bar object, and returns the MEI element generated from the
+    // NoteRest object closest to `bobj`'s position, in the same voice as
+    // `bobj`. If `bobj` is in voice 0, `null` will be returned.
     // For line-like objects, parameter `position` must be supplied and be
     // either `Position` or `EndPosition`. For all other objects, this
-    // parameter should be omitted.
+    // parameter is not used and should be omitted.
     // If no NoteRest is found exactly at the position, the defined
     // `searchStrategy` is used to find another NoteRest and may be one of the
     // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
