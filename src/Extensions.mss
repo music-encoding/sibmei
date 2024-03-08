@@ -169,8 +169,10 @@ function InitExtensions (extensions) {
 function CreateApiObject (apiVersion) {
     apiObject = CreateDictionary(
         'libmei', libmei,
+        'sibmei', Self,
         'FormattedText', FormattedText,
-        'UnformattedText', UnformattedText
+        'UnformattedText', UnformattedText,
+        'LyricText', LyricText
     );
 
 
@@ -182,6 +184,7 @@ function CreateApiObject (apiVersion) {
             apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
             apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
             apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
+            apiObject.SetMethod('RegisterLyricHandlers', Self, 'ExtensionAPI_RegisterLyricHandlers');
             apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
             apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
             apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
@@ -210,19 +213,24 @@ function CreateApiObject (apiVersion) {
     return apiObject;
 }  //$end
 
-function ExtensionAPI_RegisterSymbolHandlers (this, symbolIdType, symbolHandlerDict, plugin) {
-    AssertIdType(IsSymbolIdType, symbolIdType, 'RegisterSymbolHandlers');
-    RegisterSymbolHandlers(symbolIdType, symbolHandlerDict, plugin);
+function ExtensionAPI_RegisterSymbolHandlers (this, header, handlerDefinitions) {
+    AssertIdType(IsSymbolIdType, header.byProperty, 'RegisterSymbolHandlers');
+    RegisterSymbolHandlers(header, handlerDefinitions);
 }  //$end
 
-function ExtensionAPI_RegisterTextHandlers (this, styleIdType, textHandlerDict, plugin) {
-    AssertIdType(IsStyleIdType, styleIdType, 'RegisterTextHandlers');
-    RegisterTextHandlers(styleIdType, textHandlerDict, plugin);
+function ExtensionAPI_RegisterTextHandlers (this, header, handlerDefinitions) {
+    AssertIdType(IsStyleIdType, header.byProperty, 'RegisterTextHandlers');
+    RegisterTextHandlers(header, handlerDefinitions);
 }  //$end
 
-function ExtensionAPI_RegisterLineHandlers (this, styleIdType, lineHandlerDict, plugin) {
-    AssertIdType(IsStyleIdType, styleIdType, 'RegisterLineHandlers');
-    RegisterLineHandlers(styleIdType, lineHandlerDict, plugin);
+function ExtensionAPI_RegisterLineHandlers (this, header, handlerDefinitions) {
+    AssertIdType(IsStyleIdType, header.byProperty, 'RegisterLineHandlers');
+    RegisterLineHandlers(header, handlerDefinitions);
+}  //$end
+
+function ExtensionAPI_RegisterLyricHandlers (this, header, handlerDefinitions) {
+    AssertIdType(IsStyleIdType, header.byProperty, 'RegisterLyricHandlers');
+    RegisterLyricHandlers(header, handlerDefinitions);
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
@@ -251,7 +259,11 @@ function ExtensionAPI_AsModifier (this, templateObject) {
 function LegacyExtensionAPIv1_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
     for each Name symbolIdType in symbolHandlerDict
     {
-        RegisterHandlers(SymbolHandlers[symbolIdType], symbolHandlerDict[symbolIdType], plugin);
+        RegisterHandlers(SymbolHandlers, CreateDictionary(
+            'byProperty', symbolIdType,
+            'handlerPlugin', plugin,
+            ''
+        ), symbolHandlerDict[symbolIdType]);
     }
 } //$end
 
@@ -267,6 +279,15 @@ function LegacyExtensionAPIv1_RegisterLineHandlers (this, lineHandlerDict, plugi
     {
         RegisterHandlers(LineHandlers[styleType], lineHandlerDict[styleType], plugin);
     }
+} //$end
+
+function RegisterHandlers_LegacyExtensionAPIv1 (handlerRegistryForType, handlerDefinitions, plugin) {
+    // APIv1 always uses Sibmei's built-in ControlEventTemplateHandler, but v2
+    // allows specifying other handlers (either other Sibmei template handlers,
+    // like LyricTemplateHandler or ModifierTemplateHandler, or handlers that
+    // are defined by the extension plugin itself.)
+    // also use handlers defined by the extension plugin itself.
+    ;
 } //$end
 
 function LegacyExtensionAPIv1_HandleControlEvent (this, bobj, template) {
@@ -307,7 +328,7 @@ function AssertIdType (isIdType, idType, functionName) {
             & CurrentlyInitializedExtension
             & '\': Expected either of \''
             & validIdTypes.Join('\' or \'')
-            & ' as first paramter of '
+            & ' as field `byProperty` of first paramter of '
             & functionName & '(), but found \''
             & idType
             & '\'.\n\nPlugin execution is aborted. To continue, deactivate \''

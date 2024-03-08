@@ -1,4 +1,4 @@
-function RegisterHandlers(handlers, handlerDefinitions, plugin) {
+function RegisterHandlers(handlers, header, handlerDefinitions) {
     //$module(Initialize.mss)
     // `handlers` is either of the global dictionaries `LineHandlers`,
     // `TextHandlers` and `SymbolHandlers`. (See ExportHandlers.md for more
@@ -14,9 +14,16 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
         // handlerDefinition is either the name of the handler function
         // or a template SparseArray
         handlerDefinition = handlerDefinitions[id];
-        if (not IsObject(handlerDefinition))
+        if (IsObject(handlerDefinition))
         {
-            if (Self = plugin)
+            // We have a template. Use the specified template handler.
+            handler = CreateDictionary('template', handlerDefinition);
+            // Trace(header.withTemplateHandler);
+            handler.SetMethod('HandleObject', header.handlerPlugin, header.withTemplateHandler);
+        }
+        else
+        {
+            if (Self = header.handlerPlugin)
             {
                 handler = CreateDictionary();
             }
@@ -24,24 +31,12 @@ function RegisterHandlers(handlers, handlerDefinitions, plugin) {
             {
                 // Extension handlers get the API object as first argument,
                 // basically the `this` argument.
-                extensionApiVersion = SplitString(plugin.SibmeiExtensionAPIVersion, '.')[0] + 0;
+                extensionApiVersion = SplitString(header.handlerPlugin.SibmeiExtensionAPIVersion, '.')[0] + 0;
                 handler = CreateApiObject(extensionApiVersion);
             }
-            handler.SetMethod('HandleObject', plugin, handlerDefinition);
+            handler.SetMethod('HandleObject', header.handlerPlugin, handlerDefinition);
         }
-        else
-        {
-            // We have a template. Use the default handler.
-            handler = CreateDictionary('template', handlerDefinition);
-            if (handlerDefinition._property:createModifier)
-            {
-                handler.SetMethod('HandleObject', Self, 'ModifierTemplateHandler');
-            }
-            else
-            {
-                handler.SetMethod('HandleObject', Self, 'ControlEventTemplateHandler');
-            }
-        }
+
         handlers[id] = handler;
     }
 }   //$end

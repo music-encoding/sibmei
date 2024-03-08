@@ -8,7 +8,11 @@ function InitLyricHandlers() {
 
     sylTemplate = CreateSparseArray('Syl', null, LyricText);
 
-    RegisterLyricHandlers('StyleId', CreateDictionary(
+    RegisterLyricHandlers(CreateDictionary(
+        'byProperty', 'StyleId',
+        'withTemplateHandler', 'LyricTemplateHandler',
+        'handlerPlugin', Self
+    ), CreateDictionary(
         'text.staff.space.hypen.lyrics.above', CreateSparseArray('Verse', CreateDictionary('place', 'above'), sylTemplate),
         'text.staff.space.hypen.lyrics.chorus', CreateSparseArray('Refrain', null, sylTemplate),
         'text.staff.space.hypen.lyrics.verse1', CreateSparseArray('Verse', CreateDictionary('n', '1'), sylTemplate),
@@ -16,23 +20,44 @@ function InitLyricHandlers() {
         'text.staff.space.hypen.lyrics.verse3', CreateSparseArray('Verse', CreateDictionary('n', '3'), sylTemplate),
         'text.staff.space.hypen.lyrics.verse4', CreateSparseArray('Verse', CreateDictionary('n', '4'), sylTemplate),
         'text.staff.space.hypen.lyrics.verse5', CreateSparseArray('Verse', CreateDictionary('n', '5'), sylTemplate)
-    ), Self);
+    ));
 }  //$end
 
 
-function RegisterLyricHandlers (styleIdType, lyricsHandlerDict, plugin) {
-    for each handler in lyricsHandlerDict
+function RegisterLyricHandlers (header, handlerDefinitions) {
+    for each handler in handlerDefinitions
     {
         if (IsObject(handler))
         {
-            // `handler` is a template
+            // `handler` is a template. <syl> Elements in the template need
+            // special handling, so we have to register an action for them.
             for each sylTemplate in GetTemplateElementsByTagName(handler, 'Syl')
             {
                 SetTemplateAction(sylTemplate, Self, 'SylElementAction');
             }
         }
     }
-    RegisterHandlers(LyricsHandlers[styleIdType], lyricsHandlerDict, plugin);
+    RegisterHandlers(LyricsHandlers[header.byProperty], header, handlerDefinitions);
+}  //$end
+
+
+function LyricTemplateHandler (this, lyricItem) {
+    parentElement = GetNoteObjectAtPosition(lyricItem, 'PreciseMatch');
+
+    if (parentElement != null)
+    {
+        if (libmei.GetName(parentElement) = 'rest')
+        {
+            warnings = Self._property:warnings;
+            warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
+        }
+
+        libmei.AddChild(parentElement, MeiFactory(this.template, lyricItem));
+    }
+    else
+    {
+        Log('Could not find note object for syl ' & lyricItem);
+    }
 }  //$end
 
 
@@ -105,7 +130,7 @@ function HandleLyricItem (lyricobj, objectPositions) {
             lyricItem._property:startOfWord = true;
         }
         lyricElement = HandleStyle(LyricsHandlers, lyricItem);
-        if (lyricItem.Color != 0)
+        if (null != lyricElement and lyricItem.Color != 0)
         {
             libmei.AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
         }
@@ -184,23 +209,6 @@ function SylElementAction (actionDict, parent, lyricItem) {
     {
         libmei.AddAttribute(firstSylElement, 'wordpos', 't'); // 'terminal'
     }
-
-    // TODO: This code most go somewhere!
-    // parentElement = GetNoteObjectAtPosition(lyricItem, 'PreciseMatch');
-    //
-    // if (parentElement != null)
-    // {
-    //     if (libmei.GetName(parentElement) = 'rest')
-    //     {
-    //         warnings = Self._property:warnings;
-    //         warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
-    //     }
-    //
-    // }
-    // else
-    // {
-    //     Log('Could not find note object for syl ' & lyricItem);
-    // }
 } //$end
 
 

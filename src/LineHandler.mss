@@ -12,7 +12,11 @@ function InitLineHandlers () {
     // to be registered to a more specialized line handler than the standard
     // HandleControlEvent().
 
-    RegisterLineHandlers('StyleId', CreateDictionary(
+    RegisterLineHandlers(CreateDictionary(
+        'byProperty', 'StyleId',
+        'withTemplateHandler', 'ControlEventTemplateHandler',
+        'handlerPlugin', Self
+    ), CreateDictionary(
         ///////////////////////
         // Lines with @endid //
         ///////////////////////
@@ -141,7 +145,7 @@ function InitLineHandlers () {
         'line.staff.hairpin.diminuendo.dashed',     @Element('Hairpin', @Attrs('form', 'dim', 'lform', 'dashed')),
         'line.staff.hairpin.diminuendo.dotted',     @Element('Hairpin', @Attrs('form', 'dim', 'lform', 'dotted')),
         'line.staff.hairpin.diminuendo.tosilence',  @Element('Hairpin', @Attrs('form', 'dim', 'niente', 'true'))
-    ), Self);
+    ));
 
     // Line types not handled yet:
     // Type = 'BeamLine'
@@ -180,6 +184,6 @@ function InitLineHandlers () {
 } //$end
 
 
-function RegisterLineHandlers (styleIdType, lineHandlerDict, plugin) {
-    RegisterHandlers(LineHandlers[styleIdType], lineHandlerDict, plugin);
+function RegisterLineHandlers (header, handlerDefinition) {
+    RegisterHandlers(LineHandlers[header.byProperty], header, handlerDefinition);
 }  //$end
