@@ -182,6 +182,7 @@ function CreateApiObject (apiVersion) {
             apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
             apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
             apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
+            apiObject.SetMethod('AsModifier', Self, 'ExtensionAPI_AsModifier');
         }
         case (1) {
             // Legacy version
@@ -238,6 +239,10 @@ function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
 
 function ExtensionAPI_GenerateModifier (this, bobj, element) {
     GenerateModifier(bobj, element);
+}   //$end
+
+function ExtensionAPI_AsModifier (this, templateObject) {
+    return AsModifier(templateObject);
 }   //$end
 
 

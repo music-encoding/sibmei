@@ -4,14 +4,15 @@ const assert = require('assert');
 const xpath = require('fontoxpath');
 const utils = require('./utils');
 
-describe("Extensions", function() {testExtension('extensions.mei');});
-describe("Legacy extension API v1", function() {testExtension('legacy_extensions_api_v1.mei');});
+describe("Extensions", function() {testExtension("extensions.mei", "2");});
+describe("Legacy extension API v1", function() {testExtension("legacy_extensions_api_v1.mei", "1");});
 
-function testExtension(meiFile) {
+function testExtension(meiFile, apiVersion) {
   const mei = utils.getTestMeiDom(meiFile);
   const symbols = xpath.evaluateXPath('//*:symbol', mei);
   const text = xpath.evaluateXPath('//*:anchoredText', mei);
   const line = xpath.evaluateXPath('//*:line', mei);
+  const artic = xpath.evaluateXPath('//*:artic', mei);
 
   it("exports custom symbols", function() {
     utils.assertAttrValueFormat(symbols, 'fontfam', 'myCustomFont');
@@ -35,4 +36,11 @@ function testExtension(meiFile) {
   it("exports custom lines by name", function(){
     utils.assertAttrValueFormat([line], 'type', 'myline');
   });
+
+  if (apiVersion === "2") {
+    it("exports custom articulations", function() {
+      utils.assertAttrValueFormat([artic], "glyph.name", "articSoftAccentAbove");
+      assert.strictEqual(artic.parentNode.nodeName, "note");
+    });
+  }
 }

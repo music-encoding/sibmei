@@ -12,7 +12,7 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
 {
   //"The `SibmeiExtensionAPIVersion` field must be present so Sibmei can"
   //"recognize compatible extensions"
-  SibmeiExtensionAPIVersion "1.0.0"
+  SibmeiExtensionAPIVersion "2.0.0"
 
   Initialize "() {
     // The extension choice dialog will list this extension as
@@ -26,28 +26,17 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
   //"for Sibmei to recognize an extension plugin."
   InitSibmeiExtension "(api) {
     // Declare which text styles this extension handles
-    api.RegisterTextHandlers(CreateDictionary(
-      // Text objects can be matched either by their StyleId or StyleAsText
-      // property. Here, we match by StyleAsText.
-      'StyleAsText', CreateDictionary(
-         // We want the HandleMyText() method to handle Text objects matching
-         // textObj.StyleAsText = 'My text'
-        'My text', 'HandleMyText'
-      )
+    api.RegisterTextHandlers('StyleAsText', CreateDictionary(
+      // We want to add support for Text objects matching
+      //   textObj.StyleAsText = 'My text'
+      // Sibmei will append the generated element to the measure element.
+      'My text', CreateSparseArray('AnchoredText', null, api.FormattedText)
     ), Self);
-  }"
-
-  HandleMyText "(api, textObj) {
-    // Create and return an MEI element that Sibmei will append as a child to
-    // the measure element.
-    textElement = api.GenerateControlEvent(textObj, api.libmei.AnchoredText());
-    api.AddFormattedText(textElement, textObj);
-    return textElement;
   }"
 }
 ```
 
-See [another example](./lib/sibmei4_extension_test.plg) for code handling symbols.
+See [another example](./lib/sibmei4_extension_test.plg) for an extension plugin that also handles symbols and lines.
 
 ## Required data and methods
 
@@ -57,7 +46,7 @@ A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#De
 API the extension was written. The current API version of Sibmei can be found in
 [`GLOBALS.mss`](./src/GLOBALS.mss).
 
-The API is guaranteed to remain backwards compatible with newer releases that retain the same major version number for `ExtensionAPIVersion`. With minor version numbers, new functionality is added while existing functionality remains backwards compatible.
+The API is guaranteed to remain backwards compatible with newer releases that retain the same major version number for `ExtensionAPIVersion`. Sibmei may support legacy extension plugins with a lower major version number for a while. With minor version numbers, new functionality is added while existing functionality remains backwards compatible.
 
 ### `InitSibmeiExtension()`
 
@@ -77,15 +66,12 @@ The API dictionary exposes the following object:
 * **`libmei`**: A reference to libmei that can be used to construct and
    manipulate MEI elements. *This dictionary must not be modified.*
 
-#### Registering Text, Symbol and Line styles
-
 The API dictionary exposes the following [methods for registering Handlers](ExportHandlers.md#creating-and-registering-handlers) that must only be used inside the `InitSibmeiExtension()` method:
 
 * **`RegisterSymbolHandlers()`**
-
 * **`RegisterTextHandlers()`**
-
 * **`RegisterLineHandlers()`**
+* **`AsModifier()`**
 
 The following methods can be used by Handler methods:
 
