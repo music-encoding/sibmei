@@ -1,15 +1,23 @@
-function RegisterAvailableExtensions (availableExtensions, apiVersionByPlgName) {
-    //$module(Initialize.mss)
-    // Expects and empty TreeNode Hash map object as argument.
+function RegisterAvailableExtensions (availableExtensions, extensionsInfo, pluginList) {
+    // `availableExtensions` must be an empty TreeNode Hash map object.
     // Looks for existing extensions and registers them in this Hash map.
     // Keys in the Hash map are the names by which the extension plugins can be
     // referenced in ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`.
     // Values are the full names that are displayed to the user.
+    //
+    // `extensionsInfo` must be an empty Dictionary. For each extension plugin,
+    // a sub-Dictionary with some information about the extension plugin is
+    // registered under its PLG name as key. Fields in the sub-Dictionary are:
+    //   * `plgName`: Same value that is used as the key in `extensionsInfo`
+    //   * `plugin`: The extension's Plugin object (from Sibelius.Plugins)
+    //   * `apiVersion`: The major version number of the used extension API
+    //
+    // `pluginList` is a persistent reference to `Sibelius.Plugins`.
 
     apiSemver = SplitString(ExtensionAPIVersion, '.');
     errors = CreateSparseArray();
 
-    for each pluginObject in Sibelius.Plugins
+    for each pluginObject in pluginList
     {
         if (pluginObject.DataExists('SibmeiExtensionAPIVersion'))
         {
@@ -46,7 +54,11 @@ function RegisterAvailableExtensions (availableExtensions, apiVersionByPlgName) 
                 }
             }
 
-            apiVersionByPlgName[plgName] = extensionSemver[0] + 0;
+            extensionsInfo[plgName] = CreateDictionary(
+                'plgName', plgName,
+                'plugin', pluginObject,
+                'apiVersion', extensionSemver[0] + 0
+            );
 
             if (null = error)
             {
@@ -110,19 +122,21 @@ function DeselectAllExtensions () {
 }  //$end
 
 
-function InitExtensions (extensions) {
-    // To let the user choose extensions via dialog, pass `null` as argument.
-    // If extensions should be activated without showing the  dialog, pass a
-    // SparseArray with the 'PLG names' of the extensions, i.e. the names that
-    // `RegisterAvailableExtensions()` will use as keys. This is useful e.g.
-    // for running tests without requiring user interaction.
+function InitExtensions (extensions, pluginList) {
+    // To let the user choose extensions via dialog, pass `null` as `extensions`
+    // argument. If extensions should be activated without showing the  dialog,
+    // pass a SparseArray with the 'PLG names' of the extensions, i.e. the
+    // names that `RegisterAvailableExtensions()` will use as keys. This is
+    // useful e.g. for running tests without requiring user interaction.
+    //
+    // `pluginList` is the list of all installed Sibelius plugins.
     //
     // Returns false if the user aborted the selection of extensions or if there
     // are any errors, otherwise returns true.
 
     AvailableExtensions = CreateHash();
-    apiVersionByPlgName = CreateDictionary();
-    errors = RegisterAvailableExtensions(AvailableExtensions, apiVersionByPlgName);
+    extensionsInfo = CreateDictionary();
+    errors = RegisterAvailableExtensions(AvailableExtensions, extensionsInfo, pluginList);
     if (null != errors)
     {
         Sibelius.MessageBox(errors);
@@ -145,18 +159,13 @@ function InitExtensions (extensions) {
         }
     }
 
-    apiObjects = CreateSparseArray();
-    apiObjects[1] = CreateApiObject(1);
-    apiObjects[2] = CreateApiObject(2);
-
     for each Name plgName in chosenExtensions
     {
-        Self._property:CurrentlyInitializedExtension = plgName;
-        if (apiVersionByPlgName[plgName] >= 2)
+        if (extensionsInfo[plgName].apiVersion >= 2)
         {
             InitGlobalAliases(@plgName);
         }
-        @plgName.InitSibmeiExtension(apiObjects[apiVersionByPlgName[plgName]]);
+        @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
     // store chosenExtensions as global to add application info
@@ -166,17 +175,16 @@ function InitExtensions (extensions) {
 }  //$end
 
 
-function CreateApiObject (apiVersion) {
+function CreateApiObject (extensionInfo) {
     apiObject = CreateDictionary(
+        '_extensionInfo', extensionInfo,
         'libmei', libmei,
-        'sibmei', Self,
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText,
         'LyricText', LyricText
     );
 
-
-    switch (apiVersion)
+    switch (extensionInfo.apiVersion)
     {
         case (2)
         {
@@ -206,31 +214,27 @@ function CreateApiObject (apiVersion) {
         }
         default
         {
-            ExitPlugin('Unsupported extension API version: ' & apiVersion);
+            StopPlugin('Unsupported extension API version: ' & apiVersion);
         }
     }
 
     return apiObject;
 }  //$end
 
-function ExtensionAPI_RegisterSymbolHandlers (this, header, handlerDefinitions) {
-    AssertIdType(IsSymbolIdType, header.byProperty, 'RegisterSymbolHandlers');
-    RegisterSymbolHandlers(header, handlerDefinitions);
+function ExtensionAPI_RegisterSymbolHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, SymbolHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_RegisterTextHandlers (this, header, handlerDefinitions) {
-    AssertIdType(IsStyleIdType, header.byProperty, 'RegisterTextHandlers');
-    RegisterTextHandlers(header, handlerDefinitions);
+function ExtensionAPI_RegisterTextHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, TextHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_RegisterLineHandlers (this, header, handlerDefinitions) {
-    AssertIdType(IsStyleIdType, header.byProperty, 'RegisterLineHandlers');
-    RegisterLineHandlers(header, handlerDefinitions);
+function ExtensionAPI_RegisterLineHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, LineHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_RegisterLyricHandlers (this, header, handlerDefinitions) {
-    AssertIdType(IsStyleIdType, header.byProperty, 'RegisterLyricHandlers');
-    RegisterLyricHandlers(header, handlerDefinitions);
+function ExtensionAPI_RegisterLyricHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, LyricHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
 function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
@@ -256,39 +260,44 @@ function ExtensionAPI_AsModifier (this, templateObject) {
 
 
 /////  Legacy methods
-function LegacyExtensionAPIv1_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
-    for each Name symbolIdType in symbolHandlerDict
+
+function LegacyExtensionAPIv1_RegisterHandlers (pluginInfo, handlers, handlerDict) {
+    for each Name idProperty in symbolHandlerDict
     {
-        RegisterHandlers(SymbolHandlers, CreateDictionary(
-            'byProperty', symbolIdType,
-            'handlerPlugin', plugin,
-            ''
-        ), symbolHandlerDict[symbolIdType]);
+        handlersById = symbolHandlerDict[idProperty];
+        for each Name id in handlersById
+        {
+            if (IsObject(handlersById[id]))
+            {
+                handlerMethod = handlersById[id];
+                template = null;
+            }
+            else
+            {
+                handlerMethod = defaultHandlerMethod;
+                template = handlersById[id];
+            }
+
+            RegisterHandlers(this, handlers, idProperty, handlerMethod, CreateDictionary(
+                id, template
+            ));
+        }
     }
+}  //$end
+
+
+function LegacyExtensionAPIv1_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
+    LegacyExtensionAPIv1_RegisterHandlers(this, SymbolHandlers, symbolHandlerDict);
 } //$end
 
 function LegacyExtensionAPIv1_RegisterTextHandlers (this, textHandlerDict, plugin) {
-    for each Name styleType in textHandlerDict
-    {
-        RegisterHandlers(TextHandlers[styleType], textHandlerDict[styleType], plugin);
-    }
+    LegacyExtensionAPIv1_RegisterHandlers(this, TextHandlers, symbolHandlerDict);
 } //$end
 
 function LegacyExtensionAPIv1_RegisterLineHandlers (this, lineHandlerDict, plugin) {
-    for each Name styleType in lineHandlerDict
-    {
-        RegisterHandlers(LineHandlers[styleType], lineHandlerDict[styleType], plugin);
-    }
+    LegacyExtensionAPIv1_RegisterHandlers(this, LineHandlers, symbolHandlerDict);
 } //$end
 
-function RegisterHandlers_LegacyExtensionAPIv1 (handlerRegistryForType, handlerDefinitions, plugin) {
-    // APIv1 always uses Sibmei's built-in ControlEventTemplateHandler, but v2
-    // allows specifying other handlers (either other Sibmei template handlers,
-    // like LyricTemplateHandler or ModifierTemplateHandler, or handlers that
-    // are defined by the extension plugin itself.)
-    // also use handlers defined by the extension plugin itself.
-    ;
-} //$end
 
 function LegacyExtensionAPIv1_HandleControlEvent (this, bobj, template) {
     return GenerateControlEvent(bobj, MeiFactory(template));
@@ -312,28 +321,4 @@ function LegacyExtensionAPIv1_HandleLineTemplate (this, lobj, template) {
 
 function LegacyExtensionAPIv1_MeiFactory (this, templateObject, bobj) {
     return MeiFactory(templateObject, bobj);
-}  //$end
-
-
-function AssertIdType (isIdType, idType, functionName) {
-    if (not isIdType[idType])
-    {
-        validIdTypes = CreateSparseArray();
-        for each Name idType in isIdType
-        {
-            validIdTypes.Push(idType);
-        }
-        Sibelius.MessageBox(
-            'Error in extension plugin \''
-            & CurrentlyInitializedExtension
-            & '\': Expected either of \''
-            & validIdTypes.Join('\' or \'')
-            & ' as field `byProperty` of first paramter of '
-            & functionName & '(), but found \''
-            & idType
-            & '\'.\n\nPlugin execution is aborted. To continue, deactivate \''
-            & CurrentlyInitializedExtension
-            & '\'.'
-        );
-    }
 }  //$end

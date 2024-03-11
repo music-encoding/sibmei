@@ -15,6 +15,8 @@ function InitGlobals (extensions) {
     // initialize libmei as soon as possible
     Self._property:libmei = libmei4;
 
+    Self._property:SibmeiPlgName = 'sibmei4';
+
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);
@@ -52,16 +54,30 @@ function InitGlobals (extensions) {
 
     InitGlobalAliases(Self);
 
+    // Sibelius apparently has a garbage collector issue with references to
+    // Plugin objects. We have to keep a persistent reference to the PluginList
+    // object (Sibelius.Plugins), otherwise Sibelius will crash immediately
+    // whenever we use a Plugin object we retrieved from it.
+    Self._property:_PluginList = Sibelius.Plugins;
+    for each plugin in _PluginList
+    {
+        if (plugin.Name = PluginName)
+        {
+            Self._property:SibmeiPlugin = plugin;
+        }
+    }
+    if (null = Self._property:SibmeiPlugin)
+    {
+        Sibelius.StopPlugin('Internal Sibmei error: Could not initialize global variable SibmeiPlugin');
+    }
+
     InitSymbolHandlers();
     InitLineHandlers();
     InitTextHandlers();
     InitLyricHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
-    Self._property:IsStyleIdType = CreateDictionary('StyleId', true, 'StyleAsText', true);
-    Self._property:IsSymbolIdType = CreateDictionary('Index', true, 'Name', true);
-
-    if (not InitExtensions(extensions))
+    if (not InitExtensions(extensions, _PluginList))
     {
         return false;
     }

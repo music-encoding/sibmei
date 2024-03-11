@@ -11,11 +11,7 @@ function InitSymbolHandlers () {
         'Name', CreateDictionary()
     );
 
-    RegisterSymbolHandlers(CreateDictionary(
-        'byProperty', 'Index',
-        'withTemplateHandler', 'ModifierTemplateHandler',
-        'handlerPlugin', Self
-    ), CreateDictionary(
+    RegisterSymbolHandlers('Index', 'ModifierTemplateHandler', CreateDictionary(
         //heel 1
         52, @Element('Artic', @Attrs('artic','heel')),
         //heel 2
@@ -77,11 +73,7 @@ function InitSymbolHandlers () {
         // square fermata above
     ));
 
-    RegisterSymbolHandlers(CreateDictionary(
-        'byProperty', 'Index',
-        'withTemplateHandler', 'ControlEventTemplateHandler',
-        'handlerPlugin', Self
-    ), CreateDictionary(
+    RegisterSymbolHandlers('Index', 'ControlEventTemplateHandler', CreateDictionary(
         220, @Element('Fermata', @Attrs('shape', 'square', 'form', 'norm')),
         // round fermata above
         221, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'norm')),
@@ -98,8 +90,8 @@ function InitSymbolHandlers () {
 }//$end
 
 
-function RegisterSymbolHandlers (header, handlerDefinitions) {
-    RegisterHandlers(SymbolHandlers[header.byProperty], header, handlerDefinitions);
+function RegisterSymbolHandlers (idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(Self, SymbolHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
 

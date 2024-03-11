@@ -10,11 +10,7 @@ function InitTextHandlers() {
         'StyleAsText', CreateDictionary()
     );
 
-    RegisterTextHandlers(CreateDictionary(
-        'byProperty', 'StyleId',
-        'withTemplateHandler', 'ControlEventTemplateHandler',
-        'handlerPlugin', Self
-    ), CreateDictionary(
+    RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
         'text.staff.expression', CreateSparseArray('Dynam', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), FormattedText),
@@ -32,18 +28,14 @@ function InitTextHandlers() {
         'text.system.tempo', CreateSparseArray('Tempo', noAttributes, FormattedText)
     ));
 
-    RegisterTextHandlers(CreateDictionary(
-        'byProperty', 'StyleId',
-        'handlerMethod', 'FiguredBassTextHandler',
-        'handlerPlugin', Self
-    ), CreateDictionary(
-        'text.staff.space.figuredbass', 'FiguredBassTextHandler'
+    RegisterTextHandlers('StyleId', 'FiguredBassTextHandler', CreateDictionary(
+        'text.staff.space.figuredbass', null
     ));
 }  //$end
 
 
-function RegisterTextHandlers (header, handlerDefinition) {
-    RegisterHandlers(TextHandlers[header.byProperty], header, handlerDefinition);
+function RegisterTextHandlers (idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(Self, TextHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
 function InitTextSubstituteMap() {

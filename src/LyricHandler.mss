@@ -1,18 +1,14 @@
 function InitLyricHandlers() {
     Self._property:LyricText = SetTemplateAction(CreateDictionary(), Self, 'LyricTextAction');
 
-    Self._property:LyricsHandlers = CreateDictionary(
+    Self._property:LyricHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
 
     sylTemplate = CreateSparseArray('Syl', null, LyricText);
 
-    RegisterLyricHandlers(CreateDictionary(
-        'byProperty', 'StyleId',
-        'withTemplateHandler', 'LyricTemplateHandler',
-        'handlerPlugin', Self
-    ), CreateDictionary(
+    RegisterLyricHandlers('StyleId', 'LyricTemplateHandler', CreateDictionary(
         'text.staff.space.hypen.lyrics.above', CreateSparseArray('Verse', CreateDictionary('place', 'above'), sylTemplate),
         'text.staff.space.hypen.lyrics.chorus', CreateSparseArray('Refrain', null, sylTemplate),
         'text.staff.space.hypen.lyrics.verse1', CreateSparseArray('Verse', CreateDictionary('n', '1'), sylTemplate),
@@ -24,20 +20,26 @@ function InitLyricHandlers() {
 }  //$end
 
 
-function RegisterLyricHandlers (header, handlerDefinitions) {
-    for each handler in handlerDefinitions
+function PreprocessLyricTemplates (templatesById) {
+    // Finds <syl> elements in the templates and registers
+    for each template in templatesById
     {
-        if (IsObject(handler))
+        if (IsObject(template))
         {
-            // `handler` is a template. <syl> Elements in the template need
-            // special handling, so we have to register an action for them.
-            for each sylTemplate in GetTemplateElementsByTagName(handler, 'Syl')
+            // <syl> elements in the template need special handling, so we have
+            // to register an action for them.
+            for each sylTemplate in GetTemplateElementsByTagName(template, 'Syl')
             {
                 SetTemplateAction(sylTemplate, Self, 'SylElementAction');
             }
         }
     }
-    RegisterHandlers(LyricsHandlers[header.byProperty], header, handlerDefinitions);
+}  //$end
+
+
+function RegisterLyricHandlers (idProperty, handlerMethod, templatesById) {
+    PreprocessLyricTemplates(templatesById);
+    RegisterHandlers(Self, LyricHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
 

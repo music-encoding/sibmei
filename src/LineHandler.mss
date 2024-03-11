@@ -12,11 +12,7 @@ function InitLineHandlers () {
     // to be registered to a more specialized line handler than the standard
     // HandleControlEvent().
 
-    RegisterLineHandlers(CreateDictionary(
-        'byProperty', 'StyleId',
-        'withTemplateHandler', 'ControlEventTemplateHandler',
-        'handlerPlugin', Self
-    ), CreateDictionary(
+    RegisterLineHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
         ///////////////////////
         // Lines with @endid //
         ///////////////////////
@@ -184,6 +180,6 @@ function InitLineHandlers () {
 } //$end
 
 
-function RegisterLineHandlers (header, handlerDefinition) {
-    RegisterHandlers(LineHandlers[header.byProperty], header, handlerDefinition);
+function RegisterLineHandlers (idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(Self, LineHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
