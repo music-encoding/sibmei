@@ -103,7 +103,7 @@ function HandleLyricItem (lyricobj, objectPositions) {
     lyricvoice = lyricstaff[voiceNum];
 
     // We can have multiple layers of lyrics (specifically multiple verses) on
-    // top of each other.  Each layer has its own style.
+    // top of each other. Each layer has its own style.
     if (null = lyricvoice[lyricobj.StyleId])
     {
         lyricvoice[lyricobj.StyleId] = CreateSparseArray();
@@ -131,7 +131,7 @@ function HandleLyricItem (lyricobj, objectPositions) {
         {
             lyricItem._property:startOfWord = true;
         }
-        lyricElement = HandleStyle(LyricsHandlers, lyricItem);
+        lyricElement = HandleStyle(LyricHandlers, lyricItem);
         if (null != lyricElement and lyricItem.Color != 0)
         {
             libmei.AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
@@ -144,8 +144,8 @@ function HandleLyricItem (lyricobj, objectPositions) {
 
 
 function SylElementAction (actionDict, parent, lyricItem) {
-    // This action is directly attached to the <syl> template.  It creates one
-    // or more <syl> elements (depending on whether we have an elision).
+    // This action is directly attached to the <syl> template. It creates one or
+    // more <syl> elements (depending on whether we have an elision).
 
     // Split lyrics text by underscore and space, in case we have an elision
     syllables = SplitStringIncludeDelimiters(lyricItem.Text, '_ ');
@@ -215,8 +215,8 @@ function SylElementAction (actionDict, parent, lyricItem) {
 
 
 function CreateSylChild (parent, template, lyricItem, sylText) {
-    // `template` should have a decendant LyricText action.  This action will be
-    // called by MeiFactory() when it reaches the decendant action.  Because we
+    // `template` should have a decendant LyricText action. This action will be
+    // called by MeiFactory() when it reaches the decendant action. Because we
     // can't simply insert `lyricItem`'s `Text` value in the case of an elision,
     // this action relies on the the user property `currentSyllable` for the
     // inserted text.

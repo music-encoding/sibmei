@@ -8,7 +8,7 @@ function InitLineHandlers () {
 
     verticalLine = 'vertical line';
 
-    // Commented out line styles are not supported yet.  Some of them might need
+    // Commented out line styles are not supported yet. Some of them might need
     // to be registered to a more specialized line handler than the standard
     // HandleControlEvent().
 
@@ -87,9 +87,9 @@ function InitLineHandlers () {
         // Type = 'Slur'
         // 'down' and 'up' don't really mean anything. Sibelius handles both
         // styles in the same way and it doesn't mean the slurs are actually
-        // curved upwards or downwards.  Pressing 's' to create a slur will
+        // curved upwards or downwards. Pressing 's' to create a slur will
         // apparently always create a slur with style `line.staff.slur.up`, no
-        // matter the resulting curvature.  With ManuScript, there is no way we
+        // matter the resulting curvature. With ManuScript, there is no way we
         // can find out the actual curvature.
         'line.staff.slur.down',                     @Element('Slur', @Attrs('endid', 'PreciseMatch')),
         'line.staff.slur.down.bracketed',           @Element('Slur', @Attrs('type', 'bracketed', 'endid', 'PreciseMatch')),
