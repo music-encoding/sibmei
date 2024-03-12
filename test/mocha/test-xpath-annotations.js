@@ -34,14 +34,17 @@ for (const fileName of fs.readdirSync(path.join('build', 'MEI Export', 'sibmeiTe
   foundXPathTest = true;
   describe(fileName, () => {
     it("matches XPath tests", function() {
+      const messages = [];
       for (const annot of xpathAnnots) {
         const measure = annot.parentNode.getAttribute("n");
         const testXpath = annot.textContent;
-        const message = `measure: ${measure}, XPath: ${testXpath}`;
         const result = xpath.evaluateXPath(testXpath, annot.parentNode);
         const resultIsEmptyArray = result instanceof Array && result.length === 0;
-        assert.ok(!resultIsEmptyArray && result !== false, message);
+        if (resultIsEmptyArray || result === false) {
+          messages.push(`measure: ${measure}, XPath: ${testXpath}`);
+        }
       }
+      assert.ok(messages.length === 0, '\n' + messages.join('\n\n'));
     });
   });
 }
