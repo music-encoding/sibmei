@@ -23,7 +23,17 @@ function RegisterHandlers(pluginInfo, handlers, idProperty, handlerMethod, templ
 
     for each Name id in templatesById
     {
-        handler = CreateDictionary('template', templatesById[id]);
+        if (Self = pluginInfo)
+        {
+            handler = CreateDictionary();
+        }
+        else
+        {
+            // Extension handlers get the API object as first argument,
+            // basically the `this` argument.
+            handler = CreateApiObject(pluginInfo._extensionInfo);
+        }
+        handler['template'] = templatesById[id];
         handler.SetMethod('HandleObject', pluginThatDefinesHandler, handlerMethod);
         handlers.@idProperty[id] = handler;
     }
