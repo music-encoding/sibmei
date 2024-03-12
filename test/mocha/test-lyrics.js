@@ -35,7 +35,7 @@ describe("Lyrics", () => {
       utils.assertAttrOnElements(syls, [3, 6, 9, 12, 18, 21, 24, 28, 31], 'wordpos', 't');
     });
     it("handles single syllable words (omit @wordpos)", () => {
-      utils.assertAttrOnElements(syls, [0, 4, 10, 13, 14, 15, 16, 25, 26, 32, 33, 34, 35], 'wordpos', null);
+      utils.assertAttrOnElements(syls, [0, 4, 10, 13, 14, 15, 16, 25, 26, 32, 33, 34, 35, 36], 'wordpos', null);
     });
   });
 
