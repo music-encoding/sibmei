@@ -21,7 +21,9 @@ function InitLyricHandlers() {
 
 
 function PreprocessLyricTemplates (templatesById) {
-    // Finds <syl> elements in the templates and registers
+    // Finds <syl> elements in the templates and sets SylElementAction as the
+    // template action so MeiFactory will pass the object to SylElementAction
+    // instead converting the template as-is.
     for each template in templatesById
     {
         if (IsObject(template))
@@ -215,8 +217,8 @@ function SylElementAction (actionDict, parent, lyricItem) {
 
 
 function CreateSylChild (parent, template, lyricItem, sylText) {
-    // `template` should have a decendant LyricText action. This action will be
-    // called by MeiFactory() when it reaches the decendant action. Because we
+    // `template` should have a descendant LyricText action. This action will be
+    // called by MeiFactory() when it reaches the descendant action. Because we
     // can't simply insert `lyricItem`'s `Text` value in the case of an elision,
     // this action relies on the the user property `currentSyllable` for the
     // inserted text.
