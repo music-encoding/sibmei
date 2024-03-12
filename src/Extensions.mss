@@ -234,6 +234,7 @@ function ExtensionAPI_RegisterLineHandlers (this, idProperty, handlerMethod, tem
 }  //$end
 
 function ExtensionAPI_RegisterLyricHandlers (this, idProperty, handlerMethod, templatesById) {
+    PreprocessLyricTemplates(templatesById);
     RegisterHandlers(this, LyricHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
