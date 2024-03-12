@@ -256,7 +256,7 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
         {
             noteRestPosition = precedingPosition;
         }
-        case ((followingPosition - bobjPosition) < (bobjPosition - precedingPosition))
+        case ((followingPosition - position) < (position - precedingPosition))
         {
             noteRestPosition = followingPosition;
         }

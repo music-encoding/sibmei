@@ -81,7 +81,7 @@ function AssertIdType (pluginInfo, handlers, idProperty, functionName) {
         validIdProperties = CreateSparseArray();
         for each Name validIdProperty in handlers
         {
-            validIdTypes.Push(validIdProperty);
+            validIdProperties.Push(validIdProperty);
         }
         Sibelius.MessageBox(
             'Error in extension plugin \''

@@ -52,6 +52,8 @@ function LyricTemplateHandler (this, lyricItem) {
     {
         if (libmei.GetName(parentElement) = 'rest')
         {
+            barNum = lyricItem.ParentBar.BarNumber;
+            voiceNum = lyricItem.VoiceNumber;
             warnings = Self._property:warnings;
             warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
         }
