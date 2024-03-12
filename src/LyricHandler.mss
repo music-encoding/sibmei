@@ -222,6 +222,10 @@ function CreateSylChild (parent, template, lyricItem, sylText) {
     // inserted text.
     lyricItem._property:currentSyllable = sylText;
     sylElement = MeiFactory(template, lyricItem);
+    if (lyricItem.Color != 0)
+    {
+        libmei.AddAttribute(sylElement, 'color', ConvertColor(lyricItem));
+    }
     libmei.AddChild(parent, sylElement);
     return sylElement;
 } //$end
