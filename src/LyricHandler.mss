@@ -9,13 +9,13 @@ function InitLyricHandlers() {
     sylTemplate = CreateSparseArray('Syl', null, LyricText);
 
     RegisterLyricHandlers('StyleId', 'LyricTemplateHandler', CreateDictionary(
-        'text.staff.space.hypen.lyrics.above', CreateSparseArray('Verse', CreateDictionary('place', 'above'), sylTemplate),
-        'text.staff.space.hypen.lyrics.chorus', CreateSparseArray('Refrain', null, sylTemplate),
-        'text.staff.space.hypen.lyrics.verse1', CreateSparseArray('Verse', CreateDictionary('n', '1'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse2', CreateSparseArray('Verse', CreateDictionary('n', '2'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse3', CreateSparseArray('Verse', CreateDictionary('n', '3'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse4', CreateSparseArray('Verse', CreateDictionary('n', '4'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse5', CreateSparseArray('Verse', CreateDictionary('n', '5'), sylTemplate)
+        'text.staff.space.hypen.lyrics.above', @Element('Verse', @Attrs('place', 'above'), sylTemplate),
+        'text.staff.space.hypen.lyrics.chorus', @Element('Refrain', null, sylTemplate),
+        'text.staff.space.hypen.lyrics.verse1', @Element('Verse', @Attrs('n', '1'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse2', @Element('Verse', @Attrs('n', '2'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse3', @Element('Verse', @Attrs('n', '3'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse4', @Element('Verse', @Attrs('n', '4'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse5', @Element('Verse', @Attrs('n', '5'), sylTemplate)
     ));
 }  //$end
 
