@@ -57,7 +57,7 @@ Handler objects consist of two things:  The Handler method `HandleObject()` and 
 
 ## Creating and registering Handlers
 
-For creating entries in the Handler mapping Dictionaries, the four registrations functions `RegisterSymbolHandlers()`, `RegisterLineHandlers()`, `RegisterLyricHandlers()` and `RegisterTextHandlers()` methods are available. These functions also create the Handler objects, set their `HandleObject()` methods and register the `template` field (if the Handler method is template based.
+For creating entries in the Handler mapping Dictionaries, the four registrations functions `RegisterSymbolHandlers()`, `RegisterLineHandlers()`, `RegisterLyricHandlers()` and `RegisterTextHandlers()` are available. These functions also create the Handler objects, set their `HandleObject()` methods and register the `template` field (if the Handler method is template based).
 
 ```js
 api.RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
@@ -70,14 +70,14 @@ api.RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDiction
 The registration functions require three arguments:
 
 * The ID-like property under which the Handlers should be registered. This can be `'StyleId'` or `'StyleAsText'` for text, lyrics and lines. As Sibelius' line objects do not have these two properties,  `'Index'` or `'Name'` has to be used for them instead.
-* The name of the Handler method that will be responsible for converting the Sibelius object to an MEI element. This should usually be either of the methods `'ControlEventTemplateHandler'`, `'ModifierTemplateHandler'` or `'LyricTemplateHandler'` provided by Sibmei. Custom handlers may be written in extensions for special requirements (see [below](#handler-methods) for more information).
+* The name of the Handler method that will be responsible for converting the Sibelius object to an MEI element. This should usually be either of the methods `'ControlEventTemplateHandler'`, `'ModifierTemplateHandler'` or `'LyricTemplateHandler'` provided by Sibmei. The names of custom handlers provided by an extension for special requirements can be given as well (see [below](#handler-methods) for more information).
 * A dictionary that maps ID values to element templates. Keys are values of the `StyleId`, `StyleAsText`, `Index` or `Name` properties, depending on what was given as the first parameter to the registration function. If the Handler method given in the second parameter is not template-based, the value can be set to `null` instead of a template.
 
 #### Registering lyrics Handlers
 
-`RegisterLyricHandlers()` expects the template to include a `<syl>` element with a descendant `api.LyricText`. It will register Template Actions on the `<syl>` templates that take care of tracking the context of the lyrics to generate the proper `@wordpos` and `@con` attributes.
+`RegisterLyricHandlers()` expects the template to include a `<syl>` element with a descendant `api.LyricText`. It will register Template Actions on the `<syl>` templates that take care of tracking the context of the lyrics to generate the proper `@wordpos` and `@con` attributes as well as properly handling elisions.
 
-`api.LyricText` only works as descendant of a `<syl>` template.
+`api.LyricText` only works as descendant of a `<syl>` template node.
 
 ### Templates
 
@@ -111,7 +111,7 @@ Templates declaratively describe an MEI element by means of ManuScript data stru
 
 * ...
 
-Only the tag name is required, all other entries are optional.
+Only the tag name is required, all other arguments are optional.
 
 (`@Element()` and `@Attrs()` are actually aliases for `CreateSparseArray()` and `CreateDictionary()`, respectively. They are introduced to make the code for templates a little more semantic and a little terser.)
 
@@ -139,7 +139,7 @@ Output for a text object where the `Text` property is 'Joseph Haydn':
 <persName><composer>Joseph Haydn</composer></persName>
 ```
 
-Where `api.FormattedText` is used, any formatting like bold or italic will be converted to the respective MEI markup. For `api.UnformattedText`, any such formatting is stripped.  For lyrics, `api.LyricText` should be used. `api.UnformattedText` would be possible as well, but `api.LyricText` will take care of encoding elisions while `api.UnformattedText` will not.
+Where `api.FormattedText` is used, any formatting like bold or italic will be converted to the respective MEI markup. For `api.UnformattedText`, any such formatting is stripped.  For lyrics, `api.LyricText` must be used.
 
 ##### Line `@endid`
 
@@ -165,7 +165,7 @@ The placeholder will be replaced by an ID reference when writing the XML. Which 
 
 The line, text, lyric or symbol object that needs to be handled is passed to the Handler method. The Handler method has to generate and return an MEI element. It is also responsible for inserting it at the appropriate place in the MEI tree.
 
-In general, the `HandleObject()` method is one of the following methods provided by Sibmei:
+In general, Handler object's `HandleObject()` method is set to one of the following methods provided by Sibmei:
 
 * `ControlEventTemplateHandler()` uses [`GenerateControlEvent()`](#generatecontrolevent) to create a `<measure>`-attached control event.
 
@@ -269,7 +269,7 @@ If a Handler is registered under a `StyleId` or `Index` property, this will alwa
 
 > ### Internals: Template Actions
 >
-> Template Actions are an internal Sibmei concept for attaching hooks to template nodes that require special treatment. When `api.MeiFactory()` comes across a child template node that has a Template Action attached it will give control to the Template Action for processing that node.
+> Template Actions are an internal Sibmei concept for attaching hooks to template nodes that require special treatment. When `api.MeiFactory()` comes across a child template node that has a Template Action attached, it will give control to the Template Action for processing that node.
 >
 > Template Actions can be attached to element template nodes (like to `<syl>` elements), or they can be placeholder nodes, like `api.FormattedText`.
 >
@@ -284,7 +284,7 @@ If a Handler is registered under a `StyleId` or `Index` property, this will alwa
 > Especially if a template action is attached to an element template, it should do something like this:
 >
 > ```js
-> function SylElementAction (self, parent, bobj) {
+> function SomeElementAction (self, parent, bobj) {
 >     element = api.MeiFactory(self.templateNode, bobj);
 >     api.libmei.AddAttribute(element, 'label', 'do something with the element');
 >     api.libmei.AddChild(parent, element);
