@@ -147,11 +147,3 @@ function HandleStyle (handlers, bobj) {
         return handler.HandleObject(bobj);
     }
 } //$end
-
-
-function AsModifier (template) {
-    // Flags the template so that RegisterHandlers() will register the
-    // ModifierTemplateHandler for it.
-    template._property:createModifier = true;
-    return template;
-}  //$end
