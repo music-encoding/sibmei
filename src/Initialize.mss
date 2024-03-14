@@ -68,13 +68,10 @@ function InitGlobals (extensions) {
     }
     if (null = Self._property:SibmeiPlugin)
     {
-        Sibelius.StopPlugin('Internal Sibmei error: Could not initialize global variable SibmeiPlugin');
+        StopPlugin('Internal Sibmei error: Could not initialize global variable SibmeiPlugin');
     }
 
-    InitSymbolHandlers();
-    InitLineHandlers();
-    InitTextHandlers();
-    InitLyricHandlers();
+    InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
     if (not InitExtensions(extensions, _PluginList))

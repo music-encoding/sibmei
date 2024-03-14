@@ -1,3 +1,16 @@
+function InitHandlers () {
+    Self._property:IsHandlerMethodThatExtensionsMayUse = CreateDictionary(
+        'ControlEventTemplateHandler', true,
+        'ModifierTemplateHandler', true,
+        'LyricTemplateHandler', true
+    );
+
+    InitSymbolHandlers();
+    InitLineHandlers();
+    InitTextHandlers();
+    InitLyricHandlers();
+}  //$end
+
 function RegisterHandlers(pluginInfo, handlers, idProperty, handlerMethod, templatesById) {
     // `pluginInfo` is either Self if RegisterHandlers() is
     // called from the Sibmei core, or an extension API object (that has a field
@@ -20,6 +33,18 @@ function RegisterHandlers(pluginInfo, handlers, idProperty, handlerMethod, templ
 
     AssertIdType(pluginInfo, handlers, idProperty, handlerMethod);
     pluginThatDefinesHandler = FindPluginThatDefinesHandler(pluginInfo, handlerMethod);
+    if (
+        pluginThatDefinesHandler = Self
+        and pluginInfo != Self
+        and not IsHandlerMethodThatExtensionsMayUse[handlerMethod]
+    ) {
+        StopPlugin(
+            'Sibmei\'s method \''
+            & handlerMethod
+            & '\' is not is not allowed to be registered as Handler method by extension \''
+            & pluginInfo._extensionInfo.plugin.Name & '\''
+        );
+    }
 
     for each Name id in templatesById
     {
