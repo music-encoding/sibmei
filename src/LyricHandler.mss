@@ -6,7 +6,7 @@ function InitLyricHandlers() {
         'StyleAsText', CreateDictionary()
     );
 
-    sylTemplate = CreateSparseArray('Syl', null, LyricText);
+    sylTemplate = @Element('Syl', null, LyricText);
 
     RegisterLyricHandlers('StyleId', 'LyricTemplateHandler', CreateDictionary(
         'text.staff.space.hypen.lyrics.above', @Element('Verse', @Attrs('place', 'above'), sylTemplate),
