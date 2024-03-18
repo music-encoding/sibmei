@@ -236,5 +236,5 @@ function CreateSylChild (parent, template, lyricItem, sylText) {
 
 
 function LyricTextAction (action, parentElement, lyricItem) {
-    AppendText(null, parentElement, lyricItem.currentSyllable);
+    AppendText(parentElement, lyricItem.currentSyllable);
 }  //$end

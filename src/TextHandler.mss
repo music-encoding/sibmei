@@ -3,7 +3,7 @@ function InitTextHandlers() {
     noTstamp = CreateDictionary('tstamp', ' ');
 
     Self._property:FormattedText = SetTemplateAction(CreateDictionary(), Self, 'AddFormattedText');
-    Self._property:UnformattedText = SetTemplateAction(CreateDictionary(), Self, 'AppendText');
+    Self._property:UnformattedText = SetTemplateAction(CreateDictionary(), Self, 'AddUnformattedText');
 
     Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
@@ -95,6 +95,11 @@ function FiguredBassTextHandler (this, textObject) {
 }  //$end
 
 
+function AddUnformattedText (self, parentElement, textObject) {
+    AppendText(parentElement, textObject.Text);
+}  //$end
+
+
 function AddFormattedText (self, parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
@@ -108,7 +113,7 @@ function AddFormattedText (self, parentElement, textObject) {
         }
         else
         {
-            AppendText(null, parentElement, textObject.Text);
+            AppendText(parentElement, textObject.Text);
         }
         return parentElement;
     }

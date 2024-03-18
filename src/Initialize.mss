@@ -49,9 +49,6 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
-    Self._property:FormattedText = CreateDictionary('AddFormattedText', true);
-    Self._property:UnformattedText = CreateDictionary('AddUnformattedText', true);
-
     InitGlobalAliases(Self);
 
     // Sibelius apparently has a garbage collector issue with references to

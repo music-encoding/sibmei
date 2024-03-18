@@ -42,6 +42,11 @@
       'My text', @Element('AnchoredText', @Attrs(), api.FormattedText)
     ));
 
+    api.RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
+      // Example of a overridden built-in style
+      'text.staff.plain', @Element('AnchoredText', @Attrs(), api.UnformattedText)
+    ));
+
     api.RegisterLineHandlers('StyleAsText', 'ControlEventTemplateHandler', CreateDictionary(
       'My line', @Element('Line', @Attrs(
         'type', 'myline', 'endid', 'PreciseMatch'

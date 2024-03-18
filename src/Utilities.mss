@@ -855,7 +855,7 @@ function MeiFactory (data, bobj) {
             {
                 case (not IsObject(childData))
                 {
-                    AppendText(null, element, childData);
+                    AppendText(element, childData);
                 }
                 case (null != childData._property:templateAction)
                 {
@@ -927,7 +927,7 @@ function GetTemplateElementsByTagName (template, tagName) {
 }  //$end
 
 
-function AppendText (self, element, text) {
+function AppendText (element, text) {
     if (element.children.Length = 0)
     {
         libmei.SetText(element, element.text & text);
