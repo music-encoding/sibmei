@@ -21,8 +21,8 @@ Handler objects consist of two things:  The Handler method `HandleObject()` and 
 }
 ```
 
-[!NOTE]
-
+> [!NOTE]
+>
 > ### Internals: Associating BarObjects with their Handlers
 >
 > A mapping Dictionary is used to find the Handler that is used to convert an object to MEI. There are three such mapping Dictionaries: `LineHandlers`, `TextHandlers` and `SymbolHandlers`. These dictionaries look like illustrated by the following pseudo-code:
@@ -265,8 +265,8 @@ User-defined text, line and symbol styles on the other hand should always be reg
 
 If a Handler is registered under a `StyleId` or `Index` property, this will always supersede any Handlers registered under `StyleAsText` or `Name` properties for the same object.
 
-[!NOTE]
-
+> [!NOTE]
+>
 > ### Internals: Template Actions
 >
 > Template Actions are an internal Sibmei concept for attaching hooks to template nodes that require special treatment. When `api.MeiFactory()` comes across a child template node that has a Template Action attached, it will give control to the Template Action for processing that node.
