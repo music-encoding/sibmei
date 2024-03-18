@@ -19,6 +19,9 @@ const utils = require('./utils');
  * be copied from there (by simply copying a text object of that style).
  *
 */
+
+let foundXPathTest = false;
+
 for (const fileName of fs.readdirSync(path.join('build', 'MEI Export', 'sibmeiTestSibs'), 'utf8')) {
   if (!fileName.match(/\.mei$/)) {
     continue;
@@ -28,16 +31,26 @@ for (const fileName of fs.readdirSync(path.join('build', 'MEI Export', 'sibmeiTe
   if (xpathAnnots.length === 0) {
     continue;
   }
+  foundXPathTest = true;
   describe(fileName, () => {
     it("matches XPath tests", function() {
+      const messages = [];
       for (const annot of xpathAnnots) {
         const measure = annot.parentNode.getAttribute("n");
         const testXpath = annot.textContent;
-        const message = `measure: ${measure}, XPath: ${testXpath}`;
         const result = xpath.evaluateXPath(testXpath, annot.parentNode);
         const resultIsEmptyArray = result instanceof Array && result.length === 0;
-        assert.ok(!resultIsEmptyArray && result !== false, message);
+        if (resultIsEmptyArray || result === false) {
+          messages.push(`measure: ${measure}, XPath: ${testXpath}`);
+        }
       }
+      assert.ok(messages.length === 0, '\n' + messages.join('\n\n'));
     });
   });
 }
+
+describe("XPath annotation export", function() {
+  it("exports XPath annotations", function() {
+    assert.ok(foundXPathTest, "No XPath test annotations were exported");
+  });
+});

@@ -26,17 +26,17 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
   //"for Sibmei to recognize an extension plugin."
   InitSibmeiExtension "(api) {
     // Declare which text styles this extension handles
-    api.RegisterTextHandlers('StyleAsText', CreateDictionary(
+    api.RegisterTextHandlers('StyleAsText', 'ControlEventTemplateHandler', CreateDictionary(
       // We want to add support for Text objects matching
       //   textObj.StyleAsText = 'My text'
       // Sibmei will append the generated element to the measure element.
-      'My text', CreateSparseArray('AnchoredText', null, api.FormattedText)
+      'My text', @Element('AnchoredText', null, api.FormattedText)
     ), Self);
   }"
 }
 ```
 
-See [another example](./lib/sibmei4_extension_test.plg) for an extension plugin that also handles symbols and lines.
+See [another example](./lib/sibmei4_extension_test.plg) for an extension plugin that also handles symbols, lines and lyrics.
 
 ## Required data and methods
 
@@ -51,7 +51,7 @@ The API is guaranteed to remain backwards compatible with newer releases that re
 ### `InitSibmeiExtension()`
 
 Sibmei calls this method and passes an API Dictionary as argument (see below).
-Register your symbol and text handlers in this function using `RegisterSymbolHandlers()` and `RegisterTextHandlers()` (see below).
+Register your symbol, text, line and lyrics Handlers in this function using the methods listed [below](#api-data-and-methods).
 
 ## API Dictionary
 
@@ -71,7 +71,7 @@ The API dictionary exposes the following [methods for registering Handlers](Expo
 * **`RegisterSymbolHandlers()`**
 * **`RegisterTextHandlers()`**
 * **`RegisterLineHandlers()`**
-* **`AsModifier()`**
+* **`RegisterLyricHandlers()`**
 
 The following methods can be used by Handler methods:
 

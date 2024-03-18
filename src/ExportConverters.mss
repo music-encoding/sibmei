@@ -172,7 +172,7 @@ function ConvertUnitsToPoints (units) {
     /*
         Points are 0.352778mm (a point is 1/72 of an inch * 25.4mm/in).
     */
-    retval = (((staffheight / 128.0) * units) / 0.352778;
+    retval = ((staffheight / 128.0) * units) / 0.352778;
     return retval & 'pt';
 }  //$end
 
@@ -700,25 +700,6 @@ function ConvertPositionWithDurationToTimestamp (bobj) {
     return measureDuration & 'm+' & position;
 } //$end
 
-function ConvertTupletStyle (tupletStyle) {
-    //$module(ExportConverters.mss)
-    switch (tupletStyle)
-    {
-        case(TupletNoNumber)
-        {
-            libmei.AddAttribute(activeTuplet, 'num.visible', 'false');
-        }
-        case(TupletLeft)
-        {
-            libmei.AddAttribute(activeTuplet, 'num.format', 'count');
-        }
-        case(TupletLeftRight)
-        {
-            libmei.AddAttribute(activeTuplet, 'num.format', 'ratio');
-        }
-    }
-
-}  //$end
 
 function ConvertBarline (linetype) {
     //$module(ExportConverters.mss)
@@ -807,6 +788,7 @@ function ConvertFbFigures (fb, bobj) {
     // We want one more iteration than we have components, hence we start at
     // -1.
     i = -1;
+    component = null;
     while ((i = -1) or (component != null))
     {
         i = i + 1;

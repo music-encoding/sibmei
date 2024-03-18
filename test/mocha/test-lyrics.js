@@ -35,7 +35,7 @@ describe("Lyrics", () => {
       utils.assertAttrOnElements(syls, [3, 6, 9, 12, 18, 21, 24, 28, 31], 'wordpos', 't');
     });
     it("handles single syllable words (omit @wordpos)", () => {
-      utils.assertAttrOnElements(syls, [0, 4, 10, 13, 14, 15, 16, 25, 26, 32, 33, 34, 35], 'wordpos', null);
+      utils.assertAttrOnElements(syls, [0, 4, 10, 13, 14, 15, 16, 25, 26, 32, 33, 34, 35, 36], 'wordpos', null);
     });
   });
 
@@ -62,12 +62,12 @@ describe("Lyrics", () => {
     // Only first two <syl> elements in test file are colored
     it("encodes colored lyrics", () => {
       for (let i = 0; i < 2; i++) {
-        assert.strictEqual(syls[i].parentNode.getAttribute('color'), 'rgba(255,0,0,1)', '<syl> index ' + i);
+        assert.strictEqual(syls[i].getAttribute('color'), 'rgba(255,0,0,1)', '<syl> index ' + i);
       }
     });
     it("omits @color for black lyrics", () => {
       for (let i = 2; i < syls.length; i++) {
-        assert.strictEqual(syls[i].parentNode.getAttribute('color'), null, '<syl> index ' + i);
+        assert.strictEqual(syls[i].getAttribute('color'), null, '<syl> index ' + i);
       }
     });
   });

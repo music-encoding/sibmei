@@ -3,6 +3,7 @@ function Run() {
     Self._property:sibmei = sibmei4;
     sibmei4._property:libmei = libmei;
     sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
+    sibmei.InitGlobalAliases(Self);
 
     plugins = Sibelius.Plugins;
 
@@ -39,21 +40,6 @@ function Run() {
     suite.Run();
 
     CloseAllWindows();
-
-    // Export with legacy API before batch exporting all the test files because
-    // batch export shows a dialog, and we'd rather have that dialog pop up
-    // when everything is finished.
-    sibmei4.InitGlobals(CreateSparseArray('sibmei4_legacy_extension_api_v1_test'));
-    score = sibmei4.GetScore(_SibTestFileDirectory & 'extensions.sib');
-    sibmei4.DoExport(score, _SibTestFileDirectory & 'legacy_extensions_api_v1.mei');
-
-    testFolder = Sibelius.GetFolder(_SibTestFileDirectory);
-    testFiles = CreateSparseArray();
-    for each SIB file in testFolder
-    {
-        testFiles.Push(file);
-    }
-    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
 
     if (Sibelius.PathSeparator = '/') {
         mochaScript = pluginDir & 'test.sh';

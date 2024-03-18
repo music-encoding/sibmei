@@ -40,7 +40,7 @@ function DoExport (score, filename) {
     //$module(Run.mss)
 
     // Argument filename is optional and will be determined automatically if
-    // `null` is passed in instead.  The filename is also returned so the
+    // `null` is passed in instead. The filename is also returned so the
     // caller can then work with.
 
     // do some preliminary checks
