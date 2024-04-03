@@ -884,7 +884,7 @@ function SetTemplateAction (templateNode, plugin, functionName) {
     // `templateNode` can be a Dictionary that works as a placeholder, or it
     // can be an actual element template (a SparseArray) that the action method
     // can retrieve from the action Dictionary to work with it (e.g. pass it
-    // bacl tp MeiFactory() and then add more attributes dynamically, or only
+    // back to MeiFactory() and then add more attributes dynamically, or only
     // pass it to MeiFactory() if certain conditions are met etc.).
 
     // Depending on what the function specified by `functionName` needs, either

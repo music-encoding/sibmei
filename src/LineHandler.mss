@@ -43,13 +43,12 @@ function InitLineHandlers () {
         // 'line.staff.harmonic.touch',                @Element('Line', @Attrs('form', 'solid')),
         // 'line.staff.harmonics',                     @Element('Line', @Attrs('form', 'solid')),
         // The Hauptstimme line type only has a start symbol and an end symbol
-        // without an actual line. Therefore set @lwidth to 0.
-        // TODO: Add create two separate symbols instead?
-        'line.staff.hauptstimme',                   @Element('Line', @Attrs('startsym', 'H', 'endsym', 'angledown', 'endid', 'Previous')),
+        // without an actual line. Therefore set @width to 0.
+        'line.staff.hauptstimme',                   @Element('Line', @Attrs('startsym', 'H', 'endsym', 'angledown', 'width', '0', 'endid', 'Previous')),
         // 'line.staff.letring',                       @Element('Line', @Attrs('form', 'solid')),
         // 'line.staff.mute.palm',                     @Element('Line', @Attrs('form', 'solid')),
-        // TODO: The Nebenstimme line type only has a start symbol and an end symbol without an actual line.
-        'line.staff.nebenstimme',                   @Element('Line', @Attrs('startsym', 'N', 'endsym', 'angledown', 'lwidth', '0', 'endid', 'Previous')),
+        // The Nebenstimme line type only has a start symbol and an end symbol without an actual line.
+        'line.staff.nebenstimme',                   @Element('Line', @Attrs('startsym', 'N', 'endsym', 'angledown', 'width', '0', 'endid', 'Previous')),
         // 'line.staff.pick.scrape',                   @Element('Line', @Attrs('form', 'solid')),
         // 'line.staff.rake',                          @Element('Line', @Attrs('form', 'solid')),
         // 'line.staff.slide',                         @Element('Line', @Attrs('form', 'solid')),

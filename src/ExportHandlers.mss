@@ -113,9 +113,9 @@ function AssertIdType (pluginInfo, handlers, idProperty, functionName) {
             & pluginInfo._extensionInfo.plugin.Name
             & '\': Expected either of \''
             & validIdProperties.Join('\' or \'')
-            & ' as first paramter of registration function, but found \''
+            & ' as first parameter of registration function, but found \''
             & idProperty
-            & '\'.\n\nPlugin execution is aborted. To continue, deactivate or fix \''
+            & '\'.\n\nPlugin execution is stopped. To continue, deactivate or fix \''
             & pluginInfo._extensionInfo.plugin.Name
             & '\'.'
         );

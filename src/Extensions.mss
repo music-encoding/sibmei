@@ -120,10 +120,10 @@ function DeselectAllExtensions () {
 
 function InitExtensions (extensions, pluginList) {
     // To let the user choose extensions via dialog, pass `null` as `extensions`
-    // argument. If extensions should be activated without showing the  dialog,
+    // argument. If extensions should be activated without showing the dialog,
     // pass a SparseArray with the 'PLG names' of the extensions, i.e. the
     // names that `RegisterAvailableExtensions()` will use as keys. This is
-    // useful e.g. for running tests without requiring user interaction.
+    // useful, e.g., for running tests without requiring user interaction.
     //
     // `pluginList` is the list of all installed Sibelius plugins.
     //
