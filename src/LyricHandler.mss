@@ -48,22 +48,23 @@ function RegisterLyricHandlers (idProperty, handlerMethod, templatesById) {
 function LyricTemplateHandler (this, lyricItem) {
     parentElement = GetNoteObjectAtPosition(lyricItem, 'PreciseMatch');
 
-    if (parentElement != null)
-    {
-        if (libmei.GetName(parentElement) = 'rest')
-        {
-            barNum = lyricItem.ParentBar.BarNumber;
-            voiceNum = lyricItem.VoiceNumber;
-            warnings = Self._property:warnings;
-            warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
-        }
-
-        libmei.AddChild(parentElement, MeiFactory(this.template, lyricItem));
-    }
-    else
+    if (parentElement = null)
     {
         Log('Could not find note object for syl ' & lyricItem);
+        return null;
     }
+
+    if (libmei.GetName(parentElement) = 'rest')
+    {
+        barNum = lyricItem.ParentBar.BarNumber;
+        voiceNum = lyricItem.VoiceNumber;
+        warnings = Self._property:warnings;
+        warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
+    }
+
+    element = MeiFactory(this.template, lyricItem);
+    libmei.AddChild(parentElement, element);
+    return element;
 }  //$end
 
 
