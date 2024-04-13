@@ -689,7 +689,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each LyricItem lobj in bar
     {
-        ProcessLyric(lobj, objectPositions);
+        HandleLyricItem(lobj, objectPositions);
     }
 
     ProcessEndingLines(bar);
@@ -1454,7 +1454,7 @@ function GenerateStaffGroups (score, barnum) {
 }  //$end
 
 function GenerateControlEvent (bobj, element) {
-    // @endid can not yet be set.  Register the line until the layer where it
+    // @endid can not yet be set. Register the line until the layer where it
     // ends is processed
     if (bobj.IsALine and element.attrs.PropertyExists('endid'))
     {
@@ -1571,10 +1571,10 @@ function GenerateArpeggio (bobj) {
         case ('ArpeggioLine')
         {
             if (bobj.StyleId != 'line.staff.arpeggio') {
-                // This means:  Line style is line.staff.arpeggio.up or
+                // This means: Line style is line.staff.arpeggio.up or
                 // line.staff.arpeggio.down.
                 // Strangely, the line style does not really matter for the
-                // visual orientation of the arpeggio.  As long as RhDy and
+                // visual orientation of the arpeggio. As long as RhDy and
                 // and Dy properties are identical, arpeggios look the same,
                 // independant of the two line styles with arrowheads.
                 orientation = bobj.RhDy - bobj.Dy;

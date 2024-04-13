@@ -166,12 +166,12 @@ function PushToHashedLayer (hashedLayers, bar, bobj) {
 
 function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     //$module(Utilities.mss)
-    // takes a bar object, and returns the NoteRest object closest to its
-    // position, in the same voice as `bobj`. If `bobj` is in voice 0, no
-    // NoteRest will be returned.
+    // takes a bar object, and returns the MEI element generated from the
+    // NoteRest object closest to `bobj`'s position, in the same voice as
+    // `bobj`. If `bobj` is in voice 0, `null` will be returned.
     // For line-like objects, parameter `position` must be supplied and be
     // either `Position` or `EndPosition`. For all other objects, this
-    // parameter should be omitted.
+    // parameter is not used and should be omitted.
     // If no NoteRest is found exactly at the position, the defined
     // `searchStrategy` is used to find another NoteRest and may be one of the
     // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
@@ -256,7 +256,7 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
         {
             noteRestPosition = precedingPosition;
         }
-        case ((followingPosition - bobjPosition) < (bobjPosition - precedingPosition))
+        case ((followingPosition - position) < (position - precedingPosition))
         {
             noteRestPosition = followingPosition;
         }
@@ -848,24 +848,18 @@ function MeiFactory (data, bobj) {
     if (data.Length > 2)
     {
         // Add children
-        currentChild = null;
         for i = 2 to data.Length
         {
             childData = data[i];
-            unformattedText = '';
             switch (true)
             {
                 case (not IsObject(childData))
                 {
-                    unformattedText = childData;
+                    AppendText(element, childData);
                 }
-                case (childData._property:AddUnformattedText)
+                case (null != childData._property:templateAction)
                 {
-                    unformattedText = bobj.Text;
-                }
-                case (childData._property:AddFormattedText)
-                {
-                    AddFormattedText(element, bobj);
+                    childData.templateAction.action(element, bobj);
                 }
                 default
                 {
@@ -874,21 +868,74 @@ function MeiFactory (data, bobj) {
                     libmei.AddChild(element, currentChild);
                 }
             }
-
-
-            if (unformattedText != '')
-            {
-                if (currentChild = null)
-                {
-                    libmei.SetText(element, libmei.GetText(element) & unformattedText);
-                }
-                else
-                {
-                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & unformattedText);
-                }
-            }
         }
     }
 
     return element;
+}  //$end
+
+
+function SetTemplateAction (templateNode, plugin, functionName) {
+    // Associates a template action Dictionary with the templateNode. When
+    // MeiFactory() finds a descendant template that has an action Dictionary
+    // as user property `templateAction`, it calls the Dictionary's action()
+    // method to take over control instead of converting it to MEI itself.
+
+    // `templateNode` can be a Dictionary that works as a placeholder, or it
+    // can be an actual element template (a SparseArray) that the action method
+    // can retrieve from the action Dictionary to work with it (e.g. pass it
+    // back to MeiFactory() and then add more attributes dynamically, or only
+    // pass it to MeiFactory() if certain conditions are met etc.).
+
+    // Depending on what the function specified by `functionName` needs, either
+    // the placholder or template form of `templateNode` should be chosen.
+    templateNode._property:templateAction = CreateDictionary('templateNode', templateNode);
+    templateNode.templateAction.SetMethod('action', plugin, functionName);
+    return templateNode;
+}  //$end
+
+
+function GetTemplateElementsByTagName (template, tagName) {
+    // Works basically like getElementsByTagName() in XML/HTML DOM
+
+    elements = CreateSparseArray();
+
+    if (template[0] = tagName)
+    {
+        elements.Push(template);
+    }
+
+    if (template.Length < 3)
+    {
+        return elements;
+    }
+
+    for childIndex = 2 to template.Length
+    {
+        childNode = template[childIndex];
+        if (IsObject(childNode) and childNode[0] != '')
+        {
+            // The child node is an element template
+            for each element in GetTemplateElementsByTagName(childNode, tagName)
+            {
+                elements.Push(element);
+            }
+        }
+    }
+
+    return elements;
+}  //$end
+
+
+function AppendText (element, text) {
+    if (element.children.Length = 0)
+    {
+        libmei.SetText(element, element.text & text);
+    }
+    else
+    {
+        lastChildIndex = element.children.Length - 1;
+        lastChild = libmei.getElementById(element.children[lastChildIndex]);
+        lastChild.tail = lastChild.tail & text;
+    }
 }  //$end

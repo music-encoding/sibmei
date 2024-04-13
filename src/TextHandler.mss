@@ -2,56 +2,63 @@ function InitTextHandlers() {
     noAttributes = null;
     noTstamp = CreateDictionary('tstamp', ' ');
 
+    Self._property:FormattedText = SetTemplateAction(CreateDictionary(), Self, 'AddFormattedText');
+    Self._property:UnformattedText = SetTemplateAction(CreateDictionary(), Self, 'AddUnformattedText');
+
     Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
 
-    RegisterTextHandlers('StyleId', CreateDictionary(
-        'text.staff.expression', CreateSparseArray('Dynam', noAttributes, FormattedText),
+    RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
+        'text.staff.expression', @Element('Dynam', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-        'text.staff.technique', CreateSparseArray('Dir', CreateDictionary('label', 'technique'), FormattedText),
-        'text.system.page_aligned.composer', CreateSparseArray('AnchoredText', noTstamp, FormattedText),
-        'text.system.page_aligned.subtitle', CreateSparseArray(
+        'text.staff.technique', @Element('Dir', @Attrs('label', 'technique'), FormattedText),
+        'text.system.page_aligned.composer', @Element('AnchoredText', noTstamp, FormattedText),
+        'text.system.page_aligned.subtitle', @Element(
             'AnchoredText',
             noTstamp,
-            CreateSparseArray('Title', CreateDictionary('type', 'subordinate'), FormattedText)
+            @Element('Title', @Attrs('type', 'subordinate'), FormattedText)
         ),
-        'text.system.page_aligned.title', CreateSparseArray(
+        'text.system.page_aligned.title', @Element(
             'AnchoredText',
             noTstamp,
-            CreateSparseArray('Title', noAttributes, FormattedText)
+            @Element('Title', noAttributes, FormattedText)
         ),
-        'text.system.tempo', CreateSparseArray('Tempo', noAttributes, FormattedText)
-    ), Self);
+        'text.system.tempo', @Element('Tempo', noAttributes, FormattedText)
+    ));
+
+    RegisterTextHandlers('StyleId', 'FiguredBassTextHandler', @Attrs(
+        'text.staff.space.figuredbass', null
+    ));
 }  //$end
 
 
-function RegisterTextHandlers (styleIdType, textHandlerDict, plugin) {
-    RegisterHandlers(TextHandlers[styleIdType], textHandlerDict, plugin);
+function RegisterTextHandlers (idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(Self, TextHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
 function InitTextSubstituteMap() {
     tempSubstituteMap = CreateDictionary(
-        'Title', CreateSparseArray('Title'),
-        'Subtitle', CreateSparseArray('Title', CreateDictionary('type', 'subordinate')),
+        'Title', @Element('Title'),
+        'Subtitle', @Element('Title', @Attrs('type', 'subordinate')),
         // <dedication> is only allowed on <titlePage> and <creation>, so use
         // generic element
-        'Dedication', CreateSparseArray('Seg', CreateDictionary('type', 'Dedication')),
+        'Dedication', @Element('Seg', @Attrs('type', 'Dedication')),
         // <composer>, <arranger>, <lyricist>, <userRestrict> and <publisher>
         // are only allowed in a few places, e.g. metadata or title pages.
         // We therfore use more generic elements
-        'Composer', CreateSparseArray('PersName', CreateDictionary('role', 'Composer')),
-        'Arranger', CreateSparseArray('PersName', CreateDictionary('role', 'Arranger')),
-        'Lyricist', CreateSparseArray('PersName', CreateDictionary('role', 'Lyricist')),
-        'Artist', CreateSparseArray('PersName', CreateDictionary('role', 'Artist')),
+        'Composer', @Element('PersName', @Attrs('role', 'Composer')),
+        'Arranger', @Element('PersName', @Attrs('role', 'Arranger')),
+        'Lyricist', @Element('PersName', @Attrs('role', 'Lyricist')),
+        'Artist', @Element('PersName', @Attrs('role', 'Artist')),
         // <useRestrict> is only allowed on <titlePage>, so use generic element
-        'Copyright', CreateSparseArray('Seg', CreateDictionary('type', 'Copyright')),
+        'Copyright', @Element('Seg', @Attrs('type', 'Copyright')),
         // <publisher> is only allowed in a few places, so use generic element
         // We don't even know if it's a person or an institution
-        'Publisher', CreateSparseArray('Seg', CreateDictionary('type', 'Publisher')),
-        'MoreInfo', CreateSparseArray('Seg', CreateDictionary('type', 'MoreInfo')),
-        'PartName', CreateSparseArray('Seg', CreateDictionary('type', 'PartName'))
+        'Publisher', @Element('Seg', @Attrs('type', 'Publisher')),
+        'MoreInfo', @Element('Seg', @Attrs('type', 'MoreInfo')),
+        'PartName', @Element('Seg', @Attrs('type', 'PartName'))
     );
 
     textSubstituteMap = CreateDictionary();
@@ -88,7 +95,12 @@ function FiguredBassTextHandler (this, textObject) {
 }  //$end
 
 
-function AddFormattedText (parentElement, textObject) {
+function AddUnformattedText (self, parentElement, textObject) {
+    AppendText(parentElement, textObject.Text);
+}  //$end
+
+
+function AddFormattedText (self, parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
@@ -101,7 +113,7 @@ function AddFormattedText (parentElement, textObject) {
         }
         else
         {
-            libmei.SetText(parentElement, textObject.Text);
+            AppendText(parentElement, textObject.Text);
         }
         return parentElement;
     }
