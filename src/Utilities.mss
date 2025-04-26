@@ -275,6 +275,79 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
 } //$end
 
 
+function GetMeiNoteRestAtPosition (bobj, endPosition) {
+    // Returns the MEI element generated from a NoteRest at the start or end
+    // position of `bobj`, depending on whether `endPosition` is true or false.
+
+    if (endPosition)
+    {
+        layerHash = LayerHash(bobj.EndBarNumber, bobj);
+        position = bobj.EndPosition;
+    }
+    else
+    {
+        layerHash = LayerHash(bobj.ParentBar, bobj);
+        position = bobj.Position;
+    }
+
+    noteRestIdsByPosition = NoteRestIdsByLocation[layerHash];
+
+    if (null = noteRestIdsByPosition)
+    {
+        return null;
+    }
+
+    id = noteRestIdsByPosition[position];
+
+    if (null != id)
+    {
+        return libmei.getElementById(id);
+    }
+
+    // If there is no NoteRest at the precise position, linearly search the
+    // NoteRests in this layer for the closest position.
+    noteRestPositions = noteRestIdsByPosition.ValidIndices;
+
+    for i = 0 to noteRestPositions.Length
+    {
+        if (noteRestPositions[i] > position)
+        {
+            // If the preceding position was closer, use that one
+            if (
+                (i > 0)
+                and (position - noteRestPositions[i - 1] < noteRestPositions[i] - position)
+            )
+            {
+                i = i - 1;
+            }
+            id = noteRestIdsByPosition[noteRestPositions[i]];
+            return libmei.getElementById(id);
+        }
+    }
+
+    return null;
+} //$end
+
+
+function RegisterNoteRestIdByLocation (noteRest, id) {
+    //$module(Utilities.mss)
+    /**
+     * Registers the NoteRest's id in the global NoteRestIdsByLocation object
+     * that is used by GetMeiNoteRestAtPosition() to retrieve MEI objects that
+     * other objects are attached to.
+     */
+
+    layerHash = LayerHash(noteRest.ParentBar, noteRest);
+    noteIdsByPosition = NoteRestIdsByLocation[layerHash];
+    if (null = noteIdsByPosition)
+    {
+        noteIdsByPosition = CreateSparseArray();
+        NoteRestIdsByLocation[layerHash] = noteIdsByPosition;
+    }
+    noteIdsByPosition[noteRest.Position] = id;
+}  //$end
+
+
 function AddControlEventAttributes (bobj, element) {
     //$module(Utilities.mss)
     /*

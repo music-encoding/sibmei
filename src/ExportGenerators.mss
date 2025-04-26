@@ -478,6 +478,198 @@ function GenerateStaff (staffnum, measurenum) {
     return stf;
 }  //$end
 
+
+function GetParentsInVoiceMap (parentsByVoiceAndPosition, voiceNumber) {
+    //$module(ExportGenerators.mss)
+    /**
+     * Returns the entry for `voiceNumber` found in `parentsByVoiceAndPosition`.
+     * If the entry does not exist yet for this layer, one is created.
+     */
+    if (null != parentsByVoiceAndPosition[voiceNumber])
+    {
+        return parentsByVoiceAndPosition[voiceNumber];
+    }
+    else
+    {
+        layer = libmei.Layer();
+        libmei.AddAttribute(layer, 'n', voiceNumber);
+        layerInfo = CreateDictionary('element', layer);
+        parentsInVoice = CreateSparseArray(layerInfo);
+        parentsInVoice._property:layerInfo = layerInfo;
+        parentsByVoiceAndPosition[voiceNumber] = parentsInVoice;
+        return parentsInVoice;
+    }
+} //$end
+
+
+function GenerateNoteRestParentsByVoiceAndPosition (bar) {
+    //$module(ExportGenerators.mss)
+    // Pre-analyzes a measure and creates all container elements for notes,
+    // rests, chords and clefs, and, crucially, establishes their hierarchy.
+    // Container elements are <layer>, <beam> and <tuplet>, If beams and tuplets
+    // can not be nested properly, <beamSpan>s are created.
+    //
+    // The returned `parentsByVoiceAndPosition` is a 2D SparseArray lookup table
+    // where the innermost container element can be retrieved by any NoteRest's
+    // VoiceNumber and Position. It has a user property `beamSpans`, which is a
+    // SparseArray of all the generated <beamSpan>s that have to be appended to
+    // <measure>.
+
+    parentsByVoiceAndPosition = CreateSparseArray();
+    parentsByVoiceAndPosition._property:beamSpans = CreateSparseArray();
+    beamInfosByVoice = CreateSparseArray();
+
+    // Associate NoteRests with either beams or layers. <beam> and <layer>
+    // elements are generated as needed.
+    for each NoteRest noteRest in bar
+    {
+        // Grace note beams are created on-the-fly later because we can have
+        // multiple grace notes with the same Position, which would not allow us
+        // to look up grace note beams by the position of their notes. As
+        // Sibelius does not allow grace note tuplets, we don't have any nesting
+        // issues inside grace note beams, although we will have to check if a
+        // grace note beam is appended to a 'full-size' beam or whether it's
+        // appended to the layer.
+        if (not noteRest.GraceNote)
+        {
+            parentsInVoice = GetParentsInVoiceMap(parentsByVoiceAndPosition, noteRest.VoiceNumber);
+            switch (NormalizedBeamProp(noteRest))
+            {
+                case (NoBeam)
+                {
+                    parentsInVoice[noteRest.Position] = parentsInVoice.layerInfo;
+                }
+                case (StartBeam)
+                {
+                    beamInfo = CreateDictionary(
+                        'element', libmei.Beam(),
+                        'parent', parentsInVoice.layerInfo,
+                        'noteRests', CreateSparseArray(noteRest)
+                    );
+                    beamInfosInVoice = beamInfosByVoice[noteRest.VoiceNumber];
+                    if (null = beamInfosInVoice)
+                    {
+                        beamInfosInVoice = CreateSparseArray();
+                        beamInfosByVoice[noteRest.VoiceNumber] = beamInfosInVoice;
+                    }
+                    beamInfosInVoice.Push(beamInfo);
+                    parentsInVoice[noteRest.Position] = beamInfo;
+                }
+                default
+                {
+                    beamInfosForVoice = beamInfosByVoice[noteRest.VoiceNumber];
+                    // This should be a continued beam
+                    if (null != beamInfosForVoice and beamInfosForVoice.Length > 0)
+                    {
+                        beamInfosForVoice[-1].noteRests.Push(noteRest);
+                        parentsInVoice[noteRest.Position] = beamInfosForVoice[-1];
+                    }
+                    else
+                    {
+                        // TODO: If we're here, we have a beam that crossed the
+                        // preceding barline.
+                        parentsInVoice[noteRest.Position] = parentsInVoice.layerInfo;
+                    }
+                }
+            }
+        }
+    }
+
+    // Check if there are tuplets interlocking with any beams, in which case we
+    // turn the beam into a beamSpan
+    for each voiceNumber in beamInfosByVoice.ValidIndices
+    {
+        beamInfosForVoice = beamInfosByVoice[voiceNumber];
+        for each beamInfo in beamInfosForVoice
+        {
+            if (BeamIsInterlockingWithTuplet(beamInfo.noteRests))
+            {
+                beamSpan = libmei.BeamSpan();
+                beamInfo.element = beamSpan;
+                libmei.AddAttribute(beamSpan, 'layer', voiceNumber);
+                libmei.AddAttribute(beamSpan, 'staff', bar.ParentStaff.StaffNum);
+                // Register start and end NoteRests so we can later add @startid
+                // and @endid when the MEI elements IDs were created.
+                beamSpan['startNoteRest'] = beamInfo.noteRests[0];
+                beamSpan['endNoteRest'] = beamInfo.noteRests[-1];
+
+                parentsByVoiceAndPosition.beamSpans.Push(beamSpan);
+                parentsInVoice = parentsByVoiceAndPosition[voiceNumber];
+
+                for each noteRest in beamInfo.noteRests
+                {
+                    parentsInVoice[noteRest.Position] = parentsInVoice.layerInfo;
+                }
+            }
+        }
+    }
+
+    // For all tuplets, check the relationship between tuplet and beams.
+    // Possible situations:
+    // * There is no beam (parent of the tuplet will be layer)
+    // * Tuplet fits inside beam (parent of tuplet will be beam)
+    // * Beam fits inside tuplet (tuplet will be parent of beam)
+    // * They are interlocking and we have to resort to <beamSpan>. We've
+    //   already ruled those out and created <tupletSpan>s for these cases.
+    for each Tuplet tuplet in bar
+    {
+        // The iteration visists the outer tuplets first, then their children
+        parentsInVoice = parentsByVoiceAndPosition[tuplet.VoiceNumber];
+        tupletInfo = CreateDictionary(
+            'element', GenerateTuplet(tuplet),
+            'parent', parentsInVoice.layerInfo
+        );
+
+        parentInfo = parentsInVoice[tuplet.Position];
+        beamEnclosesTuplet = (
+            parentInfo.element.name = 'beam'
+            and parentInfo.noteRests[-1].Position >= tuplet.Position + tuplet.PlayedDuration
+        );
+
+        if (beamEnclosesTuplet)
+        {
+            tupletInfo.parent = parentInfo;
+        }
+
+        noteRest = tuplet.NextItem(tuplet.VoiceNumber, 'NoteRest');
+        while (null != noteRest and noteRest.Position < (tuplet.Position + tuplet.PlayedDuration))
+        {
+            if (beamEnclosesTuplet)
+            {
+                parentsInVoice[noteRest.Position] = tupletInfo;
+            }
+            else
+            {
+                parentInfo = parentsInVoice[noteRest.Position];
+                if (parentInfo.element.name = 'beam')
+                {
+                    parentInfo.parent = tupletInfo;
+                }
+            }
+
+            noteRest = noteRest.NextItem(tuplet.VoiceNumber, 'NoteRest');
+        }
+    }
+
+
+    for each BarRest barRest in bar
+    {
+        // This will initialize any uninitalized layers
+        GetParentsInVoiceMap(parentsByVoiceAndPosition, barRest.VoiceNumber);
+    }
+
+    if (parentsByVoiceAndPosition.ValidIndices.Length = 0)
+    {
+        // Make sure to initialize at least one layer even in (entirely
+        // possible!) broken cases where a Bar has no NoteRests and no BarRest.
+        // At least we can then attach clefs.
+        GetParentsInVoiceMap(parentsByVoiceAndPosition, 1);
+    }
+
+    return parentsByVoiceAndPosition;
+} //$end
+
+
 function GenerateLayers (staffnum, measurenum) {
     //$module(ExportGenerators.mss)
     layerdict = CreateDictionary();
