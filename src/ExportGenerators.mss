@@ -148,7 +148,7 @@ function GenerateMEIMusic () {
     Self._property:LyricWords = CreateDictionary();
     Self._property:SpecialBarlines = CreateDictionary();
     Self._property:SystemText = CreateDictionary();
-    Self._property:ObjectPositions = CreateDictionary();
+    Self._property:NoteRestIdsByLocation = CreateSparseArray();
 
     Self._property:VoltaBars = CreateDictionary();
     Self._property:ActiveVolta = null;
@@ -389,6 +389,14 @@ function GenerateMeasure (num) {
 
         s = GenerateStaff(i, num);
         libmei.AddChild(m, s);
+        for each beamSpan in s.beamSpans
+        {
+            libmei.AddChild(m, beamSpan);
+            startid = GetMeiNoteRestAtPosition(beamSpan.startNoteRest, false)._id;
+            libmei.AddAttribute(beamSpan, 'startid', '#' & startid);
+            endid = GetMeiNoteRestAtPosition(beamSpan.endNoteRest, false)._id;
+            libmei.AddAttribute(beamSpan, 'endid', '#' & endid);
+        }
     }
 
     mties = Self._property:MeasureTies;
@@ -472,6 +480,7 @@ function GenerateStaff (staffnum, measurenum) {
     libmei.AddAttribute(stf, 'n', staffnum);
 
     layers = GenerateLayers(staffnum, measurenum);
+    stf['beamSpans'] = layers.beamSpans;
     // NB: Completely resets any previous children!
     libmei.SetChildren(stf, layers);
 
@@ -672,106 +681,64 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
 
 function GenerateLayers (staffnum, measurenum) {
     //$module(ExportGenerators.mss)
-    layerdict = CreateDictionary();
-    layers = CreateSparseArray();
-
-    objectPositions = Self._property:ObjectPositions;
-
     score = Self._property:ActiveScore;
     this_staff = score.NthStaff(staffnum);
     bar = this_staff[measurenum];
-    l = null;
+
+    mobjs = Self._property:MeasureObjects;
+
+    parentsByVoiceAndPosition = GenerateNoteRestParentsByVoiceAndPosition(bar);
+    activeGraceBeam = null;
 
     for each bobj in bar
     {
-        voicenumber = bobj.VoiceNumber;
-        layerHash = LayerHash(bar, voicenumber);
-
-        if (layerdict.PropertyExists(voicenumber))
-        {
-            l = layerdict[voicenumber];
-        }
-        else
-        {
-            if (voicenumber != 0 or (l = null and bobj.Type = 'Clef'))
-            {
-                l = libmei.Layer();
-                layers.Push(l._id);
-
-                if (null = objectPositions[layerHash])
-                {
-                    objectPositions[layerHash] = CreateSparseArray();
-                }
-
-                layerdict[voicenumber] = l;
-                libmei.AddAttribute(l, 'n', voicenumber);
-
-                l._property:CurrentPos = 0;
-            }
-        }
-
-        obj = null;
-        parent = null;
-        beam = null;
-        tuplet = null;
-
         switch (bobj.Type)
         {
             case('Clef')
             {
-                // Clefs are placed inside the musical flow like notes. Hence we also need to find
-                // out whether they are part of beams or tuplets.
-                clef = GenerateClef(bobj);
+                // Clefs are always VoiceNumber 0. We have to include them in
+                // all existing layers.
+                firstClefId = '';
 
-                prevNoteRest = AdjacentNormalOrGrace(bobj, false, 'PreviousItem');
-
-                if (prevNoteRest != null)
+                for each voiceNumber in parentsByVoiceAndPosition.ValidIndices
                 {
-                    prevBeamProp = NormalizedBeamProp(prevNoteRest);
-
-                    switch (prevBeamProp)
+                    clef = GenerateClef(bobj);
+                    if (firstClefId != '')
                     {
-                        case ('StartBeam')
-                        {
-                            beam = l._property:ActiveBeam;
-                        }
-                        case ('NoBeam')
-                        {
-                            beam = null;
-                        }
-                        default
-                        {
-                            // ContinueBeam and SingleBeam
-                            nextNoteRest = AdjacentNormalOrGrace(bobj, false, 'NextItem');
-                            if (nextNoteRest != null)
-                            {
-                                nextBeamProp = NormalizedBeamProp(nextNoteRest);
-                                if ((nextBeamProp = ContinueBeam) or (nextBeamProp = SingleBeam))
-                                {
-                                    beam = l._property:ActiveBeam;
-                                }
-                            }
-                        }
+                        libmei.AddAttribute(clef, 'sameas', '#' & firstClefId);
                     }
-
-                    tuplet = l._property:ActiveMeiTuplet;
-                    while (tuplet != null and tuplet._property:ParentTuplet != null)
+                    else
                     {
-                        tuplet = tuplet._property:ParentTuplet;
+                        firstClefId = clef._id;
                     }
+                    precedingNoteRest = bobj.PreviousItem(voiceNumber, 'NoteRest');
+                    parentsInVoice = parentsByVoiceAndPosition[voiceNumber];
+                    container = parentsInVoice.layerInfo;
+                    if (null != precedingNoteRest)
+                    {
+                        container = parentsInVoice[precedingNoteRest.Position];
+                    }
+                    while (
+                        container.element.name != 'layer'
+                        // If the clef is at the very end position of the container
+                        // or beyond, the clef is not part of this container.
+                        and bobj.Position >= container.noteRests[-1].Position
+                    )
+                    {
+                        container = container.parent;
+                    }
+                    libmei.AddChild(container.element, clef);
                 }
-
-                AppendToLayer(clef, l, beam, tuplet);
             }
             case('NoteRest')
             {
-                note = GenerateNoteRest(bobj, l);
+                note = GenerateNoteRest(bobj);
+
+                parentsInVoice = parentsByVoiceAndPosition[bobj.VoiceNumber];
 
                 if (note != null)
                 {
-                    // record the position of this element
-                    objVoice = objectPositions[layerHash];
-                    objVoice[bobj.Position] = note._id;
+                    RegisterNoteRestIdByLocation(bobj, note._id);
 
                     normalizedBeamProp = NormalizedBeamProp(bobj);
 
@@ -779,36 +746,75 @@ function GenerateLayers (staffnum, measurenum) {
                     {
                         if (bobj.GraceNote)
                         {
-                            prevNote = l._property:PrevGraceNote;
+                            prevNote = parentsInVoice._property:PrevGraceNote;
                         }
                         else
                         {
-                            prevNote = l._property:PrevNote;
+                            prevNote = parentsInVoice._property:PrevNote;
                         }
                         // prevNote is not null here - unless we have a bug in NormalizeBeamProp()
                         // or the registration of previous notes.
                         libmei.AddAttribute(prevNote, 'breaksec', '1');
                     }
 
-                    // fetch or create the active beam object (if any)
-                    beam = ProcessBeam(bobj, l, normalizedBeamProp);
+                    parentsInVoice = parentsByVoiceAndPosition[bobj.VoiceNumber];
+                    container = parentsInVoice[bobj.Position];
 
-                    // fetch or create the active tuplet object (if any)
-                    tuplet = ProcessTuplet(bobj, note, l);
 
-                    if (bobj.GraceNote)
+                    if (not bobj.GraceNote)
                     {
-                        l._property:PrevGraceNote = note;
+                        parentsInVoice._property:PrevNote = note;
                     }
                     else
                     {
-                        l._property:PrevNote = note;
+                        while (
+                            container.element.name != 'layer'
+                            // If the grace note is at the start position of the
+                            // container (beam or tuplet), it is not part of this
+                            // container. It needs to go before the container.
+                            and bobj.Position <= container.noteRests[0].Position
+                        )
+                        {
+                            container = container.parent;
+                        }
+
+                        switch (normalizedBeamProp)
+                        {
+                            case (NoBeam)
+                            {
+                                containerElement = container.element;
+                            }
+                            case (StartBeam)
+                            {
+                                containerElement = libmei.Beam();
+                                libmei.AddChild(container.element, containerElement);
+                                parentsInVoice._property:activeGraceBeam = containerElement;
+                            }
+                            default
+                            {
+                                containerElement = parentsInVoice._property:activeGraceBeam;
+                            }
+                        }
+
+                        parentsInVoice._property:PrevGraceNote = note;
                     }
 
-                    AppendToLayer(note, l, beam, tuplet);
+                    libmei.AddChild(container.element, note);
+
+                    // We can only add the containers to the layer (or their
+                    // respective parent) after all preceding siblings were
+                    // added. When we reach the first NoteRest of a container,
+                    // we have to add its container.
+                    while (container.element.name != 'layer' and null = container.element._parent)
+                    {
+                        libmei.AddChild(container.parent.element, container.element);
+                        container = container.parent;
+                    }
                 }
 
-                if (bobj.ArpeggioType != ArpeggioTypeNone) {
+
+                if (bobj.ArpeggioType != ArpeggioTypeNone)
+                {
                     arpeg = GenerateArpeggio(bobj);
                 }
             }
@@ -818,7 +824,9 @@ function GenerateLayers (staffnum, measurenum) {
 
                 if (brest != null)
                 {
-                    libmei.AddChild(l, brest);
+                    layer = parentsByVoiceAndPosition[bobj.VoiceNumber].layerInfo.element;
+
+                    libmei.AddChild(layer, brest);
                 }
             }
         }
@@ -886,6 +894,13 @@ function GenerateLayers (staffnum, measurenum) {
 
     ProcessEndingLines(bar);
 
+    layers = CreateSparseArray();
+    for each layerNumber in parentsByVoiceAndPosition.ValidIndices
+    {
+        parentsInVoice = parentsByVoiceAndPosition[layerNumber];
+        layers.Push(parentsInVoice.layerInfo.element._id);
+    }
+    layers._property:beamSpans = parentsByVoiceAndPosition.beamSpans;
     return layers;
 }  //$end
 

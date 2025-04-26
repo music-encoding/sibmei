@@ -176,7 +176,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // `searchStrategy` is used to find another NoteRest and may be one of the
     // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
 
-    objectPositions = Self._property:ObjectPositions;
+    objectPositions = Self._property:NoteRestIdsByLocation;
     if (bobj.IsALine and positionProperty = 'EndPosition')
     {
         bobjPosition = bobj.EndPosition;
@@ -208,7 +208,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // Try and find the best matching note according to the `searchStrategy`.
     noteRestPositions = noteIdsByPosition.ValidIndices;
 
-    for noteRestIndex = noteRestPositions.Length - 1 to -1 step -1 {
+    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1 {
         if (noteRestPositions[noteRestIndex] < bobjPosition)
         {
             // We found the closest preceding and following positions
