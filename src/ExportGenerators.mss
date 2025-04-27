@@ -553,7 +553,10 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
                     beamInfo = CreateDictionary(
                         'element', libmei.Beam(),
                         'parent', parentsInVoice.layerInfo,
-                        'noteRests', CreateSparseArray(noteRest)
+                        // TODO: We don't really need an array of all the notes,
+                        // it suffices to have the first and the last one
+                        'noteRests', CreateSparseArray(noteRest),
+                        'endPosition', noteRest.Position
                     );
                     beamInfosInVoice = beamInfosByVoice[noteRest.VoiceNumber];
                     if (null = beamInfosInVoice)
@@ -571,6 +574,7 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
                     if (null != beamInfosForVoice and beamInfosForVoice.Length > 0)
                     {
                         beamInfosForVoice[-1].noteRests.Push(noteRest);
+                        beamInfosForVoice[-1].endPosition = noteRest.Position;
                         parentsInVoice[noteRest.Position] = beamInfosForVoice[-1];
                     }
                     else
@@ -619,14 +623,15 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
     // * Tuplet fits inside beam (parent of tuplet will be beam)
     // * Beam fits inside tuplet (tuplet will be parent of beam)
     // * They are interlocking and we have to resort to <beamSpan>. We've
-    //   already ruled those out and created <tupletSpan>s for these cases.
+    //   already ruled those out and created <beamSpan>s for these cases.
     for each Tuplet tuplet in bar
     {
         // The iteration visists the outer tuplets first, then their children
         parentsInVoice = parentsByVoiceAndPosition[tuplet.VoiceNumber];
         tupletInfo = CreateDictionary(
             'element', GenerateTuplet(tuplet),
-            'parent', parentsInVoice.layerInfo
+            'parent', parentsInVoice.layerInfo,
+            'endPosition', tuplet.EndPosition
         );
 
         parentInfo = parentsInVoice[tuplet.Position];
@@ -643,19 +648,16 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
         noteRest = tuplet.NextItem(tuplet.VoiceNumber, 'NoteRest');
         while (null != noteRest and noteRest.Position < (tuplet.Position + tuplet.PlayedDuration))
         {
-            if (beamEnclosesTuplet)
+            parentInfo = parentsInVoice[noteRest.Position];
+            if (parentInfo.element.name = 'beam' and not beamEnclosesTuplet)
             {
-                parentsInVoice[noteRest.Position] = tupletInfo;
+                parentInfo.parent = tupletInfo;
             }
             else
             {
-                parentInfo = parentsInVoice[noteRest.Position];
-                if (parentInfo.element.name = 'beam')
-                {
-                    parentInfo.parent = tupletInfo;
-                }
+                parentsInVoice[noteRest.Position] = tupletInfo;
             }
-
+            tupletInfo.endPosition = noteRest.Position;
             noteRest = noteRest.NextItem(tuplet.VoiceNumber, 'NoteRest');
         }
     }
@@ -722,7 +724,7 @@ function GenerateLayers (staffnum, measurenum) {
                         container.element.name != 'layer'
                         // If the clef is at the very end position of the container
                         // or beyond, the clef is not part of this container.
-                        and bobj.Position >= container.noteRests[-1].Position
+                        and bobj.Position > container.endPosition
                     )
                     {
                         container = container.parent;
