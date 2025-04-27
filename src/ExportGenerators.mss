@@ -637,7 +637,7 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
         parentInfo = parentsInVoice[tuplet.Position];
         beamEnclosesTuplet = (
             parentInfo.element.name = 'beam'
-            and parentInfo.noteRests[-1].Position >= tuplet.Position + tuplet.PlayedDuration
+            and parentInfo.noteRests[-1].Position >= (tuplet.Position + tuplet.PlayedDuration)
         );
 
         if (beamEnclosesTuplet)
@@ -891,7 +891,7 @@ function GenerateLayers (staffnum, measurenum) {
 
     for each LyricItem lobj in bar
     {
-        HandleLyricItem(lobj, objectPositions);
+        HandleLyricItem(lobj);
     }
 
     ProcessEndingLines(bar);
