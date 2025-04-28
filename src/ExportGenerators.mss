@@ -556,6 +556,9 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
                         // TODO: We don't really need an array of all the notes,
                         // it suffices to have the first and the last one
                         'noteRests', CreateSparseArray(noteRest),
+                        'position', noteRest.Position,
+                        // This value will be updated when iteration reaches
+                        // subsequent NoteRests under this beam
                         'endPosition', noteRest.Position
                     );
                     beamInfosInVoice = beamInfosByVoice[noteRest.VoiceNumber];
@@ -631,6 +634,7 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
         tupletInfo = CreateDictionary(
             'element', GenerateTuplet(tuplet),
             'parent', parentsInVoice.layerInfo,
+            'position', tuplet.Position,
             'endPosition', tuplet.EndPosition
         );
 
@@ -774,7 +778,7 @@ function GenerateLayers (staffnum, measurenum) {
                             // If the grace note is at the start position of the
                             // container (beam or tuplet), it is not part of this
                             // container. It needs to go before the container.
-                            and bobj.Position <= container.noteRests[0].Position
+                            and bobj.Position <= container.position
                         )
                         {
                             container = container.parent;
