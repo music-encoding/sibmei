@@ -641,7 +641,7 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
         parentInfo = parentsInVoice[tuplet.Position];
         beamEnclosesTuplet = (
             parentInfo.element.name = 'beam'
-            and parentInfo.noteRests[-1].Position >= (tuplet.Position + tuplet.PlayedDuration)
+            and parentInfo.noteRests[-1].Position >= tuplet.EndPosition
         );
 
         if (beamEnclosesTuplet)
