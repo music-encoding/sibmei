@@ -633,20 +633,19 @@ function GenerateNoteRestParentsByVoiceAndPosition (bar) {
         parentsInVoice = parentsByVoiceAndPosition[tuplet.VoiceNumber];
         tupletInfo = CreateDictionary(
             'element', GenerateTuplet(tuplet),
-            'parent', parentsInVoice.layerInfo,
+            'parent', parentsInVoice[tuplet.Position],
             'position', tuplet.Position,
             'endPosition', tuplet.EndPosition
         );
 
-        parentInfo = parentsInVoice[tuplet.Position];
         beamEnclosesTuplet = (
-            parentInfo.element.name = 'beam'
-            and parentInfo.noteRests[-1].Position >= tuplet.EndPosition
+            tupletInfo.parent.element.name = 'beam'
+            and tupletInfo.parent.noteRests[-1].Position >= tuplet.EndPosition
         );
 
-        if (beamEnclosesTuplet)
+        if (tupletInfo.parent.element.name = 'beam' and not beamEnclosesTuplet)
         {
-            tupletInfo.parent = parentInfo;
+            tupletInfo.parent = parentsInVoice.layerInfo;
         }
 
         noteRest = tuplet.NextItem(tuplet.VoiceNumber, 'NoteRest');
