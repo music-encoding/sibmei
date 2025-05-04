@@ -520,7 +520,7 @@ function ConvertBracket (bracket) {
         }
         case(BracketSub)
         {
-            return 'line';
+            return 'bracketsq';
         }
         default
         {

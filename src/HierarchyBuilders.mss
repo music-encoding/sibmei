@@ -43,11 +43,14 @@ function BuildStaffGrpHierarchy(score, barnum) {
         // lower BottomStaveNum values must result in higher rank values, so
         // flip the value (i.e. staffCount - BottomStaveNum).
         rank = rank * staffCount + (staffCount - groupItem.BottomStaveNum);
+        // Sub-brackets need a higher rank than other brackets because they must
+        // be enclosed by any other brackets spanning the same staves.
+        isSubBracket = groupItem.action = 'addSymbolAttribute' and groupItem.BracketType = BracketSub;
+        rank = rank * 2 + isSubBracket;
         rank = rank * maxSubrank + subrank;
         // The 'subrank' (lowest priority) makes sure we don't get duplicate
         // rank values e.g. for instruments and braces that have the same top
-        // and bottom staff and brackets/braces spanning the same staves
-        // (where subrank also preserves the order of inner/outer bracket/brace).
+        // and bottom staff and brackets/braces spanning the same staves.
         subrank = subrank + 1;
         rankedItems[rank] = groupItem;
     }
@@ -99,13 +102,13 @@ function BuildStaffGrpHierarchy(score, barnum) {
             AddNewStaffGrpToHierarchy(staffGrpStack, staffGrpByStaffNum, groupItem);
             action = groupItem.action;
         }
-        
+
         staffGrpElement = staffGrpStack[-1].staffGrpElement;
         switch (action)
         {
             case ('addSymbolAttribute')
             {
-                libmei.AddAttribute(staffGrpElement, 'symbol', ConvertBracket(staffGrpStack[-1]));
+                libmei.AddAttribute(staffGrpElement, 'symbol', ConvertBracket(staffGrpStack[-1].BracketType));
             }
             case ('addBarThru')
             {
