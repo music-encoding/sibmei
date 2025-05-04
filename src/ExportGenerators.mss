@@ -1263,11 +1263,7 @@ function GenerateScoreDef (score, barnum) {
     GenerateMeterAttributes(scoredef, score, 1);
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    if (score.StaffCount > 0)
-    {
-        staffgrp = GenerateStaffGroups(score, barnum);
-        libmei.AddChild(scoredef, staffgrp);
-    }
+    libmei.AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
 
     return scoredef;
 }  //$end
@@ -1338,7 +1334,7 @@ function GenerateMeterAttributes (scoredef, score, barNumber) {
 function GenerateStaffGroups (score, barnum) {
     //$module(ExportGenerators.mss)
     staffdict = CreateDictionary();
-    parentstgrp = libmei.StaffGrp();
+    rootStaffGrp = libmei.StaffGrp();
     numstaff = score.StaffCount;
 
     for each Staff s in score
@@ -1372,36 +1368,6 @@ function GenerateStaffGroups (score, barnum) {
         else
         {
             libmei.AddAttribute(std, 'key.mode', 'minor');
-        }
-
-        if (s.FullInstrumentName != null)
-        {
-            label = libmei.Label();
-            libmei.SetText(label, s.FullInstrumentName);
-            libmei.AddChild(std, label);
-        }
-
-        if (s.ShortInstrumentName != null)
-        {
-            labelAbbr = libmei.LabelAbbr();
-            libmei.SetText(labelAbbr, s.ShortInstrumentName);
-            libmei.AddChild(std, labelAbbr);
-        }
-
-        if (s.InstrumentName != null)
-        {
-            instrObj = s.InitialInstrumentType;
-            instrComment = libmei.XMLComment(instrObj.DefaultSoundId);
-            libmei.AddChild(std, instrComment);
-
-            instrDef = libmei.InstrDef();
-            // libmei.AddAttribute(instrDef, 'midi.instrname', s.InstrumentName);
-            // midi pan is 0-127, Sib. pan is -127 to + 127, so this needs to be converted.
-            pan = RoundUp((s.Pan + 127) / 2);
-            libmei.AddAttribute(instrDef, 'midi.pan', pan);
-            libmei.AddAttribute(instrDef, 'midi.volume', s.Volume);
-            libmei.AddAttribute(instrDef, 'midi.channel', s.Channel);
-            libmei.AddChild(std, instrDef);
         }
 
         staffdict[s.StaffNum] = std;
@@ -1440,17 +1406,17 @@ function GenerateStaffGroups (score, barnum) {
             stgpnum = stgprevidx[j];
             if (utils.IsInArray(stgpnum_added, stgpnum) = false)
             {
-                libmei.AddChild(parentstgrp, stgpdict[stgpnum]);
+                libmei.AddChild(rootStaffGrp, stgpdict[stgpnum]);
                 stgpnum_added.Push(stgpnum);
             }
         }
         else
         {
-            libmei.AddChild(parentstgrp, staffdict[j]);
+            libmei.AddChild(rootStaffGrp, staffdict[j]);
         }
 
     }
-    return parentstgrp;
+    return rootStaffGrp;
 }  //$end
 
 function GenerateControlEvent (bobj, element) {
