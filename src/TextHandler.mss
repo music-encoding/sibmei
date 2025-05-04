@@ -118,10 +118,12 @@ function AddFormattedText (self, parentElement, textObject) {
         return parentElement;
     }
 
-    // At this point we know that we have text with style changes and/or text
-    // substitutions
-    nodes = CreateSparseArray();
+    AddTextWithFormatting(parentElement, textWithFormatting);
+} //$end
 
+
+function AddTextWithFormatting (parentElement, textWithFormatting) {
+    nodes = CreateSparseArray();
     state = CreateDictionary(
         'currentText', null,
         'style', CreateDictionary(),
@@ -130,7 +132,7 @@ function AddFormattedText (self, parentElement, textObject) {
         'meiNodes', nodes
     );
 
-    for each component in textObject.TextWithFormatting
+    for each component in textWithFormatting
     {
         switch (Substring(component, 0, 2))
         {
@@ -277,6 +279,20 @@ function AddFormattedText (self, parentElement, textObject) {
 
     return parentElement;
 }  //$end
+
+
+function AddTextWithFormattingAsString (parentElement, textWithFormattingAsString) {
+    /// Takes a string of the format found at Text.TextWithFormattingAsString or
+    /// staff.FullInstrumentNameWithFormatting and transforms it into an array
+    /// of the format found at Text.TextWithFormatting.
+    textWithFormatting = SplitString(textWithFormattingAsString, '\\');
+    // Every second item is a formatting code that needs the surrounding '\\'
+    // that we lost during splitting.
+    for i = 1 to textWithFormatting.NumChildren step 2 {
+        textWithFormatting[i] = '\\' & textWithFormatting[i] & '\\';
+    }
+    AddTextWithFormatting(parentElement, textWithFormatting);
+} //$end
 
 
 function GetTextCommandArg (command) {
