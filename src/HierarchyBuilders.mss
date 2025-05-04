@@ -116,19 +116,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
                 // The Short/FullInstrumentName properties are always the
                 // same in all staves of an instrument.
                 staff = score.NthStaff(staffGrpStack[-1].TopStaveNum);
-                if (staff.FullInstrumentName != '')
-                {
-                    label = libmei.Label();
-                    libmei.SetText(label, staff.FullInstrumentName);
-                    libmei.AddChild(staffGrpElement, label);
-                }
-
-                if (staff.ShortInstrumentName != '')
-                {
-                    labelAbbr = libmei.LabelAbbr();
-                    libmei.SetText(labelAbbr, staff.ShortInstrumentName);
-                    libmei.AddChild(staffGrpElement, labelAbbr);
-                }
+                AddLabelsToHierarchy(staffGrpElement, staff.FullInstrumentName, staff.ShortInstrumentName);
             }
         }
     }
@@ -192,6 +180,25 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
             libmei.AddAttribute(std, 'key.mode', 'minor');
         }
 
+        AddLabelsToHierarchy(std, s.FullStaffName, s.ShortStaffName);
+
         libmei.AddChild(staffGrpByStaffNum[s.StaffNum], std);
     }
 }  //$end
+
+
+function AddLabelsToHierarchy (staffGrpElement, fullName, shortName) {
+    if (fullName != '')
+    {
+        label = libmei.Label();
+        libmei.SetText(label, fullName);
+        libmei.AddChild(staffGrpElement, label);
+    }
+
+    if (shortName != '')
+    {
+        labelAbbr = libmei.LabelAbbr();
+        libmei.SetText(labelAbbr, shortName);
+        libmei.AddChild(staffGrpElement, labelAbbr);
+    }
+} //$end
