@@ -9,12 +9,12 @@ function BuildStaffGrpHierarchy(score, barnum) {
 
     for each bracketOrBrace in score.BracketsAndBraces
     {
-        bracketOrBrace._property:action = 'addSymbolAttribute';
+        bracketOrBrace._property:groupType = 'bracket';
         sibGroupItems.Push(bracketOrBrace);
     }
     for each barline in score.Barlines
     {
-        barline._property:action = 'addBarThru';
+        barline._property:groupType = 'barline';
         sibGroupItems.Push(barline);
     }
     staffNum = 1;
@@ -25,7 +25,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
         sibGroupItems.Push(staff);
         staff._property:TopStaveNum = staffNum;
         staff._property:BottomStaveNum = staffNum + staff.NumStavesInSameInstrument - 1;
-        staff._property:action = 'addLabels';
+        staff._property:groupType = 'instrument';
         staffNum = staffNum + staff.NumStavesInSameInstrument;
     }
 
@@ -45,7 +45,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
         rank = rank * staffCount + (staffCount - groupItem.BottomStaveNum);
         // Sub-brackets need a higher rank than other brackets because they must
         // be enclosed by any other brackets spanning the same staves.
-        isSubBracket = groupItem.action = 'addSymbolAttribute' and groupItem.BracketType = BracketSub;
+        isSubBracket = groupItem.groupType = 'bracket' and groupItem.BracketType = BracketSub;
         rank = rank * 2 + isSubBracket;
         rank = rank * maxSubrank + subrank;
         // The 'subrank' (lowest priority) makes sure we don't get duplicate
@@ -60,7 +60,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
     rootGroup = CreateDictionary(
         'TopStaveNum', 1,
         'BottomStaveNum', staffCount,
-        'action', 'createRootGroup'
+        'groupType', 'createRootGroup'
     );
 
     staffGrpStack = CreateSparseArray();
@@ -69,52 +69,45 @@ function BuildStaffGrpHierarchy(score, barnum) {
     for each rank in rankedItems.ValidIndices
     {
         groupItem = rankedItems[rank];
-        action = groupItem.action;
+        groupType = groupItem.groupType;
         // Pop all groups until we find the first enclosing group on the stack.
         // It's safe that the stack will not run empty because the root group
         // encloses all possible sub-groups.
         while (staffGrpStack[-1].BottomStaveNum < groupItem.BottomStaveNum)
         {
             poppedGroupItem = staffGrpStack.Pop();
-            if (poppedGroupItem.BottomStaveNum > groupItem.TopStaveNum)
+            if (poppedGroupItem.BottomStaveNum >= groupItem.TopStaveNum)
             {
-                // If the popped group is interlocking with the current
-                // goupItem, they can't both fit in the hierarchy, so we have to
-                // drop one of them.
-                action = 'dropGroup';
+                OverlappingHierarchyWarning(poppedGroupItem, groupItem);
             }
         }
         enclosingGroupItem = staffGrpStack[-1];
         if (
-            action != 'dropGroup' and (
-                // We combine different kinds of groups, e.g. staff line groups
-                // and brackets if they span the same staves.
-                enclosingGroupItem.TopStaveNum != groupItem.TopStaveNum
-                or enclosingGroupItem.BottomStaveNum != groupItem.BottomStaveNum
-                // If we have nested brackets/braces for the same group of
-                // staves, we want to create nested <staffGrp>s. If the actions
-                // to be performed for the group differ, we don't have to create
-                // nested <staffGrp>s.
-                or enclosingGroupItem.action = groupItem.action
-            )
+            // Only create a new <staffGrp> if we can't reuse an existing one
+            // (spanning the same staves) to encode groupItem's features.
+            enclosingGroupItem.TopStaveNum != groupItem.TopStaveNum
+            or enclosingGroupItem.BottomStaveNum != groupItem.BottomStaveNum
+            // We can not re-use the <staffGrp> to encode the same kind of
+            // features twice (specifically not multiple brackets).
+            or enclosingGroupItem.groupType = groupItem.groupType
         )
         {
             AddNewStaffGrpToHierarchy(staffGrpStack, staffGrpByStaffNum, groupItem);
-            action = groupItem.action;
+            groupType = groupItem.groupType;
         }
 
         staffGrpElement = staffGrpStack[-1].staffGrpElement;
-        switch (action)
+        switch (groupType)
         {
-            case ('addSymbolAttribute')
+            case ('bracket')
             {
                 libmei.AddAttribute(staffGrpElement, 'symbol', ConvertBracket(staffGrpStack[-1].BracketType));
             }
-            case ('addBarThru')
+            case ('barline')
             {
                 libmei.AddAttribute(staffGrpElement, 'bar.thru', 'true');
             }
-            case ('addLabels')
+            case ('instrument')
             {
                 // The Short/FullInstrumentName properties are always the
                 // same in all staves of an instrument.
@@ -208,4 +201,25 @@ function AddLabelsToHierarchy (staffGrpElement, fullName, shortName) {
         AddTextWithFormattingAsString(labelAbbr, shortName);
         libmei.AddChild(staffGrpElement, labelAbbr);
     }
+} //$end
+
+
+function OverlappingHierarchyWarning (poppedGroupItem, groupItem) {
+    if (groupItem.TopStaveNum = poppedGroupItem.BottomStaveNum)
+    {
+        affectedStaves = 'staff ' & groupItem.TopStaveNum;
+    }
+    else
+    {
+        affectedStaves = 'staves ' & groupItem.TopStaveNum & '-' & poppedGroupItem.BottomStaveNum;
+    }
+    Trace(
+        'Warning: Overlapping '
+        & poppedGroupItem.groupType
+        & ' and '
+        & groupItem.groupType
+        & ' in '
+        & affectedStaves
+        & '. Overlapping hierarchies can not be encoded.'
+    );
 } //$end
