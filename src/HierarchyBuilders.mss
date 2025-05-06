@@ -60,7 +60,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
     rootGroup = CreateDictionary(
         'TopStaveNum', 1,
         'BottomStaveNum', staffCount,
-        'groupType', 'createRootGroup'
+        'groupType', 'rootGroup'
     );
 
     staffGrpStack = CreateSparseArray();
@@ -101,7 +101,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
         {
             case ('bracket')
             {
-                libmei.AddAttribute(staffGrpElement, 'symbol', ConvertBracket(staffGrpStack[-1].BracketType));
+                libmei.AddAttribute(staffGrpElement, 'symbol', ConvertBracket(groupItem.BracketType));
             }
             case ('barline')
             {
@@ -111,7 +111,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
             {
                 // The Short/FullInstrumentName properties are always the
                 // same in all staves of an instrument.
-                staff = score.NthStaff(staffGrpStack[-1].TopStaveNum);
+                staff = score.NthStaff(groupItem.TopStaveNum);
                 AddLabelsToHierarchy(
                     staffGrpElement,
                     staff.FullInstrumentNameWithFormatting,
