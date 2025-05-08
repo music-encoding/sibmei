@@ -41,6 +41,14 @@ function RunTests() {
 
     CloseAllWindows();
 
+    testFolder = Sibelius.GetFolder(_SibTestFileDirectory);
+    testFiles = CreateSparseArray();
+    for each SIB file in testFolder
+    {
+        testFiles.Push(file);
+    }
+    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
+
     if (Sibelius.PathSeparator = '/') {
         mochaScript = pluginDir & 'test.sh';
     } else {
@@ -185,5 +193,11 @@ function CloseAllWindows () {
             Sibelius.New();
         }
         Sibelius.CloseAllWindowsForScore(score, false);
+    }
+    if (Sibelius.ScoreCount > 1)
+    {
+        // Closing did not work. Try a different approach.
+        Sibelius.CloseAllFiles(false);
+        Sibelius.New();
     }
 }  //$end

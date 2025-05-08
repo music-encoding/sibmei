@@ -50,14 +50,19 @@ for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestS
         const [, testXpath, expectedString, expectedNumber] = (
           annot.textContent.match(xpathWithComparison) || [, annot.textContent]
         );
-        const result = xpath.evaluateXPath(testXpath, annot.parentNode);
+        // If we find a leading comment, we us it as test description
+        const testDescription = (annot.textContent.match(/s*\(:\s*(.*)\s*:\)/) || [])[1];
+        const result = xpath.evaluateXPath(
+          expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
+          annot.parentNode
+        );
         if (expectedNumber) {
           evaluateResult(messages, measure, testXpath, result, expectedNumber);
         } else if (expectedString) {
           const stringWithoutQuotes = expectedString.replace(/.(.*)./, "$1");
-          evaluateResult(messages, measure, testXpath, result, stringWithoutQuotes);
+          evaluateResult(messages, measure, testXpath, result, testDescription, stringWithoutQuotes);
         } else {
-          evaluateResult(messages, measure, testXpath, result);
+          evaluateResult(messages, measure, testXpath, result, testDescription);
         }
       }
       assert.ok(messages.length === 0, '\n' + messages.join('\n\n'));
@@ -65,17 +70,24 @@ for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestS
   });
 }
 
-function evaluateResult(messages, measure, testXpath, result, expectedResult) {
+function evaluateResult(messages, measure, testXpath, result, testDescription, expectedResult) {
+  let message = '';
   if (expectedResult === undefined) {
     const resultIsEmptyArray = result instanceof Array && result.length === 0;
     if (resultIsEmptyArray || result === false) {
-      messages.push(`measure: ${measure}, XPath: ${testXpath}`);
+      message = `measure: ${measure}, XPath: ${testXpath}`;
     }
   } else {
-    // Intentionally compare with "!=" in stead of "!=="
+    // Intentionally compare with "!=" instead of "!=="
     if (result != expectedResult) {
-      messages.push(`measure: ${measure}, XPath: ${testXpath}, expected: ${expectedResult}, actual: ${result}`);
+      message = `measure: ${measure}, XPath: ${testXpath}, expected: ${expectedResult}, actual: ${result}`;
     }
+  }
+  if (message) {
+    if (testDescription) {
+      message = message + '\n' + testDescription;
+    }
+    messages.push(message);
   }
 }
 
