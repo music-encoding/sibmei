@@ -310,8 +310,9 @@ function BuildNoteRestParentsByVoiceAndPosition (bar) {
         beamInfosForVoice = beamInfosByVoice[voiceNumber];
         for each beamInfo in beamInfosForVoice
         {
-            if (BeamIsInterlockingWithTuplet(beamInfo.noteRests))
+            if (not BeamFitsInTupletHierarchy(beamInfo.noteRests))
             {
+                // drop beam and create beamSpan instead
                 beamSpan = libmei.BeamSpan();
                 beamInfo.element = beamSpan;
                 libmei.AddAttribute(beamSpan, 'layer', voiceNumber);
@@ -416,6 +417,59 @@ function GetOrBuildParentsInVoiceMap (parentsByVoiceAndPosition, voiceNumber) {
     }
 } //$end
 
+
+function BeamFitsInTupletHierarchy (beamedNoteRests) {
+    // `beamedNoteRests` is a SparseArray of all NoteRests belonging to a beam
+
+    tupletAtStart = beamedNoteRests[0].ParentTupletIfAny;
+    tupletAtEnd = beamedNoteRests[-1].ParentTupletIfAny;
+
+    if (null = tupletAtStart and null = tupletAtEnd)
+    {
+        return true;
+    }
+
+    firstNoteRestPosition = beamedNoteRests[0].Position;
+    lastNoteRestPosition = beamedNoteRests[-1].Position;
+
+    while (null != tupletAtStart)
+    {
+        if (
+            tupletAtStart.Position < firstNoteRestPosition
+            and tupletAtStart.Position + tupletAtStart.PlayedDuration <= lastNoteRestPosition
+        )
+        {
+            // Tuplet starts before beam and ends within beam
+            return false;
+        }
+        tupletAtStart = tupletAtStart.ParentTupletIfAny;
+    }
+
+    followingNoteRest = beamedNoteRests[-1].NextItem(beamedNoteRests[0].VoiceNumber, 'NoteRest');
+    if (null = followingNoteRest)
+    {
+        followingPosition = beamedNoteRests[0].ParentBar.Length;
+    }
+    else
+    {
+        followingPosition = followingNoteRest.Position;
+    }
+
+    while (null != tupletAtEnd)
+    {
+        if (
+            tupletAtEnd.Position > firstNoteRestPosition
+            and tupletAtEnd.Position + tupletAtEnd.PlayedDuration > followingPosition
+        )
+        {
+            // Tuplet starts within beam and ends after beam
+            return false;
+        }
+        tupletAtEnd = tupletAtEnd.ParentTupletIfAny;
+    }
+
+    return true;
+}  //$end
 
 function BuildStaffGrpHierarchy(score, barnum) {
     // Build the <staffGrp> hierarchy, respecting all instrument, bracket, brace
