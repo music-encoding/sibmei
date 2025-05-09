@@ -436,7 +436,7 @@ function BeamFitsInTupletHierarchy (beamedNoteRests) {
     {
         if (
             tupletAtStart.Position < firstNoteRestPosition
-            and tupletAtStart.Position + tupletAtStart.PlayedDuration <= lastNoteRestPosition
+            and tupletAtStart.EndPosition < lastNoteRestPosition
         )
         {
             // Tuplet starts before beam and ends within beam
@@ -459,7 +459,7 @@ function BeamFitsInTupletHierarchy (beamedNoteRests) {
     {
         if (
             tupletAtEnd.Position > firstNoteRestPosition
-            and tupletAtEnd.Position + tupletAtEnd.PlayedDuration > followingPosition
+            and tupletAtEnd.EndPosition > followingPosition
         )
         {
             // Tuplet starts within beam and ends after beam
