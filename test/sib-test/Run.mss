@@ -198,7 +198,7 @@ function CloseAllWindows () {
     if (Sibelius.ScoreCount > 1)
     {
         // Closing did not work. Try a different approach.
-        Sibelius.CloseAllFiles(false);
+        Sibelius.CloseAllWindows(false);
         Sibelius.New();
     }
 }  //$end
