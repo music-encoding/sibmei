@@ -397,6 +397,9 @@ function GenerateMeasure (num) {
             endid = GetMeiNoteRestAtPosition(beamSpan.endNoteRest, false)._id;
             libmei.AddAttribute(beamSpan, 'endid', '#' & endid);
         }
+
+        ProcessBarObjects(bar);
+        ProcessEndingLines(bar);
     }
 
     mties = Self._property:MeasureTies;

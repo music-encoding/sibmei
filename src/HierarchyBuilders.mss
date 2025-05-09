@@ -151,67 +151,10 @@ function BuildLayerHierarchy (staffnum, measurenum) {
         }
     }
 
-    for each bobj in bar
-    {
-        switch (bobj.Type)
-        {
-            case('GuitarFrame')
-            {
-                GenerateChordSymbol(bobj);
-            }
-            case('Slur')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('CrescendoLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('DiminuendoLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('OctavaLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('GlissandoLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('Trill')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('ArpeggioLine')
-            {
-                GenerateArpeggio(bobj);
-            }
-            case('RepeatTimeLine')
-            {
-                RegisterVolta(bobj);
-            }
-            case('Line')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('Text')
-            {
-                HandleStyle(TextHandlers, bobj);
-            }
-            case('SymbolItem')
-            {
-                HandleSymbol(bobj);
-            }
-        }
-    }
-
     for each LyricItem lobj in bar
     {
         HandleLyricItem(lobj);
     }
-
-    ProcessEndingLines(bar);
 
     layers = CreateSparseArray();
     for each layerNumber in parentsByVoiceAndPosition.ValidIndices

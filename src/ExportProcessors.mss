@@ -190,3 +190,63 @@ function ProcessEndingLines (bar) {
         }
     }
 }  //$end
+
+
+function ProcessBarObjects (bar) {
+    // Processes all BarObjects in bar, except for NoteRest, BarRest, Tuplet and
+    // Clef.
+    for each bobj in bar
+    {
+        switch (bobj.Type)
+        {
+            case('GuitarFrame')
+            {
+                GenerateChordSymbol(bobj);
+            }
+            case('Slur')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('CrescendoLine')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('DiminuendoLine')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('OctavaLine')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('GlissandoLine')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('Trill')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('ArpeggioLine')
+            {
+                GenerateArpeggio(bobj);
+            }
+            case('RepeatTimeLine')
+            {
+                RegisterVolta(bobj);
+            }
+            case('Line')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
+            case('Text')
+            {
+                HandleStyle(TextHandlers, bobj);
+            }
+            case('SymbolItem')
+            {
+                HandleSymbol(bobj);
+            }
+        }
+    }
+} //$end
