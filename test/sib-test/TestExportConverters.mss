@@ -257,7 +257,7 @@ function TestBracketConverter (assert, plugin) {
     assert.Equal(brace, 'brace', 'Should convert a brace');
 
     line = sibmei.ConvertBracket(BracketSub);
-    assert.Equal(line, 'line', 'Should convert a sub-bracket to a line.');
+    assert.Equal(line, 'bracketsq', 'Should convert a sub-bracket to bracketsq.');
 }  //$end
 
 function TestPositionToTimestampConverter (assert, plugin) {
