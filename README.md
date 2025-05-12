@@ -14,7 +14,8 @@ If you're only interested in running the plugin in Sibelius, this is all you nee
 
 These are the instructions for installing the development dependencies and developing the plugin.
 
-**Note that as of 2023, the dependencies are very fragile since some of the packages are outdated. This makes installation a bit of a pain.**
+> [!IMPORTANT]  
+> Note that as of 2023, the dependencies are very fragile since some of the packages are outdated. This makes installation a bit of a pain.
 
 There are two ways around the painful dependency installation: The first is to try and struggle with npm and all the dependencies to see if you can get them to work. I couldn't, but maybe you can.
 
@@ -28,30 +29,33 @@ Note that this only affects the process for building the plugin; You should stil
 
 Yarn provides a few niceities for running scripts from the directory without installing things globally. All of the dependencies are included in the `package.json` file, including the [Tido `plgToMSS`](https://github.com/tido/plgToMSS) utility and `gulp`, so once you have yarn installed you should be able to run (in the source directory):
 
-```
-$> yarn install
+```shell
+yarn install
 ```
 
 Once this finishes you can test the installation by running:
 
-```
-$> yarn run gulp develop
+```shell
+yarn run gulp develop
 ```
 
 This will run a file watcher and as you edit the .mss files it should re-build the plugin for you.
+
+> [!WARNING]  
+> As of 2024-07-11 it's impossible to install gulp threw Homebrew. So on newer Macs it is recommended to use npm.
 
 ### Building using the NPM method
 
 Previous versions of the plugin had you install packages externally, but in this version you can install everything locally within the development directory, including the Tido plgToMSS code (installed from GitHub) and gulp.
 
-```
-$> npm install          // installs the packages listed in the sibmei package.json directory
+```shell
+npm install          // installs the packages listed in the sibmei package.json directory
 ```
 
 If you have `npx` installed you should now be able to run:
 
-```
-$> npx gulp develop
+```shell
+npx gulp develop
 ```
 
 And it will load a file watcher, watch your source files for changes, and re-build the plugin as you edit and save.
