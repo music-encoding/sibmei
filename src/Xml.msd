@@ -109,7 +109,7 @@ SetId "(element, newId) {
 }"
 UnregisterId "(id) {
     olddict = Self._property:MEIFlattened;
-    newdict = removeKeyFromDictionary(olddict, id);
+    newdict = RemoveKeyFromDictionary(olddict, id);
     Self._property:MEIFlattened = newdict;
 }"
 RemoveAttribute "(element, attrname) {
@@ -135,28 +135,28 @@ GetTail "(element) {
     return element.tail;
 }"
 
-    destroy "() {
+    InitXml "() {
         // cleans up
         Self._property:MEIFlattened = CreateDictionary();
         Self._property:MEIDocument = CreateSparseArray();
         Self._property:MEIID = 0;
     }"
 
-    setDocumentRoot "(el) {
+    SetDocumentRoot "(el) {
         d = Self._property:MEIDocument;
         d.Push(el);
     }"
 
-    getDocumentRoot "() {
+    GetDocumentRoot "() {
         d = Self._property:MEIDocument;
         return d[0];
     }"
 
-    getDocument "() {
+    GetDocument "() {
         return Self._property:MEIDocument;
     }"
 
-    getElementById "(id) {
+    GetElementById "(id) {
         d = Self._property:MEIFlattened;
         if (d.PropertyExists(id))
         {
@@ -168,7 +168,7 @@ GetTail "(element) {
         }
     }"
 
-    createXmlTag "(name, id, attributesList, isTerminal) {
+    CreateXmlTag "(name, id, attributesList, isTerminal) {
     if (name = '<!--')
     {
         // handle XML comments
@@ -212,7 +212,7 @@ GetTail "(element) {
         return '<' & name & spacer & attrstring & '>';
     }
 }"
-    childHasTail "(children) {
+    ChildHasTail "(children) {
     for each child in children
     {
         if (Length(GetTail(child)) > 0)
@@ -222,7 +222,7 @@ GetTail "(element) {
     }
     return false;
 }"
-    convertDictToXml "(meiel, indent) {
+    ConvertDictToXml "(meiel, indent) {
     // The indent parameter includes the leading line break
 
     xmlout = '';
@@ -247,9 +247,9 @@ GetTail "(element) {
         terminalTag = false;
     }
 
-    xmlout = indent & createXmlTag(nm, id, at, terminalTag);
+    xmlout = indent & CreateXmlTag(nm, id, at, terminalTag);
 
-    hasTextChild = Length(tx) > 0 or childHasTail(ch);
+    hasTextChild = Length(tx) > 0 or ChildHasTail(ch);
 
     if (hasTextChild)
     {
@@ -271,11 +271,11 @@ GetTail "(element) {
 
         for each child in ch
         {
-            xmlout = xmlout & convertDictToXml(child, innerIndent);
+            xmlout = xmlout & ConvertDictToXml(child, innerIndent);
         }
     }
 
-    // convertDictToXml takes care of adding the />
+    // ConvertDictToXml takes care of adding the />
     // for tags that do not have children. We'll
     // take care of the terminal tag here for those
     // that do.
@@ -297,12 +297,12 @@ GetTail "(element) {
         xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>';
         schema = '\n<?xml-model href=' & Chr(34) & RNG_URL & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://relaxng.org/ns/structure/1.0' & Chr(34) & ' ?>';
         schematron = '\n<?xml-model href=' & Chr(34) & RNG_URL & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://purl.oclc.org/dsdl/schematron' & Chr(34) & ' ?>';
-        meiout = xdecl & schema & schematron & convertDictToXml(meidoc[0], Chr(10));
+        meiout = xdecl & schema & schematron & ConvertDictToXml(meidoc[0], Chr(10));
 
         return meiout;
     }"
 
-    meiDocumentToFile "(meidoc, filename) {
+    MeiDocumentToFile "(meidoc, filename) {
         meiout = _exportMeiDocument(meidoc);
         if (Sibelius.CreateTextFile(filename)) {
             return Sibelius.AppendTextFile(filename, meiout, true);
@@ -311,7 +311,7 @@ GetTail "(element) {
         }
 }"
 
-    meiDocumentToString "(meidoc) {
+    MeiDocumentToString "(meidoc) {
         return _exportMeiDocument(meidoc);
     }"
     _encodeEntities "(string)
@@ -342,14 +342,14 @@ GetTail "(element) {
         return string;
     }"
 
-generateRandomID "() {
+GenerateRandomID "() {
     id = Self._property:MEIID + 1;
     Self._property:MEIID = id;
     id = 'm-' & id;
     return id;
 }"
 
-removeKeyFromDictionary "(dict, key) {
+RemoveKeyFromDictionary "(dict, key) {
     newdict = CreateDictionary();
     for each Pair p in dict
     {
