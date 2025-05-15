@@ -3,13 +3,12 @@ function TestLibmei (suite) {
     suite
         .Add('TestElementCreate')
         .Add('TestNamedElementCreate')
-        .Add('TestElementCreateWithExistingID')
         .Add('TestAttributeCreate')
         .Add('TestChildElementAdd')
         .Add('TestChildElementRemove')
         .Add('TestDocumentObjectsCreated')
         .Add('TestDocumentObjectsDestroyed')
-        .Add('TestGetElementByName')
+        .Add('TestGetElementById')
         .Add('TestMEIXMLOutput')
         .Add('TestMEIFileWriting')
         .Add('TestRemoveKeyFromDictionary')
@@ -33,15 +32,6 @@ function TestNamedElementCreate (assert, plugin) {
     nm = libmei.GetName(el);
     assert.Equal(nm, 'note', 'The named element creator should create a note');
     assert.OK(null != libmei.GetId(el), 'The ID should not be null');
-
-    libmei.destroy();
-}  //$end
-
-function TestElementCreateWithExistingID (assert, plugin) {
-    //$module(TestLibmei.mss)
-    el = libmei.CreateElement('note', 'm-123');
-    id = libmei.GetId(el);
-    assert.Equal(id, 'm-123', 'The ID of the element should be m-123');
 
     libmei.destroy();
 }  //$end
@@ -119,17 +109,17 @@ function TestDocumentObjectsDestroyed (assert, plugin) {
     libmei.destroy();
 }  //$end
 
-function TestGetElementByName (assert, plugin) {
+function TestGetElementById (assert, plugin) {
     //$module(TestLibmei.mss)
     root = libmei.Mei();
     libmei.setDocumentRoot(root);
 
-    head = libmei.CreateElement('meiHead', 'm-head');
-    music = libmei.CreateElement('music', 'm-music');
+    head = libmei.CreateElement('meiHead');
+    music = libmei.CreateElement('music');
     libmei.AddChild(root, head);
     libmei.AddChild(root, music);
 
-    s = libmei.getElementById('m-music');
+    s = libmei.getElementById(music._id);
     assert.OK(null != s, 'The music element should not be null');
 
     libmei.destroy();

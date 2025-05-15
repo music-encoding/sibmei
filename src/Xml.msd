@@ -3,24 +3,15 @@
     commentObj.text = comment;
     return commentObj;
 }"
-CreateElement "(tagname, orig_id) {
+CreateElement "(tagname) {
     element = CreateDictionary(
         'name', tagname,
         'attrs', CreateDictionary(),
         'children', CreateSparseArray(),
         'text', '',
         'tail', '',
-        '_id', '',
+        '_id', GenerateRandomID(),
         '_parent', null);
-
-    if (orig_id = null)
-    {
-        element._id = generateRandomID();
-    }
-    else
-    {
-        element._id = orig_id;
-    }
 
     f = Self._property:MEIFlattened;
     f[element._id] = element;
