@@ -20,9 +20,9 @@
     "ansi-colors": "^2.0.5",
     "fancy-log": "^1.3.2",
     "fontoxpath": "^2.12.1",
-    "gulp": "^4.0.2",
-    "gulp-cli": "^2.3.0",
-    "mocha": "^7.2.0",
+    "gulp": "^5.0.0",
+    "gulp-cli": "^3.0.0",
+    "mocha": "^11.2.2",
     "plgToMSS": "github:tido/plgToMSS",
     "q": "^1.5.1",
     "slimdom-sax-parser": "^1.1.3"
