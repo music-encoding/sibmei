@@ -48,16 +48,16 @@ function compile (sourceFiles, target) {
         case "mss":
         case "msd":
           const code = fs.readFileSync(filename, {encoding: "utf8"});
+          // *.msd files are raw ManuScript Data files that we copy verbatim
+          // *.mss files use JavaScript-ish function syntax we have to compile
           return extension === "msd" ? code : mssToPlg(code);
         default:
-          console.log("Unknown extension:", filename, extension)
           return "";
       }
     })
     // Skip files we ignore
     .filter(code => code)
     .join("\n\n");
-  console.log("compiled code:", compiledCode);
   fs.writeFileSync(target, compiledCode, {encoding: "utf16le"});
 }
 
@@ -86,5 +86,6 @@ function build() {
 build();
 
 if (argv[2] === "--watch") {
-  chokidar.watch(["src", "test", "lib"], {ignoreInitial: true}).on('all', build)
+  l.info(c.blue("Watching files for changes"));
+  chokidar.watch(["src", "test", "lib"], {ignoreInitial: true}).on('all', build);
 }
