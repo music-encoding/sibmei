@@ -7,27 +7,18 @@ import * as path from "path";
 import l from "fancy-log";
 import { argv } from "process";
 import pckg from "../package.json" with {type: "json"};
-import { fileURLToPath } from "url";
-const {name} = pckg;
-if (!name) {
-  throw new Error("package.json must provide the plg base file name as `name`");
-}
+
+const { name, version, sibmei: { meiVersion } } = pckg;
+const GLOBALS = `
+  MainPlgBaseName "${name}"
+  PluginVersion "${version}"
+  MeiVersion "${meiVersion}"
+`;
 
 // byte order mark
 const BOM = "\ufeff";
 
-/**
- * @param {string} src
- * @param {string} dest
- * @param {string} extension
- */
-function copy(src, dest, extension, prefix = "") {
-  for (const filePath of fileList(src)) {
-    if (filePath.endsWith(extension)) {
-      fs.copyFileSync(filePath, path.join(dest, prefix + path.basename(filePath)));
-    }
-  }
-}
+const sourceExtensions = new Set(["msd", "mss", "plg"]);
 
 /**
  * Converts JavaScript-like *.mss function syntax to *.plg syntax.
@@ -52,24 +43,55 @@ function mssToPlg(mssCode) {
  * @param {string} target  name of target *.plg file
  */
 function buildPlg(sourceFiles, target) {
-  fs.writeFileSync(target, `${BOM}{\n${compile(sourceFiles)}\n}`, {encoding: "utf16le"});
+  fs.writeFileSync(target, `${BOM}{
+    ${compile(sourceFiles)}
+    ${GLOBALS}
+  }`, {encoding: "utf16le"});
 }
 
 /**
- * @param {string[]} sourceFiles  source file names
+ * Iterates over all *.plg files in `sourceDir`, compiles (to add `GLOBALS`) and
+ * writes the compiled files to `targetDir` as UTF-16, adding a sibmei version
+ * dependent prefix so that multiple sibmei instances together with their
+ * companion plugins can coexist in the Sibelius plugin folder without naming
+ * conflicts.
+ *
+ * @param {string} sourceDir
+ * @param {string} targetDir
+ */
+function buildCompanionPlgs(sourceDir, targetDir) {
+  for (const fileName of fs.readdirSync(sourceDir, {encoding: "utf8"})) {
+    if (fileName.endsWith(".plg")) {
+      buildPlg([path.join(sourceDir, fileName)], path.join(targetDir, name + "_" + fileName));
+    }
+  }
+}
+
+/**
+ * @param {string[]} sourceFiles  Source file names.  Any file names with
+ * extensions other than msd, mss and plg are ignored.
  */
 function compile(sourceFiles) {
   const compiledFiles = [];
   for (const filename of sourceFiles) {
     const [,extension] = filename.match(/.+\.([^.]+)$/) || [];
-    switch (extension) {
-      case "mss":
-      case "msd":
-        const code = fs.readFileSync(filename, {encoding: "utf8"});
-        // *.msd files are raw ManuScript Data files that we copy verbatim
-        // *.mss files use JavaScript-ish function syntax we have to compile
-        compiledFiles.push(extension === "msd" ? code : mssToPlg(code));
+    if (!sourceExtensions.has(extension)) {
+      continue;
     }
+    const code = fs.readFileSync(filename, {encoding: "utf8"});
+    compiledFiles.push((() => {
+      switch (extension) {
+        case "mss":
+          // *.mss files use JavaScript-ish function syntax we have to compile
+          return mssToPlg(code);
+        case "msd":
+          // *.msd files are raw ManuScript Data files that we copy verbatim
+          return code;
+        case "plg":
+          // *.plg is similar to *.msd, but has wrapping braces, which we strip
+          return code.replace(/\s*{([\s\S]*)}/, "$1");
+      }
+    })());
   }
   return compiledFiles.join("\n\n");
 }
@@ -79,31 +101,37 @@ function compile(sourceFiles) {
  */
 function fileList(dir) {
   return fs.readdirSync(dir, {encoding: "utf8"})
-    .map((file) => dir + "/" + file);
+    .map((file) => path.join(dir, file));
 }
 
 function build() {
-  l.info(c.blue('Copying lib plugins'));
+  l.info(c.blue("Compiling companion plugins"));
   fs.mkdirSync("build/release", {recursive: true});
-  fs.mkdirSync("build/test/sibmeiTestSibs", {recursive: true});
-  const prefix = name + "_";
-  copy("lib", "build/release", ".plg", prefix);
-  copy("lib", "build/test", ".plg", prefix);
-  copy("test", "build/test", ".plg", prefix);
-  l.info(c.blue("Copying test data"));
-  copy("test/sibmeiTestSibs", "build/test/sibmeiTestSibs", ".sib");
+  fs.mkdirSync("build/develop/sibmeiTestSibs", {recursive: true});
+  buildCompanionPlgs("lib", "build/release");
+  buildCompanionPlgs("lib", "build/develop");
+  buildCompanionPlgs("test", "build/develop");
 
   const mainSourceFiles = fileList("src");
   const testSourceFiles = fileList("test/sib-test");
-  l.info(c.blue("Building plugin"));
+  l.info(c.blue("Compiling release build"));
   buildPlg(mainSourceFiles, `build/release/${name}.plg`);
-  l.info(c.blue("Building test plugin"));
-  buildPlg([...mainSourceFiles, ...testSourceFiles], `build/test/${name}.plg`);
+  l.info(c.blue("Compiling development build"));
+  buildPlg([...mainSourceFiles, ...testSourceFiles], `build/develop/${name}.plg`);
+
+  l.info(c.blue("Copying test data"));
+  for (const filePath of fileList("test/sibmeiTestSibs")) {
+    if (filePath.endsWith(".sib")) {
+      fs.copyFileSync(filePath, path.join("build/develop/sibmeiTestSibs", path.basename(filePath)));
+    }
+  }
+
+  console.log("");
 }
 
 build();
 
 if (argv[2] === "--watch") {
-  l.info(c.blue("Watching files for changes"));
-  chokidar.watch(["src", "test", "lib"], {ignoreInitial: true}).on('all', build);
+  l.info(c.blue("Watching files for changes\n"));
+  chokidar.watch(["src", "test", "lib", "tools/build.mjs"], {ignoreInitial: true}).on('all', build);
 }

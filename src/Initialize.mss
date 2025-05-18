@@ -2,7 +2,7 @@ function Initialize() {
     //$module(Initialize.mss)
     Self._property:Logfile = GetTempDir() & LOGFILE;
 
-    AddToPluginsMenu(PluginName,'Run');
+    AddToPluginsMenu('Sibelius to MEI ' & MeiVersion & ' Exporter', 'Run');
 }  //$end
 
 
@@ -14,8 +14,6 @@ function InitGlobals (extensions) {
 
     // initialize libmei as soon as possible
     Self._property:libmei = libmei4;
-
-    Self._property:SibmeiPlgName = 'sibmei4';
 
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {

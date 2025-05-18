@@ -1,8 +1,8 @@
 function RunTests() {
     Self._property:libmei = libmei4;
-    Self._property:sibmei = sibmei4;
-    sibmei4._property:libmei = libmei;
-    sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
+    Self._property:sibmei = @MainPlgBaseName;
+    sibmei._property:libmei = libmei;
+    sibmei.InitGlobals(CreateSparseArray(MainPlgBaseName & 'extension_test'));
     sibmei.InitGlobalAliases(Self);
 
     plugins = Sibelius.Plugins;
@@ -24,7 +24,7 @@ function RunTests() {
 
     CloseAllWindows();
 
-    Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
+    Self._property:pluginDir = GetPluginFolder(MainPlgBaseName & '.plg');
     Self._property:tempDir = CreateNewTempDir();
     Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs' & Sibelius.PathSeparator;
 

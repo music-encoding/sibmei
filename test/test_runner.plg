@@ -2,11 +2,11 @@
 {
   Initialize "()
   {
-    AddToPluginsMenu('Sibmei 4 Test Runner', 'Run');
+    AddToPluginsMenu(MainPlgBaseName & ' Test Runner', 'Run');
   }"
 
   Run "()
   {
-    sibmei4.RunTests();
+    @MainPlgBaseName.RunTests();
   }"
 }

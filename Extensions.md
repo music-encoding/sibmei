@@ -36,7 +36,7 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
 }
 ```
 
-See [another example](./lib/sibmei4_extension_test.plg) for an extension plugin that also handles symbols, lines and lyrics.
+See [another example](./lib/extension_test.plg) for an extension plugin that also handles symbols, lines and lyrics.
 
 ## Required data and methods
 
