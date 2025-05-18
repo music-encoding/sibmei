@@ -12,6 +12,8 @@
   },
   "scripts": {
     "test": "mocha --recursive",
+    "build": "node tools/build.mjs",
+    "develop": "node tools/build.mjs --watch",
     "analyze": "node tools/analyze.js"
   },
   "author": "",
