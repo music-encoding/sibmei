@@ -8,6 +8,8 @@ import { argv } from "process";
 // @ts-ignore
 import * as plgconf from "../plgconfig.js";
 
+const BOM = "\ufeff";
+
 /**
  * @param {string} src
  * @param {string} dest
@@ -21,7 +23,7 @@ function copy(src, dest, filter) {
  * Converts JavaScript-like *.mss function syntax to *.plg syntax.
  * @param {string} mssCode  Code of an entire *.mss file
  */
-function mssToPlg (mssCode) {
+function mssToPlg(mssCode) {
   return mssCode
     .split(/\/\/\s*\$end/)
     .filter((functionCode) => functionCode.match(/[^\s]/))
@@ -39,32 +41,33 @@ function mssToPlg (mssCode) {
  * @param {string[]} sourceFiles  source file names
  * @param {string} target  name of target *.plg file
  */
-function compile (sourceFiles, target) {
-  const bom = "\ufeff";
-  const compiledCode = bom + sourceFiles
-    .map((filename) => {
-      const [,extension] = filename.match(/.+\.([^.]+)$/) || [];
-      switch (extension) {
-        case "mss":
-        case "msd":
-          const code = fs.readFileSync(filename, {encoding: "utf8"});
-          // *.msd files are raw ManuScript Data files that we copy verbatim
-          // *.mss files use JavaScript-ish function syntax we have to compile
-          return extension === "msd" ? code : mssToPlg(code);
-        default:
-          return "";
-      }
-    })
-    // Skip files we ignore
-    .filter(code => code)
-    .join("\n\n");
-  fs.writeFileSync(target, compiledCode, {encoding: "utf16le"});
+function buildPlg(sourceFiles, target) {
+  fs.writeFileSync(target, `${BOM}{\n${compile(sourceFiles)}\n}`, {encoding: "utf16le"});
+}
+
+/**
+ * @param {string[]} sourceFiles  source file names
+ */
+function compile(sourceFiles) {
+  const compiledFiles = [];
+  for (const filename of sourceFiles) {
+    const [,extension] = filename.match(/.+\.([^.]+)$/) || [];
+    switch (extension) {
+      case "mss":
+      case "msd":
+        const code = fs.readFileSync(filename, {encoding: "utf8"});
+        // *.msd files are raw ManuScript Data files that we copy verbatim
+        // *.mss files use JavaScript-ish function syntax we have to compile
+        compiledFiles.push(extension === "msd" ? code : mssToPlg(code));
+    }
+  }
+  return compiledFiles.join("\n\n");
 }
 
 /**
  * @param {string} dir
  */
-function fileList (dir) {
+function fileList(dir) {
   return fs.readdirSync(dir, {encoding: "utf8"})
     .map((file) => dir + "/" + file);
 }
@@ -75,8 +78,10 @@ function build() {
 
   const mainSourceFiles = fileList("src");
   const testSourceFiles = fileList("test/sib-test");
-  compile(mainSourceFiles, "build/sibmei4.plg");
-  compile(testSourceFiles, "build/Testsibmei4.plg");
+  l.info(c.blue("Building plugin"));
+  buildPlg(mainSourceFiles, "build/sibmei4.plg");
+  l.info(c.blue("Building test plugin"));
+  buildPlg(testSourceFiles, "build/Testsibmei4.plg");
 
   l.info(c.blue("Copying test data"));
   const destPath = plgconf.plgPath + '/' + plgconf.plgCategory + '/sibmeiTestSibs';
