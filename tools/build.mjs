@@ -3,20 +3,30 @@
 import c from "ansi-colors";
 import chokidar from "chokidar";
 import * as fs from "fs";
+import * as path from "path";
 import l from "fancy-log";
 import { argv } from "process";
-// @ts-ignore
-import * as plgconf from "../plgconfig.js";
+import pckg from "../package.json" with {type: "json"};
+import { fileURLToPath } from "url";
+const {name} = pckg;
+if (!name) {
+  throw new Error("package.json must provide the plg base file name as `name`");
+}
 
+// byte order mark
 const BOM = "\ufeff";
 
 /**
  * @param {string} src
  * @param {string} dest
- * @param {RegExp} filter
+ * @param {string} extension
  */
-function copy(src, dest, filter) {
-  fs.cpSync(src, dest, {filter: (path) => filter.test(path)});
+function copy(src, dest, extension, prefix = "") {
+  for (const filePath of fileList(src)) {
+    if (filePath.endsWith(extension)) {
+      fs.copyFileSync(filePath, path.join(dest, prefix + path.basename(filePath)));
+    }
+  }
 }
 
 /**
@@ -73,19 +83,22 @@ function fileList(dir) {
 }
 
 function build() {
-  l.info(c.blue('Copying "linked" libraries'));
-  copy("lib", "build", /\.plg$/);
+  l.info(c.blue('Copying lib plugins'));
+  fs.mkdirSync("build/release", {recursive: true});
+  fs.mkdirSync("build/test/sibmeiTestSibs", {recursive: true});
+  const prefix = name + "_";
+  copy("lib", "build/release", ".plg", prefix);
+  copy("lib", "build/test", ".plg", prefix);
+  copy("test", "build/test", ".plg", prefix);
+  l.info(c.blue("Copying test data"));
+  copy("test/sibmeiTestSibs", "build/test/sibmeiTestSibs", ".sib");
 
   const mainSourceFiles = fileList("src");
   const testSourceFiles = fileList("test/sib-test");
   l.info(c.blue("Building plugin"));
-  buildPlg(mainSourceFiles, "build/sibmei4.plg");
+  buildPlg(mainSourceFiles, `build/release/${name}.plg`);
   l.info(c.blue("Building test plugin"));
-  buildPlg(testSourceFiles, "build/Testsibmei4.plg");
-
-  l.info(c.blue("Copying test data"));
-  const destPath = plgconf.plgPath + '/' + plgconf.plgCategory + '/sibmeiTestSibs';
-  copy("test/sibmeiTestSibs", destPath, /\.sib$/);
+  buildPlg([...mainSourceFiles, ...testSourceFiles], `build/test/${name}.plg`);
 }
 
 build();

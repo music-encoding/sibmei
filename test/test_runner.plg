@@ -7,6 +7,6 @@
 
   Run "()
   {
-    Testsibmei4.Run();
+    sibmei4.RunTests();
   }"
 }
