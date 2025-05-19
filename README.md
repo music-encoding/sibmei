@@ -48,7 +48,7 @@ npm run develop
 
 This will build the plugin and and watch your source files for changes, re-building the plugin as you edit and save.
 
-**To make your changes to the Manuscript code active, you will need to "unload" and "reload" the plugin in Sibelius.**
+**To make your changes to the Manuscript code active, you will need to "unload" and "reload" the plugin in Sibelius.** (File => Plug-ins => Edit Plug-ins, then Select the Sibmei plugin, then click Unload, then click Reload).
 
 ## Unit tests
 
@@ -56,7 +56,7 @@ There are two kinds of tests in two subfolders of the `test` folder:
 
 ### sib-test
 
-These unit tests are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, developed by Tido. You should download and install this plugin first. After unloading and reloading Sibmei, (as described above), tests can be run by starting the "Sibmei Test Runner" from the menu/ribbon.
+These unit tests are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, developed by Tido. You should download and install this plugin first. After unloading and reloading Sibmei, (as described above), tests can be run by starting the "Sibmei Test Runner" from the menu/ribbon, or using a keyboard shortcut of your choice that can be assigned in File => Preferences => Keyboard Shortcuts (in "Tab or category" choose Plug-ins, then in "Feature" choose  the Sibmei Test Runner and assign a shortcut).
 
 ### mocha
 
