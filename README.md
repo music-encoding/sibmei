@@ -14,7 +14,7 @@ If you're only interested in running the plugin in Sibelius, this is all you nee
 
 ### Install
 
-`To install everything you need for development, run:
+For working on Sibmei, you need to have [git](https://git-scm.com/downloads) and [node](https://nodejs.org/en/download) installed. Then, on the command line, run:
 
 ```shell
 git clone git@github.com:music-encoding/sibmei.git
