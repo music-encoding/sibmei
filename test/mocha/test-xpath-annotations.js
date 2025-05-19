@@ -22,7 +22,7 @@ const utils = require('./utils');
 
 let foundXPathTest = false;
 
-for (const fileName of fs.readdirSync(path.join('build', 'MEI Export', 'sibmeiTestSibs'), 'utf8')) {
+for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestSibs'), 'utf8')) {
   if (!fileName.match(/\.mei$/)) {
     continue;
   }

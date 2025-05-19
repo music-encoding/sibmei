@@ -1,8 +1,8 @@
-function Run() {
+function RunTests() {
     Self._property:libmei = libmei4;
-    Self._property:sibmei = sibmei4;
-    sibmei4._property:libmei = libmei;
-    sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
+    Self._property:sibmei = @MainPlgBaseName;
+    sibmei._property:libmei = libmei;
+    sibmei.InitGlobals(CreateSparseArray(MainPlgBaseName & '_extension_test'));
     sibmei.InitGlobalAliases(Self);
 
     plugins = Sibelius.Plugins;
@@ -24,7 +24,7 @@ function Run() {
 
     CloseAllWindows();
 
-    Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
+    Self._property:pluginDir = GetPluginFolder(MainPlgBaseName & '.plg');
     Self._property:tempDir = CreateNewTempDir();
     Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs' & Sibelius.PathSeparator;
 
@@ -134,28 +134,6 @@ function EnsureActiveScoreExists() {
     // Sometimes, Sibelius.ActiveScore is null.
     if (null = Sibelius.ActiveScore) {
         Sibelius.ActiveScore = Sibelius.New();
-    }
-}  //$end
-
-
-function GetTempDir() {
-    //$module(Run.mss)
-    if (Sibelius.PathSeparator = '/') {
-        tempFolder = '/tmp/';
-    } else {
-        appDataFolder = Sibelius.GetUserApplicationDataFolder();
-        // appDataFolder usually looks like C:\Users\{username}\AppData\Roaming\
-        // We strip the trailing bit until the second to last backslash
-        i = Length(appDataFolder) - 2;
-        while (i >= 0 and CharAt(appDataFolder, i) != '\\') {
-            i = i - 1;
-        }
-        // tempFolder usually looks like C:\Users\USERNAME\AppData\Local\Temp\
-        // So we replace the trailing 'Roaming' with 'Local\Temp'
-        tempFolder = Substring(appDataFolder, 0, i) & '\\Local\\Temp\\';
-    }
-    if (Sibelius.FolderExists(tempFolder)) {
-        return Sibelius.GetFolder(tempFolder);
     }
 }  //$end
 

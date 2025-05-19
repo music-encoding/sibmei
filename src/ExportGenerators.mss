@@ -114,9 +114,9 @@ function GenerateApplicationInfo () {
 
     plgapp = libmei.Application();
     plgname = libmei.Name();
-    libmei.SetText(plgname, PluginName & ' (' & Version & ')');
+    libmei.SetText(plgname, PluginName & ' (' & PluginVersion & ')');
     libmei.AddAttribute(plgapp, 'type', 'plugin');
-    libmei.AddAttribute(plgapp, 'version', Version);
+    libmei.AddAttribute(plgapp, 'version', PluginVersion);
     libmei.SetId(plgapp, 'sibmei');
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);

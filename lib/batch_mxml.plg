@@ -2,7 +2,7 @@
 {
     Initialize "()
     {
-        AddToPluginsMenu(_PluginMenuName,'Run');
+        AddToPluginsMenu('Export MusicXML folder to MEI ' & MeiVersion, 'Run');
     }"
 
     Run "()
@@ -28,8 +28,6 @@
             files.Push(file);
         }
 
-        sibmei4.ExportBatch(files, null);
+        @MainPlgBaseName.ExportBatch(files, null);
     }"
-
-    _PluginMenuName "Export MusicXML folder to MEI 4"
 }
