@@ -61,8 +61,13 @@ function buildPlg(sourceFiles, target) {
  */
 function buildCompanionPlgs(sourceDir, targetDir) {
   for (const fileName of fs.readdirSync(sourceDir, {encoding: "utf8"})) {
+    const targetPath = path.join(
+      targetDir,
+      // Do not prefix libmei with sibmei
+      (fileName.startsWith("libmei") ? "" : name + "_") + fileName
+    );
     if (fileName.endsWith(".plg")) {
-      buildPlg([path.join(sourceDir, fileName)], path.join(targetDir, name + "_" + fileName));
+      buildPlg([path.join(sourceDir, fileName)], targetPath);
     }
   }
 }

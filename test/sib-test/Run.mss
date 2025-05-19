@@ -2,7 +2,7 @@ function RunTests() {
     Self._property:libmei = libmei4;
     Self._property:sibmei = @MainPlgBaseName;
     sibmei._property:libmei = libmei;
-    sibmei.InitGlobals(CreateSparseArray(MainPlgBaseName & 'extension_test'));
+    sibmei.InitGlobals(CreateSparseArray(MainPlgBaseName & '_extension_test'));
     sibmei.InitGlobalAliases(Self);
 
     plugins = Sibelius.Plugins;

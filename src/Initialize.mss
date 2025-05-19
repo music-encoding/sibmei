@@ -1,8 +1,9 @@
 function Initialize() {
     //$module(Initialize.mss)
     Self._property:Logfile = GetTempDir() & LOGFILE;
+    Self._property:PluginName = 'Sibelius to MEI ' & MeiVersion & ' Exporter'; 
 
-    AddToPluginsMenu('Sibelius to MEI ' & MeiVersion & ' Exporter', 'Run');
+    AddToPluginsMenu(PluginName, 'Run');
 }  //$end
 
 

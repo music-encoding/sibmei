@@ -8,7 +8,7 @@ const xpath = require('fontoxpath');
 
 module.exports = {
   getTestMeiDom: function(fileName) {
-    const meiPath = path.join('build', 'MEI Export', 'sibmeiTestSibs', fileName);
+    const meiPath = path.join('build', 'develop', 'sibmeiTestSibs', fileName);
     const meiString = fs.readFileSync(meiPath, {encoding: 'utf16le'});
     return parser.sync(meiString);
   },
