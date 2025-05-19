@@ -28,7 +28,7 @@ You need to create a symbolic link from the Sibelius plugin folder to the build 
 
 Example for Mac:
 
-```bash
+```shell
 ln -s "~/path/to/sibmei/build/develop" "~/Library/Application Support/Avid/Sibelius 7.5/Plugins/MEI Export"
 ```
 
