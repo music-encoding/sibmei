@@ -23,8 +23,9 @@ const sourceExtensions = new Set(["msd", "mss", "plg"]);
 /**
  * Converts JavaScript-like *.mss function syntax to *.plg syntax.
  * @param {string} mssCode  Code of an entire *.mss file
+ * @param {string} fileName  mss file name
  */
-function mssToPlg(mssCode) {
+function mssToPlg(mssCode, filename) {
   return mssCode
     .split(/\/\/\s*\$end/)
     .filter((functionCode) => functionCode.match(/[^\s]/))
@@ -33,7 +34,12 @@ function mssToPlg(mssCode) {
       if (!name) {
         throw new Error("Syntax error: Could not split code into function name and body:\n\n\"" + functionCode + "\"");
       }
-      return `${name} "${body}"`;
+      // Add module information so it's easier to find the source file of a
+      // function when an error is reported.
+      const bodyWithModuleInfo = body.match(/{\s*\/\/\s*\$module/)
+        ? body
+        : body.replace("{", `{\n    //$module(${filename})`);
+      return `${name} "${bodyWithModuleInfo}"`;
     })
     .join('\n\n');
 }
@@ -46,21 +52,21 @@ function buildPlg(sourceFiles, target) {
   fs.writeFileSync(target, `${BOM}{
     ${compile(sourceFiles)}
     ${GLOBALS}
-  }`, {encoding: "utf16le"});
+  }`, { encoding: "utf16le" });
 }
 
 /**
  * Iterates over all *.plg files in `sourceDir`, compiles (to add `GLOBALS`) and
  * writes the compiled files to `targetDir` as UTF-16, adding a sibmei version
- * dependent prefix so that multiple sibmei instances together with their
- * companion plugins can coexist in the Sibelius plugin folder without naming
- * conflicts.
+ * dependent prefix so that multiple sibmei instances (exporting to different
+ * MEI versions) together with their companion plugins can coexist in the
+ * Sibelius plugin folder without naming conflicts.
  *
  * @param {string} sourceDir
  * @param {string} targetDir
  */
 function buildCompanionPlgs(sourceDir, targetDir) {
-  for (const fileName of fs.readdirSync(sourceDir, {encoding: "utf8"})) {
+  for (const fileName of fs.readdirSync(sourceDir, { encoding: "utf8" })) {
     const targetPath = path.join(
       targetDir,
       // Do not prefix libmei with sibmei
@@ -79,16 +85,16 @@ function buildCompanionPlgs(sourceDir, targetDir) {
 function compile(sourceFiles) {
   const compiledFiles = [];
   for (const filename of sourceFiles) {
-    const [,extension] = filename.match(/.+\.([^.]+)$/) || [];
+    const [, extension] = filename.match(/.+\.([^.]+)$/) || [];
     if (!sourceExtensions.has(extension)) {
       continue;
     }
-    const code = fs.readFileSync(filename, {encoding: "utf8"});
+    const code = fs.readFileSync(filename, { encoding: "utf8" });
     compiledFiles.push((() => {
       switch (extension) {
         case "mss":
           // *.mss files use JavaScript-ish function syntax we have to compile
-          return mssToPlg(code);
+          return mssToPlg(code, path.basename(filename));
         case "msd":
           // *.msd files are raw ManuScript Data files that we copy verbatim
           return code;
@@ -105,14 +111,14 @@ function compile(sourceFiles) {
  * @param {string} dir
  */
 function fileList(dir) {
-  return fs.readdirSync(dir, {encoding: "utf8"})
+  return fs.readdirSync(dir, { encoding: "utf8" })
     .map((file) => path.join(dir, file));
 }
 
 function build() {
   l.info(c.blue("Compiling companion plugins"));
-  fs.mkdirSync("build/release", {recursive: true});
-  fs.mkdirSync("build/develop/sibmeiTestSibs", {recursive: true});
+  fs.mkdirSync("build/release", { recursive: true });
+  fs.mkdirSync("build/develop/sibmeiTestSibs", { recursive: true });
   buildCompanionPlgs("lib", "build/release");
   buildCompanionPlgs("lib", "build/develop");
   buildCompanionPlgs("test", "build/develop");
@@ -138,5 +144,5 @@ build();
 
 if (argv[2] === "--watch") {
   l.info(c.blue("Watching files for changes\n"));
-  chokidar.watch(["src", "test", "lib", "tools/build.mjs"], {ignoreInitial: true}).on('all', build);
+  chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on('all', build);
 }
