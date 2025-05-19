@@ -63,7 +63,7 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
             }
             else
             {
-                errors.Push(utils.Format(error, plgName, extensionSemverString, Version, ExtensionAPIVersion));
+                errors.Push(utils.Format(error, plgName, extensionSemverString, PluginVersion, ExtensionAPIVersion));
             }
         }
     }

@@ -1,0 +1,12 @@
+
+{
+  Initialize "()
+  {
+    AddToPluginsMenu(MainPlgBaseName & ' Test Runner', 'Run');
+  }"
+
+  Run "()
+  {
+    @MainPlgBaseName.RunTests();
+  }"
+}

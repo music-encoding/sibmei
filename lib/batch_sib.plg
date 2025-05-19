@@ -2,7 +2,7 @@
 {
     Initialize "()
     {
-        AddToPluginsMenu(_PluginMenuName,'Run');
+        AddToPluginsMenu('Export Sibelius folder to MEI ' & MeiVersion, 'Run');
     }"
 
     Run "()
@@ -20,8 +20,6 @@
             files.Push(file);
         }
 
-        sibmei4.ExportBatch(files, null);
+        @MainPlgBaseName.ExportBatch(files, null);
     }"
-
-    _PluginMenuName "Export Sibelius folder to MEI 4"
 }
