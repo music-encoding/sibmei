@@ -30,7 +30,7 @@ function PreprocessLyricTemplates (templatesById) {
         {
             // <syl> elements in the template need special handling, so we have
             // to register an action for them.
-            for each sylTemplate in GetTemplateElementsByTagName(template, 'Syl')
+            for each sylTemplate in GetTemplateElementsByTagName(template, 'syl')
             {
                 SetTemplateAction(sylTemplate, Self, 'SylElementAction');
             }

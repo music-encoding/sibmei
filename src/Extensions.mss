@@ -174,7 +174,7 @@ function InitExtensions (extensions, pluginList) {
 function CreateApiObject (extensionInfo) {
     apiObject = CreateDictionary(
         '_extensionInfo', extensionInfo,
-        'libmei', libmei,
+        'libmei', Self,
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText,
         'LyricText', LyricText

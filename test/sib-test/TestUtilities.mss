@@ -51,7 +51,7 @@ function TestGetTemplateElementsByTagName (assert, plugin) {
         @Element('foo', @Attrs('n', 2), 'Text child')
     );
 
-    fooElements = sibmei.GetTemplateElementsByTagName(template, 'Foo');
+    fooElements = sibmei.GetTemplateElementsByTagName(template, 'foo');
     assert.Equal(fooElements.Length, 3, 'Expected number of <foo> elements');
     for n = 0 to fooElements.Length
     {

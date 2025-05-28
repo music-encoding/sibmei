@@ -13,8 +13,6 @@ function InitGlobals (extensions) {
     // `extensions` can be null or a SparseArray. See `InitExtensions()` for
     // more detailed information.
 
-    // initialize libmei as soon as possible
-    Self._property:libmei = libmei4;
 
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
