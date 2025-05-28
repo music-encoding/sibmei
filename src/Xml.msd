@@ -4,6 +4,11 @@
     return commentObj;
 }"
 CreateElement "(tagname) {
+    if (not IsLegalElement[tagname])
+    {
+        StopPlugin(tagname & ' is not an element name allowed in MEI ' & MeiVersion);
+    }
+
     element = CreateDictionary(
         'name', tagname,
         'attrs', CreateDictionary(),

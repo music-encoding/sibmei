@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { argv } from "process";
 import pckg from "../package.json" with {type: "json"};
+import { getLegalElements } from "./schema.mjs";
 
 const { name, version, sibmei: { meiVersion } } = pckg;
 const GLOBALS = `
@@ -46,10 +47,11 @@ function mssToPlg(mssCode, filename) {
  * @param {string[]} sourceFiles  source file names
  * @param {string} target  name of target *.plg file
  */
-function buildPlg(sourceFiles, target) {
+async function buildPlg(sourceFiles, target) {
   fs.writeFileSync(target, `${BOM}{
     ${compile(sourceFiles)}
     ${GLOBALS}
+    LegalElements {"${[...await getLegalElements()].join('" "')}"}
   }`, { encoding: "utf16le" });
 }
 
@@ -121,7 +123,7 @@ function info(message) {
   console.log(`[${time}] \x1b[34m${message}\x1b[0m`);
 }
 
-function build() {
+async function build() {
   info("Compiling companion plugins");
   fs.mkdirSync("build/release", { recursive: true });
   fs.mkdirSync("build/develop/sibmeiTestSibs", { recursive: true });
@@ -132,9 +134,9 @@ function build() {
   const mainSourceFiles = fileList("src");
   const testSourceFiles = fileList("test/sib-test");
   info("Compiling release build");
-  buildPlg(mainSourceFiles, `build/release/${name}.plg`);
+  await buildPlg(mainSourceFiles, `build/release/${name}.plg`);
   info("Compiling development build");
-  buildPlg([...mainSourceFiles, ...testSourceFiles], `build/develop/${name}.plg`);
+  await buildPlg([...mainSourceFiles, ...testSourceFiles], `build/develop/${name}.plg`);
 
   info("Copying test data");
   for (const filePath of fileList("test/sibmeiTestSibs")) {
@@ -146,9 +148,9 @@ function build() {
   console.log("");
 }
 
-build();
-
-if (argv[2] === "--watch") {
-  info("Watching files for changes\n");
-  chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on('all', build);
-}
+build().then(() => {
+  if (argv[2] === "--watch") {
+    info("Watching files for changes\n");
+    chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on('all', build);
+  }
+});

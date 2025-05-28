@@ -13,7 +13,6 @@ function InitGlobals (extensions) {
     // `extensions` can be null or a SparseArray. See `InitExtensions()` for
     // more detailed information.
 
-
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);
@@ -99,6 +98,12 @@ function InitGlobals (extensions) {
     for each codepoint in EncodedChar.ValidIndices
     {
         EscapedCharacters = EscapedCharacters & Chr(codepoint);
+    }
+
+    Self._property:IsLegalElement = CreateDictionary('<!--', true);
+    for each elementName in LegalElements
+    {
+        IsLegalElement[elementName] = true;
     }
 
     Self._property:_Initialized = true;
