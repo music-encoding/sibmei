@@ -1071,8 +1071,9 @@ function GenerateMeterAttributes (scoredef, barNumber) {
     meterFraction = SplitString(timesig.Text, '\\n', true);
     if (meterFraction.NumChildren = 2)
     {
-        AddAttribute(scoredef, 'meter.count', meterFraction[0]);
-        AddAttribute(scoredef, 'meter.unit', meterFraction[1]);
+        // SplitString() returns TreeNodes. `& ''` casts them to strings.
+        AddAttribute(scoredef, 'meter.count', meterFraction[0] & '');
+        AddAttribute(scoredef, 'meter.unit', meterFraction[1] & '');
         return scoredef;
     }
 
