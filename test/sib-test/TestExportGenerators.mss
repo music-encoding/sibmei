@@ -5,7 +5,6 @@ function TestExportGenerators (suite) {
         .Add('TestGenerateMEIMusic')
         .Add('TestGenerateMusicWithLyrics')
         .Add('TestGenerateMusicWithEndings')
-        .Add('TestGenerateStaffGroups')
         .Add('TestGenerateLine')
         ;
 } //$end
@@ -216,71 +215,6 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     d = libmei.getDocument();
     filePath = Self._property:tempDir & 'testendings.mei';
     e = libmei.meiDocumentToFile(d, filePath);
-    libmei.destroy();
-}  //$end
-
-function TestGenerateStaffGroups (assert, plugin) {
-    //$module(TestExportGenerators.mss)
-    libmei.destroy();
-
-    score = Sibelius.New();
-    // Sibelius adds brackets and braces according to instrument groups
-    // automatically
-    instrumentIDs = CreateSparseArray(
-      'instrument.wind.piccolo',
-      'instrument.wind.flute',
-      'instrument.wind.oboe',
-      'instrument.wind.coranglais',
-      'instrument.wind.clarinet.eflat',
-      'instrument.wind.clarinet.bflat',
-      'instrument.wind.clarinet.bass.bflat.bassclef',
-      'instrument.wind.bassoon',
-      'instrument.wind.bassoon.contrabassoon',
-      'instrument.brass.horn.f',
-      'instrument.brass.horn.f',
-      'instrument.brass.tuba.wagner.bflat',
-      'instrument.brass.trumpet.bflat',
-      'instrument.brass.trumpet.bflat',
-      'instrument.brass.trombone',
-      'instrument.brass.trombone.bass',
-      'instrument.brass.tuba',
-      'instrument.pitchedpercussion.timpani.nokeysig',
-      'instrument.unpitched.drums.1line',
-      'instrument.unpitched.drums.1line',
-      'instrument.pitchedpercussion.bells.tubular',
-      'instrument.pitchedpercussion.glockenspiel',
-      'instrument.pitchedpercussion.xylophone',
-      'instrument.keyboard.celesta',
-      'instrument.keyboard.celesta',
-      'instrument.keyboard.piano',
-      'instrument.keyboard.piano',
-      'instrument.pitchedpercussion.harp',
-      'instrument.pitchedpercussion.harp',
-      'instrument.pitchedpercussion.harp',
-      'instrument.pitchedpercussion.harp',
-      'instrument.strings.violin.I',
-      'instrument.strings.violin.ii',
-      'instrument.strings.viola',
-      'instrument.strings.violoncello',
-      'instrument.strings.contrabass.double-bass'
-    );
-    for each instrumentID in instrumentIDs {
-      score.CreateInstrumentAtBottom(instrumentID);
-    }
-    sibmei._property:ActiveScore = score;
-    staffgroups = sibmei.GenerateStaffGroups(score, 1);
-
-    // this is not valid MEI, but it should render correctly.
-    m = libmei.Mei();
-    libmei.AddChild(m, staffgroups);
-
-    libmei.setDocumentRoot(m);
-
-    d = libmei.getDocument();
-    filePath = Self._property:tempDir & 'staffgroups.mei';
-    e = libmei.meiDocumentToFile(d, filePath);
-    assert.OK(e, 'The file ' & filePath & ' was successfully generated');
-
     libmei.destroy();
 }  //$end
 

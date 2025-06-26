@@ -161,6 +161,10 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
             libmei.AddAttribute(std, 'trans.semi', semiTrans);
             libmei.AddAttribute(std, 'trans.diat', diaTrans);
         }
+        if (s.Small)
+        {
+            libmei.AddAttribute(std, 'scale', score.EngravingRules.SmallStaffSizeScale & '%');
+        }
 
         clefinfo = ConvertClef(s.InitialClefStyleId);
         libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
