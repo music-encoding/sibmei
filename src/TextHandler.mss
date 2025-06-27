@@ -15,16 +15,8 @@ function InitTextHandlers() {
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.technique', @Element('Dir', @Attrs('label', 'technique'), FormattedText),
         'text.system.page_aligned.composer', @Element('AnchoredText', noTstamp, FormattedText),
-        'text.system.page_aligned.subtitle', @Element(
-            'AnchoredText',
-            noTstamp,
-            @Element('Title', @Attrs('type', 'subordinate'), FormattedText)
-        ),
-        'text.system.page_aligned.title', @Element(
-            'AnchoredText',
-            noTstamp,
-            @Element('Title', noAttributes, FormattedText)
-        ),
+        'text.system.page_aligned.subtitle', @Element('AnchoredText', noTstamp, FormattedText),
+        'text.system.page_aligned.title', @Element('AnchoredText', noTstamp, FormattedText),
         'text.system.tempo', @Element('Tempo', noAttributes, FormattedText)
     ));
 
