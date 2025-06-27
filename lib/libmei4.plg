@@ -2045,7 +2045,8 @@ GetTail "(element) {
 
     _exportMeiDocument "(meidoc) {
         xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>';
-        meiout = xdecl & convertDictToXml(meidoc[0], Chr(10));
+        schema = '\n<?xml-model href=' & Chr(34) & 'https://music-encoding.org/schema/4.0.1/mei-CMN.rng' & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://relaxng.org/ns/structure/1.0' & Chr(34) & ' ?>';
+        meiout = xdecl & schema & convertDictToXml(meidoc[0], Chr(10));
 
         return meiout;
     }"
