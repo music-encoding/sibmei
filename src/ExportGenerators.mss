@@ -1263,11 +1263,7 @@ function GenerateScoreDef (score, barnum) {
     GenerateMeterAttributes(scoredef, score, 1);
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    if (score.StaffCount > 0)
-    {
-        staffgrp = GenerateStaffGroups(score, barnum);
-        libmei.AddChild(scoredef, staffgrp);
-    }
+    libmei.AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
 
     return scoredef;
 }  //$end
@@ -1335,123 +1331,6 @@ function GenerateMeterAttributes (scoredef, score, barNumber) {
     return scoredef;
 }  //$end
 
-function GenerateStaffGroups (score, barnum) {
-    //$module(ExportGenerators.mss)
-    staffdict = CreateDictionary();
-    parentstgrp = libmei.StaffGrp();
-    numstaff = score.StaffCount;
-
-    for each Staff s in score
-    {
-        std = libmei.StaffDef();
-
-        libmei.AddAttribute(std, 'n', s.StaffNum);
-        libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
-
-        diaTrans = s.InitialInstrumentType.DiatonicTransposition;
-        semiTrans = s.InitialInstrumentType.ChromaticTransposition;
-        if (diaTrans != 0 and semiTrans != 0)
-        {
-            libmei.AddAttribute(std, 'trans.semi', semiTrans);
-            libmei.AddAttribute(std, 'trans.diat', diaTrans);
-        }
-
-        clefinfo = ConvertClef(s.InitialClefStyleId);
-        libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
-        libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
-        libmei.AddAttribute(std, 'clef.dis', clefinfo[2]);
-        libmei.AddAttribute(std, 'clef.dis.place', clefinfo[3]);
-
-        keysig = s.CurrentKeySignature(barnum);
-        libmei.AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
-
-        if (keysig.Major)
-        {
-            libmei.AddAttribute(std, 'key.mode', 'major');
-        }
-        else
-        {
-            libmei.AddAttribute(std, 'key.mode', 'minor');
-        }
-
-        if (s.FullInstrumentName != null)
-        {
-            label = libmei.Label();
-            libmei.SetText(label, s.FullInstrumentName);
-            libmei.AddChild(std, label);
-        }
-
-        if (s.ShortInstrumentName != null)
-        {
-            labelAbbr = libmei.LabelAbbr();
-            libmei.SetText(labelAbbr, s.ShortInstrumentName);
-            libmei.AddChild(std, labelAbbr);
-        }
-
-        if (s.InstrumentName != null)
-        {
-            instrObj = s.InitialInstrumentType;
-            instrComment = libmei.XMLComment(instrObj.DefaultSoundId);
-            libmei.AddChild(std, instrComment);
-
-            instrDef = libmei.InstrDef();
-            // libmei.AddAttribute(instrDef, 'midi.instrname', s.InstrumentName);
-            // midi pan is 0-127, Sib. pan is -127 to + 127, so this needs to be converted.
-            pan = RoundUp((s.Pan + 127) / 2);
-            libmei.AddAttribute(instrDef, 'midi.pan', pan);
-            libmei.AddAttribute(instrDef, 'midi.volume', s.Volume);
-            libmei.AddAttribute(instrDef, 'midi.channel', s.Channel);
-            libmei.AddChild(std, instrDef);
-        }
-
-        staffdict[s.StaffNum] = std;
-    }
-
-    stgpdict = CreateDictionary();
-    stgprevidx = CreateDictionary();
-    stgpnum = 1;
-    brackets = score.BracketsAndBraces;
-
-    for each bkt in brackets
-    {
-        stgp = libmei.StaffGrp();
-        libmei.AddAttribute(stgp, 'symbol', ConvertBracket(bkt.BracketType));
-        libmei.AddAttribute(stgp, 'n', stgpnum);
-        stgpdict[stgpnum] = stgp;
-
-        if (bkt.BracketType != BracketSub)
-        {
-            for i = bkt.TopStaveNum to bkt.BottomStaveNum + 1
-            {
-                libmei.AddChild(stgp, staffdict[i]);
-                stgprevidx[i] = stgpnum;
-            }
-        }
-        stgpnum = stgpnum + 1;
-    }
-
-    // finally, we need to put them all in the right order.
-    stgpnum_added = CreateSparseArray();
-    for j = 1 to numstaff + 1
-    {
-        if (stgprevidx.PropertyExists(j))
-        {
-            // there is a group
-            stgpnum = stgprevidx[j];
-            if (utils.IsInArray(stgpnum_added, stgpnum) = false)
-            {
-                libmei.AddChild(parentstgrp, stgpdict[stgpnum]);
-                stgpnum_added.Push(stgpnum);
-            }
-        }
-        else
-        {
-            libmei.AddChild(parentstgrp, staffdict[j]);
-        }
-
-    }
-    return parentstgrp;
-}  //$end
 
 function GenerateControlEvent (bobj, element) {
     // @endid can not yet be set. Register the line until the layer where it
