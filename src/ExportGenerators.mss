@@ -1019,7 +1019,11 @@ function GenerateNote (nobj) {
         libmei.AddAttribute(n, 'oct.ges', octges);
     }
 
-    libmei.AddAttribute(n, 'vel', vel);
+    if (vel != 0)
+    {
+        libmei.AddAttribute(n, 'vel', vel);
+    }
+
     libmei.AddAttribute(n, 'pnum', pnum);
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
