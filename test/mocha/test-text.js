@@ -25,6 +25,14 @@ describe("Text elements", function() {
         const composerEl = xpath.evaluateXPath("//*:measure[@n='1']//*:persName[@role='Composer']", meiText);
         assert.notStrictEqual(composerEl.length, 0,"The composer label is missing");
     });
+    it("check for title in measure 1", function() {
+        const titleEl = xpath.evaluateXPathToFirstNode("//*:measure[@n='1']/*:anchoredText/*:title[text()='Title Text']", meiText);
+        assert(titleEl, "When a title metadata reference is used in a title text style, <title> elements must not be nested");
+    });
+    it("check for title reference in technique text", function() {
+        const titleEl = xpath.evaluateXPathToFirstNode("//*:measure[@n='2']/*:dir/*:title/*:rend[text()='Title Text']", meiText);
+        assert(titleEl, "When a title metadata reference is used in a non-title element, it must be wrapped in <title>");
+    });
     it("check for subordinate title in measure 1", function() {
         const subTitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
         assert.notStrictEqual(subTitle.length, 0, "The subtitle is missing");

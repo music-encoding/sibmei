@@ -68,7 +68,7 @@ function InitTextSubstituteMap() {
     // reference is case insensitive, so we register them as all-uppercase in
     // final map.
     for each Name name in tempSubstituteMap {
-        tempSubstituteMap[name]._property:propertyName = name;
+        tempSubstituteMap[name]._property:metadataReferenceName = name;
         textSubstituteMap[utils.UpperCase(name)] = tempSubstituteMap[name];
     }
 
@@ -219,7 +219,7 @@ function AddTextWithFormatting (parentElement, textWithFormatting) {
             }
             case ('\\$')
             {
-                AppendTextSubstitute(state, GetTextCommandArg(component));
+                AppendTextSubstitute(state, GetTextCommandArg(component), parentElement.name);
             }
             case ('\\\\')
             {
@@ -228,7 +228,7 @@ function AddTextWithFormatting (parentElement, textWithFormatting) {
                 // commands'. Though Sibelius does not seem to allow inputting
                 // this, let's still cover it in case Avid fixes this.
 
-                // We strip one leading backspace.
+                // We strip one leading backslash.
                 state.currentText = state.currentText & Substring(component, 1);
             }
             default
@@ -423,10 +423,11 @@ function GetStyleAttributes (state) {
 }  //$end
 
 
-function AppendTextSubstitute (state, substituteName) {
+function AppendTextSubstitute (state, substituteName, contextElement) {
     score = Self._property:ActiveScore;
+    substituteName = utils.UpperCase(substituteName);
 
-    textSubstituteTemplate = TextSubstituteMap[utils.UpperCase(substituteName)];
+    textSubstituteTemplate = TextSubstituteMap[substituteName];
     if (null = textSubstituteTemplate)
     {
         // No known substitution. Sibelius renders those literally.
@@ -434,11 +435,17 @@ function AppendTextSubstitute (state, substituteName) {
         return null;
     }
 
-    propertyName = textSubstituteTemplate.propertyName;
+    metadataReferenceName = textSubstituteTemplate.metadataReferenceName;
 
-    substitutedText = score.@propertyName;
+    substitutedText = score.@metadataReferenceName;
     if (substitutedText = '')
     {
+        return null;
+    }
+    if (substituteName = 'TITLE' and contextElement = 'title')
+    {
+        // <title> mustn't be nested inside <title>, append text without markup
+        state.currentText = state.currentText & substitutedText;
         return null;
     }
 
@@ -448,7 +455,6 @@ function AppendTextSubstitute (state, substituteName) {
     state.meiNodes.Push(element);
 
     styleAttributes = GetStyleAttributes(state);
-    rendElement = null;
     if (null = styleAttributes)
     {
         libmei.SetText(element, substitutedText);
