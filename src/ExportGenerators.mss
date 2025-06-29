@@ -1019,7 +1019,7 @@ function GenerateNote (nobj) {
         libmei.AddAttribute(n, 'oct.ges', octges);
     }
 
-    if (vel != 0)
+    if (vel != 0)  // filter default value for manually entered notes
     {
         libmei.AddAttribute(n, 'vel', vel);
     }
