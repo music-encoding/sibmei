@@ -285,7 +285,16 @@ function BuildNoteRestParentsByVoiceAndPosition (bar) {
     //   already ruled those out and created <beamSpan>s for these cases.
     for each Tuplet tuplet in bar
     {
-        // The iteration visists the outer tuplets first, then their children
+        if (null = parentsInVoice[tuplet.Position])
+        {
+            // Found a tuplet without a note. Likely a MusicXML import artifact.
+            Trace(
+                'Skipped corrupt data found in bar ' & bar.BarNumber & ', staff ' & bar.ParentStaff.StaffNum
+                & '. It is best to delete this bar from the Sibelius file and input it from scratch.'
+            );
+            return parentsByVoiceAndPosition;
+        }
+        // The iteration visits the outer tuplets first, then their children
         parentsInVoice = parentsByVoiceAndPosition[tuplet.VoiceNumber];
         tupletInfo = CreateDictionary(
             'element', GenerateTuplet(tuplet),
