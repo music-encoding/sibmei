@@ -26,21 +26,21 @@ describe("Text elements", function() {
         assert.notStrictEqual(composerEl.length, 0,"The composer label is missing");
     });
     it("check for subordinate title in measure 1", function() {
-        const subTitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
+        const subTitle = xpath.evaluateXPath("//*:measure[@n='1']//*:anchoredText[@func='subtitle']", meiText);
         assert.notStrictEqual(subTitle.length, 0, "The subtitle is missing");
     });
     // test formatting: subscript, superscript
     it("check for superscript", function() {
-        const superscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sup']", meiText);
+        const superscript = xpath.evaluateXPath("//*:measure[@n='1']//*:anchoredText[@func='subtitle']/*:rend[@rend='sup']", meiText);
         assert.notStrictEqual(superscript.length, 0, "Superscript in subtitle is missing");
     });
     it("check for subscript", function() {
-        const subscript = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']/*:rend[@rend='sub']", meiText);
+        const subscript = xpath.evaluateXPath("//*:measure[@n='1']//*:anchoredText[@func='subtitle']/*:rend[@rend='sub']", meiText);
         assert.notStrictEqual(subscript.length, 0, "Subscript in subtitle is missing");
     });
     // Formatting elements must be output without indentation or any other additional whitespace
     it("check for whitespace introduced by formatting tags", function() {
-        const subtitle = xpath.evaluateXPath("//*:measure[@n='1']//*:title[@type='subordinate']", meiText);
+        const subtitle = xpath.evaluateXPath("//*:measure[@n='1']//*:anchoredText[@func='subtitle']", meiText);
         assert.strictEqual(subtitle.textContent, 'E0=mc2', 0, "Text must not have any whitespace");
     });
     // check for front matter

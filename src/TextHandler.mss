@@ -1,6 +1,5 @@
 function InitTextHandlers() {
     noAttributes = null;
-    noTstamp = CreateDictionary('tstamp', ' ');
 
     Self._property:FormattedText = SetTemplateAction(CreateDictionary(), Self, 'AddFormattedText');
     Self._property:UnformattedText = SetTemplateAction(CreateDictionary(), Self, 'AddUnformattedText');
@@ -14,17 +13,10 @@ function InitTextHandlers() {
         'text.staff.expression', @Element('Dynam', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.technique', @Element('Dir', @Attrs('label', 'technique'), FormattedText),
-        'text.system.page_aligned.composer', @Element('AnchoredText', noTstamp, FormattedText),
-        'text.system.page_aligned.subtitle', @Element(
-            'AnchoredText',
-            noTstamp,
-            @Element('Title', @Attrs('type', 'subordinate'), FormattedText)
-        ),
-        'text.system.page_aligned.title', @Element(
-            'AnchoredText',
-            noTstamp,
-            @Element('Title', noAttributes, FormattedText)
-        ),
+        'text.system.page_aligned.composer', @Element('AnchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.subtitle', @Element('AnchoredText', @Attrs('func', 'subtitle', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.title', @Element('AnchoredText', @Attrs('func', 'title', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.dedication', @Element('AnchoredText', @Attrs('func', 'dedication', 'tstamp', ' '), FormattedText),
         'text.system.tempo', @Element('Tempo', noAttributes, FormattedText)
     ));
 
