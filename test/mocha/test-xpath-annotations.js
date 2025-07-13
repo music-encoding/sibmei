@@ -20,6 +20,11 @@ const utils = require('./utils');
  *
 */
 
+// If we have an XPath test that ends with an "=" followed by a string or a
+// number, we do assert.Equal() to make interpreting the test results easer. To
+// do this we have to extract the right hand side from the XPath.
+const xpathWithComparison = /^(.*)\s*=\s*((\d+)|"([^"]*)"|'([^']*)')\s*$/;
+// Make sure that the export actually exported XPath test annotations
 let foundXPathTest = false;
 
 for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestSibs'), 'utf8')) {
@@ -27,7 +32,12 @@ for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestS
     continue;
   }
   const mei = utils.getTestMeiDom(fileName);
-  const xpathAnnots = xpath.evaluateXPath("//*:annot[@type='xpath-test']", mei);
+  let xpathAnnots = xpath.evaluateXPath("//*:annot[@type='xpath-test']", mei);
+  // evaluateXPath() returns a single object when the XPath evaluates to a
+  // single object or value, but we always want an array
+  if (!Array.isArray(xpathAnnots)) {
+    xpathAnnots = [xpathAnnots];
+  }
   if (xpathAnnots.length === 0) {
     continue;
   }
@@ -37,16 +47,48 @@ for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestS
       const messages = [];
       for (const annot of xpathAnnots) {
         const measure = annot.parentNode.getAttribute("n");
-        const testXpath = annot.textContent;
-        const result = xpath.evaluateXPath(testXpath, annot.parentNode);
-        const resultIsEmptyArray = result instanceof Array && result.length === 0;
-        if (resultIsEmptyArray || result === false) {
-          messages.push(`measure: ${measure}, XPath: ${testXpath}`);
+        const [, testXpath, expectedString, expectedNumber] = (
+          annot.textContent.match(xpathWithComparison) || [, annot.textContent]
+        );
+        // If we find a leading comment, we us it as test description
+        const testDescription = (annot.textContent.match(/s*\(:\s*(.*)\s*:\)/) || [])[1];
+        const result = xpath.evaluateXPath(
+          expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
+          annot.parentNode
+        );
+        if (expectedNumber) {
+          evaluateResult(messages, measure, testXpath, result, expectedNumber);
+        } else if (expectedString) {
+          const stringWithoutQuotes = expectedString.replace(/.(.*)./, "$1");
+          evaluateResult(messages, measure, testXpath, result, testDescription, stringWithoutQuotes);
+        } else {
+          evaluateResult(messages, measure, testXpath, result, testDescription);
         }
       }
       assert.ok(messages.length === 0, '\n' + messages.join('\n\n'));
     });
   });
+}
+
+function evaluateResult(messages, measure, testXpath, result, testDescription, expectedResult) {
+  let message = '';
+  if (expectedResult === undefined) {
+    const resultIsEmptyArray = result instanceof Array && result.length === 0;
+    if (resultIsEmptyArray || result === false) {
+      message = `measure: ${measure}, XPath: ${testXpath}`;
+    }
+  } else {
+    // Intentionally compare with "!=" instead of "!=="
+    if (result != expectedResult) {
+      message = `measure: ${measure}, XPath: ${testXpath}, expected: ${expectedResult}, actual: ${result}`;
+    }
+  }
+  if (message) {
+    if (testDescription) {
+      message = message + '\n' + testDescription;
+    }
+    messages.push(message);
+  }
 }
 
 describe("XPath annotation export", function() {

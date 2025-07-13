@@ -188,7 +188,7 @@ function HandleMySymbol (api, obj) {
 } //$end
 ```
 
-A Handler method receives the Handler object as first argument and the symbol, text, lyrics or line object as second argument. The Handler object exposes the extension API methods and objects (hance it's named `api` here) as well as the `template` field that can be passed to `api.MeiFactory()`.
+A Handler method receives the Handler object as first argument and the symbol, text, lyrics or line object as second argument. The Handler object exposes the extension API methods and objects (hence it's named `api` here) as well as the `template` field that can be passed to `api.MeiFactory()`.
 
 A Handler method has to call `api.GenerateControlEvent()` or `api.GenerateModifier()`, otherwise the created MEI element will not be attached to the score.
 

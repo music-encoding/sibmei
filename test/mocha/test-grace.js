@@ -12,7 +12,7 @@ describe("Grace notes", () => {
       xpath.evaluateXPath(
         '//*:measure[@n="1"]/*:staff[1]/*:layer[1]/*', mei
       ).map(el => el.tagName),
-      ["note", "tuplet", "note", "beam", "note", "tuplet"]
+      ["note", "beam", "note", "beam", "note", "tuplet"]
     );
   });
 });

@@ -176,7 +176,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // `searchStrategy` is used to find another NoteRest and may be one of the
     // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
 
-    objectPositions = Self._property:ObjectPositions;
+    objectPositions = Self._property:NoteRestIdsByLocation;
     if (bobj.IsALine and positionProperty = 'EndPosition')
     {
         bobjPosition = bobj.EndPosition;
@@ -208,7 +208,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // Try and find the best matching note according to the `searchStrategy`.
     noteRestPositions = noteIdsByPosition.ValidIndices;
 
-    for noteRestIndex = noteRestPositions.Length - 1 to -1 step -1 {
+    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1 {
         if (noteRestPositions[noteRestIndex] < bobjPosition)
         {
             // We found the closest preceding and following positions
@@ -273,6 +273,79 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
 
     return libmei.getElementById(noteIdsByPosition[noteRestPosition]);
 } //$end
+
+
+function GetMeiNoteRestAtPosition (bobj, endPosition) {
+    // Returns the MEI element generated from a NoteRest at the start or end
+    // position of `bobj`, depending on whether `endPosition` is true or false.
+
+    if (endPosition)
+    {
+        layerHash = LayerHash(bobj.EndBarNumber, bobj);
+        position = bobj.EndPosition;
+    }
+    else
+    {
+        layerHash = LayerHash(bobj.ParentBar, bobj);
+        position = bobj.Position;
+    }
+
+    noteRestIdsByPosition = NoteRestIdsByLocation[layerHash];
+
+    if (null = noteRestIdsByPosition)
+    {
+        return null;
+    }
+
+    id = noteRestIdsByPosition[position];
+
+    if (null != id)
+    {
+        return libmei.getElementById(id);
+    }
+
+    // If there is no NoteRest at the precise position, linearly search the
+    // NoteRests in this layer for the closest position.
+    noteRestPositions = noteRestIdsByPosition.ValidIndices;
+
+    for i = 0 to noteRestPositions.Length
+    {
+        if (noteRestPositions[i] > position)
+        {
+            // If the preceding position was closer, use that one
+            if (
+                (i > 0)
+                and (position - noteRestPositions[i - 1] < noteRestPositions[i] - position)
+            )
+            {
+                i = i - 1;
+            }
+            id = noteRestIdsByPosition[noteRestPositions[i]];
+            return libmei.getElementById(id);
+        }
+    }
+
+    return null;
+} //$end
+
+
+function RegisterNoteRestIdByLocation (noteRest, id) {
+    //$module(Utilities.mss)
+    /**
+     * Registers the NoteRest's id in the global NoteRestIdsByLocation object
+     * that is used by GetMeiNoteRestAtPosition() to retrieve MEI objects that
+     * other objects are attached to.
+     */
+
+    layerHash = LayerHash(noteRest.ParentBar, noteRest);
+    noteIdsByPosition = NoteRestIdsByLocation[layerHash];
+    if (null = noteIdsByPosition)
+    {
+        noteIdsByPosition = CreateSparseArray();
+        NoteRestIdsByLocation[layerHash] = noteIdsByPosition;
+    }
+    noteIdsByPosition[noteRest.Position] = id;
+}  //$end
 
 
 function AddControlEventAttributes (bobj, element) {
@@ -369,102 +442,6 @@ function AddControlEventAttributes (bobj, element) {
 
 }  //$end
 
-function TupletsEqual (t, t2) {
-    //$module(Utilities.mss)
-
-    // shamelessly copied from the built-in tuplet plugin.
-    tIsBar = (t = null) or (t.Type = 'Bar');
-    t2IsBar = (t2 = null) or (t2.Type = 'Bar');
-
-    if( tIsBar and t2IsBar ) { return true; }
-    if( tIsBar or t2IsBar ) { return false; }
-
-    b = t.ParentBar;
-    b2 = t2.ParentBar;
-
-    if( b.BarNumber != b2.BarNumber ) { return false; }
-    if( b.ParentStaff.StaffNum != b2.ParentStaff.StaffNum ) { return 0; }
-    if( t.VoiceNumber != t2.VoiceNumber ) { return false; }
-
-    if( t.Position != t2.Position ) { return false; }
-    if( t.PlayedDuration != t2.PlayedDuration ) { return false; }
-
-    return true;
-
-}  //$end
-
-function GetTupletStack (bobj) {
-    //$module(Utilities.mss)
-    tupletStack = CreateSparseArray();
-    parentTuplet = bobj.ParentTupletIfAny;
-    while (parentTuplet != null)
-    {
-        tupletStack.Push(parentTuplet);
-        parentTuplet = parentTuplet.ParentTupletIfAny;
-    }
-    tupletStack.Reverse();
-    return tupletStack;
-}  //$end
-
-function CountTupletsEndingAtNoteRest(noteRest) {
-    //$module(Utilities.mss)
-    tuplet = noteRest.ParentTupletIfAny;
-
-    if (tuplet = null)
-    {
-        return 0;
-    }
-
-    nextNoteRest = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
-
-    if (nextNoteRest = null or nextNoteRest.ParentTupletIfAny = null)
-    {
-        tupletStack = GetTupletStack(noteRest);
-        return tupletStack.Length;
-    }
-
-    if (TupletsEqual(tuplet, nextNoteRest.ParentTupletIfAny))
-    {
-        return 0;
-    }
-
-    tupletStack = GetTupletStack(noteRest);
-    nextTupletStack = GetTupletStack(nextNoteRest);
-
-    // We are looking for the highest index where both stacks are identical.
-    index = utils.min(tupletStack.Length, nextTupletStack.Length) - 1;
-
-    while (index >= 0 and not(TupletsEqual(tupletStack[index], nextTupletStack[index])))
-    {
-        index = index - 1;
-    }
-
-    return tupletStack.Length - 1 - index;
-}  //$end
-
-function GetMeiTupletDepth (layer) {
-    //$module(Utilities.mss)
-    depth = 0;
-    tuplet = layer._property:ActiveMeiTuplet;
-    while (tuplet != null)
-    {
-        depth = depth + 1;
-        tuplet = tuplet._property:ParentTuplet;
-    }
-    return depth;
-}  //$end
-
-function GetSibTupletDepth (noteRest) {
-    //$module(Utilities.mss)
-    depth = 0;
-    tuplet = noteRest.ParentTupletIfAny;
-    while (tuplet != null)
-    {
-        depth = depth + 1;
-        tuplet = tuplet.ParentTupletIfAny;
-    }
-    return depth;
-}  //$end
 
 function lstrip (str) {
     //$module(Utilities.mss)
@@ -746,80 +723,6 @@ function InitFigbassCharMap () {
     }
 
     return map;
-}  //$end
-
-
-function AppendToLayer (meielement, l, beam, tuplet) {
-    //$module(Utilities.mss)
-    if (beam != null)
-    {
-        libmei.AddChild(beam, meielement);
-
-        if (tuplet != null)
-        {
-            if (beam._parent = l._id)
-            {
-                /*
-                   If the beam has been previously added to the layer but now
-                   finds itself part of a tuplet, shift the tuplet to a tupletSpan. This
-                   effectively just replaces the active tuplet with a tupletSpan element
-                */
-                if (tuplet.name != 'tupletSpan')
-                {
-                    ShiftTupletToTupletSpan(tuplet, l);
-                }
-            }
-            else
-            {
-                if (beam._parent != tuplet._id)
-                {
-                    libmei.AddChild(tuplet, beam);
-                }
-
-                if (tuplet._parent != l._id)
-                {
-                    libmei.AddChild(l, tuplet);
-                }
-            }
-        }
-        else
-        {
-            parent = beam._property:ParentBeam;
-            if (parent = null)
-            {
-                parent = l;
-            }
-            if (beam._parent != parent._id)
-            {
-                libmei.AddChild(parent, beam);
-            }
-        }
-    }
-    else
-    {
-        if (tuplet != null)
-        {
-            tname = libmei.GetName(tuplet);
-
-            if (tname != 'tupletSpan')
-            {
-                libmei.AddChild(tuplet, meielement);
-            }
-            else
-            {
-                libmei.AddChild(l, meielement);
-            }
-
-            if (tuplet._parent != l._id)
-            {
-                libmei.AddChild(l, tuplet);
-            }
-        }
-        else
-        {
-            libmei.AddChild(l, meielement);
-        }
-    }
 }  //$end
 
 

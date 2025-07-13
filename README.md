@@ -74,6 +74,24 @@ cmd /k npm test
 
 Help for testing and documenting for Mac welcome!
 
+#### Writing XPath tests
+
+The easiest and recommended way of writing test is to create a Sibelius test file with embedded XPath expressions that test if the file is exported to the expected MEI structures. These XPath expressions must be written using the text style "XPath test". For an example, see `test/sibmeiTestSibs/extensions.sib`. Any XPath expression that does not evaluate to a truthy result will make a test fail.
+
+When creating a new test file, copy an XPath test text from an existing test file to the new test file and modify the XPath. XPath expressions are evaluated in the context of the `<measure>` the XPath is attached to.
+
+##### Example
+
+```xquery
+(:
+Clef is encoded in voices 1 and 2 of staff 1. Clef in layer 1 is the "main" clef,
+clef in layer 2 has a @sameas attribute for pointing to the main clef.
+:)
+staff[@n=1][layer[@n=1]/clef][layer[@n=2]/clef[@sameas]]
+```
+
+Especially if XPath expressions are not entirely self-explanatory, a leading comment is recommended. This comment will also be used in the assertion message should the test fail. Otherwise the XPath expression that did not evaluate to a truthy result will be used as message.
+
 ## Writing Extensions
 
 For project specific handling of text and symbols, [extension plugins](Extensions.md) can be written.
