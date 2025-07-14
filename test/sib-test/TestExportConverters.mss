@@ -29,7 +29,7 @@ function TestDiatonicPitchConverter(assert, plugin) {
 function TestOffsetConverter(assert, plugin) {
     //$module(TestNoteNameConverter)
     EnsureActiveScoreExists();
-    output = sibmei.ConvertOffsetsToMillimeters(100);
+    output = sibmei.ConvertOffsetsToMillimeters(Sibelius.ActiveScore, 100);
     assert.Equal(output, '5.4688mm', 'Offset of 100 1/32nds of a space is 5mm');
 }  //$end
 

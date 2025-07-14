@@ -383,12 +383,16 @@ function AddControlEventAttributes (bobj, element) {
         libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
     }
 
-    if (bar.ParentStaff.StaffNum > 0)
+    staff = bar.ParentStaff;
+
+    if (staff.StaffNum > 0)
     {
         // Only add @staff if this is not attached to the SystemStaff
-        libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+        libmei.AddAttribute(element, 'staff', staff.StaffNum);
         libmei.AddAttribute(element, 'layer', voicenum);
     }
+
+    score = staff.ParentScore;
 
     if (bobj.Type = 'Line')
     {
@@ -402,20 +406,20 @@ function AddControlEventAttributes (bobj, element) {
         // left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(bobj.Dx));
+            libmei.AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(score, bobj.Dx));
         }
         if (bobj.Dy > 0)
         {
-            libmei.AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(bobj.Dy));
+            libmei.AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(score, bobj.Dy));
         }
         // right hand offset
         if (bobj.RhDx > 0)
         {
-            libmei.AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(bobj.Dx));
+            libmei.AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(score, bobj.Dx));
         }
         if (bobj.RhDy > 0)
         {
-            libmei.AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(bobj.Dy));
+            libmei.AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(score, bobj.Dy));
         }
     }
     else
@@ -423,12 +427,12 @@ function AddControlEventAttributes (bobj, element) {
         // other types only have a left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
+            libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(score, bobj.Dx));
         }
 
         if (bobj.Dy > 0)
         {
-            libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
+            libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(score, bobj.Dy));
         }
     }
 

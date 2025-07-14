@@ -16,12 +16,9 @@ function Run() {
 }  //$end
 
 
-function GetExportFileName () {
-    // get the active score object
-    activeScore = Sibelius.ActiveScore;
-
-    if (Sibelius.FileExists(activeScore.FileName)) {
-        scoreFile = Sibelius.GetFile(activeScore.FileName);
+function GetExportFileName (score) {
+    if (Sibelius.FileExists(score.FileName)) {
+        scoreFile = Sibelius.GetFile(score.FileName);
         activeFileName = scoreFile.NameNoPath & '.mei';
         activePath = scoreFile.Path;
     } else {
@@ -29,7 +26,6 @@ function GetExportFileName () {
         activePath = Sibelius.GetDocumentsFolder();
     }
 
-    // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
 
     return filename;
@@ -56,7 +52,7 @@ function DoExport (score, filename) {
 
     if (null = filename)
     {
-        filename = GetExportFileName();
+        filename = GetExportFileName(score);
         if (null = filename)
         {
             Sibelius.MessageBox(_ExportFileIsNull);
@@ -84,7 +80,7 @@ function DoExport (score, filename) {
     Self._property:warnings = CreateSparseArray();
 
     // Deal with the Progress GUI
-    progCount = Sibelius.ActiveScore.SystemStaff.BarCount;
+    progCount = score.SystemStaff.BarCount;
     fn = utils.ExtractFileName(filename);
     progressTitle = utils.Format(_InitialProgressTitle, fn);
     Sibelius.CreateProgressDialog(progressTitle, 0, progCount - 1);

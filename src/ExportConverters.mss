@@ -119,8 +119,6 @@ function ConvertDiatonicPitch (diatonic_pitch) {
 }  //$end
 
 function ConvertOffsetsToMEI (offset) {
-    //$module(ExportConverters.mss)
-
     /*
      This function will convert the 1/32 unit
      Sibelius offsets into the MEI virtual units as required by the
@@ -134,13 +132,10 @@ function ConvertOffsetsToMEI (offset) {
     MEI virtual unit (vu) is defined as half the distance between the vertical
     center point of a staff line and that of an adjacent staff line.
     */
-    retval = (offset / 16.0);
-    return retval & 'vu';
+    return (offset / 16.0) & 'vu';
 }  //$end
 
-function ConvertOffsetsToMillimeters (offset) {
-    //$module(ExportConverters.mss)
-
+function ConvertOffsetsToMillimeters (score, offset) {
     /*
      This function will convert the 1/32 unit
      Sibelius offsets into a millimeter measurement as required by the
@@ -156,24 +151,15 @@ function ConvertOffsetsToMillimeters (offset) {
     So a staff height of 7mm (default) gives us (7 / 128) = 0.05mm per Sibelius
     Unit.
     */
-    scr = Sibelius.ActiveScore;
-    staffheight = scr.StaffHeight;
-    factor = (staffheight / 128.0);
-    oset = factor * offset;
-    retval = oset & 'mm';
-    return retval;
+
+    return (score.StaffHeight / 128.0 * offset) & 'mm';
 }  //$end
 
-function ConvertUnitsToPoints (units) {
-    //$module(ExportConverters.mss)
-    scr = Sibelius.ActiveScore;
-    staffheight = scr.StaffHeight;
-
+function ConvertUnitsToPoints (score, units) {
     /*
         Points are 0.352778mm (a point is 1/72 of an inch * 25.4mm/in).
     */
-    retval = ((staffheight / 128.0) * units) / 0.352778;
-    return retval & 'pt';
+    return (score.StaffHeight / 128.0 * units / 0.352778) & 'pt';
 }  //$end
 
 function ConvertDuration (dur) {
