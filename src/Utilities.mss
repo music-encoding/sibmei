@@ -406,20 +406,20 @@ function AddControlEventAttributes (bobj, element) {
         // left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(score, bobj.Dx));
+            libmei.AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         if (bobj.Dy > 0)
         {
-            libmei.AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(score, bobj.Dy));
+            libmei.AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
         // right hand offset
         if (bobj.RhDx > 0)
         {
-            libmei.AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(score, bobj.Dx));
+            libmei.AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         if (bobj.RhDy > 0)
         {
-            libmei.AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(score, bobj.Dy));
+            libmei.AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
     }
     else
@@ -427,12 +427,12 @@ function AddControlEventAttributes (bobj, element) {
         // other types only have a left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(score, bobj.Dx));
+            libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
 
         if (bobj.Dy > 0)
         {
-            libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(score, bobj.Dy));
+            libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
     }
 

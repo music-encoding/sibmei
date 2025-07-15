@@ -135,7 +135,7 @@ function ConvertOffsetsToMEI (offset) {
     return (offset / 16.0) & 'vu';
 }  //$end
 
-function ConvertOffsetsToMillimeters (score, offset) {
+function ConvertOffsetsToMillimeters (offset) {
     /*
      This function will convert the 1/32 unit
      Sibelius offsets into a millimeter measurement as required by the
@@ -152,14 +152,14 @@ function ConvertOffsetsToMillimeters (score, offset) {
     Unit.
     */
 
-    return (score.StaffHeight / 128.0 * offset) & 'mm';
+    return (StaffHeight / 128.0 * offset) & 'mm';
 }  //$end
 
-function ConvertUnitsToPoints (score, units) {
+function ConvertUnitsToPoints (units) {
     /*
         Points are 0.352778mm (a point is 1/72 of an inch * 25.4mm/in).
     */
-    return (score.StaffHeight / 128.0 * units / 0.352778) & 'pt';
+    return (StaffHeight / 128.0 * units / 0.352778) & 'pt';
 }  //$end
 
 function ConvertDuration (dur) {
@@ -652,7 +652,7 @@ function ConvertPositionToTimestamp (position, bar) {
         tstamp = (notePosition / beatDuration)
     */
 
-    timesignature = Sibelius.ActiveScore.SystemStaff.CurrentTimeSignature(bar.BarNumber);
+    timesignature = SystemStaff.CurrentTimeSignature(bar.BarNumber);
 
     if (position = 0)
     {

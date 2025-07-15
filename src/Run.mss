@@ -76,11 +76,14 @@ function DoExport (score, filename) {
         return 'Could not find an active score. Cannot export to ' & filename;
     }
 
+    Self._property:StaffHeight = score.StaffHeight;
+    Self._property:SystemStaff = score.SystemStaff;
+
     // Set up the warnings tracker
     Self._property:warnings = CreateSparseArray();
 
     // Deal with the Progress GUI
-    progCount = score.SystemStaff.BarCount;
+    progCount = SystemStaff.BarCount;
     fn = utils.ExtractFileName(filename);
     progressTitle = utils.Format(_InitialProgressTitle, fn);
     Sibelius.CreateProgressDialog(progressTitle, 0, progCount - 1);

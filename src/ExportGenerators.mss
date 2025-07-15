@@ -167,7 +167,7 @@ function GenerateMEIMusic () {
 
     // grab some global markers from the system staff
     // This will store it for later use.
-    ProcessSystemStaff(score);
+    ProcessSystemStaff(SystemStaff);
 
     music = libmei.Music();
 
@@ -207,8 +207,6 @@ function GenerateMEIMusic () {
     numbars = numbars.Length;
     Self._property:BarMap = barmap;
 
-    systf = score.SystemStaff;
-
     currentScoreDef = null;
 
     timerId = 1;
@@ -242,7 +240,7 @@ function GenerateMEIMusic () {
             Self._property:PageBreak = null;
         }
 
-        currKeyS = systf.CurrentKeySignature(j);
+        currKeyS = SystemStaff.CurrentKeySignature(j);
 
         if (Self._property:SystemBreak != null)
         {
@@ -254,16 +252,16 @@ function GenerateMEIMusic () {
         // Do not try to get the signatures for bar 0 -- will not work
         if (j > 1)
         {
-            prevKeyS = systf.CurrentKeySignature(j - 1);
+            prevKeyS = SystemStaff.CurrentKeySignature(j - 1);
         }
         else
         {
-            prevKeyS = systf.CurrentKeySignature(j);
+            prevKeyS = SystemStaff.CurrentKeySignature(j);
         }
 
         if (j > 1)
         {
-            currentScoreDef = GenerateMeterAttributes(currentScoreDef, score, j);
+            currentScoreDef = GenerateMeterAttributes(currentScoreDef, j);
         }
 
         if (currKeyS.Sharps != prevKeyS.Sharps)
@@ -352,9 +350,8 @@ function GenerateMeasure (num) {
     // since so much metadata about the staff and other context
     // is available on the bar that should now be on the measure, go through the bars
     // and try to extract it.
-    systf = score.SystemStaff;
-    currTimeS = systf.CurrentTimeSignature(num);
-    sysBar = systf[num];
+    currTimeS = SystemStaff.CurrentTimeSignature(num);
+    sysBar = SystemStaff[num];
 
     if (sysBar.Length != (currTimeS.Numerator * 1024 / currTimeS.Denominator))
     {
@@ -451,7 +448,7 @@ function GenerateMeasure (num) {
     }
 
     // If we've reached the end of the section, swap out the mdiv to a new one.
-    if (sysBar.SectionEnd and sysBar.BarNumber < systf.BarCount)
+    if (sysBar.SectionEnd and sysBar.BarNumber < SystemStaff.BarCount)
     {
         body = Self._property:BodyElement;
         // create the mdiv for the next bar.
@@ -1058,7 +1055,7 @@ function GenerateScoreDef (score, barnum) {
     libmei.AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
     libmei.AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
 
-    GenerateMeterAttributes(scoredef, score, 1);
+    GenerateMeterAttributes(scoredef, 1);
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
     libmei.AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
@@ -1066,20 +1063,20 @@ function GenerateScoreDef (score, barnum) {
     return scoredef;
 }  //$end
 
-function GenerateMeterAttributes (scoredef, score, barNumber) {
+function GenerateMeterAttributes (scoredef, barNumber) {
     // If a timesignature is found in the bar, adds meter attributes to
     // `scoredef`. If `scoredef` is null, will create a new <scoreDef> that is
     // returned.
     // If there is no time signature in bar 1, an invisible initial meter is
     // added.
 
-    if (score.SystemStaff.BarCount < barNumber)
+    if (SystemStaff.BarCount < barNumber)
     {
         return scoredef;
     }
 
     timesig = null;
-    for each TimeSignature t in score.SystemStaff.NthBar(barNumber)
+    for each TimeSignature t in SystemStaff.NthBar(barNumber)
     {
         // This loop will find at max one time signature
         timesig = t;
@@ -1102,7 +1099,7 @@ function GenerateMeterAttributes (scoredef, score, barNumber) {
     if (null = timesig)
     {
         // We're in bar 1 and there is no explicit time signature
-        timesig = score.SystemStaff.CurrentTimeSignature(barNumber);
+        timesig = SystemStaff.CurrentTimeSignature(barNumber);
     }
 
     // TimeSignature.Text is either the cut or common time signature character

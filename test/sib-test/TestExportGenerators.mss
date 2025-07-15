@@ -52,6 +52,7 @@ function TestGenerateMEIMusic (assert, plugin) {
     libmei.destroy();
 
     score = CreateEmptyTestScore(1, 10);
+    Self._property:SystemStaff = score.SystemStaff;
     staff = score.NthStaff(1);
 
     bar = staff.NthBar(1);

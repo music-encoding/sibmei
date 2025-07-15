@@ -21,10 +21,7 @@ function ProcessScore () {
 }  //$end
 
 
-function ProcessSystemStaff (score) {
-    //$module(ExportProcessors.mss)
-    systf = score.SystemStaff;
-
+function ProcessSystemStaff (systf) {
     for each bar in systf
     {
         for each bobj in bar
