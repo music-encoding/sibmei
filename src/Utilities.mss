@@ -432,11 +432,13 @@ function AddControlEventAttributes (bobj, element) {
         }
     }
 
-    if (bobj.Color != 0)
+    if (bobj.Type != 'Text')
     {
-        libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+        if (bobj.Color != 0)
+        {
+            libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+        }
     }
-
 
     return element;
 
