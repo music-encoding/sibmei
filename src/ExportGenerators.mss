@@ -1148,6 +1148,11 @@ function GenerateControlEvent (bobj, element) {
 
 
 function GenerateModifier (bobj, element) {
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+    }
+
     nobj = GetNoteObjectAtPosition(bobj, 'Closest');
 
     if (nobj != null)
