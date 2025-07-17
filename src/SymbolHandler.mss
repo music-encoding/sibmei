@@ -74,6 +74,14 @@ function InitSymbolHandlers () {
     ));
 
     RegisterSymbolHandlers('Index', 'ControlEventTemplateHandler', CreateDictionary(
+        //inverted mordent
+        36, @Element('Mordent', @Attrs('form', 'lower')),
+        //mordent
+        37, @Element('Mordent', @Attrs('form','upper')),
+        //turn
+        38, @Element('Turn', @Attrs('form', 'upper')),
+        //inverted turn
+        39, @Element('Turn', @Attrs('form', 'lower')),
         220, @Element('Fermata', @Attrs('shape', 'square', 'form', 'norm')),
         // round fermata above
         221, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'norm')),

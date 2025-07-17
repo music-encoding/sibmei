@@ -10,6 +10,10 @@ describe("Symbols", function() {
     describe("Control events: Expected attributes (mordents and turns)", function() {
         const mordents = xpath.evaluateXPath('//*:mordent', meiSymbols);
         const turns = xpath.evaluateXPath('//*:turn', meiSymbols);
+        it("Exports symbols", function() {
+          assert.strictEqual(mordents.length, 2, "mordents must be exported");
+          assert.strictEqual(turns.length, 2, "turns must be exported");
+        });
         it("Mordent has @form='upper'", function() {
           utils.assertAttrOnElements(mordents, [1], 'form', 'upper');
         });
