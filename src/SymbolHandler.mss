@@ -88,6 +88,7 @@ function InitSymbolHandlers () {
         48, @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')),
         49, @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')),
         50, @Element('Pedal', @Attrs('dir', 'up', 'func', 'sustain')),
+        // 51, @Element('Pedal', @Attrs('dir', 'bounce', 'func', 'sustain', 'glyph.auth', 'smufl', 'glyph.name', 'keyboardPedalUpNotch', 'glyph.num', 'U+E657'))
         220, @Element('Fermata', @Attrs('shape', 'square', 'form', 'norm')),
         // round fermata above
         221, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'norm')),
