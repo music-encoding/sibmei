@@ -74,7 +74,9 @@ function InitSymbolHandlers () {
     ));
 
     RegisterSymbolHandlers('Index', 'ControlEventTemplateHandler', CreateDictionary(
-        //inverted mordent
+        // trill
+        32, @Element('Trill'),
+        // inverted mordent
         36, @Element('Mordent', @Attrs('form', 'lower')),
         //mordent
         37, @Element('Mordent', @Attrs('form','upper')),
@@ -82,6 +84,10 @@ function InitSymbolHandlers () {
         38, @Element('Turn', @Attrs('form', 'upper')),
         //inverted turn
         39, @Element('Turn', @Attrs('form', 'lower')),
+        // pedal
+        48, @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')),
+        49, @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')),
+        50, @Element('Pedal', @Attrs('dir', 'up', 'func', 'sustain')),
         220, @Element('Fermata', @Attrs('shape', 'square', 'form', 'norm')),
         // round fermata above
         221, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'norm')),
@@ -93,7 +99,6 @@ function InitSymbolHandlers () {
         237, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'inv')),
         // triangular fermata below
         238, @Element('Fermata', @Attrs('shape', 'angular', 'form', 'inv'))
-        // 'Pedal', @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')) //Pedal
     ));
 }//$end
 
