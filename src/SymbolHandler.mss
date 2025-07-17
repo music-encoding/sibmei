@@ -12,39 +12,39 @@ function InitSymbolHandlers () {
     );
 
     RegisterSymbolHandlers('Index', 'ModifierTemplateHandler', CreateDictionary(
-        //heel 1
+        // heel 1
         52, @Element('Artic', @Attrs('artic','heel')),
-        //heel 2
+        // heel 2
         53, @Element('Artic', @Attrs('artic','heel')),
-        //toe 1
+        // toe 1
         54, @Element('Artic', @Attrs('artic','toe')),
-        //toe 2
+        // toe 2
         55, @Element('Artic', @Attrs('artic','toe')),
-        //stop
+        // stop
         160, @Element('Artic', @Attrs('artic','stop')),
-        //open
+        // open
         162, @Element('Artic', @Attrs('artic','open')),
-        //damp
+        // damp
         163, @Element('Artic', @Attrs('artic','damp')),
-        //damp (2)
+        // damp (2)
         164, @Element('Artic', @Attrs('artic','damp')),
-        //damp (3)
+        // damp (3)
         165, @Element('Artic', @Attrs('artic','damp')),
-        //damp (4)
+        // damp (4)
         166, @Element('Artic', @Attrs('artic','damp')),
-        //staccato above
+        // staccato above
         209, @Element('Artic', @Attrs('artic','stacc', 'place','above')),
-        //staccatissimo above
+        // staccatissimo above
         210, @Element('Artic', @Attrs('artic','stacciss', 'place','above')),
-        //spiccato above
+        // spiccato above
         211, @Element('Artic', @Attrs('artic','spicc', 'place','above')),
-        //ten above
+        // ten above
         212, @Element('Artic', @Attrs('artic','ten', 'place','above')),
-        //marc above
+        // marc above
         214, @Element('Artic', @Attrs('artic','marc', 'place','above')),
-        //upbow above
+        // upbow above
         217, @Element('Artic', @Attrs('artic','upbow', 'place','above')),
-        //dnbow above
+        // dnbow above
         218, @Element('Artic', @Attrs('artic','dnbow', 'place','above')),
         // staccato below
         225, @Element('Artic', @Attrs('artic','stacc', 'place','below')),
@@ -54,34 +54,41 @@ function InitSymbolHandlers () {
         227, @Element('Artic', @Attrs('artic','spicc', 'place','below')),
         // marcato below
         230, @Element('Artic', @Attrs('artic','marc', 'place','below')),
-        //upbow below
+        // upbow below
         233, @Element('Artic', @Attrs('artic','upbow', 'place','below')),
-        //dnbow below
+        // dnbow below
         234, @Element('Artic', @Attrs('artic','dnbow', 'place','below')),
-        //snap
+        // snap
         243, @Element('Artic', @Attrs('artic','snap')),
-        //scoop
+        // scoop
         480, @Element('Artic', @Attrs('artic','scoop')),
-        //fall
+        // fall
         481, @Element('Artic', @Attrs('artic','fall')),
-        //fingernail
+        // fingernail
         490, @Element('Artic', @Attrs('artic','fingernail')),
-        //doit
+        // doit
         494, @Element('Artic', @Attrs('artic','doit')),
-        //plop
+        // plop
         495, @Element('Artic', @Attrs('artic','plop'))
         // square fermata above
     ));
 
     RegisterSymbolHandlers('Index', 'ControlEventTemplateHandler', CreateDictionary(
-        //inverted mordent
+        // trill
+        32, @Element('Trill'),
+        // inverted mordent
         36, @Element('Mordent', @Attrs('form', 'lower')),
-        //mordent
+        // mordent
         37, @Element('Mordent', @Attrs('form','upper')),
-        //turn
+        // turn
         38, @Element('Turn', @Attrs('form', 'upper')),
-        //inverted turn
+        // inverted turn
         39, @Element('Turn', @Attrs('form', 'lower')),
+        // pedal
+        48, @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')),
+        49, @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')),
+        50, @Element('Pedal', @Attrs('dir', 'up', 'func', 'sustain')),
+        // 51, @Element('Pedal', @Attrs('dir', 'bounce', 'func', 'sustain', 'glyph.auth', 'smufl', 'glyph.name', 'keyboardPedalUpNotch', 'glyph.num', 'U+E657'))
         220, @Element('Fermata', @Attrs('shape', 'square', 'form', 'norm')),
         // round fermata above
         221, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'norm')),
@@ -93,7 +100,6 @@ function InitSymbolHandlers () {
         237, @Element('Fermata', @Attrs('shape', 'curved', 'form', 'inv')),
         // triangular fermata below
         238, @Element('Fermata', @Attrs('shape', 'angular', 'form', 'inv'))
-        // 'Pedal', @Element('Pedal', @Attrs('dir', 'down', 'func', 'sustain')) //Pedal
     ));
 }//$end
 
