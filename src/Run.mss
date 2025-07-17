@@ -103,7 +103,7 @@ function DoExport (score, filename) {
 
 
 function SetGlobalsForScore (score) {
-    // Sets some globals with information about the currently procesed score.
+    // Sets some globals with information about the currently processed score.
     // Some functions get a significant performance boost when we're caching
     // properties of the Score object rather than passing it around or
     // accessing its properties.
