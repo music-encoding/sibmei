@@ -1,10 +1,8 @@
 // @ts-check
 
-import c from "ansi-colors";
 import chokidar from "chokidar";
 import * as fs from "fs";
 import * as path from "path";
-import l from "fancy-log";
 import { argv } from "process";
 import pckg from "../package.json" with {type: "json"};
 
@@ -23,7 +21,7 @@ const sourceExtensions = new Set(["msd", "mss", "plg"]);
 /**
  * Converts JavaScript-like *.mss function syntax to *.plg syntax.
  * @param {string} mssCode  Code of an entire *.mss file
- * @param {string} fileName  mss file name
+ * @param {string} filename  mss file name
  */
 function mssToPlg(mssCode, filename) {
   return mssCode
@@ -115,8 +113,16 @@ function fileList(dir) {
     .map((file) => path.join(dir, file));
 }
 
+/**
+ * @param {string} message
+ */
+function info(message) {
+  const time = new Date().toLocaleTimeString('en', { hour12: false });
+  console.log(`[${time}] \x1b[34m${message}\x1b[0m`);
+}
+
 function build() {
-  l.info(c.blue("Compiling companion plugins"));
+  info("Compiling companion plugins");
   fs.mkdirSync("build/release", { recursive: true });
   fs.mkdirSync("build/develop/sibmeiTestSibs", { recursive: true });
   buildCompanionPlgs("lib", "build/release");
@@ -125,12 +131,12 @@ function build() {
 
   const mainSourceFiles = fileList("src");
   const testSourceFiles = fileList("test/sib-test");
-  l.info(c.blue("Compiling release build"));
+  info("Compiling release build");
   buildPlg(mainSourceFiles, `build/release/${name}.plg`);
-  l.info(c.blue("Compiling development build"));
+  info("Compiling development build");
   buildPlg([...mainSourceFiles, ...testSourceFiles], `build/develop/${name}.plg`);
 
-  l.info(c.blue("Copying test data"));
+  info("Copying test data");
   for (const filePath of fileList("test/sibmeiTestSibs")) {
     if (filePath.endsWith(".sib")) {
       fs.copyFileSync(filePath, path.join("build/develop/sibmeiTestSibs", path.basename(filePath)));
@@ -143,6 +149,6 @@ function build() {
 build();
 
 if (argv[2] === "--watch") {
-  l.info(c.blue("Watching files for changes\n"));
+  info("Watching files for changes\n");
   chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on('all', build);
 }
