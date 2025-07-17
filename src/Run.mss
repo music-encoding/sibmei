@@ -68,19 +68,7 @@ function DoExport (score, filename) {
     // first, ensure we're running with a clean slate.
     // (initialization of libmei has moved to InitGlobals())
     libmei.destroy();
-
-    // set the active score here so we can refer to it throughout the plugin
-    Self._property:ActiveScore = score;
-    if (Self._property:ActiveScore = null)
-    {
-        return 'Could not find an active score. Cannot export to ' & filename;
-    }
-
-    Self._property:StaffHeight = score.StaffHeight;
-    Self._property:SystemStaff = score.SystemStaff;
-
-    // Set up the warnings tracker
-    Self._property:warnings = CreateSparseArray();
+    SetGlobalsForScore(score);
 
     // Deal with the Progress GUI
     progCount = SystemStaff.BarCount;
@@ -111,6 +99,31 @@ function DoExport (score, filename) {
     {
         return 'The file was not exported. File:\n\n' & filename & '\n\ncould not be written.';
     }
+}  //$end
+
+
+function SetGlobalsForScore (score) {
+    // Sets some globals with information about the currently procesed score.
+    // Some functions get a significant performance boost when we're caching
+    // properties of the Score object rather than passing it around or
+    // accessing its properties.
+
+    Self._property:ActiveScore = score;
+    if (ActiveScore = null)
+    {
+        return 'Could not find an active score. Cannot export to ' & filename;
+    }
+
+    Self._property:StaffHeight = score.StaffHeight;
+    Self._property:SystemStaff = score.SystemStaff;
+    Self._property:Staves = CreateSparseArray();
+    for each staff in score
+    {
+        Staves.Push(staff);
+    }
+
+    // Set up the warnings tracker
+    Self._property:warnings = CreateSparseArray();
 }  //$end
 
 

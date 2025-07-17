@@ -3,8 +3,6 @@ function ProcessScore () {
     // processors are a bit like a workflow manager -- they orchestrate the
     // generators, which in turn use the converters to convert specific values from sibelius
     // to MEI.
-    score = Self._property:ActiveScore;
-
     mei = libmei.Mei();
     libmei.setDocumentRoot(mei);
 

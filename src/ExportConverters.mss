@@ -515,26 +515,6 @@ function ConvertBracket (bracket) {
     }
 }  //$end
 
-function ConvertSibeliusStructure (score) {
-    //$module(ExportConverters.mss)
-    // Takes in the Staff/Bar Sibelius Structure and returns a Bar/Staff
-    // mapping for our MEI writers.
-    bar_to_staff = CreateDictionary();
-
-    // Invert the Sibelius structure
-    for each Staff s in score
-    {
-        for each Bar b in s
-        {
-            if (not bar_to_staff.PropertyExists(b.BarNumber))
-            {
-                bar_to_staff[b.BarNumber] = CreateSparseArray();
-            }
-            bar_to_staff[b.BarNumber].Push(s.StaffNum);
-        }
-    }
-    return bar_to_staff;
-}  //$end
 
 function ConvertColor (nrest) {
     //$module(ExportConverters.mss)

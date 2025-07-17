@@ -1,6 +1,4 @@
-function BuildLayerHierarchy (staffnum, measurenum) {
-    score = Self._property:ActiveScore;
-    this_staff = score.NthStaff(staffnum);
+function BuildLayerHierarchy (this_staff, measurenum) {
     bar = this_staff[measurenum];
 
     mobjs = Self._property:MeasureObjects;

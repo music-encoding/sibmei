@@ -140,9 +140,6 @@ function GenerateApplicationInfo () {
 }   //$end
 
 function GenerateMEIMusic () {
-    //$module(ExportGenerators.mss)
-    score = Self._property:ActiveScore;
-
     Self._property:TieResolver = CreateDictionary();
     Self._property:LineEndResolver = CreateSparseArray();
     Self._property:LyricWords = CreateDictionary();
@@ -202,16 +199,11 @@ function GenerateMEIMusic () {
     mdiv = GenerateMDiv(FIRST_BAR);
     libmei.AddChild(body, mdiv);
 
-    barmap = ConvertSibeliusStructure(score);
-    numbars = barmap.GetPropertyNames();
-    numbars = numbars.Length;
-    Self._property:BarMap = barmap;
-
+    numbars = SystemStaff.BarCount;
     currentScoreDef = null;
 
     timerId = 1;
     Sibelius.ResetStopWatch(timerId);
-
 
     for j = 1 to numbars + 1
     {
@@ -306,19 +298,17 @@ function GenerateMEIMusic () {
 function GenerateMDiv (barnum) {
     //$module(ExportGenerators.mss)
     // Add the first mdiv; Movements will add new ones.
-    score = Self._property:ActiveScore;
-
     mdiv = libmei.Mdiv();
     Self._property:MDivElement = mdiv;
 
     ano = libmei.Annot();
     libmei.AddAttribute(ano, 'type', 'duration');
-    libmei.SetText(ano, ConvertTimeStamp(score.ScoreDuration));
+    libmei.SetText(ano, ConvertTimeStamp(ActiveScore.ScoreDuration));
 
     sco = libmei.Score();
     libmei.AddChild(mdiv, sco);
 
-    scd = GenerateScoreDef(score, barnum);
+    scd = GenerateScoreDef(ActiveScore, barnum);
     Self._property:MainScoreDef = scd;
     libmei.AddChild(sco, scd);
 
@@ -333,18 +323,12 @@ function GenerateMDiv (barnum) {
 } //$end
 
 function GenerateMeasure (num) {
-    //$module(ExportGenerators.mss)
-
-    score = Self._property:ActiveScore;
-    // measureties
     Self._property:MeasureTies = CreateSparseArray();
     Self._property:MeasureObjects = CreateSparseArray();
 
     m = libmei.Measure();
     libmei.AddAttribute(m, 'n', num);
 
-    barmap = Self._property:BarMap;
-    staves = barmap[num];
     children = CreateSparseArray();
 
     // since so much metadata about the staff and other context
@@ -363,9 +347,8 @@ function GenerateMeasure (num) {
         Self._property:SystemBreak = libmei.Sb();
     }
 
-    for i = 1 to staves.Length + 1
+    for each this_staff in Staves
     {
-        this_staff = score.NthStaff(i);
         bar = this_staff[num];
 
         curr_pn = bar.OnNthPage;
@@ -384,7 +367,7 @@ function GenerateMeasure (num) {
             libmei.AddAttribute(m, 'label', bar.ExternalBarNumberString);
         }
 
-        s = GenerateStaff(i, num);
+        s = GenerateStaff(this_staff, num);
         libmei.AddChild(m, s);
         for each beamSpan in s.beamSpans
         {
@@ -464,11 +447,8 @@ function GenerateMeasure (num) {
 }  //$end
 
 
-function GenerateStaff (staffnum, measurenum) {
-    //$module(ExportGenerators.mss)
-    score = Self._property:ActiveScore;
-    this_staff = score.NthStaff(staffnum);
-    bar = this_staff[measurenum];
+function GenerateStaff (staff, measurenum) {
+    bar = staff[measurenum];
 
     stf = libmei.Staff();
 
@@ -477,9 +457,9 @@ function GenerateStaff (staffnum, measurenum) {
         libmei.AddAttribute(stf, 'visible', 'false');
     }
 
-    libmei.AddAttribute(stf, 'n', staffnum);
+    libmei.AddAttribute(stf, 'n', staff.StaffNum);
 
-    layers = BuildLayerHierarchy(staffnum, measurenum);
+    layers = BuildLayerHierarchy(staff, measurenum);
     stf['beamSpans'] = layers.beamSpans;
     // NB: Completely resets any previous children!
     libmei.SetChildren(stf, layers);
