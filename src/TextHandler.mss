@@ -416,8 +416,6 @@ function GetStyleAttributes (state) {
 
 
 function AppendTextSubstitute (state, substituteName) {
-    score = Self._property:ActiveScore;
-
     textSubstituteTemplate = TextSubstituteMap[utils.UpperCase(substituteName)];
     if (null = textSubstituteTemplate)
     {
@@ -428,7 +426,7 @@ function AppendTextSubstitute (state, substituteName) {
 
     propertyName = textSubstituteTemplate.propertyName;
 
-    substitutedText = score.@propertyName;
+    substitutedText = ActiveScore.@propertyName;
     if (substitutedText = '')
     {
         return null;

@@ -29,6 +29,7 @@ function TestDiatonicPitchConverter(assert, plugin) {
 function TestOffsetConverter(assert, plugin) {
     //$module(TestNoteNameConverter)
     EnsureActiveScoreExists();
+    Self._property:StaffHeight = Sibelius.ActiveScore.StaffHeight;
     output = sibmei.ConvertOffsetsToMillimeters(100);
     assert.Equal(output, '5.4688mm', 'Offset of 100 1/32nds of a space is 5mm');
 }  //$end
@@ -263,6 +264,7 @@ function TestBracketConverter (assert, plugin) {
 function TestPositionToTimestampConverter (assert, plugin) {
     //$module(TestExportConverters.mss)
     score = CreateEmptyTestScore(1, 3);
+    Self._property:SystemStaff = score.SystemStaff;
 
     bar1 = score.SystemStaff.NthBar(1);
     bar1.AddTimeSignature(4, 4, false, false);

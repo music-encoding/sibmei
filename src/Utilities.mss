@@ -383,12 +383,16 @@ function AddControlEventAttributes (bobj, element) {
         libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
     }
 
-    if (bar.ParentStaff.StaffNum > 0)
+    staff = bar.ParentStaff;
+
+    if (staff.StaffNum > 0)
     {
         // Only add @staff if this is not attached to the SystemStaff
-        libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+        libmei.AddAttribute(element, 'staff', staff.StaffNum);
         libmei.AddAttribute(element, 'layer', voicenum);
     }
+
+    score = staff.ParentScore;
 
     if (bobj.Type = 'Line')
     {

@@ -3,8 +3,6 @@ function ProcessScore () {
     // processors are a bit like a workflow manager -- they orchestrate the
     // generators, which in turn use the converters to convert specific values from sibelius
     // to MEI.
-    score = Self._property:ActiveScore;
-
     mei = libmei.Mei();
     libmei.setDocumentRoot(mei);
 
@@ -21,10 +19,7 @@ function ProcessScore () {
 }  //$end
 
 
-function ProcessSystemStaff (score) {
-    //$module(ExportProcessors.mss)
-    systf = score.SystemStaff;
-
+function ProcessSystemStaff (systf) {
     for each bar in systf
     {
         for each bobj in bar
