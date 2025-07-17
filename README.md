@@ -52,15 +52,15 @@ This will build the plugin and and watch your source files for changes, re-build
 
 ## Unit tests
 
-There are two kinds of tests in two subfolders of the `test` folder:
+There are two kinds of tests in two subfolders of the `test` folder that are run in two steps:
 
-### sib-test
+### Sibmei Test Runner
 
-These unit tests are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, developed by Tido. You should download and install this plugin first. After unloading and reloading Sibmei, (as described above), tests can be run by starting the "Sibmei Test Runner" from the menu/ribbon, or using a keyboard shortcut of your choice that can be assigned in File => Preferences => Keyboard Shortcuts (in "Tab or category" choose Plug-ins, then in "Feature" choose  the Sibmei Test Runner and assign a shortcut).
+The unit tests in the `test/sib-test` folder are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, developed by Tido. You should download and install this plugin first. After unloading and reloading Sibmei, (as described above), tests can be run by starting the "Sibmei Test Runner" from the menu/ribbon, or using a keyboard shortcut of your choice that can be assigned in File => Preferences => Keyboard Shortcuts (in "Tab or category" choose Plug-ins, then in "Feature" choose  the Sibmei Test Runner and assign a shortcut).
 
-### mocha
+### Node Test Runner
 
-[Mocha](https://mochajs.org/) is used to test Sibmei's output from a set of test files. After exporting the test file set with sibmei (the Sibmei Test Runner will automatically do that), either run `npm test` from the root directory of this git repository or have the Test Runner automatically trigger the tests. The latter requires a `test.bat` or `test.sh` file in the same directory as the Sibmei `*.plg` files, depending on the operating system. Create a file that looks like this:
+The `test/node` has tests written in JavaScript. Node's built-in test runner is used to test Sibmei's output from a set of test files. After exporting the test file set with sibmei (the Sibmei Test Runner will automatically do that), either run `npm test` from the root directory of this git repository or have the Test Runner automatically trigger the tests. The latter requires a `test.bat` or `test.sh` file in the same directory as the Sibmei `*.plg` files, depending on the operating system. Create a file that looks like this:
 
 #### Windows: test.bat
 

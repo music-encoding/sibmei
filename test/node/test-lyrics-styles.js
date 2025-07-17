@@ -1,6 +1,7 @@
 "use strict";
 
-const assert = require("assert");
+const { describe, it } = require('node:test');
+const assert = require('assert');
 const xpath = require("fontoxpath");
 const utils = require("./utils");
 

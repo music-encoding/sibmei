@@ -14,7 +14,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --recursive",
+    "test": "node --test test/node/test-*.js",
     "build": "node tools/build.mjs",
     "develop": "node tools/build.mjs --watch",
     "analyze": "node tools/analyze.js"
@@ -22,12 +22,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "ansi-colors": "^4.1.3",
     "chokidar": "^4.0.3",
-    "fancy-log": "^2.0.0",
     "fontoxpath": "^3.33.2",
-    "mocha": "^11.7.1",
-    "q": "^1.5.1",
     "slimdom-sax-parser": "^1.5.3"
   },
   "resolutions": {
