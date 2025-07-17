@@ -61,7 +61,7 @@ For creating entries in the Handler mapping Dictionaries, the four registrations
 
 ```js
 api.RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
-    'text.staff.technique', @Element('Dir', @Attrs('label', 'technique'),
+    'text.staff.technique', @Element('Dir', @Attrs('type', 'technique'),
         api.FormattedText
     )
 ));

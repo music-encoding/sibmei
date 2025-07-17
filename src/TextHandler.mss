@@ -12,7 +12,7 @@ function InitTextHandlers() {
     RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
         'text.staff.expression', @Element('Dynam', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-        'text.staff.technique', @Element('Dir', @Attrs('label', 'technique'), FormattedText),
+        'text.staff.technique', @Element('Dir', @Attrs('type', 'technique'), FormattedText),
         'text.system.page_aligned.composer', @Element('AnchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
         'text.system.page_aligned.subtitle', @Element('AnchoredText', @Attrs('func', 'subtitle', 'tstamp', ' '), FormattedText),
         'text.system.page_aligned.title', @Element('AnchoredText', @Attrs('func', 'title', 'tstamp', ' '), FormattedText),
