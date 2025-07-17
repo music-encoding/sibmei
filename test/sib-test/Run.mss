@@ -51,11 +51,11 @@ function RunTests() {
     sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
 
     if (Sibelius.PathSeparator = '/') {
-        mochaScript = pluginDir & 'test.sh';
+        nodeTestScript = pluginDir & 'test.sh';
     } else {
-        mochaScript = pluginDir & 'test.bat';
+        nodeTestScript = pluginDir & 'test.bat';
     }
-    if (not (Sibelius.FileExists(mochaScript) and Sibelius.LaunchApplication(mochaScript))) {
+    if (not (Sibelius.FileExists(nodeTestScript) and Sibelius.LaunchApplication(nodeTestScript))) {
         Sibelius.MessageBox('Run `npm test` to test output written to ' & _SibTestFileDirectory);
     }
 }  //$end
