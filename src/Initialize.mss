@@ -57,7 +57,7 @@ function InitGlobals (extensions) {
     BarlineTypeMap[SpecialBarlineInvisible] = 'invis';
     BarlineTypeMap[SpecialBarlineNormal] = 'single';
     BarlineTypeMap[SpecialBarlineDotted] = 'dotted';
-    BarlineTypeMap[SpecialBarlineThick] = 'thick';
+    BarlineTypeMap[SpecialBarlineThick] = 'heavy';
     // no MEI equiv:
     // BarlineTypeMap[SpecialBarlineBetweenStaves] = ' ';
     // BarlineTypeMap[SpecialBarlineTick] = ' ';
