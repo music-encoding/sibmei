@@ -142,6 +142,16 @@ function InitLineHandlers () {
         'line.staff.hairpin.diminuendo.tosilence',  @Element('Hairpin', @Attrs('form', 'dim', 'niente', 'true'))
     ));
 
+    Self._property:VoltaTemplates = CreateDictionary(
+        'line.system.repeat.1st',        @Element('Ending', @Attrs('n', 1, 'label', '1.', 'lendsym', 'angledown')),
+        'line.system.repeat.1st_n_2nd',  @Element('Ending', @Attrs('label', '1.2.', 'lendsym', 'angledown')),
+        'line.system.repeat.2nd',        @Element('Ending', @Attrs('n', 2, 'label', '2.', 'lendsym', 'none')),
+        'line.system.repeat.2nd.closed', @Element('Ending', @Attrs('n', 3, 'label', '2.', 'lendsym', 'angledown')),
+        'line.system.repeat.3rd',        @Element('Ending', @Attrs('n', 3, 'label', '3.', 'lendsym', 'none')),
+        'line.system.repeat.closed',     @Element('Ending', @Attrs('lendsym', 'angledown')),
+        'line.system.repeat.open',       @Element('Ending', @Attrs('lendsym', 'none'))
+    );
+
     // Line types not handled yet:
     // Type = 'BeamLine'
     //   line.staff.beam

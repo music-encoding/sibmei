@@ -667,71 +667,6 @@ function ConvertPositionWithDurationToTimestamp (bobj) {
 } //$end
 
 
-function ConvertBarline (linetype) {
-    //$module(ExportConverters.mss)
-    switch(linetype)
-    {
-        case (SpecialBarlineStartRepeat)
-        {
-            // start repeat
-            return 'rptstart';
-        }
-        case (SpecialBarlineEndRepeat)
-        {
-            // end repeat
-            return 'rptend';
-        }
-        case (SpecialBarlineDashed)
-        {
-            // dashed
-            return 'dashed';
-        }
-        case (SpecialBarlineDouble)
-        {
-            // double
-            return 'dbl';
-        }
-        case (SpecialBarlineFinal)
-        {
-            // final
-            return 'end';
-        }
-        case (SpecialBarlineInvisible)
-        {
-            // invisible
-            return 'invis';
-        }
-        case (SpecialBarlineBetweenStaves)
-        {
-            // between staves
-            // no MEI equiv.
-            return ' ';
-        }
-        case (SpecialBarlineNormal)
-        {
-            // normal
-            // this should usually be needed.
-            return 'single';
-        }
-        case (SpecialBarlineTick)
-        {
-            // tick
-            // unknown
-            return ' ';
-        }
-        case (SpecialBarlineShort)
-        {
-            // short
-            // unknown
-            return ' ';
-        }
-        default
-        {
-            return ' ';
-        }
-    }
-}  //$end
-
 function ConvertFbFigures (fb, bobj) {
     //$module(ExportConverters)
     if (Self._property:FigbassCharMap = null)
@@ -813,59 +748,6 @@ function ConvertFbFigures (fb, bobj) {
     }
 }  //$end
 
-function ConvertEndingValues (styleid) {
-    //$module(ExportConverters)
-    ending_style = MSplitString(styleid, '.');
-    num = ' ';
-    label = ' ';
-    type = ' ';
-
-    switch(ending_style[3])
-    {
-        case ('1st')
-        {
-            num = 1;
-            label = '1.';
-            type = 'closed';
-        }
-        case ('1st_n_2nd')
-        {
-            num = 1;
-            label = '1. 2.';
-            type = 'closed';
-        }
-        case ('2nd')
-        {
-            num = 2;
-            label = '2.';
-            if (ending_style[-1] = 'closed')
-            {
-                type = 'closed';
-            }
-            else
-            {
-                type = 'open';
-            }
-        }
-        case ('3rd')
-        {
-            num = 3;
-            label = '3.';
-            type = 'closed';
-        }
-        case ('open')
-        {
-            type = 'open';
-        }
-        case ('closed')
-        {
-            type = 'closed';
-        }
-    }
-
-    return CreateSparseArray(num, label, type);
-
-}  //$end
 
 function ConvertDate (datetime) {
     //$module(ExportConverters.mss)
