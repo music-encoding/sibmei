@@ -145,9 +145,7 @@ function GenerateMEIMusic () {
     Self._property:LyricWords = CreateDictionary();
     Self._property:NoteRestIdsByLocation = CreateSparseArray();
 
-    Self._property:VoltaBars = CreateDictionary();
     Self._property:ActiveVolta = null;
-    Self._property:VoltaElement = null;
 
     Self._property:BodyElement = null;
     Self._property:MDivElement = null;
@@ -158,11 +156,6 @@ function GenerateMEIMusic () {
     // We start the first page with a <pb> (good practice and helps Verovio)
     Self._property:PageBreak = libmei.Pb();
     Self._property:SystemBreak = null;
-
-    for each RepeatTimeLine volta in SystemStaff
-    {
-        RegisterVolta(volta);
-    }
 
     music = libmei.Music();
 
@@ -201,7 +194,6 @@ function GenerateMEIMusic () {
         section = Self._property:SectionElement;
 
         m = GenerateMeasure(j);
-        ending = ProcessVolta(j);
 
         if (Self._property:PageBreak != null)
         {
@@ -248,9 +240,9 @@ function GenerateMEIMusic () {
         {
             // The sig changes must be added just before we add the measure to keep
             // the proper order.
-            if (ending != null)
+            if (ActiveVolta != null)
             {
-                libmei.AddChild(ending, currentScoreDef);
+                libmei.AddChild(ActiveVolta, currentScoreDef);
             }
             else
             {
@@ -259,10 +251,9 @@ function GenerateMEIMusic () {
             currentScoreDef = null;
         }
 
-        if (ending != null)
+        if (ActiveVolta != null)
         {
-            libmei.AddChild(section, ending);
-            libmei.AddChild(ending, m);
+            libmei.AddChild(ActiveVolta, m);
         }
         else
         {
@@ -372,7 +363,7 @@ function GenerateMeasure (num) {
         m.children.Push(mobj);
     }
 
-    for each bobj in SystemStaff.NthBar(num)
+    for each bobj in sysBar
     {
         switch (bobj.Type)
         {
@@ -402,12 +393,27 @@ function GenerateMeasure (num) {
                     }
                 }
             }
+            case ('RepeatTimeLine')
+            {
+                voltaTemplate = VoltaTemplates[bobj.StyleId];
+                if (null != voltaTemplate)
+                {
+                    ActiveVolta = MeiFactory(voltaTemplate);
+                    ActiveVolta._property:endBarNumber = bobj.EndBarNumber;
+                    libmei.AddChild(SectionElement, ActiveVolta);
+                }
+            }
             case ('Graphic')
             {
                 Log('Found a graphic!');
                 Log('is object? ' & IsObject(bobj));
             }
         }
+    }
+
+    if (null != ActiveVolta and ActiveVolta.endBarNumber < num)
+    {
+        ActiveVolta = null;
     }
 
     // If we've reached the end of the section, swap out the mdiv to a new one.

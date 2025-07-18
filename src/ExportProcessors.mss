@@ -68,66 +68,6 @@ function ProcessFrontMatter (musicEl) {
     }
 }  //$end
 
-function RegisterVolta (bobj) {
-    //$module(ExportProcessors.mss)
-    voltabars = Self._property:VoltaBars;
-    style = MSplitString(bobj.StyleId, '.');
-
-    if (style[2] = 'repeat')
-    {
-        voltabars[bobj.ParentBar.BarNumber] = bobj;
-    }
-}  //$end
-
-function ProcessVolta (mnum) {
-    //$module(ExportProcessors.mss)
-    voltabars = Self._property:VoltaBars;
-
-    if (voltabars.PropertyExists(mnum))
-    {
-        voltaElement = libmei.Ending();
-
-        Self._property:VoltaElement = voltaElement;
-
-        voltaObject = voltabars[mnum];
-        voltainfo = ConvertEndingValues(voltaObject.StyleId);
-
-        libmei.AddAttribute(voltaElement, 'n', voltainfo[0]);
-        libmei.AddAttribute(voltaElement, 'label', voltainfo[1]);
-        libmei.AddAttribute(voltaElement, 'type', voltainfo[2]);
-
-        if (voltaObject.EndBarNumber != mnum)
-        {
-            Self._property:ActiveVolta = voltaObject;
-        }
-
-        return voltaElement;
-    }
-    else
-    {
-        if (Self._property:ActiveVolta != null)
-        {
-            // we have an unresolved volta, so
-            // we'll keep the previous parentElement
-            // active.
-            activeVolta = Self._property:ActiveVolta;
-            voltaElement = Self._property:VoltaElement;
-
-            // if the end bar is the current bar OR if the end
-            // bar is the next bar, but the end position is 0, we're escaping the
-            // volta the next time around.
-            if ((activeVolta.EndBarNumber = mnum) or
-                (activeVolta.EndBarNumber = (mnum + 1) and activeVolta.EndPosition = 0))
-            {
-                Self._property:ActiveVolta = null;
-                Self._property:VoltaElement = null;
-            }
-            return null;
-        }
-    }
-
-    return null;
-}  //$end
 
 function ProcessEndingLines (bar) {
     //$module(ExportProcessors.mss)
@@ -202,10 +142,6 @@ function ProcessBarObjects (bar) {
             case('ArpeggioLine')
             {
                 GenerateArpeggio(bobj);
-            }
-            case('RepeatTimeLine')
-            {
-                RegisterVolta(bobj);
             }
             case('Line')
             {
