@@ -1,6 +1,6 @@
 {
   "name": "sibmei4",
-  "version": "4.1.0",
+  "version": "4.2.0",
   "description": "MEI export plugin for Avid Sibelius",
   "sibmei": {
     "meiVersion": "4.0.1"
