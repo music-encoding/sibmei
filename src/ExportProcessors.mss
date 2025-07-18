@@ -19,76 +19,53 @@ function ProcessScore () {
 }  //$end
 
 
-function ProcessSystemStaff (systf) {
-    for each bar in systf
+function ProcessFrontMatter (musicEl) {
+    if (SystemStaff.BarCount = 0)
     {
-        for each bobj in bar
+        return '';
+    }
+
+    frontmatter = CreateDictionary();
+    bar = SystemStaff.NthBar(1);
+
+    for each SystemTextItem bobj in bar
+    {
+        if (bobj.OnNthBlankPage < 0)
         {
-            switch (bobj.Type)
+            pnum = (bar.OnNthPage + bobj.OnNthBlankPage) + 1;
+
+            if (frontmatter.PropertyExists(pnum) = false)
             {
-                case ('SpecialBarline')
-                {
-                    spclbarlines = Self._property:SpecialBarlines;
-                    if (spclbarlines.PropertyExists(bar.BarNumber) = False)
-                    {
-                        spclbarlines[bar.BarNumber] = CreateSparseArray();
-                    }
-
-                    spclbarlines[bar.BarNumber].Push(ConvertBarline(bobj.BarlineInternalType));
-                }
-                case ('SystemTextItem')
-                {
-                    if (bobj.OnNthBlankPage < 0)
-                    {
-                        ProcessFrontMatter(bobj);
-                    }
-
-                    systemtext = Self._property:SystemText;
-
-                    if (systemtext.PropertyExists(bar.BarNumber) = False)
-                    {
-                        systemtext[bar.BarNumber] = CreateSparseArray();
-                    }
-
-                    systemtext[bar.BarNumber].Push(bobj);
-                }
-                case ('Graphic')
-                {
-                    Log('Found a graphic!');
-                    Log('is object? ' & IsObject(bobj));
-                }
-                case ('RepeatTimeLine')
-                {
-                    RegisterVolta(bobj);
-                }
+                pb = libmei.Pb();
+                libmei.AddAttribute(pb, 'n', pnum);
+                frontmatter[pnum] = CreateSparseArray(pb);
             }
+
+            text = AddFormattedText(null, libmei.Div(), bobj);
+            frontmatter[pnum].Push(text);
         }
     }
-}  //$end
 
-function ProcessFrontMatter (bobj) {
-    //$module(ExportProcessors.mss)
-    /*
-        For example, if page 2 (0-indexed) is the first page of music,
-        then 'OnNthPage' will be 2, but the system staff items for
-        the first page of text will be -2, so 2 + (-2) = 0 + 1;
-    */
-    bar = bobj.ParentBar;
-    text = '';
+    frontpages = frontmatter.GetPropertyNames();
 
-    pnum = (bar.OnNthPage + bobj.OnNthBlankPage) + 1;
-    frontmatter = Self._property:FrontMatter;
-
-    if (frontmatter.PropertyExists(pnum) = False)
+    if (frontpages.Length > 0)
     {
-        pb = libmei.Pb();
-        libmei.AddAttribute(pb, 'n', pnum);
-        frontmatter[pnum] = CreateSparseArray(pb);
+        // sort the front pages
+        // Log('front: ' & frontmatter);
+        sorted_front = utils.SortArray(frontpages, false);
+        frontEl = libmei.Front();
+        for each pnum in sorted_front
+        {
+            pgels = frontmatter[pnum];
+
+            for each el in pgels
+            {
+                libmei.AddChild(frontEl, el);
+            }
+        }
+
+        libmei.AddChild(musicEl, frontEl);
     }
-
-    text = AddFormattedText(null, libmei.Div(), bobj);
-    frontmatter[pnum].Push(text);
-
 }  //$end
 
 function RegisterVolta (bobj) {

@@ -143,8 +143,6 @@ function GenerateMEIMusic () {
     Self._property:TieResolver = CreateDictionary();
     Self._property:LineEndResolver = CreateSparseArray();
     Self._property:LyricWords = CreateDictionary();
-    Self._property:SpecialBarlines = CreateDictionary();
-    Self._property:SystemText = CreateDictionary();
     Self._property:NoteRestIdsByLocation = CreateSparseArray();
 
     Self._property:VoltaBars = CreateDictionary();
@@ -160,35 +158,15 @@ function GenerateMEIMusic () {
     // We start the first page with a <pb> (good practice and helps Verovio)
     Self._property:PageBreak = libmei.Pb();
     Self._property:SystemBreak = null;
-    Self._property:FrontMatter = CreateDictionary();
 
-    // grab some global markers from the system staff
-    // This will store it for later use.
-    ProcessSystemStaff(SystemStaff);
+    for each RepeatTimeLine volta in SystemStaff
+    {
+        RegisterVolta(volta);
+    }
 
     music = libmei.Music();
 
-    frontmatter = Self._property:FrontMatter;
-    frontpages = frontmatter.GetPropertyNames();
-
-    if (frontpages.Length > 0)
-    {
-        // sort the front pages
-        // Log('front: ' & frontmatter);
-        sorted_front = utils.SortArray(frontpages, False);
-        frontEl = libmei.Front();
-        for each pnum in sorted_front
-        {
-            pgels = frontmatter[pnum];
-
-            for each el in pgels
-            {
-                libmei.AddChild(frontEl, el);
-            }
-        }
-
-        libmei.AddChild(music, frontEl);
-    }
+    ProcessFrontMatter(music);
 
     body = libmei.Body();
     libmei.AddChild(music, body);
@@ -394,38 +372,37 @@ function GenerateMeasure (num) {
         m.children.Push(mobj);
     }
 
-    specialbarlines = Self._property:SpecialBarlines;
-
-    if (specialbarlines.PropertyExists(num))
+    for each bobj in SystemStaff.NthBar(num)
     {
-        // an array of bar lines for this measure
-        blines = specialbarlines[num];
-
-        for each bline in blines
+        switch (bobj.Type)
         {
-            if (bline = 'rptstart')
+            case ('SpecialBarline')
             {
-                libmei.AddAttribute(m, 'left', bline);
+                bline = ConvertBarline(bobj.BarlineInternalType);
+                if (bline = 'rptstart')
+                {
+                    libmei.AddAttribute(m, 'left', bline);
+                }
+                else
+                {
+                    libmei.AddAttribute(m, 'right', bline);
+                }
             }
-            else
+            case ('SystemTextItem')
             {
-                libmei.AddAttribute(m, 'right', bline);
+                if (bobj.OnNthBlankPage = 0)
+                {
+                    text = HandleStyle(TextHandlers, bobj);
+                    if (text != null)
+                    {
+                        libmei.AddChild(m, text);
+                    }
+                }
             }
-        }
-    }
-
-    systemtext = Self._property:SystemText;
-
-    if (systemtext.PropertyExists(num))
-    {
-        textobjs = systemtext[num];
-        for each textobj in textobjs
-        {
-            text = HandleStyle(TextHandlers, textobj);
-
-            if (text != null)
+            case ('Graphic')
             {
-                libmei.AddChild(m, text);
+                Log('Found a graphic!');
+                Log('is object? ' & IsObject(bobj));
             }
         }
     }
