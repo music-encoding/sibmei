@@ -48,6 +48,22 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
+    Self._property:BarlineTypeMap = CreateSparseArray();
+    BarlineTypeMap[SpecialBarlineStartRepeat] = 'rptstart';
+    BarlineTypeMap[SpecialBarlineEndRepeat] = 'rptend';
+    BarlineTypeMap[SpecialBarlineDashed] = 'dashed';
+    BarlineTypeMap[SpecialBarlineDouble] = 'dbl';
+    BarlineTypeMap[SpecialBarlineFinal] = 'end';
+    BarlineTypeMap[SpecialBarlineInvisible] = 'invis';
+    BarlineTypeMap[SpecialBarlineNormal] = 'single';
+    BarlineTypeMap[SpecialBarlineDotted] = 'dotted';
+    BarlineTypeMap[SpecialBarlineThick] = 'thick';
+    // no MEI equiv:
+    // BarlineTypeMap[SpecialBarlineBetweenStaves] = ' ';
+    // BarlineTypeMap[SpecialBarlineTick] = ' ';
+    // BarlineTypeMap[SpecialBarlineShort] = ' ';
+    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+
     InitGlobalAliases(Self);
 
     // Sibelius apparently has a garbage collector issue with references to

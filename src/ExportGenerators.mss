@@ -378,14 +378,17 @@ function GenerateMeasure (num) {
         {
             case ('SpecialBarline')
             {
-                bline = ConvertBarline(bobj.BarlineInternalType);
-                if (bline = 'rptstart')
+                bline = BarlineTypeMap[bobj.BarlineInternalType];
+                if (bline != null)
                 {
-                    libmei.AddAttribute(m, 'left', bline);
-                }
-                else
-                {
-                    libmei.AddAttribute(m, 'right', bline);
+                    if (bline = 'rptstart')
+                    {
+                        libmei.AddAttribute(m, 'left', bline);
+                    }
+                    else
+                    {
+                        libmei.AddAttribute(m, 'right', bline);
+                    }
                 }
             }
             case ('SystemTextItem')
