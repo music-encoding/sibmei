@@ -1,7 +1,7 @@
 function Initialize() {
     //$module(Initialize.mss)
     Self._property:Logfile = GetTempDir() & LOGFILE;
-    Self._property:PluginName = 'Sibelius to MEI ' & MeiVersion & ' Exporter'; 
+    Self._property:PluginName = 'Sibelius to MEI ' & MeiVersion & ' Exporter';
 
     AddToPluginsMenu(PluginName, 'Run');
 }  //$end
@@ -48,23 +48,23 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
-    Self._property:BarlineTypeMap = CreateSparseArray();
-    BarlineTypeMap[SpecialBarlineStartRepeat] = 'rptstart';
-    BarlineTypeMap[SpecialBarlineEndRepeat] = 'rptend';
-    BarlineTypeMap[SpecialBarlineDashed] = 'dashed';
-    BarlineTypeMap[SpecialBarlineDouble] = 'dbl';
-    BarlineTypeMap[SpecialBarlineFinal] = 'end';
-    BarlineTypeMap[SpecialBarlineInvisible] = 'invis';
-    BarlineTypeMap[SpecialBarlineNormal] = 'single';
-    BarlineTypeMap[SpecialBarlineDotted] = 'dotted';
-    BarlineTypeMap[SpecialBarlineThick] = 'heavy';
-    // no MEI equiv:
-    // BarlineTypeMap[SpecialBarlineBetweenStaves] = ' ';
-    // BarlineTypeMap[SpecialBarlineTick] = ' ';
-    // BarlineTypeMap[SpecialBarlineShort] = ' ';
-    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
-
     InitGlobalAliases(Self);
+
+    Self._property:BarlineAttributes = CreateSparseArray();
+    BarlineAttributes[SpecialBarlineStartRepeat] = @Attrs('left', 'rptstart');
+    BarlineAttributes[SpecialBarlineEndRepeat] = @Attrs('right', 'rptend');
+    BarlineAttributes[SpecialBarlineDashed] = @Attrs('right', 'dashed');
+    BarlineAttributes[SpecialBarlineDouble] = @Attrs('right', 'dbl');
+    BarlineAttributes[SpecialBarlineFinal] = @Attrs('right', 'end');
+    BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
+    BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
+    BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
+    BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+    BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
+    BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
+    BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
+    // no MEI equiv:
+    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
 
     // Sibelius apparently has a garbage collector issue with references to
     // Plugin objects. We have to keep a persistent reference to the PluginList

@@ -369,16 +369,12 @@ function GenerateMeasure (num) {
         {
             case ('SpecialBarline')
             {
-                bline = BarlineTypeMap[bobj.BarlineInternalType];
-                if (bline != null)
+                attributes = BarlineAttributes[bobj.BarlineInternalType];
+                if (null != attributes)
                 {
-                    if (bline = 'rptstart')
+                    for each Name attName in attributes
                     {
-                        libmei.AddAttribute(m, 'left', bline);
-                    }
-                    else
-                    {
-                        libmei.AddAttribute(m, 'right', bline);
+                        libmei.AddAttribute(m, attName, attributes[attName]);
                     }
                 }
             }
