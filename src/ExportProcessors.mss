@@ -149,7 +149,10 @@ function ProcessBarObjects (bar) {
             }
             case('Text')
             {
-                HandleStyle(TextHandlers, bobj);
+                if (bobj.Text != '')
+                {
+                    HandleStyle(TextHandlers, bobj);
+                }
             }
             case('SymbolItem')
             {
