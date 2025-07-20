@@ -67,7 +67,7 @@ GetAttributes "(element) {
 AddAttribute "(element, attrname, attrval) {
     a = element.attrs;
     // check and replace any newlines
-    val = _encodeEntities(attrval);
+    val = EncodeEntities(attrval);
     a[attrname] = val;
 }"
 AddAttributeValue "(element, attrname, attrval) {
@@ -78,7 +78,7 @@ AddAttributeValue "(element, attrname, attrval) {
     if (a.PropertyExists(attrname))
     {
         origval = a[attrname];
-        newval = _encodeEntities(attrval);
+        newval = EncodeEntities(attrval);
         val = origval & ' ' & newval;
     }
     else
@@ -123,13 +123,13 @@ GetName "(element) {
     return element.name;
 }"
 SetText "(element, val) {
-    element.text = _encodeEntities(val);
+    element.text = EncodeEntities(val);
 }"
 GetText "(element) {
     return element.text;
 }"
 SetTail "(element, val) {
-    element.tail = _encodeEntities(val);
+    element.tail = EncodeEntities(val);
 }"
 GetTail "(element) {
     return element.tail;
@@ -314,33 +314,25 @@ GetTail "(element) {
     MeiDocumentToString "(meidoc) {
         return _exportMeiDocument(meidoc);
     }"
-    _encodeEntities "(string)
+
+EncodeEntities "(string) {
+    /// Returns an entity-encoded version of `string`.
+    stringSplitAtReplacedChars = SplitString(string, EscapedCharacters);
+    if (stringSplitAtReplacedChars.NumChildren = 1)
     {
-        /*
-            Returns an entity-encoded version of the string.
-        */
-        if (string = '')
-        {
-            return string;
-        }
-
-        nc = Chr(10);
-        quote = Chr(34);
-        apos = Chr(39);
-        lthan = Chr(60);
-        gthan = Chr(62);
-        amp = Chr(38);
-
-        // &amp; must go first so it doesn't replace it in the character encoding
-        string = utils.Replace(string, amp, '&amp;', true);
-        string = utils.Replace(string, nc, '&#10;', true);
-        string = utils.Replace(string, quote, '&quot;', true);
-        string = utils.Replace(string, apos, '&apos;', true);
-        string = utils.Replace(string, lthan, '&lt;', true);
-        string = utils.Replace(string, gthan, '&gt;', true);
-
         return string;
-    }"
+    }
+
+    result = '';
+
+    charIndex = -1;
+    for each substring in stringSplitAtReplacedChars
+    {
+        charIndex = charIndex + Length(substring) + 1;
+        result = result & substring & EncodedChar[CharAt(string, charIndex)];
+    }
+    return result;
+}"
 
 GenerateRandomID "() {
     id = Self._property:MEIID + 1;

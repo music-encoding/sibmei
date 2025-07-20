@@ -13,6 +13,7 @@ function TestLibmei (suite) {
         .Add('TestMEIFileWriting')
         .Add('TestRemoveKeyFromDictionary')
         .Add('TestGetSetId')
+        .Add('TestEncodeEntities')
         ;
 } //$end
 
@@ -189,4 +190,16 @@ function TestGetSetId (assert, plugin) {
     assert.OK(null != newInDocument, 'The new ID should return the object');
 
     libmei.destroy();
+}  //$end
+
+function TestEncodeEntities (assert, plugin) {
+    _AssertEntityEncoding(assert, 'abc&def', 'abc&amp;def');
+    _AssertEntityEncoding(assert, '<abc' & Chr(34), '&lt;abc&quot;');
+    _AssertEntityEncoding(assert, 'abc', 'abc');
+    _AssertEntityEncoding(assert, '', '');
+    _AssertEntityEncoding(assert, '&&', '&amp;&amp;');
+}  //$end
+
+function _AssertEntityEncoding (assert, string, expectedEncoding) {
+    assert.Equal(EncodeEntities(string), expectedEncoding, string);
 }  //$end

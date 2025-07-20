@@ -91,6 +91,18 @@ function InitGlobals (extensions) {
         return false;
     }
 
+    Self._property:EncodedChar = CreateSparseArray();
+    EncodedChar[34] = '&quot;';
+    EncodedChar[60] = '&lt;';
+    EncodedChar[38] = '&amp;';
+
+    // Create a string of all characters that have to be entity-encoded
+    Self._property:EscapedCharacters = '';
+    for each codepoint in EncodedChar.ValidIndices
+    {
+        EscapedCharacters = EscapedCharacters & Chr(codepoint);
+    }
+
     Self._property:_Initialized = true;
 
     return true;
