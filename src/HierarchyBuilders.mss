@@ -21,7 +21,7 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                     clef = GenerateClef(bobj);
                     if (firstClefId != '')
                     {
-                        libmei.AddAttribute(clef, 'sameas', '#' & firstClefId);
+                        AddAttribute(clef, 'sameas', '#' & firstClefId);
                     }
                     else
                     {
@@ -44,7 +44,7 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                     {
                         container = container.parent;
                     }
-                    libmei.AddChild(container.element, clef);
+                    AddChild(container.element, clef);
                 }
             }
             case('NoteRest')
@@ -71,7 +71,7 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                         }
                         // prevNote is not null here - unless we have a bug in NormalizeBeamProp()
                         // or the registration of previous notes.
-                        libmei.AddAttribute(prevNote, 'breaksec', '1');
+                        AddAttribute(prevNote, 'breaksec', '1');
                     }
 
                     parentsInVoice = parentsByVoiceAndPosition[bobj.VoiceNumber];
@@ -103,8 +103,8 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                             }
                             case (StartBeam)
                             {
-                                containerElement = libmei.Beam();
-                                libmei.AddChild(container.element, containerElement);
+                                containerElement = CreateElement('beam');
+                                AddChild(container.element, containerElement);
                                 parentsInVoice._property:activeGraceBeam = containerElement;
                             }
                             default
@@ -116,7 +116,7 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                         parentsInVoice._property:PrevGraceNote = note;
                     }
 
-                    libmei.AddChild(container.element, note);
+                    AddChild(container.element, note);
 
                     // We can only add the containers to the layer (or their
                     // respective parent) after all preceding siblings were
@@ -124,7 +124,7 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                     // we have to add its container.
                     while (container.element.name != 'layer' and null = container.element._parent)
                     {
-                        libmei.AddChild(container.parent.element, container.element);
+                        AddChild(container.parent.element, container.element);
                         container = container.parent;
                     }
                 }
@@ -143,7 +143,7 @@ function BuildLayerHierarchy (this_staff, measurenum) {
                 {
                     layer = parentsByVoiceAndPosition[bobj.VoiceNumber].layerInfo.element;
 
-                    libmei.AddChild(layer, brest);
+                    AddChild(layer, brest);
                 }
             }
         }
@@ -204,7 +204,7 @@ function BuildNoteRestParentsByVoiceAndPosition (bar) {
                 case (StartBeam)
                 {
                     beamInfo = CreateDictionary(
-                        'element', libmei.Beam(),
+                        'element', CreateElement('beam'),
                         'parent', parentsInVoice.layerInfo,
                         // TODO: We don't really need an array of all the notes,
                         // it suffices to have the first and the last one
@@ -254,10 +254,10 @@ function BuildNoteRestParentsByVoiceAndPosition (bar) {
             if (not BeamFitsInTupletHierarchy(beamInfo.noteRests))
             {
                 // drop beam and create beamSpan instead
-                beamSpan = libmei.BeamSpan();
+                beamSpan = CreateElement('beamSpan');
                 beamInfo.element = beamSpan;
-                libmei.AddAttribute(beamSpan, 'layer', voiceNumber);
-                libmei.AddAttribute(beamSpan, 'staff', bar.ParentStaff.StaffNum);
+                AddAttribute(beamSpan, 'layer', voiceNumber);
+                AddAttribute(beamSpan, 'staff', bar.ParentStaff.StaffNum);
                 // Register start and end NoteRests so we can later add @startid
                 // and @endid when the MEI elements IDs were created.
                 beamSpan['startNoteRest'] = beamInfo.noteRests[0];
@@ -357,8 +357,8 @@ function GetOrBuildParentsInVoiceMap (parentsByVoiceAndPosition, voiceNumber) {
     }
     else
     {
-        layer = libmei.Layer();
-        libmei.AddAttribute(layer, 'n', voiceNumber);
+        layer = CreateElement('layer');
+        AddAttribute(layer, 'n', voiceNumber);
         layerInfo = CreateDictionary('element', layer);
         parentsInVoice = CreateSparseArray(layerInfo);
         parentsInVoice._property:layerInfo = layerInfo;
@@ -524,11 +524,11 @@ function BuildStaffGrpHierarchy(score, barnum) {
         {
             case ('bracket')
             {
-                libmei.AddAttribute(staffGrpElement, 'symbol', ConvertBracket(groupItem.BracketType));
+                AddAttribute(staffGrpElement, 'symbol', ConvertBracket(groupItem.BracketType));
             }
             case ('barline')
             {
-                libmei.AddAttribute(staffGrpElement, 'bar.thru', 'true');
+                AddAttribute(staffGrpElement, 'bar.thru', 'true');
             }
             case ('instrument')
             {
@@ -555,11 +555,11 @@ function AddNewStaffGrpToHierarchy (staffGrpStack, staffGrpByStaffNum, groupItem
     // staffGrpByStaffNum and appends it to the tree (parent node is
     // staffGrpStack[-1].staffGrp).
     staffGrpStack._property:staffGrpNum = staffGrpStack._property:staffGrpNum + 1;
-    groupItem._property:staffGrpElement = libmei.StaffGrp();
-    libmei.AddAttribute(groupItem.staffGrpElement, 'n', staffGrpStack.staffGrpNum);
+    groupItem._property:staffGrpElement = CreateElement('staffGrp');
+    AddAttribute(groupItem.staffGrpElement, 'n', staffGrpStack.staffGrpNum);
     if (staffGrpStack.Length > 0)
     {
-        libmei.AddChild(staffGrpStack[-1].staffGrpElement, groupItem.staffGrpElement);
+        AddChild(staffGrpStack[-1].staffGrpElement, groupItem.staffGrpElement);
     }
     staffGrpStack.Push(groupItem);
     for staffNum = groupItem.TopStaveNum to groupItem.BottomStaveNum + 1
@@ -572,44 +572,44 @@ function AddNewStaffGrpToHierarchy (staffGrpStack, staffGrpByStaffNum, groupItem
 function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
     for each Staff s in score
     {
-        std = libmei.StaffDef();
+        std = CreateElement('staffDef');
 
-        libmei.AddAttribute(std, 'n', s.StaffNum);
-        libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
+        AddAttribute(std, 'n', s.StaffNum);
+        AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
 
         diaTrans = s.InitialInstrumentType.DiatonicTransposition;
         semiTrans = s.InitialInstrumentType.ChromaticTransposition;
         if (diaTrans != 0 and semiTrans != 0)
         {
-            libmei.AddAttribute(std, 'trans.semi', semiTrans);
-            libmei.AddAttribute(std, 'trans.diat', diaTrans);
+            AddAttribute(std, 'trans.semi', semiTrans);
+            AddAttribute(std, 'trans.diat', diaTrans);
         }
         if (s.Small)
         {
-            libmei.AddAttribute(std, 'scale', score.EngravingRules.SmallStaffSizeScale & '%');
+            AddAttribute(std, 'scale', score.EngravingRules.SmallStaffSizeScale & '%');
         }
 
         clefinfo = ConvertClef(s.InitialClefStyleId);
-        libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
-        libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
-        libmei.AddAttribute(std, 'clef.dis', clefinfo[2]);
-        libmei.AddAttribute(std, 'clef.dis.place', clefinfo[3]);
+        AddAttribute(std, 'clef.shape', clefinfo[0]);
+        AddAttribute(std, 'clef.line', clefinfo[1]);
+        AddAttribute(std, 'clef.dis', clefinfo[2]);
+        AddAttribute(std, 'clef.dis.place', clefinfo[3]);
 
         keysig = s.CurrentKeySignature(barnum);
-        libmei.AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
+        AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
 
         if (keysig.Major)
         {
-            libmei.AddAttribute(std, 'key.mode', 'major');
+            AddAttribute(std, 'key.mode', 'major');
         }
         else
         {
-            libmei.AddAttribute(std, 'key.mode', 'minor');
+            AddAttribute(std, 'key.mode', 'minor');
         }
 
         AddLabelsToHierarchy(std, s.FullStaffNameWithFormatting, s.ShortStaffNameWithFormatting);
 
-        libmei.AddChild(staffGrpByStaffNum[s.StaffNum], std);
+        AddChild(staffGrpByStaffNum[s.StaffNum], std);
     }
 }  //$end
 
@@ -617,16 +617,16 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
 function AddLabelsToHierarchy (staffGrpElement, fullName, shortName) {
     if (fullName != '')
     {
-        label = libmei.Label();
+        label = CreateElement('label');
         AddTextWithFormattingAsString(label, fullName);
-        libmei.AddChild(staffGrpElement, label);
+        AddChild(staffGrpElement, label);
     }
 
     if (shortName != '')
     {
-        labelAbbr = libmei.LabelAbbr();
+        labelAbbr = CreateElement('labelAbbr');
         AddTextWithFormattingAsString(labelAbbr, shortName);
-        libmei.AddChild(staffGrpElement, labelAbbr);
+        AddChild(staffGrpElement, labelAbbr);
     }
 } //$end
 

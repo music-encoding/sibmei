@@ -6,16 +6,16 @@ function InitLyricHandlers() {
         'StyleAsText', CreateDictionary()
     );
 
-    sylTemplate = @Element('Syl', null, LyricText);
+    sylTemplate = @Element('syl', null, LyricText);
 
     RegisterLyricHandlers('StyleId', 'LyricTemplateHandler', CreateDictionary(
-        'text.staff.space.hypen.lyrics.above', @Element('Verse', @Attrs('place', 'above'), sylTemplate),
-        'text.staff.space.hypen.lyrics.chorus', @Element('Refrain', null, sylTemplate),
-        'text.staff.space.hypen.lyrics.verse1', @Element('Verse', @Attrs('n', '1'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse2', @Element('Verse', @Attrs('n', '2'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse3', @Element('Verse', @Attrs('n', '3'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse4', @Element('Verse', @Attrs('n', '4'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse5', @Element('Verse', @Attrs('n', '5'), sylTemplate)
+        'text.staff.space.hypen.lyrics.above', @Element('verse', @Attrs('place', 'above'), sylTemplate),
+        'text.staff.space.hypen.lyrics.chorus', @Element('refrain', null, sylTemplate),
+        'text.staff.space.hypen.lyrics.verse1', @Element('verse', @Attrs('n', '1'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse2', @Element('verse', @Attrs('n', '2'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse3', @Element('verse', @Attrs('n', '3'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse4', @Element('verse', @Attrs('n', '4'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse5', @Element('verse', @Attrs('n', '5'), sylTemplate)
     ));
 }  //$end
 
@@ -54,7 +54,7 @@ function LyricTemplateHandler (this, lyricItem) {
         return null;
     }
 
-    if (libmei.GetName(parentElement) = 'rest')
+    if (GetName(parentElement) = 'rest')
     {
         barNum = lyricItem.ParentBar.BarNumber;
         voiceNum = lyricItem.VoiceNumber;
@@ -63,7 +63,7 @@ function LyricTemplateHandler (this, lyricItem) {
     }
 
     element = MeiFactory(this.template, lyricItem);
-    libmei.AddChild(parentElement, element);
+    AddChild(parentElement, element);
     return element;
 }  //$end
 
@@ -139,7 +139,7 @@ function HandleLyricItem (lyricobj, objectPositions) {
         lyricElement = HandleStyle(LyricHandlers, lyricItem);
         if (null != lyricElement and lyricItem.Color != 0)
         {
-            libmei.AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
+            AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
         }
     }
 
@@ -172,12 +172,12 @@ function SylElementAction (actionDict, parent, lyricItem) {
         if (elisionDelimiter = '_')
         {
             // breve (curved line below) connector
-            libmei.AddAttribute(lastSylElement, 'con', 'b');
+            AddAttribute(lastSylElement, 'con', 'b');
         }
         else
         {
             // space connector
-            libmei.AddAttribute(lastSylElement, 'con', 's');
+            AddAttribute(lastSylElement, 'con', 's');
         }
 
         lastSylElement = CreateSylChild(parent, actionDict.templateNode, lyricItem, elisionSyl);
@@ -190,22 +190,22 @@ function SylElementAction (actionDict, parent, lyricItem) {
         // conditions are met (plus lyricItem.SyllableType = EndOfWord).
         if (lyricItem.NumNotes > 1 and lyricItem.Duration > 0)
         {
-            libmei.AddAttribute(lastSylElement, 'con', 'u'); // 'underscore'
+            AddAttribute(lastSylElement, 'con', 'u'); // 'underscore'
         }
     }
     else
     {
         // Word continues after lyricItem, so we need a dash connector.
-        libmei.AddAttribute(lastSylElement, 'con', 'd');
+        AddAttribute(lastSylElement, 'con', 'd');
         // We're in initial word position if the lyricItem starts the word, or
         // if a new word started within the lyricItem because of an elision.
         if (lyricItem._property:startOfWord or syllables.Length > 1)
         {
-            libmei.AddAttribute(lastSylElement, 'wordpos', 'i'); // 'initial'
+            AddAttribute(lastSylElement, 'wordpos', 'i'); // 'initial'
         }
         else
         {
-            libmei.AddAttribute(lastSylElement, 'wordpos', 'm'); // 'medial'
+            AddAttribute(lastSylElement, 'wordpos', 'm'); // 'medial'
         }
     }
 
@@ -214,7 +214,7 @@ function SylElementAction (actionDict, parent, lyricItem) {
     // @wordpos should be written.
     if ((lyricItem.SyllableType = EndOfWord or syllables.Length > 1) and not lyricItem._property:startOfWord)
     {
-        libmei.AddAttribute(firstSylElement, 'wordpos', 't'); // 'terminal'
+        AddAttribute(firstSylElement, 'wordpos', 't'); // 'terminal'
     }
 } //$end
 
@@ -227,7 +227,7 @@ function CreateSylChild (parent, template, lyricItem, sylText) {
     // inserted text.
     lyricItem._property:currentSyllable = sylText;
     sylElement = MeiFactory(template, lyricItem);
-    libmei.AddChild(parent, sylElement);
+    AddChild(parent, sylElement);
     return sylElement;
 } //$end
 

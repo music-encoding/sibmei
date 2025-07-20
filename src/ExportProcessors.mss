@@ -3,18 +3,18 @@ function ProcessScore () {
     // processors are a bit like a workflow manager -- they orchestrate the
     // generators, which in turn use the converters to convert specific values from sibelius
     // to MEI.
-    mei = libmei.Mei();
-    libmei.setDocumentRoot(mei);
+    mei = CreateElement('mei');
+    SetDocumentRoot(mei);
 
-    libmei.AddAttribute(mei, 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
-    libmei.AddAttribute(mei, 'xmlns', 'http://www.music-encoding.org/ns/mei');
-    libmei.AddAttribute(mei, 'meiversion', MeiVersion);
+    AddAttribute(mei, 'xmlns:xlink', 'http://www.w3.org/1999/xlink');
+    AddAttribute(mei, 'xmlns', 'http://www.music-encoding.org/ns/mei');
+    AddAttribute(mei, 'meiversion', MeiVersion);
 
     header = GenerateMEIHeader();
-    libmei.AddChild(mei, header);
+    AddChild(mei, header);
 
     music = GenerateMEIMusic();
-    libmei.AddChild(mei, music);
+    AddChild(mei, music);
 
 }  //$end
 
@@ -36,12 +36,12 @@ function ProcessFrontMatter (musicEl) {
 
             if (frontmatter.PropertyExists(pnum) = false)
             {
-                pb = libmei.Pb();
-                libmei.AddAttribute(pb, 'n', pnum);
+                pb = CreateElement('pb');
+                AddAttribute(pb, 'n', pnum);
                 frontmatter[pnum] = CreateSparseArray(pb);
             }
 
-            text = AddFormattedText(null, libmei.Div(), bobj);
+            text = AddFormattedText(null, CreateElement('div'), bobj);
             frontmatter[pnum].Push(text);
         }
     }
@@ -53,18 +53,18 @@ function ProcessFrontMatter (musicEl) {
         // sort the front pages
         // Log('front: ' & frontmatter);
         sorted_front = utils.SortArray(frontpages, false);
-        frontEl = libmei.Front();
+        frontEl = CreateElement('front');
         for each pnum in sorted_front
         {
             pgels = frontmatter[pnum];
 
             for each el in pgels
             {
-                libmei.AddChild(frontEl, el);
+                AddChild(frontEl, el);
             }
         }
 
-        libmei.AddChild(musicEl, frontEl);
+        AddChild(musicEl, frontEl);
     }
 }  //$end
 
@@ -96,7 +96,7 @@ function ProcessEndingLines (bar) {
                 }
                 else
                 {
-                    libmei.AddAttribute(meiLine, 'endid', '#' & end_obj._id);
+                    AddAttribute(meiLine, 'endid', '#' & end_obj._id);
                 }
             }
         }

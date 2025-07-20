@@ -19,150 +19,150 @@ function TestLibmei (suite) {
 
 function TestElementCreate (assert, plugin) {
     //$module(TestLibmei.mss)
-    el = libmei.CreateElement('note', null);
-    nm = libmei.GetName(el);
+    el = CreateElement('note', null);
+    nm = GetName(el);
     assert.Equal(nm, 'note', 'The name of the element should be note');
-    assert.OK(null != libmei.GetId(el), 'The ID should not be null');
+    assert.OK(null != GetId(el), 'The ID should not be null');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestNamedElementCreate (assert, plugin) {
     //$module(TestLibmei.mss)
-    el = libmei.Note();
-    nm = libmei.GetName(el);
+    el = CreateElement('note');
+    nm = GetName(el);
     assert.Equal(nm, 'note', 'The named element creator should create a note');
-    assert.OK(null != libmei.GetId(el), 'The ID should not be null');
+    assert.OK(null != GetId(el), 'The ID should not be null');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestAttributeCreate (assert, plugin) {
     //$module(TestLibmei.mss)
-    el = libmei.Note();
-    libmei.AddAttribute(el, 'pname', 'c');
-    at = libmei.GetAttribute(el, 'pname');
+    el = CreateElement('note');
+    AddAttribute(el, 'pname', 'c');
+    at = GetAttribute(el, 'pname');
     assert.Equal(at, 'c', 'The attribute value should be c');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestChildElementAdd (assert, plugin) {
     //$module(TestLibmei.mss)
-    parent = libmei.Note();
-    child = libmei.Accid();
-    libmei.AddChild(parent, child);
-    children = libmei.GetChildren(parent);
+    parent = CreateElement('note');
+    child = CreateElement('accid');
+    AddChild(parent, child);
+    children = GetChildren(parent);
     assert.Equal(children.Length, 1, 'The parent should have one child');
     accid = children[0];
-    assert.Equal(libmei.GetName(child), 'accid', 'The name of the child should be accid');
+    assert.Equal(GetName(child), 'accid', 'The name of the child should be accid');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestChildElementRemove (assert, plugin) {
     //$module(TestLibmei.mss)
-    parent = libmei.Note();
-    child1 = libmei.Accid();
-    child2 = libmei.Accid();
+    parent = CreateElement('note');
+    child1 = CreateElement('accid');
+    child2 = CreateElement('accid');
     c2id = child2._id;
 
-    libmei.AddChild(parent, child1);
-    libmei.AddChild(parent, child2);
+    AddChild(parent, child1);
+    AddChild(parent, child2);
 
     assert.Equal(parent.children.Length, 2, 'The parent should have two children');
 
-    libmei.RemoveChild(parent, child1);
+    RemoveChild(parent, child1);
     assert.Equal(parent.children.Length, 1, 'After removal, the parent should only have one child');
     assert.Equal(parent.children[0], c2id, 'The child that remains should be child 2');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestDocumentObjectsCreated (assert, plugin) {
     //$module(TestLibmei.mss)
-    t = libmei._property:MEIDocument;
-    f = libmei._property:MEIFlattened;
+    t = Self._property:MEIDocument;
+    f = Self._property:MEIFlattened;
     assert.OK(null != t, 'The MEI Tree should not be null');
     assert.OK(null != f, 'The flattened tree should not be null');
 }  //$end
 
 function TestDocumentObjectsDestroyed (assert, plugin) {
     //$module(TestLibmei.mss)
-    root = libmei.Mei();
-    libmei.setDocumentRoot(root);
+    root = CreateElement('mei');
+    SetDocumentRoot(root);
 
-    m = libmei.getDocumentRoot();
+    m = GetDocumentRoot();
     assert.OK(null != m, 'The document root should not be null');
 
-    t = libmei._property:MEIDocument;
-    f = libmei._property:MEIFlattened;
+    t = Self._property:MEIDocument;
+    f = Self._property:MEIFlattened;
     assert.OK((t.Length > 0), 'There should be elements in the MEI Document Tree');
     assert.OK((f.GetPropertyNames().Length > 0), 'There should be elements in the Flattened MEI Structure');
 
-    libmei.destroy();
+    InitXml();
 
-    t = libmei._property:MEIDocument;
-    f = libmei._property:MEIFlattened;
+    t = Self._property:MEIDocument;
+    f = Self._property:MEIFlattened;
     assert.NotOK((t.Length > 0), 'There should not be elements in the MEI Document Tree');
     assert.NotOK((f.GetPropertyNames().Length > 0), 'There should not be elements in the Flattened MEI Structure');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestGetElementById (assert, plugin) {
     //$module(TestLibmei.mss)
-    root = libmei.Mei();
-    libmei.setDocumentRoot(root);
+    root = CreateElement('mei');
+    SetDocumentRoot(root);
 
-    head = libmei.CreateElement('meiHead');
-    music = libmei.CreateElement('music');
-    libmei.AddChild(root, head);
-    libmei.AddChild(root, music);
+    head = CreateElement('meiHead');
+    music = CreateElement('music');
+    AddChild(root, head);
+    AddChild(root, music);
 
-    s = libmei.getElementById(music._id);
+    s = GetElementById(music._id);
     assert.OK(null != s, 'The music element should not be null');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestMEIXMLOutput (assert, plugin) {
     //$module(TestLibmei.mss)
-    mei = libmei.Mei();
-    meiHead = libmei.MeiHead();
-    music = libmei.Music();
+    mei = CreateElement('mei');
+    meiHead = CreateElement('meiHead');
+    music = CreateElement('music');
 
-    libmei.setDocumentRoot(mei);
-    libmei.AddChild(mei, meiHead);
-    libmei.AddChild(mei, music);
+    SetDocumentRoot(mei);
+    AddChild(mei, meiHead);
+    AddChild(mei, music);
 
-    d = libmei._property:MEIDocument;
-    m = libmei.meiDocumentToString(d);
+    d = Self._property:MEIDocument;
+    m = MeiDocumentToString(d);
 
     assert.OK(null != m, 'The MEI Document output should not be null');
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestMEIFileWriting (assert, plugin) {
     //$module(TestLibmei.mss)
 
-    libmei.destroy();
+    InitXml();
 
-    mei = libmei.Mei();
-    meiHead = libmei.MeiHead();
-    music = libmei.Music();
+    mei = CreateElement('mei');
+    meiHead = CreateElement('meiHead');
+    music = CreateElement('music');
 
-    libmei.setDocumentRoot(mei);
-    libmei.AddChild(mei, meiHead);
-    libmei.AddChild(mei, music);
+    SetDocumentRoot(mei);
+    AddChild(mei, meiHead);
+    AddChild(mei, music);
 
-    d = libmei.getDocument();
+    d = GetDocument();
     filePath = Self._property:tempDir & 'foo.mei';
-    m = libmei.meiDocumentToFile(d, filePath);
+    m = MeiDocumentToFile(d, filePath);
 
     assert.OK(m, 'The MEI File was successfully written to ' & filePath);
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestRemoveKeyFromDictionary (assert, plugin) {
@@ -170,26 +170,26 @@ function TestRemoveKeyFromDictionary (assert, plugin) {
     d = CreateDictionary('foo', 'bar', 'bif', 'baz');
     assert.OK(d.PropertyExists('foo'), 'The property foo should exist');
 
-    dprime = libmei.removeKeyFromDictionary(d, 'foo');
+    dprime = RemoveKeyFromDictionary(d, 'foo');
     assert.NotOK(dprime.PropertyExists('foo'), 'The property foo should no longer exist');
 }  //$end
 
 function TestGetSetId (assert, plugin) {
     //$module(TestLibmei.mss)
-    el = libmei.Mei();
-    id = libmei.GetId(el);
+    el = CreateElement('mei');
+    id = GetId(el);
     assert.OK(null != id, 'The ID should not be null');
 
-    inDocument = libmei.getElementById(id);
+    inDocument = GetElementById(id);
     assert.OK(null != inDocument, 'The ID should be in the MEI Document');
 
-    libmei.SetId(el, 'newId');
-    inDocument = libmei.getElementById(id);
+    SetId(el, 'newId');
+    inDocument = GetElementById(id);
     assert.OK(null = inDocument, 'The old ID key should return a null when a new ID has been set.');
-    newInDocument = libmei.getElementById('newId');
+    newInDocument = GetElementById('newId');
     assert.OK(null != newInDocument, 'The new ID should return the object');
 
-    libmei.destroy();
+    InitXml();
 }  //$end
 
 function TestEncodeEntities (assert, plugin) {

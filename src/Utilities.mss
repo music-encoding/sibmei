@@ -196,7 +196,7 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     objId = noteIdsByPosition[bobjPosition];
     if (null != objId)
     {
-        return libmei.getElementById(objId);
+        return GetElementById(objId);
     }
 
     // `bobj` was not precisely attached to a NoteRest in the same voice.
@@ -271,7 +271,7 @@ function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, f
         return null;
     }
 
-    return libmei.getElementById(noteIdsByPosition[noteRestPosition]);
+    return GetElementById(noteIdsByPosition[noteRestPosition]);
 } //$end
 
 
@@ -301,7 +301,7 @@ function GetMeiNoteRestAtPosition (bobj, endPosition) {
 
     if (null != id)
     {
-        return libmei.getElementById(id);
+        return GetElementById(id);
     }
 
     // If there is no NoteRest at the precise position, linearly search the
@@ -321,7 +321,7 @@ function GetMeiNoteRestAtPosition (bobj, endPosition) {
                 i = i - 1;
             }
             id = noteRestIdsByPosition[noteRestPositions[i]];
-            return libmei.getElementById(id);
+            return GetElementById(id);
         }
     }
 
@@ -369,18 +369,18 @@ function AddControlEventAttributes (bobj, element) {
     {
         // Some templates might set `@tstamp` explicitly, especially to prevent
         // `@tstamp` from being output for elements that don't allow it.
-        libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+        AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
     }
 
     start_obj = GetNoteObjectAtPosition(bobj, 'PreciseMatch', 'Position');
     if (start_obj != null)
     {
-        libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+        AddAttribute(element, 'startid', '#' & start_obj._id);
     }
 
     if (TypeHasEndBarNumberProperty[bobj.Type])
     {
-        libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
     }
 
     staff = bar.ParentStaff;
@@ -388,8 +388,8 @@ function AddControlEventAttributes (bobj, element) {
     if (staff.StaffNum > 0)
     {
         // Only add @staff if this is not attached to the SystemStaff
-        libmei.AddAttribute(element, 'staff', staff.StaffNum);
-        libmei.AddAttribute(element, 'layer', voicenum);
+        AddAttribute(element, 'staff', staff.StaffNum);
+        AddAttribute(element, 'layer', voicenum);
     }
 
     score = staff.ParentScore;
@@ -399,27 +399,27 @@ function AddControlEventAttributes (bobj, element) {
         // lines have durations, but symbols do not.
         if (bobj.Duration > 0)
         {
-            libmei.AddAttribute(element, 'dur.ppq', bobj.Duration);
+            AddAttribute(element, 'dur.ppq', bobj.Duration);
         }
 
         // lines have a left hand and a right hand offset
         // left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(bobj.Dx));
+            AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         if (bobj.Dy > 0)
         {
-            libmei.AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(bobj.Dy));
+            AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
         // right hand offset
         if (bobj.RhDx > 0)
         {
-            libmei.AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(bobj.Dx));
+            AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         if (bobj.RhDy > 0)
         {
-            libmei.AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(bobj.Dy));
+            AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
     }
     else
@@ -427,7 +427,7 @@ function AddControlEventAttributes (bobj, element) {
         // other types only have a left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
+            AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         // we don't write @vo because Dy is conceptually different
         // see discussion in https://github.com/music-encoding/sibmei/pull/139
@@ -437,7 +437,7 @@ function AddControlEventAttributes (bobj, element) {
     {
         if (bobj.Color != 0)
         {
-            libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+            AddAttribute(element, 'color', ConvertColor(bobj));
         }
     }
 
@@ -740,14 +740,14 @@ function MeiFactory (data, bobj) {
     // For further documentation, see Extensions.md
 
     tagName = data[0];
-    element = libmei.@tagName();
+    element = CreateElement(tagName);
 
     attributes = data[1];
     if (null != attributes)
     {
         for each Name attName in attributes
         {
-            libmei.AddAttribute(element, attName, attributes[attName]);
+            AddAttribute(element, attName, attributes[attName]);
         }
     }
 
@@ -771,7 +771,7 @@ function MeiFactory (data, bobj) {
                 {
                     // We have a child element
                     currentChild = MeiFactory(childData, bobj);
-                    libmei.AddChild(element, currentChild);
+                    AddChild(element, currentChild);
                 }
             }
         }
@@ -836,12 +836,12 @@ function GetTemplateElementsByTagName (template, tagName) {
 function AppendText (element, text) {
     if (element.children.Length = 0)
     {
-        libmei.SetText(element, element.text & text);
+        SetText(element, element.text & text);
     }
     else
     {
         lastChildIndex = element.children.Length - 1;
-        lastChild = libmei.getElementById(element.children[lastChildIndex]);
+        lastChild = GetElementById(element.children[lastChildIndex]);
         lastChild.tail = lastChild.tail & text;
     }
 }  //$end

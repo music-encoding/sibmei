@@ -44,11 +44,11 @@ function TestPrevPow2 (assert, plugin) {
 
 
 function TestGetTemplateElementsByTagName (assert, plugin) {
-    template = @Element('Foo', @Attrs('n', 0),
-        @Element('Bar', null,
-            @Element('Foo', @Attrs('n', 1))
+    template = @Element('foo', @Attrs('n', 0),
+        @Element('bar', null,
+            @Element('foo', @Attrs('n', 1))
         ),
-        @Element('Foo', @Attrs('n', 2), 'Text child')
+        @Element('foo', @Attrs('n', 2), 'Text child')
     );
 
     fooElements = sibmei.GetTemplateElementsByTagName(template, 'Foo');
