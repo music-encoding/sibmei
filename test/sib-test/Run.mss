@@ -32,7 +32,7 @@ function RunTests() {
 
     suite
         .AddModule('TestExportConverters')
-        .AddModule('TestLibmei')
+        .AddModule('TestXml')
         .AddModule('TestExportGenerators')
         .AddModule('TestUtilities')
         .AddModule('TestHierarchyBuilders')

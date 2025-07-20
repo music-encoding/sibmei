@@ -1,5 +1,4 @@
-function TestLibmei (suite) {
-    //$module(TestLibmei.mss)
+function TestXml (suite) {
     suite
         .Add('TestElementCreate')
         .Add('TestNamedElementCreate')
@@ -18,7 +17,6 @@ function TestLibmei (suite) {
 } //$end
 
 function TestElementCreate (assert, plugin) {
-    //$module(TestLibmei.mss)
     el = CreateElement('note', null);
     nm = GetName(el);
     assert.Equal(nm, 'note', 'The name of the element should be note');
@@ -28,7 +26,6 @@ function TestElementCreate (assert, plugin) {
 }  //$end
 
 function TestNamedElementCreate (assert, plugin) {
-    //$module(TestLibmei.mss)
     el = CreateElement('note');
     nm = GetName(el);
     assert.Equal(nm, 'note', 'The named element creator should create a note');
@@ -38,7 +35,6 @@ function TestNamedElementCreate (assert, plugin) {
 }  //$end
 
 function TestAttributeCreate (assert, plugin) {
-    //$module(TestLibmei.mss)
     el = CreateElement('note');
     AddAttribute(el, 'pname', 'c');
     at = GetAttribute(el, 'pname');
@@ -48,7 +44,6 @@ function TestAttributeCreate (assert, plugin) {
 }  //$end
 
 function TestChildElementAdd (assert, plugin) {
-    //$module(TestLibmei.mss)
     parent = CreateElement('note');
     child = CreateElement('accid');
     AddChild(parent, child);
@@ -61,7 +56,6 @@ function TestChildElementAdd (assert, plugin) {
 }  //$end
 
 function TestChildElementRemove (assert, plugin) {
-    //$module(TestLibmei.mss)
     parent = CreateElement('note');
     child1 = CreateElement('accid');
     child2 = CreateElement('accid');
@@ -80,7 +74,6 @@ function TestChildElementRemove (assert, plugin) {
 }  //$end
 
 function TestDocumentObjectsCreated (assert, plugin) {
-    //$module(TestLibmei.mss)
     t = Self._property:MEIDocument;
     f = Self._property:MEIFlattened;
     assert.OK(null != t, 'The MEI Tree should not be null');
@@ -88,7 +81,6 @@ function TestDocumentObjectsCreated (assert, plugin) {
 }  //$end
 
 function TestDocumentObjectsDestroyed (assert, plugin) {
-    //$module(TestLibmei.mss)
     root = CreateElement('mei');
     SetDocumentRoot(root);
 
@@ -111,7 +103,6 @@ function TestDocumentObjectsDestroyed (assert, plugin) {
 }  //$end
 
 function TestGetElementById (assert, plugin) {
-    //$module(TestLibmei.mss)
     root = CreateElement('mei');
     SetDocumentRoot(root);
 
@@ -127,7 +118,6 @@ function TestGetElementById (assert, plugin) {
 }  //$end
 
 function TestMEIXMLOutput (assert, plugin) {
-    //$module(TestLibmei.mss)
     mei = CreateElement('mei');
     meiHead = CreateElement('meiHead');
     music = CreateElement('music');
@@ -144,7 +134,6 @@ function TestMEIXMLOutput (assert, plugin) {
 }  //$end
 
 function TestMEIFileWriting (assert, plugin) {
-    //$module(TestLibmei.mss)
 
     InitXml();
 
@@ -166,7 +155,6 @@ function TestMEIFileWriting (assert, plugin) {
 }  //$end
 
 function TestRemoveKeyFromDictionary (assert, plugin) {
-    //$module(TestLibmei.mss)
     d = CreateDictionary('foo', 'bar', 'bif', 'baz');
     assert.OK(d.PropertyExists('foo'), 'The property foo should exist');
 
@@ -175,7 +163,6 @@ function TestRemoveKeyFromDictionary (assert, plugin) {
 }  //$end
 
 function TestGetSetId (assert, plugin) {
-    //$module(TestLibmei.mss)
     el = CreateElement('mei');
     id = GetId(el);
     assert.OK(null != id, 'The ID should not be null');
