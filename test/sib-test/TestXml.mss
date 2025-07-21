@@ -13,6 +13,7 @@ function TestXml (suite) {
         .Add('TestRemoveKeyFromDictionary')
         .Add('TestGetSetId')
         .Add('TestEncodeEntities')
+        .Add('TestElementsUsedInTemplates')
         ;
 } //$end
 
@@ -190,3 +191,54 @@ function TestEncodeEntities (assert, plugin) {
 function _AssertEntityEncoding (assert, string, expectedEncoding) {
     assert.Equal(EncodeEntities(string), expectedEncoding, string);
 }  //$end
+
+function TestElementsUsedInTemplates (assert, plugin) {
+    for each handlerMap in CreateSparseArray(
+        LineHandlers.StyleId,
+        LineHandlers.StyleAsText,
+        LyricHandlers.StyleId,
+        LyricHandlers.StyleAsText,
+        SymbolHandlers.Index,
+        SymbolHandlers.Name,
+        TextHandlers.StyleId,
+        TextHandlers.StyleAsText
+    )
+    {
+        for each Name styleId in handlerMap
+        {
+            handlerDict = handlerMap[styleId];
+            if (null != handlerDict['template'])
+            {
+                _TestTemplate(assert, handlerDict.template, styleId);
+            }
+        }
+    }
+} //$end
+
+function _TestTemplate(assert, template, styleId) {
+    tagName = template[0];
+    switch (true) {
+        case (IsLegalElement[tagName]) {;}
+        // Let's check if a styleId is an integer (for symbols) or a string.
+        // Strings are cast to 0.0 when compared to numbers, unless they can be
+        // parsed as a number, in which case they however are != null.
+        // If an integer is equal to 0.0, it is 0 and also equal to null.
+        case (0.0 = styleId and null != styleId)
+        {
+            assert.OK(false, tagName & ' is not a valid element name. Used for symbol with index ' & styleId);
+        }
+        default
+        {
+            assert.OK(false, tagName & ' is not a valid element name. Used for \'' & styleId & '\'');
+        }
+    }
+    childCount = utils.max(template.Length - 2, 0);
+    for childIndex = 0 to childCount
+    {
+        child = template[childIndex + 2];
+        if (IsObject(child) and null = child._property:templateAction)
+        {
+            _TestTemplate(assert, child, styleId);
+        }
+    }
+} //$end
