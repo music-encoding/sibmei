@@ -1,10 +1,11 @@
 // @ts-check
 
 import { deepEqual } from "assert";
-import { extractLegalElements } from "../../tools/schema.mjs";
+import { describe, it } from "node:test";
+import { getSchema } from "../../tools/schema.mjs";
 
 describe("schema parsing", () => {
-  it("parses test schema", () => {
+  it("parses test schema", async () => {
     const rngCode = `<grammar xmlns="http://relaxng.org/ns/structure/1.0" ns="http://www.music-encoding.org/ns/mei">
       <div ns="http://www.w3.org/2000/svg">
         <define name="svg_SVG.some.attrib">
@@ -60,7 +61,7 @@ describe("schema parsing", () => {
         </choice>
       </start>
     </grammar>`;
-    const legalElements = extractLegalElements(rngCode);
+    const {legalElements} = await getSchema(rngCode);
     deepEqual(legalElements, new Set(["mei", "music"]));
   });
 });

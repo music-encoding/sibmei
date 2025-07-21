@@ -11,37 +11,69 @@ const meiVersion = pckg.sibmei.meiVersion;
 
 /** @type {Set<string>?} */
 let legalElements;
+/** @type {Set<string>?} */
+let legalAttributes;
 
 export async function getLegalElements() {
   if (legalElements) {
     return legalElements;
   }
-  const schemaPath = path.join("cache", meiVersion, RNG);
-  if (!fs.existsSync(schemaPath)) {
-    fs.mkdirSync(path.dirname(schemaPath), {recursive: true});
-    fs.writeFileSync(schemaPath, await fetchSchema(), "utf8");
-  }
-
-  const rngCode = fs.readFileSync(schemaPath, "utf8");
-  legalElements = extractLegalElements(rngCode);
+  legalElements = (await getSchema()).legalElements;
   return legalElements;
 }
 
+export async function getLegalAttributes() {
+  if (legalAttributes) {
+    return legalAttributes;
+  }
+  legalAttributes = (await getSchema()).legalAttributes;
+  return legalAttributes;
+}
+
 /**
- * @param {string} rngCode
+ * @param {string} [rngCode]  Should be omitted unless passing a dummy schema for testing
+ * @returns {Promise<{legalAttributes: Set<string>, legalElements: Set<string>}>}
  */
-export function extractLegalElements(rngCode) {
-  /** @type {Set<string>} */
-  const legalElements = new Set();
+export async function getSchema(rngCode) {
+  if (!rngCode) {
+    const schemaPath = path.join("cache", meiVersion, RNG);
+    if (!fs.existsSync(schemaPath)) {
+      fs.mkdirSync(path.dirname(schemaPath), { recursive: true });
+      fs.writeFileSync(schemaPath, await fetchSchema(), "utf8");
+    }
+
+    rngCode = fs.readFileSync(schemaPath, "utf8");
+  }
   const rng = parser.sync(rngCode);
-  for (const elementDefinition of /** @type {Element[]} */ (rng.getElementsByTagName("element"))) {
+
+  /** @type Set<string> */
+  const legalElements = new Set();
+  for (const elementDefinition of /** @type Element[] */ (rng.getElementsByTagName("element"))) {
     const elementName = elementDefinition.getAttribute("name");
     // Only consider elements in the MEI namespace
-    if (elementName && definitionNamespace(elementDefinition) ==="http://www.music-encoding.org/ns/mei") {
+    if (
+      elementName &&
+      definitionNamespace(elementDefinition) === "http://www.music-encoding.org/ns/mei"
+    ) {
       legalElements.add(elementName);
     }
   }
-  return legalElements;
+
+  /** @type Set<string> */
+  const legalAttributes = new Set();
+  for (const defineElement of /** @type Element[] */ (rng.getElementsByTagName("define"))) {
+    if (defineElement.getAttribute("name")?.startsWith("mei_")) {
+      for (const attributeDefinition of defineElement.getElementsByTagName("attribute")) {
+        const attributeName = attributeDefinition.getAttribute("name");
+        if (!attributeName) {
+          throw new Error('Found attribute definition without attribute name');
+        }
+        legalAttributes.add(attributeName);
+      }
+    }
+  }
+
+  return { legalAttributes, legalElements };
 }
 
 /**

@@ -14,7 +14,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node --test test/node/test-*.js",
+    "test": "node --test test/node/test-*js",
     "build": "node tools/build.mjs",
     "develop": "node tools/build.mjs --watch",
     "analyze": "node tools/analyze.js"
