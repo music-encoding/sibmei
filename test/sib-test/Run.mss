@@ -202,3 +202,11 @@ function CloseAllWindows () {
         Sibelius.New();
     }
 }  //$end
+
+
+function Debug (message) {
+    // Alternative to Trace(). It is better than Trace() to debug situations
+    // where Sibelius crashes and the Trace window closes. It is faster when
+    // loggin a lot of messages because Trace() seems to be O(n²).
+    Sibelius.AppendTextFile(pluginDir & 'debug-log.txt', message & '\n');
+} //$end
