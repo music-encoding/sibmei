@@ -430,7 +430,7 @@ function AddControlEventAttributes (bobj, element) {
             libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
 
-        if (bobj.Dy > 0)
+        if (bobj.Dy > 0 and bobj.Type != 'ArpeggioLine')
         {
             libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
