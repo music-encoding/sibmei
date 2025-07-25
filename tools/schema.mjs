@@ -50,10 +50,11 @@ export async function getSchema(rngCode) {
   const legalElements = new Set();
   for (const elementDefinition of /** @type Element[] */ (rng.getElementsByTagName("element"))) {
     const elementName = elementDefinition.getAttribute("name");
-    // Only consider elements in the MEI namespace
+    // Only consider MEI elements
     if (
       elementName &&
-      definitionNamespace(elementDefinition) === "http://www.music-encoding.org/ns/mei"
+      (definitionNamespace(elementDefinition) === "http://www.music-encoding.org/ns/mei" ||
+        elementDefinition.parentElement?.getAttribute("name")?.startsWith("mei_"))
     ) {
       legalElements.add(elementName);
     }
@@ -65,10 +66,15 @@ export async function getSchema(rngCode) {
     if (defineElement.getAttribute("name")?.startsWith("mei_")) {
       for (const attributeDefinition of defineElement.getElementsByTagName("attribute")) {
         const attributeName = attributeDefinition.getAttribute("name");
-        if (!attributeName) {
-          throw new Error('Found attribute definition without attribute name');
+        if (attributeName) {
+          legalAttributes.add(attributeName);
+        } else if (attributeDefinition.getElementsByTagName("anyName").length === 0) {
+          throw new Error(
+            `Found attribute definition without attribute name in <define name="${defineElement.getAttribute(
+              "name"
+            )}">`
+          );
         }
-        legalAttributes.add(attributeName);
       }
     }
   }
