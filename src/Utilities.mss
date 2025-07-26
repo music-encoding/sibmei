@@ -429,11 +429,8 @@ function AddControlEventAttributes (bobj, element) {
         {
             libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
-
-        if (bobj.Dy > 0)
-        {
-            libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
-        }
+        // we don't write @vo because Dy is conceptually different
+        // see discussion in https://github.com/music-encoding/sibmei/pull/139
     }
 
     if (bobj.Type != 'Text')
