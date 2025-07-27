@@ -2,8 +2,6 @@
 
 const { describe, it } = require('node:test');
 const assert = require('assert');
-const fs = require('fs');
-const path = require('path');
 const xpath = require('fontoxpath');
 
 const utils = require('./utils');
@@ -28,10 +26,7 @@ const xpathWithComparison = /^(.*)\s*=\s*((\d+)|"([^"]*)"|'([^']*)')\s*$/;
 // Make sure that the export actually exported XPath test annotations
 let foundXPathTest = false;
 
-for (const fileName of fs.readdirSync(path.join('build', 'develop', 'sibmeiTestSibs'), 'utf8')) {
-  if (!fileName.match(/\.mei$/)) {
-    continue;
-  }
+for (const fileName of utils.getExportedTestFileNames()) {
   const mei = utils.getTestMeiDom(fileName);
   let xpathAnnots = xpath.evaluateXPath("//*:annot[@type='xpath-test']", mei);
   // evaluateXPath() returns a single object when the XPath evaluates to a

@@ -4,13 +4,18 @@ const fs = require('fs');
 const path = require('path');
 const parser = require('slimdom-sax-parser');
 const assert = require('assert');
-const xpath = require('fontoxpath');
 
 module.exports = {
   getTestMeiDom: function(fileName) {
     const meiPath = path.join('build', 'develop', 'sibmeiTestSibs', fileName);
     const meiString = fs.readFileSync(meiPath, {encoding: 'utf16le'});
     return parser.sync(meiString);
+  },
+
+  getExportedTestFileNames: function () {
+    return fs
+      .readdirSync(path.join("build", "develop", "sibmeiTestSibs"), "utf8")
+      .filter((fileName) => fileName.match(/\.mei$/));
   },
 
   assertAttrOnElements: function(elements, indices, attName, expectedValue) {
