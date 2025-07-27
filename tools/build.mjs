@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { argv } from "process";
 import pckg from "../package.json" with {type: "json"};
-import { getLegalElements } from "./schema.mjs";
+import { getSchema } from "./schema.mjs";
 
 const { name, version, sibmei: { meiVersion } } = pckg;
 const GLOBALS = `
@@ -51,7 +51,7 @@ async function buildPlg(sourceFiles, target) {
   fs.writeFileSync(target, `${BOM}{
     ${compile(sourceFiles)}
     ${GLOBALS}
-    LegalElements {"${[...await getLegalElements()].join('" "')}"}
+    LegalElements {"${[...(await getSchema()).elements.keys()].join('" "')}"}
   }`, { encoding: "utf16le" });
 }
 

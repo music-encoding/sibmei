@@ -25,7 +25,7 @@ function* mssPaths(folder) {
 }
 
 describe("attribute and element usage", async () => {
-  const { legalAttributes, legalElements } = await getSchema();
+  const { attributes, elements } = await getSchema();
   /** @type {{[filePath: string]: string[]}} */
   const undecidableLines = {};
 
@@ -33,9 +33,9 @@ describe("attribute and element usage", async () => {
     describe(filePath, () => {
       const lines = fs.readFileSync(filePath, { encoding: "utf8" }).split("\n");
       for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-        const { error, undecidable } = checkLine(lines[lineIndex], legalAttributes, legalElements);
+        const { error, undecidable } = checkLine(lines[lineIndex], attributes, elements);
         if (error) {
-          it("line " + (lineIndex + 1), () => {
+          it((lineIndex + 1) + ": " + lines[lineIndex], () => {
             assert(false, error);
           });
         }
@@ -62,44 +62,44 @@ describe("attribute and element usage", async () => {
 
 describe("test if static analysis of lines works", () => {
   it("reports an error if a line creates invalid elements", () => {
-    assertLine("el = CreateElement('foo'):", new Set(), new Set(["bar"]), true, false);
+    assertLine("el = CreateElement('foo'):", new Set(), new Map([["bar", ""]]), true, false);
   });
   it("reports an error if a line adds invalid attributes", () => {
-    assertLine("AddAttribute(el, 'foo', 'bar'):", new Set(["bar"]), new Set(), true, false);
+    assertLine("AddAttribute(el, 'foo', 'bar'):", new Set(["bar"]), new Map(), true, false);
   });
   it("reports an error if a line adds invalid attributes with AddAttributeValue()", () => {
     assertLine(
       "AddAttributeValue(my.element, 'foo', 'bar'):",
       new Set(["bar"]),
-      new Set(),
+      new Map(),
       true,
       false
     );
   });
   it("reports no error if a line creates valid elements", () => {
-    assertLine("el = CreateElement('foo'):", new Set(), new Set(["foo"]), false, false);
+    assertLine("el = CreateElement('foo'):", new Set(), new Map([["foo", ""]]), false, false);
   });
   it("reports no error if a line adds valid attributes", () => {
     assertLine(
       "AddAttribute(getElement(), 'foo', 'bar'):",
       new Set(["foo"]),
-      new Set(),
+      new Map(),
       false,
       false
     );
   });
   it("reports an undecidable situation if a variable is used for element names", () => {
-    assertLine("el = CreateElement(foo):", new Set(), new Set(), false, true);
+    assertLine("el = CreateElement(foo):", new Set(), new Map(), false, true);
   });
   it("reports an undecidable situation if a variable is used for attribute names", () => {
-    assertLine("AddAttribute(el, foo, 'bar'):", new Set(), new Set(), false, true);
+    assertLine("AddAttribute(el, foo, 'bar'):", new Set(), new Map(), false, true);
   });
 });
 
 /**
  * @param {string} line
  * @param {Set<string>} legalAttributes
- * @param {Set<string>} legalElements
+ * @param {Map<string, any>} legalElements
  * @param {boolean} errorExpected
  * @param {boolean} undecidableExpected
  */
@@ -120,7 +120,7 @@ function assertLine(line, legalAttributes, legalElements, errorExpected, undecid
 /**
  * @param {string} line
  * @param {Set<string>} legalAttributes
- * @param {Set<string>} legalElements
+ * @param {Map<string, any>} legalElements
  * @returns {{undecidable?: string, error?: string}}
  */
 function checkLine(line, legalAttributes, legalElements) {

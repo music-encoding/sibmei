@@ -61,8 +61,24 @@ describe("schema parsing", () => {
         </choice>
       </start>
     </grammar>`;
-    const { legalElements, legalAttributes } = await getSchema(rngCode);
-    deepEqual(legalElements, new Set(["mei", "music"]));
-    deepEqual(legalAttributes, new Set(["someAttribute", "someOtherAttribute", "type"]));
+    deepEqual(await getSchema(rngCode), {
+      attributes: new Set(["someAttribute", "someOtherAttribute", "type"]),
+      elements: new Map([
+        [
+          "mei",
+          {
+            attributes: new Set(["someAttribute", "someOtherAttribute"]),
+            children: new Set(["music"]),
+          },
+        ],
+        [
+          "music",
+          {
+            attributes: new Set(["someOtherAttribute", "type"]),
+            children: new Set(),
+          },
+        ],
+      ]),
+    });
   });
 });
