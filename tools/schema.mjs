@@ -6,7 +6,7 @@ import parser from "slimdom-sax-parser";
 import path from "path";
 import pckg from "../package.json" with {type: "json"};
 
-const RNG = "mei-all.rng";
+const RNG = "mei-CMN.rng";
 const meiVersion = pckg.sibmei.meiVersion;
 const RNG_NS = "http://relaxng.org/ns/structure/1.0";
 const MEI_NS = "http://www.music-encoding.org/ns/mei";
@@ -68,21 +68,24 @@ export async function getSchema(rngCode) {
   return schema;
 }
 
+export async function getSchemaFile() {
+  const schemaPath = path.join("cache", meiVersion, RNG);
+  if (!fs.existsSync(schemaPath)) {
+    fs.mkdirSync(path.dirname(schemaPath), { recursive: true });
+    fs.writeFileSync(schemaPath, await fetchSchema(), "utf8");
+  }
+  return schemaPath;
+}
+
+export async function getRngCode() {
+  return fs.readFileSync(await getSchemaFile(), "utf8");
+}
+
 /**
  * @param {string} [rngCode]
  */
-async function getRngDocument(rngCode) {
-  if (!rngCode) {
-    const schemaPath = path.join("cache", meiVersion, RNG);
-    if (!fs.existsSync(schemaPath)) {
-      fs.mkdirSync(path.dirname(schemaPath), { recursive: true });
-      fs.writeFileSync(schemaPath, await fetchSchema(), "utf8");
-    }
-
-    rngCode = fs.readFileSync(schemaPath, "utf8");
-  }
-
-  return parser.sync(rngCode);
+export async function getRngDocument(rngCode) {
+  return parser.sync(rngCode || await getRngCode());
 }
 
 /**
