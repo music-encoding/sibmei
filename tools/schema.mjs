@@ -92,7 +92,7 @@ export async function getRngDocument(rngCode) {
  * @return {Promise<string>}  The schema as RNG code
  */
 async function fetchSchema() {
-  const schemaUrl = `https://raw.githubusercontent.com/music-encoding/music-encoding/v${meiVersion}/schemata/${RNG}`;
+  const schemaUrl = `https://music-encoding.org/schema/${meiVersion}/${RNG}`;
   return new Promise((resolve, reject) => {
     https.get(schemaUrl, (res) => {
       let data = "";

@@ -31,11 +31,25 @@ if (!jingIsAvailable) {
       // /path/to/file.mei:12:34: error: attribute "foo" not allowed here; expected attribute "bar"
       /.*?([^/]+\.mei):(\d+:\d+:[\s\S\n]+?)\n/g
     )) {
-      (messagesByFile[fileName] ||= []).push(message);
+      (messagesByFile[fileName] ||= []).push(
+        // Shorten overly long messages
+        message.length < 100
+          ? message
+          : message.replace(
+              /; (expected attribute|expected the element end-tag or element|must be equal to) ("[^"]+"(, )?)+ or ("[^"]+")/,
+              ""
+            )
+      );
+    }
+    if (Object.keys(messagesByFile).length === 0) {
+      // Jing exited with an error code, but it did not output validation errors
+      // for MEI files. Something else must have gone wrong.
+      it("runs jing", () => assert.ok(false, `validation with ${rngPath} failed: ${stdout}`));
+      return;
     }
     for (const fileName of testFileNames) {
       const messages = messagesByFile[fileName] || [];
-      it(fileName, () => assert.ok(messages.length === 0, messages.join("\n")));
+      it(fileName, () => assert.ok(messages.length === 0, "\n" + messages.join("\n")));
     }
   });
 }
