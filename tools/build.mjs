@@ -59,16 +59,43 @@ function mssToPlg(mssCode, filename) {
  * development
  */
 async function buildPlg(sourceFiles, target, develop = false) {
-  console.log(GLOBALS);
   fs.writeFileSync(
     target,
     `${BOM}{
     ${compile(sourceFiles)}
     ${GLOBALS}
-    LegalElements {"${[...(await getSchema()).elements.keys()].join('" "')}"}
+    LegalElements ${await compileLegalElements(develop)}
   }`,
     { encoding: "utf16le" }
   );
+}
+
+/**
+ * @param {boolean} develop  For the release version, only a list of legal
+ * elements is compiled. For the development version, every legal element has a
+ * list of its legal attributes and children attached.
+ */
+async function compileLegalElements(develop) {
+  const schema = await getSchema();
+  if (!develop) {
+    return serializeAsTreeNodeList(schema.elements.keys());
+  }
+  return `{\n${[...schema.elements.entries()]
+    .map(([elementName, properties]) => {
+      return `"${elementName}" {
+      attributes ${serializeAsTreeNodeList(properties.attributes)}
+      children ${serializeAsTreeNodeList(properties.children)}
+    }`;
+    })
+    .join("\n")}
+  }`;
+}
+
+/**
+ * @param {Iterable<string>} list
+ */
+function serializeAsTreeNodeList(list) {
+  return `{${[...list].map((item) => `"${item}"`).join(" ")}}`;
 }
 
 /**

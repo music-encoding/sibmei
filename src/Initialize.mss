@@ -101,9 +101,22 @@ function InitGlobals (extensions) {
     }
 
     Self._property:IsLegalElement = CreateDictionary('<!--', true);
-    for each elementName in LegalElements
+    Self._property:Schema = CreateDictionary();
+    for each elementTreeNode in LegalElements
     {
+        elementName = elementTreeNode & '';
         IsLegalElement[elementName] = true;
+        attributes = CreateDictionary();
+        children = CreateDictionary();
+        Schema[elementName] = CreateDictionary('attributes', attributes, 'children', children);
+        for each childName in elementTreeNode.children
+        {
+            children[childName] = true;
+        }
+        for each attributeName in elementTreeNode.attributes
+        {
+            attributes[attributeName] = true;
+        }
     }
 
     Self._property:_Initialized = true;

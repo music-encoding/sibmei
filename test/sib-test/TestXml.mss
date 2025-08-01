@@ -216,20 +216,34 @@ function TestElementsUsedInTemplates (assert, plugin) {
 } //$end
 
 function _TestTemplate(assert, template, styleId) {
-    tagName = template[0];
-    switch (true) {
-        case (IsLegalElement[tagName]) {;}
-        // Let's check if a styleId is an integer (for symbols) or a string.
+    if (0.0 = styleId and null != styleId)
+    {
+        // Found `styleId` to be an integer, i.e. we're dealing with a symbol.
         // Strings are cast to 0.0 when compared to numbers, unless they can be
         // parsed as a number, in which case they however are != null.
         // If an integer is equal to 0.0, it is 0 and also equal to null.
-        case (0.0 = styleId and null != styleId)
+        usageDescription = ' Used for symbol with index ' & styleId;
+    }
+    else
+    {
+        usageDescription = 'Used for ' & styleId;
+    }
+    tagName = template[0];
+    properties = Schema[tagName];
+    if (null = properties)
+    {
+        return assert.OK(false, tagName & ' is not a valid element name.' & usageDescription);
+    }
+    if (null != template[1])
+    {
+        for each Name attributeName in template[1]
         {
-            assert.OK(false, tagName & ' is not a valid element name. Used for symbol with index ' & styleId);
-        }
-        default
-        {
-            assert.OK(false, tagName & ' is not a valid element name. Used for \'' & styleId & '\'');
+            assert.OK(
+                // If ' ' is assigned as attribute value, this explicitly
+                // suppresses the attribute from being added.
+                properties.attributes[attributeName] or template[1].@attributeName = ' ',
+                'expect ' & tagName & '/@' & attributeName & ' to be legal.' & usageDescription
+            );
         }
     }
     childCount = utils.max(template.Length - 2, 0);
@@ -238,7 +252,15 @@ function _TestTemplate(assert, template, styleId) {
         child = template[childIndex + 2];
         if (IsObject(child) and null = child._property:templateAction)
         {
-            _TestTemplate(assert, child, styleId);
+            childName = child[0];
+            if (assert.OK(
+                properties.children[childName],
+                'expect ' & tagName & '/' & childName & ' to be legal.' & usageDescription
+            ))
+            {
+                _TestTemplate(assert, child, styleId);
+            }
+
         }
     }
 } //$end
