@@ -110,11 +110,7 @@ function serializeAsTreeNodeList(list) {
  */
 function buildCompanionPlgs(sourceDir, targetDir) {
   for (const fileName of fs.readdirSync(sourceDir, { encoding: "utf8" })) {
-    const targetPath = path.join(
-      targetDir,
-      // Do not prefix libmei with sibmei
-      (fileName.startsWith("libmei") ? "" : `sibmei${majorVersion}_`) + fileName
-    );
+    const targetPath = path.join(targetDir, `sibmei${majorVersion}_${fileName}`);
     if (fileName.endsWith(".plg")) {
       buildPlg([path.join(sourceDir, fileName)], targetPath, false);
     }
