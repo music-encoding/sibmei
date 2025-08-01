@@ -41,8 +41,10 @@ function ProcessFrontMatter (musicEl) {
                 frontmatter[pnum] = CreateSparseArray(pb);
             }
 
-            text = AddFormattedText(null, CreateElement('div'), bobj);
-            frontmatter[pnum].Push(text);
+            pElement = AddFormattedText(null, CreateElement('p'), bobj);
+            divElement = CreateElement('div');
+            AddChild(divElement, pElement);
+            frontmatter[pnum].Push(divElement);
         }
     }
 

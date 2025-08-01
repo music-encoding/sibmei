@@ -1,7 +1,7 @@
 // @ts-check
 import assert from "node:assert";
 import { spawnSync } from "node:child_process";
-import { describe, it } from "node:test";
+import { describe, it, skip } from "node:test";
 import utils from "./utils.js";
 import { getSchemaFile } from "../../tools/schema.mjs";
 import path from "node:path";
@@ -10,7 +10,7 @@ const jingIsAvailable =
   spawnSync(process.platform === "win32" ? "where" : "which", ["jing"]).status === 0;
 
 if (!jingIsAvailable) {
-  console.log(`\x1b[43m  Command "jing" must be on the path for validation of test files. Installation:
+  skip(`\x1b[43m  Command "jing" must be on the path for validation of test files. Installation:
     * WSL/Ubuntu: apt install jing
     * Mac with homebrew: brew install jing-trang\x1b[0m`);
 } else {
@@ -49,7 +49,8 @@ if (!jingIsAvailable) {
     }
     for (const fileName of testFileNames) {
       const messages = messagesByFile[fileName] || [];
-      it(fileName, () => assert.ok(messages.length === 0, "\n" + messages.join("\n")));
+      it(`${fileName} validates`, () =>
+        assert.ok(messages.length === 0, "\n" + messages.join("\n")));
     }
   });
 }

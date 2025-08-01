@@ -2,7 +2,7 @@
 
 import path from "path";
 import fs from "fs";
-import assert, { match } from "assert";
+import assert from "assert";
 import { describe, it } from "node:test";
 import { getSchema } from "../../tools/schema.mjs";
 
@@ -35,7 +35,7 @@ describe("attribute and element usage", async () => {
       for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
         const { error, undecidable } = checkLine(lines[lineIndex], attributes, elements);
         if (error) {
-          it((lineIndex + 1) + ": " + lines[lineIndex], () => {
+          it(`${filePath}:${lineIndex + 1}: ${lines[lineIndex]}`, () => {
             assert(false, error);
           });
         }

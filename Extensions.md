@@ -78,4 +78,5 @@ The following methods can be used by Handler methods:
 * [**`AddFormattedText()`** ](ExportHandlers.md#addformattedtext)
 * [**`GenerateControlEvent()`**](ExportHandlers.md#generatecontrolevent)
 * [**`GenerateModifier()`**]((ExportHandlers.md#generatemodifier))
+* **`AppendToMeasure()`**. Use this if an element is measure-attached like a control event, but the element should not receive the control event attributes that `GenerateControlEvent()` would add. Takes a single argument, which is the element to be appended to the measure.
 * [**`MeiFactory()`**](ExportHandlers.md#meifactory)

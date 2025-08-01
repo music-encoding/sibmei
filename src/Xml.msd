@@ -298,10 +298,9 @@ GetTail "(element) {
 }"
 
     _exportMeiDocument "(meidoc) {
-        RNG_URL = 'https://music-encoding.org/schema/' & MeiVersion & '/mei-CMN.rng';
         xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>';
-        schema = '\n<?xml-model href=' & Chr(34) & RNG_URL & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://relaxng.org/ns/structure/1.0' & Chr(34) & ' ?>';
-        schematron = '\n<?xml-model href=' & Chr(34) & RNG_URL & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://purl.oclc.org/dsdl/schematron' & Chr(34) & ' ?>';
+        schema = '\n<?xml-model href=' & Chr(34) & SchemaUrl & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://relaxng.org/ns/structure/1.0' & Chr(34) & ' ?>';
+        schematron = '\n<?xml-model href=' & Chr(34) & SchemaUrl & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://purl.oclc.org/dsdl/schematron' & Chr(34) & ' ?>';
         meiout = xdecl & schema & schematron & ConvertDictToXml(meidoc[0], Chr(10));
 
         return meiout;

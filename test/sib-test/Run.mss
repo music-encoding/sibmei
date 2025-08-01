@@ -48,7 +48,7 @@ function RunTests() {
     {
         testFiles.Push(file);
     }
-    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
+    ExportBatch(testFiles, CreateSparseArray(MainPlgBaseName & '_extension_test'));
 
     if (Sibelius.PathSeparator = '/') {
         nodeTestScript = pluginDir & 'test.sh';

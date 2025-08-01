@@ -233,7 +233,7 @@ function GenerateMEIMusic () {
                 currentScoreDef = CreateElement('scoreDef');
             }
 
-            AddAttribute(currentScoreDef, 'key.sig', ConvertKeySignature(currKeyS.Sharps));
+            AddAttribute(currentScoreDef, 'keysig', ConvertKeySignature(currKeyS.Sharps));
         }
 
         if (currentScoreDef != null)
@@ -419,10 +419,6 @@ function GenerateMeasure (num) {
         // create the mdiv for the next bar.
         newMdiv = GenerateMDiv(num + 1);
         AddChild(body, newMdiv);
-        // a new section end means a new entry in the header.
-        workList = Self._property:WorkListElement;
-        workEl = CreateElement('work');
-        AddChild(workList, workEl);
     }
 
     return m;
@@ -1005,7 +1001,7 @@ function GenerateScoreDef (score, barnum) {
     showCautionaryAccidentals = score.EngravingRules.CautionaryNaturalsInKeySignatures;
     if (showCautionaryAccidentals = true)
     {
-        AddAttribute(scoredef, 'keysig.showchange', 'true');
+        AddAttribute(scoredef, 'keysig.cancelaccid', 'before');
     }
 
     AddAttribute(scoredef, 'music.name', score.MainMusicFontName);
@@ -1020,7 +1016,10 @@ function GenerateScoreDef (score, barnum) {
     GenerateMeterAttributes(scoredef, 1);
     AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
+    if (score.StaffCount > 0)
+    {
+        AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
+    }
 
     return scoredef;
 }  //$end
@@ -1056,7 +1055,7 @@ function GenerateMeterAttributes (scoredef, barNumber) {
     }
     if (null = timesig or timesig.Hidden)
     {
-        AddAttribute(scoredef, 'meter.form', 'invis');
+        AddAttribute(scoredef, 'meter.visible', 'false');
     }
     if (null = timesig)
     {

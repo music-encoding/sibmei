@@ -39,7 +39,7 @@ for (const fileName of utils.getExportedTestFileNames()) {
   }
   foundXPathTest = true;
   describe(fileName, () => {
-    it("matches XPath tests", function() {
+    it(`${fileName} matches XPath tests`, function() {
       const messages = [];
       for (const annot of xpathAnnots) {
         const measure = annot.parentNode.getAttribute("n");

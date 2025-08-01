@@ -596,7 +596,7 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
         AddAttribute(std, 'clef.dis.place', clefinfo[3]);
 
         keysig = s.CurrentKeySignature(barnum);
-        AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
+        AddAttribute(std, 'keysig', ConvertKeySignature(keysig.Sharps));
 
         if (keysig.Major)
         {

@@ -4,14 +4,19 @@ import chokidar from "chokidar";
 import * as fs from "fs";
 import * as path from "path";
 import { argv } from "process";
-import pckg from "../package.json" with {type: "json"};
-import { getSchema } from "./schema.mjs";
+import pckg from "../package.json" with { type: "json" };
+import { getSchema, SCHEMA_URL } from "./schema.mjs";
 
-const { name, version, sibmei: { meiVersion } } = pckg;
+const {
+  version,
+  sibmei: { meiVersion },
+} = pckg;
+const majorVersion = version.split(".")[0];
 const GLOBALS = `
-  MainPlgBaseName "${name}"
+  MainPlgBaseName "sibmei${majorVersion}"
   PluginVersion "${version}"
   MeiVersion "${meiVersion}"
+  SchemaUrl "${SCHEMA_URL}"
 `;
 
 // byte order mark
@@ -29,30 +34,41 @@ function mssToPlg(mssCode, filename) {
     .split(/\/\/\s*\$end/)
     .filter((functionCode) => functionCode.match(/[^\s]/))
     .map((functionCode) => {
-      const [, name, body] = functionCode.match(/function\s+([^ (]+)\s*([\s\S]+})/) || [];
-      if (!name) {
-        throw new Error("Syntax error: Could not split code into function name and body:\n\n\"" + functionCode + "\"");
+      const [, functionName, body] = functionCode.match(/function\s+([^ (]+)\s*([\s\S]+})/) || [];
+      if (!functionName) {
+        throw new Error(
+          'Syntax error: Could not split code into function name and body:\n\n"' +
+            functionCode +
+            '"'
+        );
       }
       // Add module information so it's easier to find the source file of a
       // function when an error is reported.
       const bodyWithModuleInfo = body.match(/{\s*\/\/\s*\$module/)
         ? body
         : body.replace("{", `{\n    //$module(${filename})`);
-      return `${name} "${bodyWithModuleInfo}"`;
+      return `${functionName} "${bodyWithModuleInfo}"`;
     })
-    .join('\n\n');
+    .join("\n\n");
 }
 
 /**
  * @param {string[]} sourceFiles  source file names
  * @param {string} target  name of target *.plg file
+ * @param {boolean} [develop]  signals whether to include data only needed for
+ * development
  */
-async function buildPlg(sourceFiles, target) {
-  fs.writeFileSync(target, `${BOM}{
+async function buildPlg(sourceFiles, target, develop = false) {
+  console.log(GLOBALS);
+  fs.writeFileSync(
+    target,
+    `${BOM}{
     ${compile(sourceFiles)}
     ${GLOBALS}
     LegalElements {"${[...(await getSchema()).elements.keys()].join('" "')}"}
-  }`, { encoding: "utf16le" });
+  }`,
+    { encoding: "utf16le" }
+  );
 }
 
 /**
@@ -70,10 +86,10 @@ function buildCompanionPlgs(sourceDir, targetDir) {
     const targetPath = path.join(
       targetDir,
       // Do not prefix libmei with sibmei
-      (fileName.startsWith("libmei") ? "" : name + "_") + fileName
+      (fileName.startsWith("libmei") ? "" : `sibmei${majorVersion}_`) + fileName
     );
     if (fileName.endsWith(".plg")) {
-      buildPlg([path.join(sourceDir, fileName)], targetPath);
+      buildPlg([path.join(sourceDir, fileName)], targetPath, false);
     }
   }
 }
@@ -90,19 +106,21 @@ function compile(sourceFiles) {
       continue;
     }
     const code = fs.readFileSync(filename, { encoding: "utf8" });
-    compiledFiles.push((() => {
-      switch (extension) {
-        case "mss":
-          // *.mss files use JavaScript-ish function syntax we have to compile
-          return mssToPlg(code, path.basename(filename));
-        case "msd":
-          // *.msd files are raw ManuScript Data files that we copy verbatim
-          return code;
-        case "plg":
-          // *.plg is similar to *.msd, but has wrapping braces, which we strip
-          return code.replace(/\s*{([\s\S]*)}/, "$1");
-      }
-    })());
+    compiledFiles.push(
+      (() => {
+        switch (extension) {
+          case "mss":
+            // *.mss files use JavaScript-ish function syntax we have to compile
+            return mssToPlg(code, path.basename(filename));
+          case "msd":
+            // *.msd files are raw ManuScript Data files that we copy verbatim
+            return code;
+          case "plg":
+            // *.plg is similar to *.msd, but has wrapping braces, which we strip
+            return code.replace(/\s*{([\s\S]*)}/, "$1");
+        }
+      })()
+    );
   }
   return compiledFiles.join("\n\n");
 }
@@ -111,37 +129,43 @@ function compile(sourceFiles) {
  * @param {string} dir
  */
 function fileList(dir) {
-  return fs.readdirSync(dir, { encoding: "utf8" })
-    .map((file) => path.join(dir, file));
+  return fs.readdirSync(dir, { encoding: "utf8" }).map((file) => path.join(dir, file));
 }
 
 /**
  * @param {string} message
  */
 function info(message) {
-  const time = new Date().toLocaleTimeString('en', { hour12: false });
+  const time = new Date().toLocaleTimeString("en", { hour12: false });
   console.log(`[${time}] \x1b[34m${message}\x1b[0m`);
 }
 
 async function build() {
   info("Compiling companion plugins");
-  fs.mkdirSync("build/release", { recursive: true });
-  fs.mkdirSync("build/develop/sibmeiTestSibs", { recursive: true });
-  buildCompanionPlgs("lib", "build/release");
-  buildCompanionPlgs("lib", "build/develop");
-  buildCompanionPlgs("test", "build/develop");
+  fs.mkdirSync(path.join("build", "release"), { recursive: true });
+  fs.mkdirSync(path.join("build", "develop", "sibmeiTestSibs"), { recursive: true });
+  buildCompanionPlgs("lib", path.join("build", "release"));
+  buildCompanionPlgs("lib", path.join("build", "develop"));
+  buildCompanionPlgs("test", path.join("build", "develop"));
 
   const mainSourceFiles = fileList("src");
-  const testSourceFiles = fileList("test/sib-test");
+  const testSourceFiles = fileList(path.join("test", "sib-test"));
   info("Compiling release build");
-  await buildPlg(mainSourceFiles, `build/release/${name}.plg`);
+  await buildPlg(mainSourceFiles, `${path.join("build", "release", "sibmei")}${majorVersion}.plg`);
   info("Compiling development build");
-  await buildPlg([...mainSourceFiles, ...testSourceFiles], `build/develop/${name}.plg`);
+  await buildPlg(
+    [...mainSourceFiles, ...testSourceFiles],
+    `${path.join("build", "develop", "sibmei")}${majorVersion}.plg`,
+    true
+  );
 
   info("Copying test data");
-  for (const filePath of fileList("test/sibmeiTestSibs")) {
+  for (const filePath of fileList(path.join("test", "sibmeiTestSibs"))) {
     if (filePath.endsWith(".sib")) {
-      fs.copyFileSync(filePath, path.join("build/develop/sibmeiTestSibs", path.basename(filePath)));
+      fs.copyFileSync(
+        filePath,
+        path.join("build", "develop", "sibmeiTestSibs", path.basename(filePath))
+      );
     }
   }
 
@@ -151,6 +175,6 @@ async function build() {
 build().then(() => {
   if (argv[2] === "--watch") {
     info("Watching files for changes\n");
-    chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on('all', build);
+    chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on("all", build);
   }
 });
