@@ -47,7 +47,7 @@ if (!jingIsAvailable) {
       it("runs jing", () => assert.ok(false, `validation with ${rngPath} failed: ${stdout}`));
       return;
     }
-    for (const fileName of testFileNames) {
+    for (const fileName of testFileNames.filter((name) => !name.startsWith("invalid-"))) {
       const messages = messagesByFile[fileName] || [];
       it(`${fileName} validates`, () =>
         assert.ok(messages.length === 0, "\n" + messages.join("\n")));
