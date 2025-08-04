@@ -195,9 +195,11 @@ async function build() {
   console.log("");
 }
 
-build().then(() => {
+build().finally(() => {
   if (argv[2] === "--watch") {
     info("Watching files for changes\n");
-    chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on("all", build);
+    chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on("all", () => {
+      build().catch((e) => console.error(e, "\n"));
+    });
   }
 });
