@@ -1,9 +1,10 @@
-    XMLComment "(comment) {
+function XMLComment (comment) {
     commentObj = CreateElement('<!--', null);
     commentObj.text = comment;
     return commentObj;
-}"
-CreateElement "(tagname) {
+} //$end
+
+function CreateElement (tagname) {
     if (not IsLegalElement[tagname])
     {
         StopPlugin(tagname & ' is not an element name allowed in MEI ' & MeiVersion);
@@ -22,19 +23,22 @@ CreateElement "(tagname) {
     f[element._id] = element;
 
     return element;
-}"
-GetChildren "(element) {
+} //$end
+
+function GetChildren (element) {
         c = CreateSparseArray();
         for each child_id in element.children {
             child = Self.MEIFlattened[child_id];
             c.Push(child);
         }
         return c;
-}"
-SetChildren "(element, childarr) {
+} //$end
+
+function SetChildren (element, childarr) {
         element.children = childarr;
-}"
-AddChildAtPosition "(element, child, position) {
+} //$end
+
+function AddChildAtPosition (element, child, position) {
         AddChild(element, child);
         c = element.children;
         // shift all children that are at a higher index than `position`
@@ -42,16 +46,18 @@ AddChildAtPosition "(element, child, position) {
             c[i] = c[i - 1];
         }
         element.children[position] = child._id;
-}"
-AddChild "(element, child) {
+} //$end
+
+function AddChild (element, child) {
         cid = child._id;
         child._parent = element._id;
         element.children.Push(cid);
         // The following might be redundant, but in case a child is removed from
         // one parent and added to another, it's safer to re-register the ID.
         Self.MEIFlattened[cid] = child;
-}"
-RemoveChild "(element, child) {
+} //$end
+
+function RemoveChild (element, child) {
     child._parent = null;
     UnregisterId(child._id);
     newarr = CreateSparseArray();
@@ -65,17 +71,20 @@ RemoveChild "(element, child) {
     }
 
     element.children = newarr;
-}"
-GetAttributes "(element) {
+} //$end
+
+function GetAttributes (element) {
     return element.attrs;
-}"
-AddAttribute "(element, attrname, attrval) {
+} //$end
+
+function AddAttribute (element, attrname, attrval) {
     a = element.attrs;
     // check and replace any newlines
     val = EncodeEntities(attrval);
     a[attrname] = val;
-}"
-AddAttributeValue "(element, attrname, attrval) {
+} //$end
+
+function AddAttributeValue (element, attrname, attrval) {
     // appends a value to an existing attribute. Used, for example,
     // in appending multiple articulations to @artic on note.
     a = element.attrs;
@@ -92,8 +101,9 @@ AddAttributeValue "(element, attrname, attrval) {
     }
 
     element.attrs[attrname] = val;
-}"
-GetAttribute "(element, attrname) {
+} //$end
+
+function GetAttribute (element, attrname) {
         attrs = element.attrs;
         if (attrs.PropertyExists(attrname))
         {
@@ -103,65 +113,79 @@ GetAttribute "(element, attrname) {
         {
             return False;
         }
-}"
-GetId "(element) {
+} //$end
+
+function GetId (element) {
         return element._id;
-}"
-SetId "(element, newId) {
+} //$end
+
+function SetId (element, newId) {
     UnregisterId(element._id);
     element._id = newId;
     Self.MEIFlattened[newId] = element;
-}"
-UnregisterId "(id) {
+} //$end
+
+function UnregisterId (id) {
     olddict = Self._property:MEIFlattened;
     newdict = RemoveKeyFromDictionary(olddict, id);
     Self._property:MEIFlattened = newdict;
-}"
-RemoveAttribute "(element, attrname) {
+} //$end
+
+function RemoveAttribute (element, attrname) {
     // since there are no delete functions
     // for dictionaries, we set the attribute
     // to a blank space and this will get
     // removed when converted to XML.
     element.attrs[attrname] = ' ';
-}"
-GetName "(element) {
-    return element.name;
-}"
-SetText "(element, val) {
-    element.text = EncodeEntities(val);
-}"
-GetText "(element) {
-    return element.text;
-}"
-SetTail "(element, val) {
-    element.tail = EncodeEntities(val);
-}"
-GetTail "(element) {
-    return element.tail;
-}"
+} //$end
 
-    InitXml "() {
+function GetName (element) {
+    return element.name;
+} //$end
+
+function SetText (element, val) {
+    element.text = EncodeEntities(val);
+} //$end
+
+function GetText (element) {
+    return element.text;
+} //$end
+
+function SetTail (element, val) {
+    element.tail = EncodeEntities(val);
+} //$end
+
+function GetTail (element) {
+    return element.tail;
+} //$end
+
+
+function InitXml () {
         // cleans up
         Self._property:MEIFlattened = CreateDictionary();
         Self._property:MEIDocument = CreateSparseArray();
         Self._property:MEIID = 0;
-    }"
+} //$end
 
-    SetDocumentRoot "(el) {
+
+function SetDocumentRoot (el) {
         d = Self._property:MEIDocument;
         d.Push(el);
-    }"
+} //$end
 
-    GetDocumentRoot "() {
+
+function GetDocumentRoot () {
         d = Self._property:MEIDocument;
         return d[0];
-    }"
+} //$end
 
-    GetDocument "() {
+
+function GetDocument () {
         return Self._property:MEIDocument;
-    }"
+} //$end
 
-    GetElementById "(id) {
+
+function GetElementById (id) {
         d = Self._property:MEIFlattened;
         if (d.PropertyExists(id))
         {
@@ -171,9 +195,10 @@ GetTail "(element) {
         {
             return null;
         }
-    }"
+} //$end
 
-    CreateXmlTag "(name, id, attributesList, isTerminal) {
+
+function CreateXmlTag (name, id, attributesList, isTerminal) {
     if (name = '<!--')
     {
         // handle XML comments
@@ -216,8 +241,9 @@ GetTail "(element) {
     {
         return '<' & name & spacer & attrstring & '>';
     }
-}"
-    ChildHasTail "(children) {
+} //$end
+
+function ChildHasTail (children) {
     for each child in children
     {
         if (Length(GetTail(child)) > 0)
@@ -226,8 +252,9 @@ GetTail "(element) {
         }
     }
     return false;
-}"
-    ConvertDictToXml "(meiel, indent) {
+} //$end
+
+function ConvertDictToXml (meiel, indent) {
     // The indent parameter includes the leading line break
 
     xmlout = '';
@@ -295,31 +322,35 @@ GetTail "(element) {
     }
 
     return xmlout;
-}"
+} //$end
 
-    _exportMeiDocument "(meidoc) {
+
+function _exportMeiDocument (meidoc) {
         xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>';
         schema = '\n<?xml-model href=' & Chr(34) & SchemaUrl & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://relaxng.org/ns/structure/1.0' & Chr(34) & ' ?>';
         schematron = '\n<?xml-model href=' & Chr(34) & SchemaUrl & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://purl.oclc.org/dsdl/schematron' & Chr(34) & ' ?>';
         meiout = xdecl & schema & schematron & ConvertDictToXml(meidoc[0], Chr(10));
 
         return meiout;
-    }"
+} //$end
 
-    MeiDocumentToFile "(meidoc, filename) {
+
+function MeiDocumentToFile (meidoc, filename) {
         meiout = _exportMeiDocument(meidoc);
         if (Sibelius.CreateTextFile(filename)) {
             return Sibelius.AppendTextFile(filename, meiout, true);
         } else {
             return false;
         }
-}"
+} //$end
 
-    MeiDocumentToString "(meidoc) {
+
+function MeiDocumentToString (meidoc) {
         return _exportMeiDocument(meidoc);
-    }"
+} //$end
 
-EncodeEntities "(string) {
+
+function EncodeEntities (string) {
     /// Returns an entity-encoded version of `string`.
     stringSplitAtReplacedChars = SplitString(string, EscapedCharacters);
     if (stringSplitAtReplacedChars.NumChildren = 1)
@@ -336,16 +367,18 @@ EncodeEntities "(string) {
         result = result & substring & EncodedChar[CharAt(string, charIndex)];
     }
     return result;
-}"
+} //$end
 
-GenerateRandomID "() {
+
+function GenerateRandomID () {
     id = Self._property:MEIID + 1;
     Self._property:MEIID = id;
     id = 'm-' & id;
     return id;
-}"
+} //$end
 
-RemoveKeyFromDictionary "(dict, key) {
+
+function RemoveKeyFromDictionary (dict, key) {
     newdict = CreateDictionary();
     for each Pair p in dict
     {
@@ -356,4 +389,4 @@ RemoveKeyFromDictionary "(dict, key) {
     }
 
     return newdict;
-}"
+} //$end
