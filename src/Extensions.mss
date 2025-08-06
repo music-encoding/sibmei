@@ -1,41 +1,60 @@
-function RegisterAvailableExtensions (availableExtensions) {
-    //$module(Initialize.mss)
-    // Expects and empty TreeNode Hash map object as argument.
+function RegisterAvailableExtensions (availableExtensions, extensionsInfo, pluginList) {
+    // `availableExtensions` must be an empty TreeNode Hash map object.
     // Looks for existing extensions and registers them in this Hash map.
     // Keys in the Hash map are the names by which the extension plugins can be
     // referenced in ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`.
     // Values are the full names that are displayed to the user.
+    //
+    // `extensionsInfo` must be an empty Dictionary. For each extension plugin,
+    // a sub-Dictionary with some information about the extension plugin is
+    // registered under its PLG name as key. Fields in the sub-Dictionary are:
+    //   * `plgName`: Same value that is used as the key in `extensionsInfo`
+    //   * `plugin`: The extension's Plugin object (from Sibelius.Plugins)
+    //   * `apiVersion`: The major version number of the used extension API
+    //
+    // `pluginList` is a persistent reference to `Sibelius.Plugins`.
 
     apiSemver = SplitString(ExtensionAPIVersion, '.');
-    errors = '';
+    errors = CreateSparseArray();
 
-    for each pluginObject in Sibelius.Plugins
+    for each pluginObject in pluginList
     {
         if (pluginObject.DataExists('SibmeiExtensionAPIVersion'))
         {
 
             plgName = pluginObject.File.NameNoPath;
-            extensionSemver = SplitString(@plgName.SibmeiExtensionAPIVersion, '.');
+            extensionSemverString = @plgName.SibmeiExtensionAPIVersion;
+            extensionSemver = SplitString(extensionSemverString, '.');
+            apiVersion = apiSemver[0];
 
             switch (true)
             {
                 case (extensionSemver.NumChildren != 3)
                 {
-                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`';
+                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`. \'%s\' is not a valid version string.';
                 }
                 case ((apiSemver[0] = extensionSemver[0]) and (apiSemver[1] >= extensionSemver[1]))
                 {
                     error = null;
                 }
-                case ((apiSemver[0] < extensionSemver[0]) or (apiSemver[1] < extensionSemver[1]))
+                case (
+                    (apiSemver[0] < extensionSemver[0])
+                    or (apiSemver[0] = extensionSemver[0] and apiSemver[1] < extensionSemver[1])
+                )
                 {
-                    error = 'Extension %s requires Sibmei to be updated to a newer version';
+                    error = 'Extension %s requires extension API version %s, but Sibmei %s only supports extension API version %s. Check for Sibmei updates supporting that extension API version.';
                 }
                 default
                 {
                     error = 'Extension %s needs to be updated to be compatible with the current Sibmei version';
                 }
             }
+
+            extensionsInfo[plgName] = CreateDictionary(
+                'plgName', plgName,
+                'plugin', pluginObject,
+                'apiVersion', extensionSemver[0] + 0
+            );
 
             if (null = error)
             {
@@ -44,12 +63,12 @@ function RegisterAvailableExtensions (availableExtensions) {
             }
             else
             {
-                errors = errors & utils.Format(error, plgName) & '\n';
+                errors.Push(utils.Format(error, plgName, extensionSemverString, PluginVersion, ExtensionAPIVersion));
             }
         }
     }
 
-    return errors;
+    return errors.Join('\n\n');
 }  //$end
 
 
@@ -99,22 +118,24 @@ function DeselectAllExtensions () {
 }  //$end
 
 
-function InitExtensions (extensions) {
-    // To let the user choose extensions via dialog, pass `null` as argument.
-    // If extensions should be activated without showing the  dialog, pass a
-    // SparseArray with the 'PLG names' of the extensions, i.e. the names that
-    // `RegisterAvailableExtensions()` will use as keys. This is useful e.g.
-    // for running tests without requiring user interaction.
+function InitExtensions (extensions, pluginList) {
+    // To let the user choose extensions via dialog, pass `null` as `extensions`
+    // argument. If extensions should be activated without showing the dialog,
+    // pass a SparseArray with the 'PLG names' of the extensions, i.e. the
+    // names that `RegisterAvailableExtensions()` will use as keys. This is
+    // useful, e.g., for running tests without requiring user interaction.
+    //
+    // `pluginList` is the list of all installed Sibelius plugins.
     //
     // Returns false if the user aborted the selection of extensions or if there
     // are any errors, otherwise returns true.
 
     AvailableExtensions = CreateHash();
-    errors = RegisterAvailableExtensions(AvailableExtensions);
+    extensionsInfo = CreateDictionary();
+    errors = RegisterAvailableExtensions(AvailableExtensions, extensionsInfo, pluginList);
     if (null != errors)
     {
         Sibelius.MessageBox(errors);
-        return false;
     }
 
     chosenExtensions = CreateDictionary();
@@ -124,7 +145,9 @@ function InitExtensions (extensions) {
         {
             return false;
         }
-    } else {
+    }
+    else
+    {
         for each plgName in extensions
         {
             // Attention, choose AvailableExtensions with .@
@@ -132,11 +155,13 @@ function InitExtensions (extensions) {
         }
     }
 
-    apiObject = CreateApiObject();
-
     for each Name plgName in chosenExtensions
     {
-        @plgName.InitSibmeiExtension(apiObject);
+        if (extensionsInfo[plgName].apiVersion >= 2)
+        {
+            InitGlobalAliases(@plgName);
+        }
+        @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
     // store chosenExtensions as global to add application info
@@ -146,39 +171,61 @@ function InitExtensions (extensions) {
 }  //$end
 
 
-function CreateApiObject () {
-    apiObject = CreateDictionary('libmei', libmei);
+function CreateApiObject (extensionInfo) {
+    apiObject = CreateDictionary(
+        '_extensionInfo', extensionInfo,
+        'libmei', libmei,
+        'FormattedText', FormattedText,
+        'UnformattedText', UnformattedText,
+        'LyricText', LyricText
+    );
+
+    if (extensionInfo.apiVersion != 2)
+    {
+        StopPlugin('Unsupported extension API version: ' & extensionInfo.apiVersion);
+    }
+
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
+    apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
+    apiObject.SetMethod('RegisterLyricHandlers', Self, 'ExtensionAPI_RegisterLyricHandlers');
     apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
-    apiObject.SetMethod('HandleControlEvent', Self, 'HandleControlEvent');
-    apiObject.SetMethod('HandleModifier', Self, 'HandleModifier');
-    apiObject.SetMethod('AddFormattedText', Self, 'ExtensionAPI_AddFormattedText');
+    apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
-    apiObject.SetMethod('AddControlEventAttributes', Self, 'ExtensionAPI_AddControlEventAttributes');
+    apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
+
     return apiObject;
 }  //$end
 
-function ExtensionAPI_RegisterSymbolHandlers (this, symbolHandlerDict, plugin) {
-    RegisterHandlers(Self._property:SymbolHandlers, symbolHandlerDict, plugin);
+function ExtensionAPI_RegisterSymbolHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, SymbolHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_RegisterTextHandlers (this, textHandlerDict, plugin) {
-    RegisterHandlers(Self._property:TextHandlers, textHandlerDict, plugin);
+function ExtensionAPI_RegisterTextHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, TextHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_MeiFactory (this, templateObject) {
-    MeiFactory(templateObject);
+function ExtensionAPI_RegisterLineHandlers (this, idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(this, LineHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_AddFormattedText (this, parentElement, textObj) {
-    AddFormattedText (parentElement, textObj);
+function ExtensionAPI_RegisterLyricHandlers (this, idProperty, handlerMethod, templatesById) {
+    PreprocessLyricTemplates(templatesById);
+    RegisterHandlers(this, LyricHandlers, idProperty, handlerMethod, templatesById);
+}  //$end
+
+function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
+    MeiFactory(templateObject, bobj);
+}  //$end
+
+function ExtensionAPI_MeiFactory_LegacyApiVersion1 (this, templateObject) {
+    MeiFactory(templateObject, null);
+}  //$end
+
+function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
+    GenerateControlEvent(bobj, element);
 }   //$end
 
-function ExtensionAPI_GenerateControlEvent (this, bobj, elementName) {
-    GenerateControlEvent(bobj, elementName);
-}   //$end
-
-function ExtensionAPI_AddControlEventAttributes (this, bobj, element) {
-    AddControlEventAttributes(bobj, element);
+function ExtensionAPI_GenerateModifier (this, bobj, element) {
+    GenerateModifier(bobj, element);
 }   //$end

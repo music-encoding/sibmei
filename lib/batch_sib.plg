@@ -1,0 +1,25 @@
+
+{
+    Initialize "()
+    {
+        AddToPluginsMenu('Export Sibelius folder to MEI ' & MeiVersion, 'Run');
+    }"
+
+    Run "()
+    {
+        folder = Sibelius.SelectFolder();
+        if (null = folder)
+        {
+            return '';
+        }
+
+        files = CreateSparseArray();
+
+        for each SIB file in folder
+        {
+            files.Push(file);
+        }
+
+        @MainPlgBaseName.ExportBatch(files, null);
+    }"
+}

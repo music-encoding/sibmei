@@ -114,9 +114,9 @@ function GenerateApplicationInfo () {
 
     plgapp = libmei.Application();
     plgname = libmei.Name();
-    libmei.SetText(plgname, PluginName & ' (' & Version & ')');
+    libmei.SetText(plgname, PluginName & ' (' & PluginVersion & ')');
     libmei.AddAttribute(plgapp, 'type', 'plugin');
-    libmei.AddAttribute(plgapp, 'version', Version);
+    libmei.AddAttribute(plgapp, 'version', PluginVersion);
     libmei.SetId(plgapp, 'sibmei');
     libmei.AddChild(plgapp, plgname);
     libmei.AddChild(appI, plgapp);
@@ -140,19 +140,12 @@ function GenerateApplicationInfo () {
 }   //$end
 
 function GenerateMEIMusic () {
-    //$module(ExportGenerators.mss)
-    score = Self._property:ActiveScore;
-
     Self._property:TieResolver = CreateDictionary();
-    Self._property:SlurResolver = CreateSparseArray();
+    Self._property:LineEndResolver = CreateSparseArray();
     Self._property:LyricWords = CreateDictionary();
-    Self._property:SpecialBarlines = CreateDictionary();
-    Self._property:SystemText = CreateDictionary();
-    Self._property:ObjectPositions = CreateDictionary();
+    Self._property:NoteRestIdsByLocation = CreateSparseArray();
 
-    Self._property:VoltaBars = CreateDictionary();
     Self._property:ActiveVolta = null;
-    Self._property:VoltaElement = null;
 
     Self._property:BodyElement = null;
     Self._property:MDivElement = null;
@@ -163,35 +156,10 @@ function GenerateMEIMusic () {
     // We start the first page with a <pb> (good practice and helps Verovio)
     Self._property:PageBreak = libmei.Pb();
     Self._property:SystemBreak = null;
-    Self._property:FrontMatter = CreateDictionary();
-
-    // grab some global markers from the system staff
-    // This will store it for later use.
-    ProcessSystemStaff(score);
 
     music = libmei.Music();
 
-    frontmatter = Self._property:FrontMatter;
-    frontpages = frontmatter.GetPropertyNames();
-
-    if (frontpages.Length > 0)
-    {
-        // sort the front pages
-        // Log('front: ' & frontmatter);
-        sorted_front = utils.SortArray(frontpages, False);
-        frontEl = libmei.Front();
-        for each pnum in sorted_front
-        {
-            pgels = frontmatter[pnum];
-
-            for each el in pgels
-            {
-                libmei.AddChild(frontEl, el);
-            }
-        }
-
-        libmei.AddChild(music, frontEl);
-    }
+    ProcessFrontMatter(music);
 
     body = libmei.Body();
     libmei.AddChild(music, body);
@@ -202,18 +170,11 @@ function GenerateMEIMusic () {
     mdiv = GenerateMDiv(FIRST_BAR);
     libmei.AddChild(body, mdiv);
 
-    barmap = ConvertSibeliusStructure(score);
-    numbars = barmap.GetPropertyNames();
-    numbars = numbars.Length;
-    Self._property:BarMap = barmap;
-
-    systf = score.SystemStaff;
-
+    numbars = SystemStaff.BarCount;
     currentScoreDef = null;
 
     timerId = 1;
     Sibelius.ResetStopWatch(timerId);
-
 
     for j = 1 to numbars + 1
     {
@@ -233,7 +194,6 @@ function GenerateMEIMusic () {
         section = Self._property:SectionElement;
 
         m = GenerateMeasure(j);
-        ending = ProcessVolta(j);
 
         if (Self._property:PageBreak != null)
         {
@@ -242,8 +202,7 @@ function GenerateMEIMusic () {
             Self._property:PageBreak = null;
         }
 
-        currTimeS = systf.CurrentTimeSignature(j);
-        currKeyS = systf.CurrentKeySignature(j);
+        currKeyS = SystemStaff.CurrentKeySignature(j);
 
         if (Self._property:SystemBreak != null)
         {
@@ -255,28 +214,16 @@ function GenerateMEIMusic () {
         // Do not try to get the signatures for bar 0 -- will not work
         if (j > 1)
         {
-            prevTimeS = systf.CurrentTimeSignature(j - 1);
-            prevKeyS = systf.CurrentKeySignature(j - 1);
+            prevKeyS = SystemStaff.CurrentKeySignature(j - 1);
         }
         else
         {
-            prevTimeS = systf.CurrentTimeSignature(j);
-            prevKeyS = systf.CurrentKeySignature(j);
+            prevKeyS = SystemStaff.CurrentKeySignature(j);
         }
 
-        /*
-            This will check for a change in the current time signature and create a new
-            scoredef element if it's changed. The key signature will always be processed later,
-            so by then we will either have a new scoredef with a timesig change, or we'll need
-            to create one just for the keysig change.
-        */
-        if ((currTimeS.Numerator != prevTimeS.Numerator) or (currTimeS.Denominator != prevTimeS.Denominator))
+        if (j > 1)
         {
-            currentScoreDef = libmei.ScoreDef();
-            // Log('Time Signature Change in Bar ' & j);
-            libmei.AddAttribute(currentScoreDef, 'meter.count', currTimeS.Numerator);
-            libmei.AddAttribute(currentScoreDef, 'meter.unit', currTimeS.Denominator);
-            libmei.AddAttribute(currentScoreDef, 'meter.sym', ConvertNamedTimeSignature(currTimeS.Text));
+            currentScoreDef = GenerateMeterAttributes(currentScoreDef, j);
         }
 
         if (currKeyS.Sharps != prevKeyS.Sharps)
@@ -293,9 +240,9 @@ function GenerateMEIMusic () {
         {
             // The sig changes must be added just before we add the measure to keep
             // the proper order.
-            if (ending != null)
+            if (ActiveVolta != null)
             {
-                libmei.AddChild(ending, currentScoreDef);
+                libmei.AddChild(ActiveVolta, currentScoreDef);
             }
             else
             {
@@ -304,10 +251,9 @@ function GenerateMEIMusic () {
             currentScoreDef = null;
         }
 
-        if (ending != null)
+        if (ActiveVolta != null)
         {
-            libmei.AddChild(section, ending);
-            libmei.AddChild(ending, m);
+            libmei.AddChild(ActiveVolta, m);
         }
         else
         {
@@ -321,19 +267,17 @@ function GenerateMEIMusic () {
 function GenerateMDiv (barnum) {
     //$module(ExportGenerators.mss)
     // Add the first mdiv; Movements will add new ones.
-    score = Self._property:ActiveScore;
-
     mdiv = libmei.Mdiv();
     Self._property:MDivElement = mdiv;
 
     ano = libmei.Annot();
     libmei.AddAttribute(ano, 'type', 'duration');
-    libmei.SetText(ano, ConvertTimeStamp(score.ScoreDuration));
+    libmei.SetText(ano, ConvertTimeStamp(ActiveScore.ScoreDuration));
 
     sco = libmei.Score();
     libmei.AddChild(mdiv, sco);
 
-    scd = GenerateScoreDef(score, barnum);
+    scd = GenerateScoreDef(ActiveScore, barnum);
     Self._property:MainScoreDef = scd;
     libmei.AddChild(sco, scd);
 
@@ -348,26 +292,19 @@ function GenerateMDiv (barnum) {
 } //$end
 
 function GenerateMeasure (num) {
-    //$module(ExportGenerators.mss)
-
-    score = Self._property:ActiveScore;
-    // measureties
     Self._property:MeasureTies = CreateSparseArray();
     Self._property:MeasureObjects = CreateSparseArray();
 
     m = libmei.Measure();
     libmei.AddAttribute(m, 'n', num);
 
-    barmap = Self._property:BarMap;
-    staves = barmap[num];
     children = CreateSparseArray();
 
     // since so much metadata about the staff and other context
     // is available on the bar that should now be on the measure, go through the bars
     // and try to extract it.
-    systf = score.SystemStaff;
-    currTimeS = systf.CurrentTimeSignature(num);
-    sysBar = systf[num];
+    currTimeS = SystemStaff.CurrentTimeSignature(num);
+    sysBar = SystemStaff[num];
 
     if (sysBar.Length != (currTimeS.Numerator * 1024 / currTimeS.Denominator))
     {
@@ -379,9 +316,8 @@ function GenerateMeasure (num) {
         Self._property:SystemBreak = libmei.Sb();
     }
 
-    for i = 1 to staves.Length + 1
+    for each this_staff in Staves
     {
-        this_staff = score.NthStaff(i);
         bar = this_staff[num];
 
         curr_pn = bar.OnNthPage;
@@ -400,8 +336,19 @@ function GenerateMeasure (num) {
             libmei.AddAttribute(m, 'label', bar.ExternalBarNumberString);
         }
 
-        s = GenerateStaff(i, num);
+        s = GenerateStaff(this_staff, num);
         libmei.AddChild(m, s);
+        for each beamSpan in s.beamSpans
+        {
+            libmei.AddChild(m, beamSpan);
+            startid = GetMeiNoteRestAtPosition(beamSpan.startNoteRest, false)._id;
+            libmei.AddAttribute(beamSpan, 'startid', '#' & startid);
+            endid = GetMeiNoteRestAtPosition(beamSpan.endNoteRest, false)._id;
+            libmei.AddAttribute(beamSpan, 'endid', '#' & endid);
+        }
+
+        ProcessBarObjects(bar);
+        ProcessEndingLines(bar);
     }
 
     mties = Self._property:MeasureTies;
@@ -411,51 +358,62 @@ function GenerateMeasure (num) {
         m.children.Push(tie);
     }
 
-    mlines = Self._property:MeasureObjects;
-
-    for each line in mlines
+    for each mobj in MeasureObjects
     {
-        m.children.Push(line);
+        m.children.Push(mobj);
     }
 
-    specialbarlines = Self._property:SpecialBarlines;
-
-    if (specialbarlines.PropertyExists(num))
+    for each bobj in sysBar
     {
-        // an array of bar lines for this measure
-        blines = specialbarlines[num];
-
-        for each bline in blines
+        switch (bobj.Type)
         {
-            if (bline = 'rptstart')
+            case ('SpecialBarline')
             {
-                libmei.AddAttribute(m, 'left', bline);
+                attributes = BarlineAttributes[bobj.BarlineInternalType];
+                if (null != attributes)
+                {
+                    for each Name attName in attributes
+                    {
+                        libmei.AddAttribute(m, attName, attributes[attName]);
+                    }
+                }
             }
-            else
+            case ('SystemTextItem')
             {
-                libmei.AddAttribute(m, 'right', bline);
+                if (bobj.OnNthBlankPage = 0)
+                {
+                    text = HandleStyle(TextHandlers, bobj);
+                    if (text != null)
+                    {
+                        libmei.AddChild(m, text);
+                    }
+                }
+            }
+            case ('RepeatTimeLine')
+            {
+                voltaTemplate = VoltaTemplates[bobj.StyleId];
+                if (null != voltaTemplate)
+                {
+                    ActiveVolta = MeiFactory(voltaTemplate);
+                    ActiveVolta._property:endBarNumber = bobj.EndBarNumber;
+                    libmei.AddChild(SectionElement, ActiveVolta);
+                }
+            }
+            case ('Graphic')
+            {
+                Log('Found a graphic!');
+                Log('is object? ' & IsObject(bobj));
             }
         }
     }
 
-    systemtext = Self._property:SystemText;
-
-    if (systemtext.PropertyExists(num))
+    if (null != ActiveVolta and ActiveVolta.endBarNumber < num)
     {
-        textobjs = systemtext[num];
-        for each textobj in textobjs
-        {
-            text = HandleText(textobj);
-
-            if (text != null)
-            {
-                libmei.AddChild(m, text);
-            }
-        }
+        ActiveVolta = null;
     }
 
     // If we've reached the end of the section, swap out the mdiv to a new one.
-    if (sysBar.SectionEnd = true)
+    if (sysBar.SectionEnd and sysBar.BarNumber < SystemStaff.BarCount)
     {
         body = Self._property:BodyElement;
         // create the mdiv for the next bar.
@@ -471,11 +429,8 @@ function GenerateMeasure (num) {
 }  //$end
 
 
-function GenerateStaff (staffnum, measurenum) {
-    //$module(ExportGenerators.mss)
-    score = Self._property:ActiveScore;
-    this_staff = score.NthStaff(staffnum);
-    bar = this_staff[measurenum];
+function GenerateStaff (staff, measurenum) {
+    bar = staff[measurenum];
 
     stf = libmei.Staff();
 
@@ -484,277 +439,16 @@ function GenerateStaff (staffnum, measurenum) {
         libmei.AddAttribute(stf, 'visible', 'false');
     }
 
-    libmei.AddAttribute(stf, 'n', staffnum);
+    libmei.AddAttribute(stf, 'n', staff.StaffNum);
 
-    layers = GenerateLayers(staffnum, measurenum);
+    layers = BuildLayerHierarchy(staff, measurenum);
+    stf['beamSpans'] = layers.beamSpans;
     // NB: Completely resets any previous children!
     libmei.SetChildren(stf, layers);
 
     return stf;
 }  //$end
 
-function GenerateLayers (staffnum, measurenum) {
-    //$module(ExportGenerators.mss)
-    layerdict = CreateDictionary();
-    layers = CreateSparseArray();
-
-    objectPositions = Self._property:ObjectPositions;
-
-    if (objectPositions.PropertyExists(staffnum) = False)
-    {
-        objectPositions[staffnum] = CreateDictionary();
-    }
-
-    staffObjectPositions = objectPositions[staffnum];
-
-    score = Self._property:ActiveScore;
-    this_staff = score.NthStaff(staffnum);
-    bar = this_staff[measurenum];
-    l = null;
-
-    mobjs = Self._property:MeasureObjects;
-
-    for each bobj in bar
-    {
-        voicenumber = bobj.VoiceNumber;
-
-        if (staffObjectPositions.PropertyExists(bar.BarNumber) = False)
-        {
-            staffObjectPositions[bar.BarNumber] = CreateDictionary();
-        }
-
-        barObjectPositions = staffObjectPositions[bar.BarNumber];
-
-        if (layerdict.PropertyExists(voicenumber))
-        {
-            l = layerdict[voicenumber];
-        }
-        else
-        {
-            if (voicenumber != 0 or (l = null and bobj.Type = 'Clef'))
-            {
-                l = libmei.Layer();
-                layers.Push(l._id);
-
-                if (barObjectPositions.PropertyExists(voicenumber) = False)
-                {
-                    barObjectPositions[voicenumber] = CreateDictionary();
-                }
-
-                layerdict[voicenumber] = l;
-                libmei.AddAttribute(l, 'n', voicenumber);
-
-                l._property:CurrentPos = 0;
-            }
-        }
-
-        obj = null;
-        mobj = null;
-        parent = null;
-        beam = null;
-        tuplet = null;
-
-        switch (bobj.Type)
-        {
-            case('Clef')
-            {
-                // Clefs are placed inside the musical flow like notes.  Hence we also need to find
-                // out whether they are part of beams or tuplets.
-                clef = GenerateClef(bobj);
-
-                prevNoteRest = AdjacentNormalOrGrace(bobj, false, 'PreviousItem');
-
-                if (prevNoteRest != null)
-                {
-                    prevBeamProp = NormalizedBeamProp(prevNoteRest);
-
-                    switch (prevBeamProp)
-                    {
-                        case ('StartBeam')
-                        {
-                            beam = l._property:ActiveBeam;
-                        }
-                        case ('NoBeam')
-                        {
-                            beam = null;
-                        }
-                        default
-                        {
-                            // ContinueBeam and SingleBeam
-                            nextNoteRest = AdjacentNormalOrGrace(bobj, false, 'NextItem');
-                            if (nextNoteRest != null)
-                            {
-                                nextBeamProp = NormalizedBeamProp(nextNoteRest);
-                                if ((nextBeamProp = ContinueBeam) or (nextBeamProp = SingleBeam))
-                                {
-                                    beam = l._property:ActiveBeam;
-                                }
-                            }
-                        }
-                    }
-
-                    tuplet = l._property:ActiveMeiTuplet;
-                    while (tuplet != null and tuplet._property:ParentTuplet != null)
-                    {
-                        tuplet = tuplet._property:ParentTuplet;
-                    }
-                }
-
-                AppendToLayer(clef, l, beam, tuplet);
-            }
-            case('NoteRest')
-            {
-                note = GenerateNoteRest(bobj, l);
-
-                if (note != null)
-                {
-                    // record the position of this element
-                    objVoice = barObjectPositions[voicenumber];
-                    objVoice[bobj.Position] = note._id;
-
-                    normalizedBeamProp = NormalizedBeamProp(bobj);
-
-                    if (normalizedBeamProp = SingleBeam)
-                    {
-                        if (bobj.GraceNote)
-                        {
-                            prevNote = l._property:PrevGraceNote;
-                        }
-                        else
-                        {
-                            prevNote = l._property:PrevNote;
-                        }
-                        // prevNote is not null here - unless we have a bug in NormalizeBeamProp()
-                        // or the registration of previous notes.
-                        libmei.AddAttribute(prevNote, 'breaksec', '1');
-                    }
-
-                    // fetch or create the active beam object (if any)
-                    beam = ProcessBeam(bobj, l, normalizedBeamProp);
-
-                    // fetch or create the active tuplet object (if any)
-                    tuplet = ProcessTuplet(bobj, note, l);
-
-                    if (bobj.GraceNote)
-                    {
-                        l._property:PrevGraceNote = note;
-                    }
-                    else
-                    {
-                        l._property:PrevNote = note;
-                    }
-
-                    AppendToLayer(note, l, beam, tuplet);
-                }
-
-                if (bobj.ArpeggioType != ArpeggioTypeNone) {
-                    arpeg = GenerateArpeggio(bobj);
-                    mobjs = Self._property:MeasureObjects;
-                    mobjs.Push(arpeg._id);
-                    Self._property:MeasureObjects = mobjs;
-                }
-            }
-            case('BarRest')
-            {
-                brest = GenerateBarRest(bobj);
-
-                if (brest != null)
-                {
-                    libmei.AddChild(l, brest);
-                }
-            }
-        }
-    }
-
-    for each bobj in bar
-    {
-        obj = null;
-        mobj = null;
-        chordsym = null;
-
-        switch (bobj.Type)
-        {
-            case('GuitarFrame')
-            {
-                chordsym = GenerateChordSymbol(bobj);
-            }
-            case('Slur')
-            {
-                mobj = GenerateLine(bobj);
-                bobj._property:mobj = mobj;
-                PushToHashedLayer(Self._property:SlurResolver, bobj.EndBarNumber, bobj);
-            }
-            case('CrescendoLine')
-            {
-                mobj = GenerateHairpin(bobj);
-            }
-            case('DiminuendoLine')
-            {
-                mobj = GenerateHairpin(bobj);
-            }
-            case('OctavaLine')
-            {
-                mobj = GenerateLine(bobj);
-            }
-            case('GlissandoLine')
-            {
-                mobj = GenerateLine(bobj);
-            }
-            case('Trill')
-            {
-                mobj = GenerateLine(bobj);
-            }
-            case('ArpeggioLine')
-            {
-                mobj = GenerateArpeggio(bobj);
-            }
-            case('RepeatTimeLine')
-            {
-                RegisterVolta(bobj);
-            }
-            case('Line')
-            {
-                mobj = GenerateLine(bobj);
-            }
-            case('Text')
-            {
-                mobj = HandleText(bobj);
-            }
-        }
-
-        if (mobj != null)
-        {
-            mobjs = Self._property:MeasureObjects;
-            mobjs.Push(mobj._id);
-            Self._property:MeasureObjects = mobjs;
-        }
-
-        // add chord symbols to the measure objects
-        // so that they get added to the measure later in the processing cycle.
-        if (chordsym != null)
-        {
-            mlines = Self._property:MeasureObjects;
-            mlines.Push(chordsym._id);
-            Self._property:MeasureObjects = mlines;
-        }
-    }
-
-    Self._property:MeasureObjects = mobjs;
-
-    for each LyricItem lobj in bar
-    {
-        ProcessLyric(lobj, objectPositions);
-    }
-
-    for each SymbolItem sobj in bar
-    {
-        HandleSymbol(sobj);
-    }
-
-    ProcessEndingSlurs(bar);
-
-    return layers;
-}  //$end
 
 function GenerateClef (bobj) {
     //$module(ExportGenerators.mss)
@@ -767,6 +461,16 @@ function GenerateClef (bobj) {
     libmei.AddAttribute(clef_el, 'dis.place', clefinfo[3]);
     libmei.AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
     libmei.AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(clef_el, 'color', ConvertColor(bobj));
+    }
+
+    if (bobj.Hidden = true)
+    {
+        libmei.AddAttribute(clef_el, 'visible', 'false');
+    }
 
     return clef_el;
 }  //$end
@@ -826,8 +530,7 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.Color != 0)
     {
-        nrest_color = ConvertColor(bobj);
-        libmei.AddAttribute(nr, 'color', nrest_color);
+        libmei.AddAttribute(nr, 'color', ConvertColor(bobj));
     }
 
     /* NB: If there is a problem with grace notes, look here first.
@@ -991,8 +694,7 @@ function GenerateRest (bobj) {
 
     if (bobj.Color != 0 and name != 'space')
     {
-        nrest_color = ConvertColor(bobj);
-        libmei.AddAttribute(r, 'color', nrest_color);
+        libmei.AddAttribute(r, 'color', ConvertColor(bobj));
     }
 
     return r;
@@ -1070,7 +772,11 @@ function GenerateNote (nobj) {
         libmei.AddAttribute(n, 'oct.ges', octges);
     }
 
-    libmei.AddAttribute(n, 'vel', vel);
+    if (vel != 0)  // filter default value for manually entered notes
+    {
+        libmei.AddAttribute(n, 'vel', vel);
+    }
+
     libmei.AddAttribute(n, 'pnum', pnum);
     libmei.AddAttribute(n, 'pname', ntinfo[0]);
     libmei.AddAttribute(n, 'oct', ntinfo[1]);
@@ -1085,8 +791,7 @@ function GenerateNote (nobj) {
 
     if (nobj.Color != nobj.ParentNoteRest.Color)
     {
-        note_color = ConvertColor(nobj);
-        libmei.AddAttribute(n, 'color', note_color);
+        libmei.AddAttribute(n, 'color', ConvertColor(nobj));
     }
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
@@ -1312,146 +1017,124 @@ function GenerateScoreDef (score, barnum) {
     libmei.AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
     libmei.AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
 
-    systf = score.SystemStaff;
-    timesig = systf.CurrentTimeSignature(1);
-
-    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
-    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
-    libmei.AddAttribute(scoredef, 'meter.sym', ConvertNamedTimeSignature(timesig.Text));
+    GenerateMeterAttributes(scoredef, 1);
     libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    if (score.StaffCount > 0)
-    {
-        staffgrp = GenerateStaffGroups(score, barnum);
-        libmei.AddChild(scoredef, staffgrp);
-    }
+    libmei.AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
 
     return scoredef;
 }  //$end
 
-function GenerateStaffGroups (score, barnum) {
-    //$module(ExportGenerators.mss)
-    staffdict = CreateDictionary();
-    parentstgrp = libmei.StaffGrp();
-    numstaff = score.StaffCount;
+function GenerateMeterAttributes (scoredef, barNumber) {
+    // If a timesignature is found in the bar, adds meter attributes to
+    // `scoredef`. If `scoredef` is null, will create a new <scoreDef> that is
+    // returned.
+    // If there is no time signature in bar 1, an invisible initial meter is
+    // added.
 
-    for each Staff s in score
+    if (SystemStaff.BarCount < barNumber)
     {
-        std = libmei.StaffDef();
+        return scoredef;
+    }
 
-        libmei.AddAttribute(std, 'n', s.StaffNum);
-        libmei.AddAttribute(std, 'lines', s.InitialInstrumentType.NumStaveLines);
+    timesig = null;
+    for each TimeSignature t in SystemStaff.NthBar(barNumber)
+    {
+        // This loop will find at max one time signature
+        timesig = t;
+    }
 
-        diaTrans = s.InitialInstrumentType.DiatonicTransposition;
-        semiTrans = s.InitialInstrumentType.ChromaticTransposition;
-        if (diaTrans != 0 and semiTrans != 0)
+    if (null = timesig and barNumber > 1)
+    {
+        // There is no meter we have to add
+        return scoredef;
+    }
+
+    if (null = scoredef)
+    {
+        scoredef = libmei.ScoreDef();
+    }
+    if (null = timesig or timesig.Hidden)
+    {
+        libmei.AddAttribute(scoredef, 'meter.form', 'invis');
+    }
+    if (null = timesig)
+    {
+        // We're in bar 1 and there is no explicit time signature
+        timesig = SystemStaff.CurrentTimeSignature(barNumber);
+    }
+
+    // TimeSignature.Text is either the cut or common time signature character
+    // or a two-line string (with line separator `\n\`), where the first line
+    // is a number or a sum of numbers (e.g. 3+2) and the second line is a
+    // number.
+    meterFraction = SplitString(timesig.Text, '\\n', true);
+    if (meterFraction.NumChildren = 2)
+    {
+        libmei.AddAttribute(scoredef, 'meter.count', meterFraction[0]);
+        libmei.AddAttribute(scoredef, 'meter.unit', meterFraction[1]);
+        return scoredef;
+    }
+
+    meterSym = MeterSymMap[timesig.Text];
+    if (meterSym != '')
+    {
+        libmei.AddAttribute(scoredef, 'meter.sym', meterSym);
+    }
+
+    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
+    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
+
+    return scoredef;
+}  //$end
+
+
+function GenerateControlEvent (bobj, element) {
+    // @endid can not yet be set. Register the line until the layer where it
+    // ends is processed
+    if (bobj.IsALine and element.attrs.PropertyExists('endid'))
+    {
+        bobj._property:mobj = element;
+        PushToHashedLayer(Self._property:LineEndResolver, bobj.EndBarNumber, bobj);
+    }
+
+    AddControlEventAttributes(bobj, element);
+    // add element to the measure objects so that they get added to the measure
+    // later in the processing cycle.
+    MeasureObjects.Push(element._id);
+    return element;
+}  //$end
+
+
+function GenerateModifier (bobj, element) {
+    if (bobj.Color != 0)
+    {
+        libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+    }
+
+    nobj = GetNoteObjectAtPosition(bobj, 'Closest');
+
+    if (nobj != null)
+    {
+        libmei.AddChild(nobj, element);
+    }
+    else
+    {
+        warnings = Self._property:warnings;
+        barNum = bobj.ParentBar.BarNumber;
+        voiceNum = bobj.VoiceNumber;
+        if (bobj.Type = 'SymbolItem' or bobj.Type = 'SystemSymbolitem')
         {
-            libmei.AddAttribute(std, 'trans.semi', semiTrans);
-            libmei.AddAttribute(std, 'trans.diat', diaTrans);
-        }
-
-        clefinfo = ConvertClef(s.InitialClefStyleId);
-        libmei.AddAttribute(std, 'clef.shape', clefinfo[0]);
-        libmei.AddAttribute(std, 'clef.line', clefinfo[1]);
-        libmei.AddAttribute(std, 'clef.dis', clefinfo[2]);
-        libmei.AddAttribute(std, 'clef.dis.place', clefinfo[3]);
-
-        keysig = s.CurrentKeySignature(barnum);
-        libmei.AddAttribute(std, 'key.sig', ConvertKeySignature(keysig.Sharps));
-
-        if (keysig.Major)
-        {
-            libmei.AddAttribute(std, 'key.mode', 'major');
+            name = bobj.Name;
         }
         else
         {
-            libmei.AddAttribute(std, 'key.mode', 'minor');
+            name = bobj.StyleAsText;
         }
-
-        if (s.FullInstrumentName != null)
-        {
-            label = libmei.Label();
-            libmei.SetText(label, s.FullInstrumentName);
-            libmei.AddChild(std, label);
-        }
-
-        if (s.ShortInstrumentName != null)
-        {
-            labelAbbr = libmei.LabelAbbr();
-            libmei.SetText(labelAbbr, s.ShortInstrumentName);
-            libmei.AddChild(std, labelAbbr);
-        }
-
-        if (s.InstrumentName != null)
-        {
-            instrObj = s.InitialInstrumentType;
-            instrComment = libmei.XMLComment(instrObj.DefaultSoundId);
-            libmei.AddChild(std, instrComment);
-
-            instrDef = libmei.InstrDef();
-            // libmei.AddAttribute(instrDef, 'midi.instrname', s.InstrumentName);
-            // midi pan is 0-127, Sib. pan is -127 to + 127, so this needs to be converted.
-            pan = RoundUp((s.Pan + 127) / 2);
-            libmei.AddAttribute(instrDef, 'midi.pan', pan);
-            libmei.AddAttribute(instrDef, 'midi.volume', s.Volume);
-            libmei.AddAttribute(instrDef, 'midi.channel', s.Channel);
-            libmei.AddChild(std, instrDef);
-        }
-
-        staffdict[s.StaffNum] = std;
+        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, name));
     }
-
-    stgpdict = CreateDictionary();
-    stgprevidx = CreateDictionary();
-    stgpnum = 1;
-    brackets = score.BracketsAndBraces;
-
-    for each bkt in brackets
-    {
-        stgp = libmei.StaffGrp();
-        libmei.AddAttribute(stgp, 'symbol', ConvertBracket(bkt.BracketType));
-        libmei.AddAttribute(stgp, 'n', stgpnum);
-        stgpdict[stgpnum] = stgp;
-
-        if (bkt.BracketType != BracketSub)
-        {
-            for i = bkt.TopStaveNum to bkt.BottomStaveNum + 1
-            {
-                libmei.AddChild(stgp, staffdict[i]);
-                stgprevidx[i] = stgpnum;
-            }
-        }
-        stgpnum = stgpnum + 1;
-    }
-
-    // finally, we need to put them all in the right order.
-    stgpnum_added = CreateSparseArray();
-    for j = 1 to numstaff + 1
-    {
-        if (stgprevidx.PropertyExists(j))
-        {
-            // there is a group
-            stgpnum = stgprevidx[j];
-            if (utils.IsInArray(stgpnum_added, stgpnum) = false)
-            {
-                libmei.AddChild(parentstgrp, stgpdict[stgpnum]);
-                stgpnum_added.Push(stgpnum);
-            }
-        }
-        else
-        {
-            libmei.AddChild(parentstgrp, staffdict[j]);
-        }
-
-    }
-    return parentstgrp;
 }  //$end
 
-function GenerateControlEvent (bobj, elementName) {
-    //$module(ExportGenerators.mss)
-
-    return AddControlEventAttributes(bobj, libmei.@elementName());
-}  //$end
 
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
@@ -1500,229 +1183,6 @@ function GenerateTuplet(tupletObj) {
     return tuplet;
 }  //$end
 
-function GenerateLine (bobj) {
-    //$module(ExportGenerators.mss)
-    line = null;
-
-    switch (bobj.Type)
-    {
-        case ('Slur')
-        {
-            line = GenerateControlEvent(bobj, 'Slur');
-            slurrend = ConvertSlurStyle(bobj.StyleId);
-            libmei.AddAttribute(line, 'lform', slurrend[1]);
-        }
-        case ('OctavaLine')
-        {
-            line = GenerateControlEvent(bobj, 'Octave');
-            octrend = ConvertOctava(bobj.StyleId);
-            libmei.AddAttribute(line, 'dis', octrend[0]);
-            libmei.AddAttribute(line, 'dis.place', octrend[1]);
-        }
-        case ('GlissandoLine')
-        {
-            line = GenerateControlEvent(bobj, 'Gliss');
-        }
-        case ('Trill')
-        {
-            line = GenerateTrill(bobj);
-        }
-        case ('Line')
-        {
-            // a generic line element.
-            linecomps = MSplitString(bobj.StyleId, '.');
-            switch(linecomps[2])
-            {
-                //brackets
-                case ('bracket')
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                    bracketType = 'bracket';
-
-                    //horizontal brackets
-                    if (linecomps.Length >= 3)
-                    {
-                        //brackets above
-                        if (linecomps[3] = 'above')
-                        {
-                            libmei.AddAttribute(line, 'place', 'above');
-
-                            if (linecomps.Length > 4)
-                            {
-                                if (linecomps[4] = 'start')
-                                {
-                                    bracketType = bracketType & ' start';
-                                    libmei.AddAttribute(line, 'startsym', 'angleup');
-                                }
-
-                                if (linecomps[4] = 'end')
-                                {
-                                    bracketType = bracketType & ' end';
-                                    libmei.AddAttribute(line, 'endsym', 'angleup');
-                                }
-                            }
-                            else
-                            {
-                              libmei.AddAttribute(line, 'startsym', 'angleup');
-                              libmei.AddAttribute(line, 'endsym', 'angleup');
-                            }
-                        }
-                        //brackets below
-                        if (linecomps[3] = 'below')
-                        {
-                            libmei.AddAttribute(line, 'place', 'below');
-
-                            if (linecomps.Length > 4)
-                            {
-                                if (linecomps[4] = 'start')
-                                {
-                                    bracketType = bracketType & ' start';
-                                    libmei.AddAttribute(line, 'startsym', 'angledown');
-                                }
-
-                                if (linecomps[4] = 'end')
-                                {
-                                    bracketType = bracketType & ' end';
-                                    libmei.AddAttribute(line, 'endsym', 'angledown');
-                                }
-                            }
-                            else
-                            {
-                                libmei.AddAttribute(line, 'startsym', 'angledown');
-                                libmei.AddAttribute(line, 'endsym', 'angledown');
-                            }
-                        }
-                        //vertical bracktes
-                        if (linecomps[3] = 'vertical')
-                        {
-                            bracketType = bracketType & ' vertical';
-
-                            //Add direction of bracket: line.staff.bracket.vertical.2 opens to the right, line.staff.bracket.vertical opens to the left
-                            if (linecomps > 4)
-                            {
-                                if (linecomps[4] = '2')
-                                {
-                                    bracketType = bracketType & ' start';
-                                    libmei.AddAttribute(line, 'startsym', 'angleright');
-                                    libmei.AddAttribute(line, 'endsym', 'angleright');
-                                }
-                            }
-
-                            else
-                            {
-                                bracketType = bracketType & ' end';
-                                libmei.AddAttribute(line, 'startsym', 'angleleft');
-                                libmei.AddAttribute(line, 'endsym', 'angleleft');
-                            }
-                        }
-                    }
-
-                    //add types of bracktes
-                    libmei.AddAttribute(line, 'type', bracketType);
-                }
-                //solid vertical line
-                case ('vertical')
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                    libmei.AddAttribute(line,'form','solid');
-                    libmei.AddAttribute(line,'type','vertical');
-                }
-                //dashed lines
-                case ('dashed')
-                {
-                    //dashed vertical line
-                    if (linecomps.Length > 3)
-                    {
-                        if (linecomps[3] = 'vertical')
-                        {
-                            line = GenerateControlEvent(bobj, 'Line');
-                            libmei.AddAttribute(line,'form','dashed');
-                            libmei.AddAttribute(line,'type','vertical');
-                        }
-                    }
-                    //dashed horizontal line
-                    else
-                    {
-                      line = GenerateControlEvent(bobj, 'Line');
-                      libmei.AddAttribute(line,'form','dashed');
-                    }
-                }
-                //dotted horizontal line
-                case('dotted')
-                {
-                  line = GenerateControlEvent(bobj, 'Line');
-                  libmei.AddAttribute(line,'form','dotted');
-                }
-                //solid horizontal line
-                case('plain')
-                {
-                  line = GenerateControlEvent(bobj, 'Line');
-                  libmei.AddAttribute(line,'form','solid');
-                }
-                case ('vibrato')
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                    libmei.AddAttribute(line, 'type', 'vibrato');
-                    libmei.AddAttribute(line, 'form', 'wavy');
-                    libmei.AddAttribute(line, 'place', 'above');
-
-                }
-
-                //To catch diverse line types, set a default
-                default
-                {
-                    line = GenerateControlEvent(bobj, 'Line');
-                }
-            }
-        }
-    }
-
-    return line;
-}  //$end
-
-
-function GenerateHairpin (bobj) {
-    //$module(ExportGenerators.mss)
-    hairpin = GenerateControlEvent(bobj, 'Hairpin');
-
-    switch (bobj.Type) {
-        case ('CrescendoLine')
-        {
-            libmei.AddAttribute(hairpin, 'form', 'cres');
-        }
-        case ('DiminuendoLine')
-        {
-            libmei.AddAttribute(hairpin, 'form', 'dim');
-        }
-    }
-
-    style = MSplitString(bobj.StyleId, '.')[4];
-
-    switch(style)
-    {
-        case ('dashed')
-        {
-            libmei.AddAttribute(hairpin, 'lform', 'dashed');
-        }
-        case ('dotted')
-        {
-            libmei.AddAttribute(hairpin, 'lform', 'dotted');
-        }
-        case ('fromsilence') {
-            libmei.AddAttribute(hairpin, 'niente', 'true');
-        }
-        case ('tosilence') {
-            libmei.AddAttribute(hairpin, 'niente', 'true');
-        }
-        // Will work in MEI 5
-        // case ('bracketed') {
-        //     libmei.AddAttribute(lform, 'enclose', 'paren');
-        // }
-    }
-
-    return hairpin;
-} //$end
-
 
 function GenerateArpeggio (bobj) {
     //$module(ExportGenerators.mss)
@@ -1752,10 +1212,10 @@ function GenerateArpeggio (bobj) {
         case ('ArpeggioLine')
         {
             if (bobj.StyleId != 'line.staff.arpeggio') {
-                // This means:  Line style is line.staff.arpeggio.up or
+                // This means: Line style is line.staff.arpeggio.up or
                 // line.staff.arpeggio.down.
                 // Strangely, the line style does not really matter for the
-                // visual orientation of the arpeggio.  As long as RhDy and
+                // visual orientation of the arpeggio. As long as RhDy and
                 // and Dy properties are identical, arpeggios look the same,
                 // independant of the two line styles with arrowheads.
                 orientation = bobj.RhDy - bobj.Dy;
@@ -1763,7 +1223,7 @@ function GenerateArpeggio (bobj) {
         }
     }
 
-    arpeg = GenerateControlEvent(bobj, 'Arpeg');
+    arpeg = GenerateControlEvent(bobj, libmei.Arpeg());
 
     if (orientation = null)
     {
@@ -1787,33 +1247,12 @@ function GenerateArpeggio (bobj) {
 }  //$end
 
 
-function GenerateTrill (bobj) {
-    //$module(ExportGenerators.mss)
-    /* There are two types of trills in Sibelius: A line object and a
-        symbol object. This method normalizes both of these.
-    */
-    trill = GenerateControlEvent(bobj, 'Trill');
-    bar = bobj.ParentBar;
-    obj = GetNoteObjectAtPosition(bobj);
-
-    if (obj != null)
-    {
-        libmei.AddAttribute(trill, 'startid', '#' & obj._id);
-    }
-
-    return trill;
-}  //$end
-
-
 function GenerateFermata (bobj, shape, form) {
     //$module(ExportGenerators.mss)
-    fermata = GenerateControlEvent(bobj, 'Fermata');
+    fermata = GenerateControlEvent(bobj, libmei.Fermata());
 
     libmei.AddAttribute(fermata, 'form', form);
     libmei.AddAttribute(fermata, 'shape', shape);
-
-    measureObjs = Self._property:MeasureObjects;
-    measureObjs.Push(fermata._id);
 
     return fermata;
 }  //$end
@@ -1823,10 +1262,7 @@ function GenerateChordSymbol (bobj) {
     /*
         Generates a <harm> element containing chord symbol information
     */
-    harm = libmei.Harm();
-
-    libmei.AddAttribute(harm, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
-    libmei.AddAttribute(harm, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    harm = GenerateControlEvent(bobj, libmei.Harm());
     libmei.SetText(harm, bobj.ChordNameAsPlainText);
 
     return harm;

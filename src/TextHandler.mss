@@ -1,110 +1,76 @@
 function InitTextHandlers() {
-    // QUESTION: We could also take an argument and throw all text handlers from
-    // extensions into the same dictionary
+    noAttributes = null;
 
-    textHandlers = CreateDictionary(
+    Self._property:FormattedText = SetTemplateAction(CreateDictionary(), Self, 'AddFormattedText');
+    Self._property:UnformattedText = SetTemplateAction(CreateDictionary(), Self, 'AddUnformattedText');
+
+    Self._property:TextHandlers = CreateDictionary(
         'StyleId', CreateDictionary(),
         'StyleAsText', CreateDictionary()
     );
 
-    RegisterHandlers(textHandlers, CreateDictionary(
-        'StyleId', CreateDictionary(
-            'text.staff.expression', 'ExpressionTextHandler',
-            'text.staff.plain', 'CreateAnchoredText',
-            'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-            'text.staff.technique', 'CreateDirective',
-            'text.system.page_aligned.composer', 'PageComposerTextHandler',
-            'text.system.page_aligned.subtitle', 'PageTitleHandler',
-            'text.system.page_aligned.title', 'PageTitleHandler',
-            'text.system.tempo', 'TempoTextHandler'
-        )
-    ), Self);
+    RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
+        'text.staff.expression', @Element('Dynam', noAttributes, FormattedText),
+        'text.staff.space.figuredbass', 'FiguredBassTextHandler',
+        'text.staff.technique', @Element('Dir', @Attrs('type', 'technique'), FormattedText),
+        'text.system.page_aligned.composer', @Element('AnchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.subtitle', @Element('AnchoredText', @Attrs('func', 'subtitle', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.title', @Element('AnchoredText', @Attrs('func', 'title', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.dedication', @Element('AnchoredText', @Attrs('func', 'dedication', 'tstamp', ' '), FormattedText),
+        'text.system.tempo', @Element('Tempo', noAttributes, FormattedText)
+    ));
 
-    return textHandlers;
+    RegisterTextHandlers('StyleId', 'FiguredBassTextHandler', @Attrs(
+        'text.staff.space.figuredbass', null
+    ));
+}  //$end
+
+
+function RegisterTextHandlers (idProperty, handlerMethod, templatesById) {
+    RegisterHandlers(Self, TextHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
 function InitTextSubstituteMap() {
-    return CreateDictionary(
-        'Title', CreateSparseArray('Title'),
-        'Subtitle', CreateSparseArray('Title', CreateDictionary('type', 'subordinate')),
+    tempSubstituteMap = CreateDictionary(
+        'Title', @Element('Title'),
+        'Subtitle', @Element('Title', @Attrs('type', 'subordinate')),
         // <dedication> is only allowed on <titlePage> and <creation>, so use
         // generic element
-        'Dedication', CreateSparseArray('Seg', CreateDictionary('type', 'Dedication')),
+        'Dedication', @Element('Seg', @Attrs('type', 'Dedication')),
         // <composer>, <arranger>, <lyricist>, <userRestrict> and <publisher>
         // are only allowed in a few places, e.g. metadata or title pages.
         // We therfore use more generic elements
-        'Composer', CreateSparseArray('PersName', CreateDictionary('role', 'Composer')),
-        'Arranger', CreateSparseArray('PersName', CreateDictionary('role', 'Arranger')),
-        'Lyricist', CreateSparseArray('PersName', CreateDictionary('role', 'Lyricist')),
-        'Artist', CreateSparseArray('PersName', CreateDictionary('role', 'Artist')),
+        'Composer', @Element('PersName', @Attrs('role', 'Composer')),
+        'Arranger', @Element('PersName', @Attrs('role', 'Arranger')),
+        'Lyricist', @Element('PersName', @Attrs('role', 'Lyricist')),
+        'Artist', @Element('PersName', @Attrs('role', 'Artist')),
         // <useRestrict> is only allowed on <titlePage>, so use generic element
-        'Copyright', CreateSparseArray('Seg', CreateDictionary('type', 'Copyright')),
+        'Copyright', @Element('Seg', @Attrs('type', 'Copyright')),
         // <publisher> is only allowed in a few places, so use generic element
         // We don't even know if it's a person or an institution
-        'Publisher', CreateSparseArray('Seg', CreateDictionary('type', 'Publisher')),
-        'MoreInfo', CreateSparseArray('Seg', CreateDictionary('type', 'MoreInfo')),
-        'PartName', CreateSparseArray('Seg', CreateDictionary('type', 'PartName'))
+        'Publisher', @Element('Seg', @Attrs('type', 'Publisher')),
+        'MoreInfo', @Element('Seg', @Attrs('type', 'MoreInfo')),
+        'PartName', @Element('Seg', @Attrs('type', 'PartName'))
     );
-}  //$end
 
+    textSubstituteMap = CreateDictionary();
 
-function HandleText (textObject) {
-    // Step through the different ID types ('StyleId' and 'StyleAsText') and
-    // check for text handlers for this type
-    textHandlers = Self._property:TextHandlers;
-    for each Name idType in textHandlers
-    {
-        handlersForIdType = textHandlers.@idType;
-        idValue = textObject.@idType;
-        if(handlersForIdType.MethodExists(idValue))
-        {
-            return handlersForIdType.@idValue(textObject);
-        }
-    }
-}  //$end
-
-
-function ExpressionTextHandler (this, textObject) {
-    dynam = GenerateControlEvent(textObject, 'Dynam');
-    AddFormattedText(dynam, textObject);
-    return dynam;
-}  //$end
-
-
-function PageTitleHandler (this, textObject) {
-    anchoredText = libmei.AnchoredText();
-    title = libmei.Title();
-    if (textObject.StyleId = 'text.system.page_aligned.subtitle')
-    {
-        libmei.AddAttribute(title, 'type', 'subordinate');
+    // The keys in the above table are the names of the properties on the Score
+    // objects. The same name can be used for referencing them in text, but the
+    // reference is case insensitive, so we register them as all-uppercase in
+    // final map.
+    for each Name name in tempSubstituteMap {
+        tempSubstituteMap[name]._property:propertyName = name;
+        textSubstituteMap[utils.UpperCase(name)] = tempSubstituteMap[name];
     }
 
-    libmei.AddChild(anchoredText, title);
-    AddFormattedText(title, textObject);
-
-    return anchoredText;
-}  //$end
-
-
-function PageComposerTextHandler (this, textObject) {
-    // 'text.system.page_aligned.composer'
-    anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObject);
-    return anchoredText;
-}  //$end
-
-
-function TempoTextHandler (this, textObject) {
-    // 'text.system.tempo'
-    tempo = GenerateControlEvent(textObject, 'Tempo');
-    AddFormattedText(tempo, textObject);
-    return tempo;
+    return textSubstituteMap;
 }  //$end
 
 
 function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
-    harm = GenerateControlEvent(textObject, 'Harm');
+    harm = GenerateControlEvent(textObject, libmei.Harm());
 
     // uniquely, for figured bass we do not use the startid here,
     // since a figure can change halfway through a note. So we remove
@@ -121,26 +87,12 @@ function FiguredBassTextHandler (this, textObject) {
 }  //$end
 
 
-function CreateAnchoredText (this, textObject) {
-    anchoredText = libmei.AnchoredText();
-    AddFormattedText(anchoredText, textObject);
-    return anchoredText;
+function AddUnformattedText (self, parentElement, textObject) {
+    AppendText(parentElement, textObject.Text);
 }  //$end
 
-function CreateDirective (this, textObject) {
-    directive = GenerateControlEvent(textObject, 'Dir');
-    AddFormattedText(directive, textObject);
-    styleIdPrefix = 'text.staff.';
-    textStyle = Substring(textObject.StyleId, Length(styleIdPrefix));
-    if (MSplitString(textObject.StyleId, '.')[-2] = 'user')
-    {
-        textStyle = textObject.StyleAsText;
-    }
-    libmei.AddAttribute(directive, 'label', textStyle);
-    return directive;
-}  //$end
 
-function AddFormattedText (parentElement, textObject) {
+function AddFormattedText (self, parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {
@@ -153,15 +105,17 @@ function AddFormattedText (parentElement, textObject) {
         }
         else
         {
-            libmei.SetText(parentElement, textObject.Text);
+            AppendText(parentElement, textObject.Text);
         }
         return parentElement;
     }
 
-    // At this point we know that we have text with style changes and/or text
-    // substitutions
-    nodes = CreateSparseArray();
+    AddTextWithFormatting(parentElement, textWithFormatting);
+} //$end
 
+
+function AddTextWithFormatting (parentElement, textWithFormatting) {
+    nodes = CreateSparseArray();
     state = CreateDictionary(
         'currentText', null,
         'style', CreateDictionary(),
@@ -170,7 +124,7 @@ function AddFormattedText (parentElement, textObject) {
         'meiNodes', nodes
     );
 
-    for each component in textObject.TextWithFormatting
+    for each component in textWithFormatting
     {
         switch (Substring(component, 0, 2))
         {
@@ -314,7 +268,23 @@ function AddFormattedText (parentElement, textObject) {
         }
         nodeIndex = nodeIndex + 1;
     }
+
+    return parentElement;
 }  //$end
+
+
+function AddTextWithFormattingAsString (parentElement, textWithFormattingAsString) {
+    /// Takes a string of the format found at Text.TextWithFormattingAsString or
+    /// staff.FullInstrumentNameWithFormatting and transforms it into an array
+    /// of the format found at Text.TextWithFormatting.
+    textWithFormatting = SplitString(textWithFormattingAsString, '\\');
+    // Every second item is a formatting code that needs the surrounding '\\'
+    // that we lost during splitting.
+    for i = 1 to textWithFormatting.NumChildren step 2 {
+        textWithFormatting[i] = '\\' & textWithFormatting[i] & '\\';
+    }
+    AddTextWithFormatting(parentElement, textWithFormatting);
+} //$end
 
 
 function GetTextCommandArg (command) {
@@ -353,6 +323,11 @@ function SwitchTextStyle (state, property, value) {
 
 
 function PushStyledText (state) {
+    // Any text that has accumulated as `state.currentText` while parsing the
+    // styled text is converted to MEI nodes and pushed to `state.meiNodes`,
+    // respecting the styling state (`state.style`). `state.currentText` is
+    // reset.
+
     if (state.currentText = '')
     {
         return null;
@@ -441,9 +416,7 @@ function GetStyleAttributes (state) {
 
 
 function AppendTextSubstitute (state, substituteName) {
-    score = Self._property:ActiveScore;
-
-    textSubstituteTemplate = TextSubstituteMap[substituteName];
+    textSubstituteTemplate = TextSubstituteMap[utils.UpperCase(substituteName)];
     if (null = textSubstituteTemplate)
     {
         // No known substitution. Sibelius renders those literally.
@@ -451,7 +424,9 @@ function AppendTextSubstitute (state, substituteName) {
         return null;
     }
 
-    substitutedText = score.@substituteName;
+    propertyName = textSubstituteTemplate.propertyName;
+
+    substitutedText = ActiveScore.@propertyName;
     if (substitutedText = '')
     {
         return null;
@@ -459,7 +434,7 @@ function AppendTextSubstitute (state, substituteName) {
 
     PushStyledText(state);
 
-    element = MeiFactory(textSubstituteTemplate);
+    element = MeiFactory(textSubstituteTemplate, null);
     state.meiNodes.Push(element);
 
     styleAttributes = GetStyleAttributes(state);

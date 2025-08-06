@@ -6,17 +6,19 @@ function Run() {
         return null;
     }
 
-    DoExport(null);
+    error = DoExport(Sibelius.ActiveScore, null);
+
+    if (null != error)
+    {
+        Sibelius.MessageBox(error);
+    }
 
 }  //$end
 
 
-function GetExportFileName () {
-    // get the active score object
-    activeScore = Sibelius.ActiveScore;
-
-    if (Sibelius.FileExists(activeScore.FileName)) {
-        scoreFile = Sibelius.GetFile(activeScore.FileName);
+function GetExportFileName (score) {
+    if (Sibelius.FileExists(score.FileName)) {
+        scoreFile = Sibelius.GetFile(score.FileName);
         activeFileName = scoreFile.NameNoPath & '.mei';
         activePath = scoreFile.Path;
     } else {
@@ -24,36 +26,33 @@ function GetExportFileName () {
         activePath = Sibelius.GetDocumentsFolder();
     }
 
-    // Ask to the file to be saved somewhere
     filename = Sibelius.SelectFileToSave('Save as...', activeFileName, activePath, 'mei', 'TEXT', 'Music Encoding Initiative');
 
     return filename;
 } //$end
 
 
-function DoExport (filename) {
+function DoExport (score, filename) {
     //$module(Run.mss)
 
     // Argument filename is optional and will be determined automatically if
-    // `null` is passed in instead.  The filename is also returned so the
+    // `null` is passed in instead. The filename is also returned so the
     // caller can then work with.
 
     // do some preliminary checks
     if (Sibelius.ProgramVersion < 7000)
     {
-        Sibelius.MessageBox(_VersionNotSupported);
-        return False;
+        return _VersionNotSupported;
     }
 
     if (Sibelius.ScoreCount = 0)
     {
-        Sibelius.MessageBox(_ScoreError);
-        return null;
+        return _ScoreError;
     }
 
     if (null = filename)
     {
-        filename = GetExportFileName();
+        filename = GetExportFileName(score);
         if (null = filename)
         {
             Sibelius.MessageBox(_ExportFileIsNull);
@@ -63,27 +62,16 @@ function DoExport (filename) {
 
     if (not Self._property:_Initialized)
     {
-        Trace('InitGlobals() must be called before running DoExport()');
-        return null;
+        return 'InitGlobals() must be called before running DoExport()';
     }
 
     // first, ensure we're running with a clean slate.
     // (initialization of libmei has moved to InitGlobals())
     libmei.destroy();
-
-    // set the active score here so we can refer to it throughout the plugin
-    Self._property:ActiveScore = Sibelius.ActiveScore;
-    if (Self._property:ActiveScore = null)
-    {
-        Sibelius.MessageBox('Could not find an active score. Cannot export to ' & filename);
-        return false;
-    }
-
-    // Set up the warnings tracker
-    Self._property:warnings = CreateSparseArray();
+    SetGlobalsForScore(score);
 
     // Deal with the Progress GUI
-    progCount = Sibelius.ActiveScore.SystemStaff.BarCount;
+    progCount = SystemStaff.BarCount;
     fn = utils.ExtractFileName(filename);
     progressTitle = utils.Format(_InitialProgressTitle, fn);
     Sibelius.CreateProgressDialog(progressTitle, 0, progCount - 1);
@@ -104,13 +92,115 @@ function DoExport (filename) {
         trace('Warning: ' & warning);
     }
 
-    if (export_status = False)
-    {
-        Sibelius.MessageBox(_ExportFailure);
-    }
-
     // clean up after ourself
     libmei.destroy();
 
-    return filename;
+    if (export_status = False)
+    {
+        return 'The file was not exported. File:\n\n' & filename & '\n\ncould not be written.';
+    }
+}  //$end
+
+
+function SetGlobalsForScore (score) {
+    // Sets some globals with information about the currently processed score.
+    // Some functions get a significant performance boost when we're caching
+    // properties of the Score object rather than passing it around or
+    // accessing its properties.
+
+    Self._property:ActiveScore = score;
+    if (ActiveScore = null)
+    {
+        return 'Could not find an active score. Cannot export to ' & filename;
+    }
+
+    Self._property:StaffHeight = score.StaffHeight;
+    Self._property:SystemStaff = score.SystemStaff;
+    Self._property:Staves = CreateSparseArray();
+    for each staff in score
+    {
+        Staves.Push(staff);
+    }
+
+    // Set up the warnings tracker
+    Self._property:warnings = CreateSparseArray();
+}  //$end
+
+
+function ExportBatch (files, extensions) {
+    if (not InitGlobals(extensions))
+    {
+        return null;
+    }
+
+    utils.SortArray(files, false);
+
+    numFiles = files.Length;
+    exportCount = 0;
+
+    for index = 0 to numFiles
+    {
+        file = Sibelius.GetFile(files[index]);
+
+        score = GetScore(file);
+
+        if (null = score)
+        {
+            continue = Sibelius.YesNoMessageBox('File could not be opened:\n\n' & file & '\n\nContinue anyway?');
+            if (not continue)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            // NB: DO NOT CHANGE THIS EXTENSION PLEASE.
+            error = DoExport(score, file.Name & '.mei');
+            if (Sibelius.ProgramVersion >= 20201200)
+            {
+                Sibelius.CloseAllWindowsForScore(score, false);
+            }
+            else
+            {
+                Sibelius.CloseWindow(False);
+            }
+            if (null = error)
+            {
+                exportCount = exportCount + 1;
+            }
+            else
+            {
+                if (not Sibelius.YesNoMessageBox(error & '\n\nContinue anyway?'))
+                {
+                    return false;
+                }
+            }
+        }
+    }
+
+    Sibelius.DestroyProgressDialog();
+
+    Sibelius.MessageBox(exportCount & ' of ' & numFiles & ' files were exported.');
+
+    return true;
+}  //$end
+
+
+function GetScore (file) {
+    Sibelius.Open(file, true);
+
+    // If the score was already open, it can happen that it is not made the
+    // ActiveScore by Sibelius.Open(). So we can't rely on Sibelius.ActiveScore
+    // and loop over all the scores to fetch the score.
+    for each score in Sibelius
+    {
+        // As FileName and file are objects, cast them to strings,
+        // otherwise the comparison does not work
+        if ((score.FileName & '') = (file & ''))
+        {
+            return score;
+        }
+    }
+
+    return null;
 }  //$end

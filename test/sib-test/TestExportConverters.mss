@@ -1,32 +1,18 @@
 function TestExportConverters (suite) {
     //$module(TestExportConverters)
     suite
-        .Add('TestSlurValueConverter')
         .Add('TestDiatonicPitchConverter')
         .Add('TestOffsetConverter')
         .Add('TestDurationConverter')
         .Add('TestPitchesInKeySignature')
         .Add('TestHasVisibleAccidentalConverter')
         .Add('TestAccidentalConverter')
-        .Add('TestOctavaConverter')
-        .Add('TestNamedTimeSignatureConverter')
         .Add('TestKeySignatureConverter')
         .Add('TestClefConverter')
         .Add('TestBracketConverter')
         .Add('TestPositionToTimestampConverter')
         .Add('TestConvertTimeStamp')
         ;
-} //$end
-
-function TestSlurValueConverter (assert, plugin) {
-    //$module(TestExportConverters)
-    output = sibmei.ConvertSlurStyle('line.staff.slur.up.dotted');
-    assert.Equal(output[0], 'above', 'Direction should be up');
-    assert.Equal(output[1], 'dotted', 'Style should be dotted');
-
-    output = sibmei.ConvertSlurStyle('line.staff.slur.down');
-    assert.Equal(output[0], 'below', 'Direction should be down');
-    assert.Equal(output[1], ' ', 'Style should be empty');
 } //$end
 
 function TestDiatonicPitchConverter(assert, plugin) {
@@ -43,6 +29,7 @@ function TestDiatonicPitchConverter(assert, plugin) {
 function TestOffsetConverter(assert, plugin) {
     //$module(TestNoteNameConverter)
     EnsureActiveScoreExists();
+    Self._property:StaffHeight = Sibelius.ActiveScore.StaffHeight;
     output = sibmei.ConvertOffsetsToMillimeters(100);
     assert.Equal(output, '5.4688mm', 'Offset of 100 1/32nds of a space is 5mm');
 }  //$end
@@ -220,25 +207,6 @@ function TestHasVisibleAccidentalConverter (assert, plugin) {
     assert.NotOK(output, 'The 3rd note in the 7th bar has a hidden C sharp');
 }  //$end
 
-function TestOctavaConverter (assert, plugin) {
-    //$module(TestExportConverters.mss)
-    oct = sibmei.ConvertOctava('line.staff.octava.minus15');
-    assert.Equal(oct[0], '15', 'The octava should be two octaves below');
-    assert.Equal(oct[1], 'below', 'The octava should be below');
-}  //$end
-
-function TestNamedTimeSignatureConverter (assert, plugin) {
-    //$module(TestExportConverters.mss)
-    common_ts = sibmei.ConvertNamedTimeSignature(CommonTimeString);
-    assert.Equal(common_ts, 'common', 'The Time Signature should be common');
-
-    cut_ts = sibmei.ConvertNamedTimeSignature(AllaBreveTimeString);
-    assert.Equal(cut_ts, 'cut', 'The Time Signature should be cut');
-
-    other_ts = sibmei.ConvertNamedTimeSignature('4\n4');
-    assert.Equal(other_ts, ' ', 'The function should return an empty string for other time signatures');
-}  //$end
-
 function TestKeySignatureConverter (assert, plugin) {
     //$module(TestExportConverters.mss)
     keyC = sibmei.ConvertKeySignature(0);
@@ -290,12 +258,13 @@ function TestBracketConverter (assert, plugin) {
     assert.Equal(brace, 'brace', 'Should convert a brace');
 
     line = sibmei.ConvertBracket(BracketSub);
-    assert.Equal(line, 'line', 'Should convert a sub-bracket to a line.');
+    assert.Equal(line, 'bracketsq', 'Should convert a sub-bracket to bracketsq.');
 }  //$end
 
 function TestPositionToTimestampConverter (assert, plugin) {
     //$module(TestExportConverters.mss)
     score = CreateEmptyTestScore(1, 3);
+    Self._property:SystemStaff = score.SystemStaff;
 
     bar1 = score.SystemStaff.NthBar(1);
     bar1.AddTimeSignature(4, 4, false, false);

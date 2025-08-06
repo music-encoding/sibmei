@@ -1,40 +1,58 @@
 function MSplitString (string, delimiter) {
     //$module(Utilities.mss)
     /*
-        The default Splitstring method is buggy,
-        so I've re-implemented it here.
-
-        Delimiter is optional; if it is false, this will
-        split the string into an array of characters.
+        The default SplitString method returns a TreeNode Array which is hard
+        to handle and can lead to Sibelius crashes.  This is a more friendly
+        wrapper that returns a SparseArray instead.
     */
+    return SplitString(string, delimiter).ConvertToSparseArray();
+}  //$end
+
+
+function SplitStringIncludeDelimiters (string, delimiters) {
+    //$module(Utilities.mss)
+    /*
+        This function is useful if a string should be split at more than one
+        delimiter, but the delimiter should be preserved to know at which
+        delimiter we split.  Example:
+
+          result = SplitStringIncludeDelimiters('foo-bar baz', '- ');
+          Trace(result); // =>  ['foo', '-', 'bar', ' ', 'baz']
+
+        Multiple delimiter chars of the same kind are treated as just one
+        delimiter, i.e. 'foo  bar' would be split in the same fashion as
+        'foo bar' with just one space.
+    */
+    components = SplitString(string, delimiters);
+    if (components.NumChildren = 1)
+    {
+        return CreateSparseArray(string);
+    }
+
     ret = CreateSparseArray();
-    pos = 0;
-    // If there is no delimiter, split the string
-    // into an array of characters.
-    if (delimiter = false)
+    delimiterIndex = -1;
+    previousDelimiter = '';
+    for each component in components
     {
-        for i = 0 to Length(string)
+        delimiterIndex = delimiterIndex + Length(component) + 1;
+        delimiter = Substring(string, delimiterIndex, 1);
+        if (component != '' or delimiter != previousDelimiter)
         {
-            ret.Push(Substring(string, i, 1));
+            // `component` is a TreeNode that we convert to a string with `& ''`
+            ret.Push(component & '');
+            ret.Push(delimiter);
         }
-        return ret;
+        previousDelimiter = delimiter;
     }
 
-    for i = 0 to Length(string) + 1
-    {
-        if (utils.CharAt(string, i) = delimiter)
-        {
-            ret.Push(Substring(string, pos, i - pos));
-            pos = i + 1;
-        }
+    // In the loop, we push the component and the following delimiter, but
+    // there is no delimiter following the last component, so we remove the last
+    // item again (which is always an empty string).
+    ret.Pop();
 
-        if (i = Length(string))
-        {
-            ret.Push(Substring(string, pos, Length(string) - pos));
-        }
-    }
     return ret;
 }  //$end
+
 
 function PrevPow2 (val) {
     //$module(Utilities.mss)
@@ -145,67 +163,165 @@ function PushToHashedLayer (hashedLayers, bar, bobj) {
     layerArray.Push(bobj);
 }  //$end
 
-function GetNoteObjectAtEndPosition (bobj) {
+
+function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     //$module(Utilities.mss)
-    // takes a bar object, and returns the NoteRest object closest to the end position.
-    // If one isn't found exactly at the end position, it will first look back (previous)
-    // and then look forward, for candidate objects.
-    // NB: This will probably only work for line objects, since they are the only ones with the EndPosition attribute.
-    // Returns the MEI element closest to that position.
+    // takes a bar object, and returns the MEI element generated from the
+    // NoteRest object closest to `bobj`'s position, in the same voice as
+    // `bobj`. If `bobj` is in voice 0, `null` will be returned.
+    // For line-like objects, parameter `position` must be supplied and be
+    // either `Position` or `EndPosition`. For all other objects, this
+    // parameter is not used and should be omitted.
+    // If no NoteRest is found exactly at the position, the defined
+    // `searchStrategy` is used to find another NoteRest and may be one of the
+    // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
 
-    objectPositions = Self._property:ObjectPositions;
-    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
-    // bar_num = bobj.ParentBar.BarNumber;
-    bar_num = bobj.EndBarNumber;
-    Log('bar_num: ' & bar_num);
-    voice_num = bobj.VoiceNumber;
-
-    staffObjectPositions = objectPositions[staff_num];
-    barObjectPositions = staffObjectPositions[bar_num];
-    if (barObjectPositions = null) {
-        // TODO: We have a line that continues into a 'future' bar. Track these
-        // lines and add IDs when we've reached the end NoteRest and know its ID
-        return null;
-    }
-    voiceObjectPositions = barObjectPositions[voice_num];
-
-    if (voiceObjectPositions = null)
+    objectPositions = Self._property:NoteRestIdsByLocation;
+    if (bobj.IsALine and positionProperty = 'EndPosition')
     {
-        // theres not much we can do here. Bail.
-        Log('Bailing due to insufficient voice information');
-        return null;
-    }
-
-    if (voiceObjectPositions.PropertyExists(bobj.EndPosition))
-    {
-        obj_id = voiceObjectPositions[bobj.EndPosition];
-        obj = libmei.getElementById(obj_id);
-        return obj;
+        bobjPosition = bobj.EndPosition;
+        noteIdsByPosition = objectPositions[LayerHash(bobj.EndBarNumber, bobj)];
     }
     else
     {
-        // if we can't find anything at this position,
-        // find the previous and subsequent objects, and align the
-        // lyrics with them.
-        prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
+        noteIdsByPosition = objectPositions[LayerHash(bobj.ParentBar, bobj)];
+        bobjPosition = bobj.Position;
+    }
 
-        if (prev_obj != null)
+    if (null = noteIdsByPosition)
+    {
+        return null;
+    }
+
+    objId = noteIdsByPosition[bobjPosition];
+    if (null != objId)
+    {
+        return libmei.getElementById(objId);
+    }
+
+    // `bobj` was not precisely attached to a NoteRest in the same voice.
+    if (searchStrategy = 'PreciseMatch')
+    {
+        return null;
+    }
+
+    // Try and find the best matching note according to the `searchStrategy`.
+    noteRestPositions = noteIdsByPosition.ValidIndices;
+
+    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1 {
+        if (noteRestPositions[noteRestIndex] < bobjPosition)
         {
-            // there should be an object registered here
-            obj_id = voiceObjectPositions[prev_obj.Position];
-            obj = libmei.getElementById(obj_id);
-            return obj;
+            // We found the closest preceding and following positions
+            return GetClosestNoteObject(
+                noteIdsByPosition,
+                bobjPosition,
+                noteRestPositions[noteRestIndex],
+                noteRestPositions[noteRestIndex + 1],
+                searchStrategy
+            );
         }
-        else
-        {
-            next_obj = bobj.NextItem(voice_num, 'NoteRest');
+    }
 
-            if (next_obj != null)
+    // We did not find a preceding position
+    return GetClosestNoteObject(
+        noteIdsByPosition, bobjPosition, null, noteRestPositions[0], searchStrategy
+    );
+}  //$end
+
+
+function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, followingPosition, searchStrategy) {
+    switch (true)
+    {
+        case (searchStrategy = 'Next')
+        {
+            noteRestPosition = followingPosition;
+        }
+        case (searchStrategy = 'Previous')
+        {
+            noteRestPosition = precedingPosition;
+        }
+        case (searchStrategy != 'Closest')
+        {
+            Trace('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
+            ExitPlugin();
+        }
+        // `'' = x` is testig if x is null. We can not use `x = null` or
+        // `null = x` because both expressions are truthy if `x` is 0. We can't
+        // use `x = ''` either for the same reason.
+        case ('' = precedingPosition)
+        {
+            noteRestPosition = followingPosition;
+        }
+        case ('' = followingPosition)
+        {
+            noteRestPosition = precedingPosition;
+        }
+        case ((followingPosition - position) < (position - precedingPosition))
+        {
+            noteRestPosition = followingPosition;
+        }
+        default
+        {
+            noteRestPosition = precedingPosition;
+        }
+    }
+
+    if ('' = noteRestPosition)
+    {
+        return null;
+    }
+
+    return libmei.getElementById(noteIdsByPosition[noteRestPosition]);
+} //$end
+
+
+function GetMeiNoteRestAtPosition (bobj, endPosition) {
+    // Returns the MEI element generated from a NoteRest at the start or end
+    // position of `bobj`, depending on whether `endPosition` is true or false.
+
+    if (endPosition)
+    {
+        layerHash = LayerHash(bobj.EndBarNumber, bobj);
+        position = bobj.EndPosition;
+    }
+    else
+    {
+        layerHash = LayerHash(bobj.ParentBar, bobj);
+        position = bobj.Position;
+    }
+
+    noteRestIdsByPosition = NoteRestIdsByLocation[layerHash];
+
+    if (null = noteRestIdsByPosition)
+    {
+        return null;
+    }
+
+    id = noteRestIdsByPosition[position];
+
+    if (null != id)
+    {
+        return libmei.getElementById(id);
+    }
+
+    // If there is no NoteRest at the precise position, linearly search the
+    // NoteRests in this layer for the closest position.
+    noteRestPositions = noteRestIdsByPosition.ValidIndices;
+
+    for i = 0 to noteRestPositions.Length
+    {
+        if (noteRestPositions[i] > position)
+        {
+            // If the preceding position was closer, use that one
+            if (
+                (i > 0)
+                and (position - noteRestPositions[i - 1] < noteRestPositions[i] - position)
+            )
             {
-                obj_id = voiceObjectPositions[next_obj.Position];
-                obj = libmei.getElementById(obj_id);
-                return obj;
+                i = i - 1;
             }
+            id = noteRestIdsByPosition[noteRestPositions[i]];
+            return libmei.getElementById(id);
         }
     }
 
@@ -213,69 +329,24 @@ function GetNoteObjectAtEndPosition (bobj) {
 } //$end
 
 
-function GetNoteObjectAtPosition (bobj) {
+function RegisterNoteRestIdByLocation (noteRest, id) {
     //$module(Utilities.mss)
-    // takes a bar object, and returns the NoteRest object closest to its position.
-    // If one isn't found exactly at the end position, it will first look back (previous)
-    // and then look forward, for candidate objects.
+    /**
+     * Registers the NoteRest's id in the global NoteRestIdsByLocation object
+     * that is used by GetMeiNoteRestAtPosition() to retrieve MEI objects that
+     * other objects are attached to.
+     */
 
-    voice_num = bobj.VoiceNumber;
-    if (voice_num = 0)
+    layerHash = LayerHash(noteRest.ParentBar, noteRest);
+    noteIdsByPosition = NoteRestIdsByLocation[layerHash];
+    if (null = noteIdsByPosition)
     {
-        // Things like titles or composer text needn't/shouldn't be attached to
-        // voices or notes.
-        return null;
+        noteIdsByPosition = CreateSparseArray();
+        NoteRestIdsByLocation[layerHash] = noteIdsByPosition;
     }
-    objectPositions = Self._property:ObjectPositions;
-    staff_num = bobj.ParentBar.ParentStaff.StaffNum;
-    bar_num = bobj.ParentBar.BarNumber;
-
-    staffObjectPositions = objectPositions[staff_num];
-    barObjectPositions = staffObjectPositions[bar_num];
-    voiceObjectPositions = barObjectPositions[voice_num];
-
-    if (voiceObjectPositions = null)
-    {
-        // theres not much we can do here. Bail.
-        Log('Bailing due to insufficient voice information');
-        return null;
-    }
-
-    if (voiceObjectPositions.PropertyExists(bobj.Position))
-    {
-        obj_id = voiceObjectPositions[bobj.Position];
-        obj = libmei.getElementById(obj_id);
-        return obj;
-    }
-    else
-    {
-        // if we can't find anything at this position,
-        // find the previous and subsequent objects, and align the
-        // lyrics with them.
-        next_obj = bobj.NextItem(voice_num, 'NoteRest');
-
-        if (next_obj != null)
-        {
-            obj_id = voiceObjectPositions[next_obj.Position];
-            obj = libmei.getElementById(obj_id);
-            return obj;
-        }
-        else
-        {
-            prev_obj = bobj.PreviousItem(voice_num, 'NoteRest');
-
-            if (prev_obj != null)
-            {
-                // there should be an object registered here
-                obj_id = voiceObjectPositions[prev_obj.Position];
-                obj = libmei.getElementById(obj_id);
-                return obj;
-            }
-        }
-    }
-
-    return null;
+    noteIdsByPosition[noteRest.Position] = id;
 }  //$end
+
 
 function AddControlEventAttributes (bobj, element) {
     //$module(Utilities.mss)
@@ -294,29 +365,34 @@ function AddControlEventAttributes (bobj, element) {
         warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
     }
 
-    libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+    if (not element.attrs.PropertyExists('tstamp'))
+    {
+        // Some templates might set `@tstamp` explicitly, especially to prevent
+        // `@tstamp` from being output for elements that don't allow it.
+        libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+    }
 
-    start_obj = GetNoteObjectAtPosition(bobj);
+    start_obj = GetNoteObjectAtPosition(bobj, 'PreciseMatch', 'Position');
     if (start_obj != null)
     {
         libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
     }
 
-    if (TypeHasEndBarNumberProperty[bobj.Type]) {
+    if (TypeHasEndBarNumberProperty[bobj.Type])
+    {
         libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
-        end_obj = GetNoteObjectAtEndPosition(bobj);
-        if (end_obj != null)
-        {
-            libmei.AddAttribute(element, 'endid', '#' & end_obj._id);
-        }
     }
 
-    if (bar.ParentStaff.StaffNum > 0)
+    staff = bar.ParentStaff;
+
+    if (staff.StaffNum > 0)
     {
         // Only add @staff if this is not attached to the SystemStaff
-        libmei.AddAttribute(element, 'staff', bar.ParentStaff.StaffNum);
+        libmei.AddAttribute(element, 'staff', staff.StaffNum);
+        libmei.AddAttribute(element, 'layer', voicenum);
     }
-    libmei.AddAttribute(element, 'layer', voicenum);
+
+    score = staff.ParentScore;
 
     if (bobj.Type = 'Line')
     {
@@ -353,114 +429,22 @@ function AddControlEventAttributes (bobj, element) {
         {
             libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
-
-        if (bobj.Dy > 0)
-        {
-            libmei.AddAttribute(element, 'vo', ConvertOffsetsToMillimeters(bobj.Dy));
-        }
+        // we don't write @vo because Dy is conceptually different
+        // see discussion in https://github.com/music-encoding/sibmei/pull/139
     }
 
+    if (bobj.Type != 'Text')
+    {
+        if (bobj.Color != 0)
+        {
+            libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+        }
+    }
 
     return element;
 
 }  //$end
 
-function TupletsEqual (t, t2) {
-    //$module(Utilities.mss)
-
-    // shamelessly copied from the built-in tuplet plugin.
-    tIsBar = (t = null) or (t.Type = 'Bar');
-    t2IsBar = (t2 = null) or (t2.Type = 'Bar');
-
-    if( tIsBar and t2IsBar ) { return true; }
-    if( tIsBar or t2IsBar ) { return false; }
-
-    b = t.ParentBar;
-    b2 = t2.ParentBar;
-
-    if( b.BarNumber != b2.BarNumber ) { return false; }
-    if( b.ParentStaff.StaffNum != b2.ParentStaff.StaffNum ) { return 0; }
-    if( t.VoiceNumber != t2.VoiceNumber ) { return false; }
-
-    if( t.Position != t2.Position ) { return false; }
-    if( t.PlayedDuration != t2.PlayedDuration ) { return false; }
-
-    return true;
-
-}  //$end
-
-function GetTupletStack (bobj) {
-    //$module(Utilities.mss)
-    tupletStack = CreateSparseArray();
-    parentTuplet = bobj.ParentTupletIfAny;
-    while (parentTuplet != null)
-    {
-        tupletStack.Push(parentTuplet);
-        parentTuplet = parentTuplet.ParentTupletIfAny;
-    }
-    tupletStack.Reverse();
-    return tupletStack;
-}  //$end
-
-function CountTupletsEndingAtNoteRest(noteRest) {
-    //$module(Utilities.mss)
-    tuplet = noteRest.ParentTupletIfAny;
-
-    if (tuplet = null)
-    {
-        return 0;
-    }
-
-    nextNoteRest = noteRest.NextItem(noteRest.VoiceNumber, 'NoteRest');
-
-    if (nextNoteRest = null or nextNoteRest.ParentTupletIfAny = null)
-    {
-        tupletStack = GetTupletStack(noteRest);
-        return tupletStack.Length;
-    }
-
-    if (TupletsEqual(tuplet, nextNoteRest.ParentTupletIfAny))
-    {
-        return 0;
-    }
-
-    tupletStack = GetTupletStack(noteRest);
-    nextTupletStack = GetTupletStack(nextNoteRest);
-
-    // We are looking for the highest index where both stacks are identical.
-    index = utils.min(tupletStack.Length, nextTupletStack.Length) - 1;
-
-    while (index >= 0 and not(TupletsEqual(tupletStack[index], nextTupletStack[index])))
-    {
-        index = index - 1;
-    }
-
-    return tupletStack.Length - 1 - index;
-}  //$end
-
-function GetMeiTupletDepth (layer) {
-    //$module(Utilities.mss)
-    depth = 0;
-    tuplet = layer._property:ActiveMeiTuplet;
-    while (tuplet != null)
-    {
-        depth = depth + 1;
-        tuplet = tuplet._property:ParentTuplet;
-    }
-    return depth;
-}  //$end
-
-function GetSibTupletDepth (noteRest) {
-    //$module(Utilities.mss)
-    depth = 0;
-    tuplet = noteRest.ParentTupletIfAny;
-    while (tuplet != null)
-    {
-        depth = depth + 1;
-        tuplet = tuplet.ParentTupletIfAny;
-    }
-    return depth;
-}  //$end
 
 function lstrip (str) {
     //$module(Utilities.mss)
@@ -745,112 +729,16 @@ function InitFigbassCharMap () {
 }  //$end
 
 
-function AppendToLayer (meielement, l, beam, tuplet) {
-    //$module(Utilities.mss)
-    if (beam != null)
-    {
-        libmei.AddChild(beam, meielement);
+function MeiFactory (data, bobj) {
+    // Parameter `data` is a template SparseArray with the following entries:
+    //
+    // 0. The capitalized tag name
+    // 1. A dictionary with attribute names and values
+    // 2., 3., ... Child nodes (optional) as strings (for text nodes) or as
+    //    template SparseArrays (for child elements)
+    //
+    // For further documentation, see Extensions.md
 
-        if (tuplet != null)
-        {
-            if (beam._parent = l._id)
-            {
-                /*
-                   If the beam has been previously added to the layer but now
-                   finds itself part of a tuplet, shift the tuplet to a tupletSpan. This
-                   effectively just replaces the active tuplet with a tupletSpan element
-                */
-                if (tuplet.name != 'tupletSpan')
-                {
-                    ShiftTupletToTupletSpan(tuplet, l);
-                }
-            }
-            else
-            {
-                if (beam._parent != tuplet._id)
-                {
-                    libmei.AddChild(tuplet, beam);
-                }
-
-                if (tuplet._parent != l._id)
-                {
-                    libmei.AddChild(l, tuplet);
-                }
-            }
-        }
-        else
-        {
-            parent = beam._property:ParentBeam;
-            if (parent = null)
-            {
-                parent = l;
-            }
-            if (beam._parent != parent._id)
-            {
-                libmei.AddChild(parent, beam);
-            }
-        }
-    }
-    else
-    {
-        if (tuplet != null)
-        {
-            tname = libmei.GetName(tuplet);
-
-            if (tname != 'tupletSpan')
-            {
-                libmei.AddChild(tuplet, meielement);
-            }
-            else
-            {
-                libmei.AddChild(l, meielement);
-            }
-
-            if (tuplet._parent != l._id)
-            {
-                libmei.AddChild(l, tuplet);
-            }
-        }
-        else
-        {
-            libmei.AddChild(l, meielement);
-        }
-    }
-}  //$end
-
-
-function MeiFactory (data) {
-    /*
-        Allows creating MEI from data structures, e.g. for templating purposes.
-        Takes an array with the following content:
-
-            0.  The capitalized tag name
-            1.  A dictionary with attribute names and values (unlike tag names,
-                attribute names are not capitalized). Can be null if no
-                attributes are declared.
-            2.  A child node (optional), represented by either a string for text
-                or a SparseArray of the same form for a child element.
-            3.  Any number of additional child nodes.
-            ...
-
-        Note that all element names are capitalized, but attribute names remain
-        lower case.
-
-        Example:
-
-        MeiFactory(CreateSparseArray(
-            'P', null,
-            'This is ',
-            CreateSparseArray('Rend', CreateDictionary('rend', 'italic'),
-                'declarative'
-            ),
-            ' MEI generation.'
-        ));
-
-        Output:
-
-        <p>This is <rend rend='italic'>declarative</rend> MEI generation.</p>
-    */
     tagName = data[0];
     element = libmei.@tagName();
 
@@ -866,30 +754,94 @@ function MeiFactory (data) {
     if (data.Length > 2)
     {
         // Add children
-        currentChild = null;
         for i = 2 to data.Length
         {
             childData = data[i];
-            if (IsObject(childData))
+            switch (true)
             {
-                // We have a child element
-                currentChild = MeiFactory(childData);
-                libmei.AddChild(element, currentChild);
-            }
-            else
-            {
-                // We have a text child
-                if (currentChild = null)
+                case (not IsObject(childData))
                 {
-                    libmei.SetText(element, libmei.GetText(element) & childData);
+                    AppendText(element, childData);
                 }
-                else
+                case (null != childData._property:templateAction)
                 {
-                    libmei.SetTail(currentChild, libmei.GetTail(currentChild) & childData);
+                    childData.templateAction.action(element, bobj);
+                }
+                default
+                {
+                    // We have a child element
+                    currentChild = MeiFactory(childData, bobj);
+                    libmei.AddChild(element, currentChild);
                 }
             }
         }
     }
 
     return element;
+}  //$end
+
+
+function SetTemplateAction (templateNode, plugin, functionName) {
+    // Associates a template action Dictionary with the templateNode. When
+    // MeiFactory() finds a descendant template that has an action Dictionary
+    // as user property `templateAction`, it calls the Dictionary's action()
+    // method to take over control instead of converting it to MEI itself.
+
+    // `templateNode` can be a Dictionary that works as a placeholder, or it
+    // can be an actual element template (a SparseArray) that the action method
+    // can retrieve from the action Dictionary to work with it (e.g. pass it
+    // back to MeiFactory() and then add more attributes dynamically, or only
+    // pass it to MeiFactory() if certain conditions are met etc.).
+
+    // Depending on what the function specified by `functionName` needs, either
+    // the placholder or template form of `templateNode` should be chosen.
+    templateNode._property:templateAction = CreateDictionary('templateNode', templateNode);
+    templateNode.templateAction.SetMethod('action', plugin, functionName);
+    return templateNode;
+}  //$end
+
+
+function GetTemplateElementsByTagName (template, tagName) {
+    // Works basically like getElementsByTagName() in XML/HTML DOM
+
+    elements = CreateSparseArray();
+
+    if (template[0] = tagName)
+    {
+        elements.Push(template);
+    }
+
+    if (template.Length < 3)
+    {
+        return elements;
+    }
+
+    for childIndex = 2 to template.Length
+    {
+        childNode = template[childIndex];
+        if (IsObject(childNode) and childNode[0] != '')
+        {
+            // The child node is an element template
+            for each element in GetTemplateElementsByTagName(childNode, tagName)
+            {
+                elements.Push(element);
+            }
+        }
+    }
+
+    return elements;
+}  //$end
+
+
+function AppendText (element, text) {
+    if (element.children.Length = 0)
+    {
+        libmei.SetText(element, element.text & text);
+    }
+    else
+    {
+        lastChildIndex = element.children.Length - 1;
+        lastChild = libmei.getElementById(element.children[lastChildIndex]);
+        lastChild.tail = lastChild.tail & text;
+    }
 }  //$end

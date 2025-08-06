@@ -1,8 +1,9 @@
 function Initialize() {
     //$module(Initialize.mss)
     Self._property:Logfile = GetTempDir() & LOGFILE;
+    Self._property:PluginName = 'Sibelius to MEI ' & MeiVersion & ' Exporter';
 
-    AddToPluginsMenu(PluginName,'Run');
+    AddToPluginsMenu(PluginName, 'Run');
 }  //$end
 
 
@@ -40,13 +41,52 @@ function InitGlobals (extensions) {
         'Trill', true
     );
 
-    // Initialize symbol styles
-    Self._property:SymbolHandlers = InitSymbolHandlers();
-    Self._property:SymbolMap = InitSymbolMap();
-    Self._property:TextHandlers = InitTextHandlers();
+    Self._property:MeterSymMap = CreateDictionary(
+        CommonTimeString, 'common',
+        AllaBreveTimeString, 'cut',
+        'c', 'common',
+        'C', 'cut'
+    );
+
+    InitGlobalAliases(Self);
+
+    Self._property:BarlineAttributes = CreateSparseArray();
+    BarlineAttributes[SpecialBarlineStartRepeat] = @Attrs('left', 'rptstart');
+    BarlineAttributes[SpecialBarlineEndRepeat] = @Attrs('right', 'rptend');
+    BarlineAttributes[SpecialBarlineDashed] = @Attrs('right', 'dashed');
+    BarlineAttributes[SpecialBarlineDouble] = @Attrs('right', 'dbl');
+    BarlineAttributes[SpecialBarlineFinal] = @Attrs('right', 'end');
+    BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
+    BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
+    BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
+    BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+    BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
+    BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
+    BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
+    // no MEI equiv:
+    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+
+    // Sibelius apparently has a garbage collector issue with references to
+    // Plugin objects. We have to keep a persistent reference to the PluginList
+    // object (Sibelius.Plugins), otherwise Sibelius will crash immediately
+    // whenever we use a Plugin object we retrieved from it.
+    Self._property:_PluginList = Sibelius.Plugins;
+    for each plugin in _PluginList
+    {
+        if (plugin.Name = PluginName)
+        {
+            Self._property:SibmeiPlugin = plugin;
+        }
+    }
+    if (null = Self._property:SibmeiPlugin)
+    {
+        StopPlugin('Internal Sibmei error: Could not initialize global variable SibmeiPlugin');
+    }
+
+    InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
-    if (not InitExtensions(extensions))
+    if (not InitExtensions(extensions, _PluginList))
     {
         return false;
     }
@@ -56,21 +96,9 @@ function InitGlobals (extensions) {
     return true;
 }  //$end
 
-function RegisterHandlers(handlers, handlerDefinitions, plugin) {
-    //$module(Initialize.mss)
-    // Text handlers can be registered by 'idType' StyleId or StyleAsText
-    // Symbol handlers can be registered by 'idType' Index or Name
 
-    for each Name idType in handlers
-    {
-        if (null != handlerDefinitions[idType])
-        {
-            handle = handlers[idType];
-            for each Name id in handlerDefinitions[idType]
-            {
-                handle.SetMethod(id, plugin, handlerDefinitions[idType].@id);
-            }
-        }
-    }
-
-}   //$end
+function InitGlobalAliases (plugin) {
+    // Aliases that make writing/reading templates clearer
+    plugin._property:Element = 'CreateSparseArray';
+    plugin._property:Attrs = 'CreateDictionary';
+}  //$end

@@ -1,8 +1,9 @@
-function Run() {
+function RunTests() {
     Self._property:libmei = libmei4;
-    Self._property:sibmei = sibmei4;
-    sibmei4._property:libmei = libmei;
-    sibmei.InitGlobals(CreateSparseArray('sibmei4_extension_test'));
+    Self._property:sibmei = @MainPlgBaseName;
+    sibmei._property:libmei = libmei;
+    sibmei.InitGlobals(CreateSparseArray(MainPlgBaseName & '_extension_test'));
+    sibmei.InitGlobalAliases(Self);
 
     plugins = Sibelius.Plugins;
 
@@ -21,10 +22,9 @@ function Run() {
         ExitPlugin();
     }
 
-    Sibelius.CloseAllWindows(false);
-    Sibelius.New();
+    CloseAllWindows();
 
-    Self._property:pluginDir = GetPluginFolder('sibmei4.plg');
+    Self._property:pluginDir = GetPluginFolder(MainPlgBaseName & '.plg');
     Self._property:tempDir = CreateNewTempDir();
     Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs' & Sibelius.PathSeparator;
 
@@ -35,28 +35,27 @@ function Run() {
         .AddModule('TestLibmei')
         .AddModule('TestExportGenerators')
         .AddModule('TestUtilities')
+        .AddModule('TestHierarchyBuilders')
     ;
 
     suite.Run();
 
-    Sibelius.CloseAllWindows(false);
+    CloseAllWindows();
 
-    sibmei4_batch_sib.ConvertFolder(
-        Sibelius.GetFolder(_SibTestFileDirectory),
-        CreateSparseArray('sibmei4_extension_test')
-    );
-
-    // Make sure we have an open window so Sibelius will neither crash nor
-    // decide to open a new window later that will force the mocha test results
-    // into the background.
-    Sibelius.New();
+    testFolder = Sibelius.GetFolder(_SibTestFileDirectory);
+    testFiles = CreateSparseArray();
+    for each SIB file in testFolder
+    {
+        testFiles.Push(file);
+    }
+    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
 
     if (Sibelius.PathSeparator = '/') {
-        mochaScript = pluginDir & 'test.sh';
+        nodeTestScript = pluginDir & 'test.sh';
     } else {
-        mochaScript = pluginDir & 'test.bat';
+        nodeTestScript = pluginDir & 'test.bat';
     }
-    if (not (Sibelius.FileExists(mochaScript) and Sibelius.LaunchApplication(mochaScript))) {
+    if (not (Sibelius.FileExists(nodeTestScript) and Sibelius.LaunchApplication(nodeTestScript))) {
         Sibelius.MessageBox('Run `npm test` to test output written to ' & _SibTestFileDirectory);
     }
 }  //$end
@@ -148,28 +147,6 @@ function EnsureActiveScoreExists() {
 }  //$end
 
 
-function GetTempDir() {
-    //$module(Run.mss)
-    if (Sibelius.PathSeparator = '/') {
-        tempFolder = '/tmp/';
-    } else {
-        appDataFolder = Sibelius.GetUserApplicationDataFolder();
-        // appDataFolder usually looks like C:\Users\{username}\AppData\Roaming\
-        // We strip the trailing bit until the second to last backslash
-        i = Length(appDataFolder) - 2;
-        while (i >= 0 and CharAt(appDataFolder, i) != '\\') {
-            i = i - 1;
-        }
-        // tempFolder usually looks like C:\Users\USERNAME\AppData\Local\Temp\
-        // So we replace the trailing 'Roaming' with 'Local\Temp'
-        tempFolder = Substring(appDataFolder, 0, i) & '\\Local\\Temp\\';
-    }
-    if (Sibelius.FolderExists(tempFolder)) {
-        return Sibelius.GetFolder(tempFolder);
-    }
-}  //$end
-
-
 function CreateNewTempDir() {
     //$module(Run.mss)
 
@@ -200,4 +177,28 @@ function DateTimeString(date) {
         date.Seconds
     );
     return dateComponents.Join('-');
+}  //$end
+
+
+function CloseAllWindows () {
+    scores = CreateSparseArray();
+    for each score in Sibelius
+    {
+        scores.Push(score);
+    }
+    for each score in score
+    {
+        if (Sibelius.ScoreCount <= 1)
+        {
+            // Make sure we have an open window so Sibelius will not crash
+            Sibelius.New();
+        }
+        Sibelius.CloseAllWindowsForScore(score, false);
+    }
+    if (Sibelius.ScoreCount > 1)
+    {
+        // Closing did not work. Try a different approach.
+        Sibelius.CloseAllWindows(false);
+        Sibelius.New();
+    }
 }  //$end

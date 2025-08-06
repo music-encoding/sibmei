@@ -108,40 +108,6 @@ function ConvertClef (clefid) {
     return ret;
 }  //$end
 
-function ConvertOctava (octava_id) {
-    //$module(ExportConverters.mss)
-    octparts = MSplitString(octava_id, '.');
-    switch(octparts[3])
-    {
-        case ('minus15')
-        {
-            dis = '15';
-            place = 'below';
-        }
-        case ('minus8')
-        {
-            dis = '8';
-            place = 'below';
-        }
-        case ('plus15')
-        {
-            dis = '15';
-            place = 'above';
-        }
-        case ('plus8')
-        {
-            dis = '8';
-            place = 'above';
-        }
-        default
-        {
-            dis = ' ';
-            place = ' ';
-        }
-    }
-    return CreateSparseArray(dis, place);
-}  //$end
-
 function ConvertDiatonicPitch (diatonic_pitch) {
     //$module(ExportConverters)
     octv = (diatonic_pitch / 7) - 1;
@@ -153,8 +119,6 @@ function ConvertDiatonicPitch (diatonic_pitch) {
 }  //$end
 
 function ConvertOffsetsToMEI (offset) {
-    //$module(ExportConverters.mss)
-
     /*
      This function will convert the 1/32 unit
      Sibelius offsets into the MEI virtual units as required by the
@@ -168,13 +132,10 @@ function ConvertOffsetsToMEI (offset) {
     MEI virtual unit (vu) is defined as half the distance between the vertical
     center point of a staff line and that of an adjacent staff line.
     */
-    retval = (offset / 16.0);
-    return retval & 'vu';
+    return (offset / 16.0) & 'vu';
 }  //$end
 
 function ConvertOffsetsToMillimeters (offset) {
-    //$module(ExportConverters.mss)
-
     /*
      This function will convert the 1/32 unit
      Sibelius offsets into a millimeter measurement as required by the
@@ -190,24 +151,15 @@ function ConvertOffsetsToMillimeters (offset) {
     So a staff height of 7mm (default) gives us (7 / 128) = 0.05mm per Sibelius
     Unit.
     */
-    scr = Sibelius.ActiveScore;
-    staffheight = scr.StaffHeight;
-    factor = (staffheight / 128.0);
-    oset = factor * offset;
-    retval = oset & 'mm';
-    return retval;
+
+    return (StaffHeight / 128.0 * offset) & 'mm';
 }  //$end
 
 function ConvertUnitsToPoints (units) {
-    //$module(ExportConverters.mss)
-    scr = Sibelius.ActiveScore;
-    staffheight = scr.StaffHeight;
-
     /*
         Points are 0.352778mm (a point is 1/72 of an inch * 25.4mm/in).
     */
-    retval = (((staffheight / 128.0) * units) / 0.352778;
-    return retval & 'pt';
+    return (StaffHeight / 128.0 * units / 0.352778) & 'pt';
 }  //$end
 
 function ConvertDuration (dur) {
@@ -539,24 +491,6 @@ function HasVisibleAccidental (noteobj) {
     return False;
 }  //$end
 
-function ConvertNamedTimeSignature (timesig) {
-    //$module(ExportConverters.mss)
-    switch(timesig)
-    {
-        case(CommonTimeString)
-        {
-            return 'common';
-        }
-        case(AllaBreveTimeString)
-        {
-            return 'cut';
-        }
-        default
-        {
-            return ' ';
-        }
-    }
-}  //$end
 
 function ConvertBracket (bracket) {
     //$module(ExportConverters.mss)
@@ -572,7 +506,7 @@ function ConvertBracket (bracket) {
         }
         case(BracketSub)
         {
-            return 'line';
+            return 'bracketsq';
         }
         default
         {
@@ -581,26 +515,6 @@ function ConvertBracket (bracket) {
     }
 }  //$end
 
-function ConvertSibeliusStructure (score) {
-    //$module(ExportConverters.mss)
-    // Takes in the Staff/Bar Sibelius Structure and returns a Bar/Staff
-    // mapping for our MEI writers.
-    bar_to_staff = CreateDictionary();
-
-    // Invert the Sibelius structure
-    for each Staff s in score
-    {
-        for each Bar b in s
-        {
-            if (not bar_to_staff.PropertyExists(b.BarNumber))
-            {
-                bar_to_staff[b.BarNumber] = CreateSparseArray();
-            }
-            bar_to_staff[b.BarNumber].Push(s.StaffNum);
-        }
-    }
-    return bar_to_staff;
-}  //$end
 
 function ConvertColor (nrest) {
     //$module(ExportConverters.mss)
@@ -708,44 +622,6 @@ function ConvertNoteStyle (style) {
     return noteStyle;
 }  //$end
 
-function ConvertSlurStyle (style) {
-    //$module(ExportConverters.mss)
-    slurparts = MSplitString(style, '.');
-    direction = ' ';
-    style = ' ';
-
-    switch(slurparts[3])
-    {
-        case ('up')
-        {
-            direction = 'above';
-        }
-        case ('down')
-        {
-            direction = 'below';
-        }
-        default
-        {
-            direction = ' ';
-        }
-    }
-    switch(slurparts[4])
-    {
-        case ('dashed')
-        {
-            style = 'dashed';
-        }
-        case ('dotted')
-        {
-            style = 'dotted';
-        }
-        default
-        {
-            style = ' ';
-        }
-    }
-    return CreateSparseArray(direction, style);
-}  //$end
 
 function ConvertPositionToTimestamp (position, bar) {
     //$module(ExportConverters.mss)
@@ -756,7 +632,7 @@ function ConvertPositionToTimestamp (position, bar) {
         tstamp = (notePosition / beatDuration)
     */
 
-    timesignature = Sibelius.ActiveScore.SystemStaff.CurrentTimeSignature(bar.BarNumber);
+    timesignature = SystemStaff.CurrentTimeSignature(bar.BarNumber);
 
     if (position = 0)
     {
@@ -790,90 +666,6 @@ function ConvertPositionWithDurationToTimestamp (bobj) {
     return measureDuration & 'm+' & position;
 } //$end
 
-function ConvertTupletStyle (tupletStyle) {
-    //$module(ExportConverters.mss)
-    switch (tupletStyle)
-    {
-        case(TupletNoNumber)
-        {
-            libmei.AddAttribute(activeTuplet, 'num.visible', 'false');
-        }
-        case(TupletLeft)
-        {
-            libmei.AddAttribute(activeTuplet, 'num.format', 'count');
-        }
-        case(TupletLeftRight)
-        {
-            libmei.AddAttribute(activeTuplet, 'num.format', 'ratio');
-        }
-    }
-
-}  //$end
-
-function ConvertBarline (linetype) {
-    //$module(ExportConverters.mss)
-    switch(linetype)
-    {
-        case (SpecialBarlineStartRepeat)
-        {
-            // start repeat
-            return 'rptstart';
-        }
-        case (SpecialBarlineEndRepeat)
-        {
-            // end repeat
-            return 'rptend';
-        }
-        case (SpecialBarlineDashed)
-        {
-            // dashed
-            return 'dashed';
-        }
-        case (SpecialBarlineDouble)
-        {
-            // double
-            return 'dbl';
-        }
-        case (SpecialBarlineFinal)
-        {
-            // final
-            return 'end';
-        }
-        case (SpecialBarlineInvisible)
-        {
-            // invisible
-            return 'invis';
-        }
-        case (SpecialBarlineBetweenStaves)
-        {
-            // between staves
-            // no MEI equiv.
-            return ' ';
-        }
-        case (SpecialBarlineNormal)
-        {
-            // normal
-            // this should usually be needed.
-            return 'single';
-        }
-        case (SpecialBarlineTick)
-        {
-            // tick
-            // unknown
-            return ' ';
-        }
-        case (SpecialBarlineShort)
-        {
-            // short
-            // unknown
-            return ' ';
-        }
-        default
-        {
-            return ' ';
-        }
-    }
-}  //$end
 
 function ConvertFbFigures (fb, bobj) {
     //$module(ExportConverters)
@@ -897,6 +689,7 @@ function ConvertFbFigures (fb, bobj) {
     // We want one more iteration than we have components, hence we start at
     // -1.
     i = -1;
+    component = null;
     while ((i = -1) or (component != null))
     {
         i = i + 1;
@@ -955,59 +748,6 @@ function ConvertFbFigures (fb, bobj) {
     }
 }  //$end
 
-function ConvertEndingValues (styleid) {
-    //$module(ExportConverters)
-    ending_style = MSplitString(styleid, '.');
-    num = ' ';
-    label = ' ';
-    type = ' ';
-
-    switch(ending_style[3])
-    {
-        case ('1st')
-        {
-            num = 1;
-            label = '1.';
-            type = 'closed';
-        }
-        case ('1st_n_2nd')
-        {
-            num = 1;
-            label = '1. 2.';
-            type = 'closed';
-        }
-        case ('2nd')
-        {
-            num = 2;
-            label = '2.';
-            if (ending_style[-1] = 'closed')
-            {
-                type = 'closed';
-            }
-            else
-            {
-                type = 'open';
-            }
-        }
-        case ('3rd')
-        {
-            num = 3;
-            label = '3.';
-            type = 'closed';
-        }
-        case ('open')
-        {
-            type = 'open';
-        }
-        case ('closed')
-        {
-            type = 'closed';
-        }
-    }
-
-    return CreateSparseArray(num, label, type);
-
-}  //$end
 
 function ConvertDate (datetime) {
     //$module(ExportConverters.mss)
