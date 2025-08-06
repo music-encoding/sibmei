@@ -4,7 +4,7 @@ This plugin allows Sibelius to export to the Music Encoding Initiative (MEI) for
 
 ## Download and Installation
 
-The latest release of the plugin can be found on the GitHub releases page: https://github.com/music-encoding/sibmei/releases
+The latest release of the plugin can be found on the [GitHub releases page](https://github.com/music-encoding/sibmei/releases).
 
 To install this plugin, copy or symlink the `.plg` files in the Sibelius Plugin directory on your machine. The specific location [depends on your OS and version of Sibelius](http://www.sibelius.com/download/plugins/index.html?help=install).
 
