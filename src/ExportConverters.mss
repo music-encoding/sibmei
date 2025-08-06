@@ -767,6 +767,13 @@ function ConvertTimeStamp (time) {
     // Converts a timestamp in milliseconds to an
     // isotime (hh:mm:ss.s) suitable for use in @tstamp.real
 
+    if (time < 0)
+    {
+        // Negative times can occur when Sibelius does not know when an event
+        // is played. In that case, don't write a time.
+        return ' ';
+    }
+
     mins = utils.GetMinutesFromTime(time);
 
     secs = time % 60000.0 / 1000.0;
