@@ -23,7 +23,7 @@ function TestElementCreate (assert, plugin) {
     assert.Equal(nm, 'note', 'The name of the element should be note');
     assert.OK(null != GetId(el), 'The ID should not be null');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestNamedElementCreate (assert, plugin) {
@@ -32,7 +32,7 @@ function TestNamedElementCreate (assert, plugin) {
     assert.Equal(nm, 'note', 'The named element creator should create a note');
     assert.OK(null != GetId(el), 'The ID should not be null');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestAttributeCreate (assert, plugin) {
@@ -41,7 +41,7 @@ function TestAttributeCreate (assert, plugin) {
     at = GetAttribute(el, 'pname');
     assert.Equal(at, 'c', 'The attribute value should be c');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestChildElementAdd (assert, plugin) {
@@ -53,7 +53,7 @@ function TestChildElementAdd (assert, plugin) {
     accid = children[0];
     assert.Equal(GetName(child), 'accid', 'The name of the child should be accid');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestChildElementRemove (assert, plugin) {
@@ -71,7 +71,7 @@ function TestChildElementRemove (assert, plugin) {
     assert.Equal(parent.children.Length, 1, 'After removal, the parent should only have one child');
     assert.Equal(parent.children[0], c2id, 'The child that remains should be child 2');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestDocumentObjectsCreated (assert, plugin) {
@@ -93,14 +93,14 @@ function TestDocumentObjectsDestroyed (assert, plugin) {
     assert.OK((t.Length > 0), 'There should be elements in the MEI Document Tree');
     assert.OK((f.GetPropertyNames().Length > 0), 'There should be elements in the Flattened MEI Structure');
 
-    InitXml();
+    ResetXml();
 
     t = Self._property:MEIDocument;
     f = Self._property:MEIFlattened;
     assert.NotOK((t.Length > 0), 'There should not be elements in the MEI Document Tree');
     assert.NotOK((f.GetPropertyNames().Length > 0), 'There should not be elements in the Flattened MEI Structure');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestGetElementById (assert, plugin) {
@@ -115,7 +115,7 @@ function TestGetElementById (assert, plugin) {
     s = GetElementById(music._id);
     assert.OK(null != s, 'The music element should not be null');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestMEIXMLOutput (assert, plugin) {
@@ -131,12 +131,12 @@ function TestMEIXMLOutput (assert, plugin) {
     m = MeiDocumentToString(d);
 
     assert.OK(null != m, 'The MEI Document output should not be null');
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestMEIFileWriting (assert, plugin) {
 
-    InitXml();
+    ResetXml();
 
     mei = CreateElement('mei');
     meiHead = CreateElement('meiHead');
@@ -152,7 +152,7 @@ function TestMEIFileWriting (assert, plugin) {
 
     assert.OK(m, 'The MEI File was successfully written to ' & filePath);
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestRemoveKeyFromDictionary (assert, plugin) {
@@ -177,7 +177,7 @@ function TestGetSetId (assert, plugin) {
     newInDocument = GetElementById('newId');
     assert.OK(null != newInDocument, 'The new ID should return the object');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestEncodeEntities (assert, plugin) {

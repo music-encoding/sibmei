@@ -11,7 +11,7 @@ function TestExportGenerators (suite) {
 
 function TestGenerateMEIHeader (assert, plugin) {
     //$module(TestExportGenerators.mss)
-    InitXml();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 1);
     score.Title = 'My great title';
@@ -44,12 +44,12 @@ function TestGenerateMEIHeader (assert, plugin) {
     e = MeiDocumentToFile(d, filePath);
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestGenerateMEIMusic (assert, plugin) {
     //$module(TestExportGenerators.mss)
-    InitXml();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 10);
     SetGlobalsForScore(score);
@@ -122,12 +122,12 @@ function TestGenerateMEIMusic (assert, plugin) {
     e = MeiDocumentToFile(d, filePath);
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestGenerateMusicWithLyrics (assert, plugin) {
     //$module(TestExportGenerators.mss)
-    InitXml();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 10);
     staff = score.NthStaff(1);
@@ -165,12 +165,12 @@ function TestGenerateMusicWithLyrics (assert, plugin) {
     d = GetDocument();
     filePath = Self._property:tempDir & 'testlyrics.mei';
     e = MeiDocumentToFile(d, filePath);
-    InitXml();
+    ResetXml();
 }  //$end
 
 function TestGenerateMusicWithEndings (assert, plugin) {
     //$module(TextExportGenerators.mss)
-    InitXml();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 8);
     staff = score.NthStaff(1);
@@ -217,7 +217,7 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     d = GetDocument();
     filePath = Self._property:tempDir & 'testendings.mei';
     e = MeiDocumentToFile(d, filePath);
-    InitXml();
+    ResetXml();
 }  //$end
 
 

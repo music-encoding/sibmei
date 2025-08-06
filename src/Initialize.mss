@@ -88,36 +88,7 @@ function InitGlobals (extensions) {
         return false;
     }
 
-    Self._property:EncodedChar = CreateSparseArray();
-    EncodedChar[34] = '&quot;';
-    EncodedChar[60] = '&lt;';
-    EncodedChar[38] = '&amp;';
-
-    // Create a string of all characters that have to be entity-encoded
-    Self._property:EscapedCharacters = '';
-    for each codepoint in EncodedChar.ValidIndices
-    {
-        EscapedCharacters = EscapedCharacters & Chr(codepoint);
-    }
-
-    Self._property:IsLegalElement = CreateDictionary('<!--', true);
-    Self._property:Schema = CreateDictionary();
-    for each elementTreeNode in LegalElements
-    {
-        elementName = elementTreeNode & '';
-        IsLegalElement[elementName] = true;
-        attributes = CreateDictionary();
-        children = CreateDictionary();
-        Schema[elementName] = CreateDictionary('attributes', attributes, 'children', children);
-        for each childName in elementTreeNode.children
-        {
-            children[childName] = true;
-        }
-        for each attributeName in elementTreeNode.attributes
-        {
-            attributes[attributeName] = true;
-        }
-    }
+    InitXmlGlobals();
 
     Self._property:_Initialized = true;
 

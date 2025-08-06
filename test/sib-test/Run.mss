@@ -28,7 +28,7 @@ function RunTests() {
 
     suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei);
 
-    InitXml();
+    ResetXml();
 
     suite
         .AddModule('TestExportConverters')

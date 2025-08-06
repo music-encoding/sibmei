@@ -67,7 +67,7 @@ function DoExport (score, filename) {
 
     // first, ensure we're running with a clean slate.
     // (initialization of libmei has moved to InitGlobals())
-    InitXml();
+    ResetXml();
     SetGlobalsForScore(score);
 
     // Deal with the Progress GUI
@@ -93,7 +93,7 @@ function DoExport (score, filename) {
     }
 
     // clean up after ourself
-    InitXml();
+    ResetXml();
 
     if (export_status = False)
     {
