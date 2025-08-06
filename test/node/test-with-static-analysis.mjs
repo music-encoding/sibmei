@@ -143,7 +143,7 @@ function checkLine(line, legalAttributes, legalElements) {
     if (!elementName) {
       return { undecidable: elementArgument };
     }
-    if (!legalElements.has(elementName)) {
+    if (!legalElements.has(elementName)  && elementName !== '<!--') {
       return { error: elementName + " is not a valid element name" };
     }
   }
