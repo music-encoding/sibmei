@@ -195,11 +195,18 @@ async function build() {
   console.log("");
 }
 
-build().finally(() => {
+/**
+ * @param {any} e
+ */
+function onBuildFailure(e) {
+  console.error(e, "\n");
+}
+
+build().catch(onBuildFailure).finally(() => {
   if (argv[2] === "--watch") {
     info("Watching files for changes\n");
     chokidar.watch(["src", "test", "lib"], { ignoreInitial: true }).on("all", () => {
-      build().catch((e) => console.error(e, "\n"));
+      build().catch(onBuildFailure);
     });
   }
 });
