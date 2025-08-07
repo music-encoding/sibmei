@@ -65,15 +65,15 @@
   HandleMySymbol "(api, obj) {
     symbolElement = api.GenerateControlEvent(obj, api.MeiFactory(MySymbolTemplate, obj));
     if (obj.ColorRed = 255) {
-      api.libmei.AddAttribute(symbolElement, 'type', 'myRedType');
+      api.AddAttribute(symbolElement, 'type', 'myRedType');
     }
     return symbolElement;
   }"
 
   HandleXPathTest "(api, textObj) {
     // This text style is used by the sibmei test suite
-    annotElement = api.AppendToMeasure(api.libmei.CreateElement('annot'));
-    api.libmei.AddAttribute(annotElement, 'type', 'xpath-test');
+    annotElement = api.AppendToMeasure(api.CreateElement('annot'));
+    api.AddAttribute(annotElement, 'type', 'xpath-test');
     textWithFormatting = textObj.TextWithFormatting;
     for i = 0 to textWithFormatting.NumChildren {
       if (CharAt(textWithFormatting[i], 0) = '\\') {
@@ -82,7 +82,7 @@
         textWithFormatting[i] = '';
       }
     }
-    api.libmei.SetText(annotElement, JoinStrings(textWithFormatting, ''));
+    api.SetText(annotElement, JoinStrings(textWithFormatting, ''));
     return annotElement;
   }"
 }

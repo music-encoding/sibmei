@@ -726,7 +726,7 @@ function InitFigbassCharMap () {
 }  //$end
 
 
-function MeiFactory (data, bobj) {
+export function MeiFactory (data, bobj) {
     // Parameter `data` is a template SparseArray with the following entries:
     //
     // 0. The capitalized tag name
