@@ -124,6 +124,10 @@ function assertLine(line, legalAttributes, legalElements, errorExpected, undecid
  * @returns {{undecidable?: string, error?: string}}
  */
 function checkLine(line, legalAttributes, legalElements) {
+  if (line.match(/^\s*(export )?function/)) {
+    return {};
+  }
+
   const stringArgumentRegex = /^'([^']+)/;
 
   const [a, b, attributeArgument] = line.match(/AddAttribute(Value)?\s*\(\s*[^,]+,\s*(.+)/) || [];

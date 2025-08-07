@@ -92,7 +92,7 @@ function AddUnformattedText (self, parentElement, textObject) {
 }  //$end
 
 
-function AddFormattedText (self, parentElement, textObject) {
+export function AddFormattedText (self, parentElement, textObject) {
     textWithFormatting = textObject.TextWithFormatting;
     if (textWithFormatting.NumChildren < 2 and CharAt(textWithFormatting[0], 0) != '\\')
     {

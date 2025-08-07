@@ -174,7 +174,6 @@ function InitExtensions (extensions, pluginList) {
 function CreateApiObject (extensionInfo) {
     apiObject = CreateDictionary(
         '_extensionInfo', extensionInfo,
-        'libmei', Self,
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText,
         'LyricText', LyricText
@@ -185,15 +184,20 @@ function CreateApiObject (extensionInfo) {
         StopPlugin('Unsupported extension API version: ' & extensionInfo.apiVersion);
     }
 
+    // All functions with the `export` are also compiled to version with an
+    // parameter `self` as a first parameter so that it can be called as a
+    // method from the apiObject.
+    for each function in ExportedFunctions
+    {
+        apiObject.SetMethod(function, Self, 'ExtensionAPI_' & function);
+    }
+
+    // Some methods are special and need to be added explicitly
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
     apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
     apiObject.SetMethod('RegisterLyricHandlers', Self, 'ExtensionAPI_RegisterLyricHandlers');
-    apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
     apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
-    apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
-    apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
-    apiObject.SetMethod('AppendToMeasure', Self, 'ExtensionAPI_AppendToMeasure');
 
     return apiObject;
 }  //$end
@@ -215,23 +219,7 @@ function ExtensionAPI_RegisterLyricHandlers (this, idProperty, handlerMethod, te
     RegisterHandlers(this, LyricHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
-    MeiFactory(templateObject, bobj);
-}  //$end
-
-function ExtensionAPI_MeiFactory_LegacyApiVersion1 (this, templateObject) {
-    MeiFactory(templateObject, null);
-}  //$end
-
-function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
-    GenerateControlEvent(bobj, element);
-}   //$end
-
-function ExtensionAPI_GenerateModifier (this, bobj, element) {
-    GenerateModifier(bobj, element);
-}   //$end
-
-function ExtensionAPI_AppendToMeasure (this, element) {
+export function AppendToMeasure (element) {
     MeasureObjects.Push(element._id);
     return element;
 }   //$end
