@@ -56,7 +56,7 @@ function InitGlobals (extensions) {
     BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
     BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
     BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
-    // BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+    BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
     BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
     BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
     BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
