@@ -65,7 +65,7 @@ async function buildPlg(sourceFiles, target, develop = false) {
     ${compile(sourceFiles)}
     ${GLOBALS}
     LegalElements ${await compileLegalElements(develop)}
-  }`,
+    }`,
     { encoding: "utf16le" }
   );
 }
