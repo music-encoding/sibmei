@@ -1,9 +1,9 @@
 {
-  "name": "sibmei4",
-  "version": "4.2.0",
+  "name": "sibmei",
+  "version": "5.0.0",
   "description": "MEI export plugin for Avid Sibelius",
   "sibmei": {
-    "meiVersion": "4.0.1"
+    "meiVersion": "5.1"
   },
   "repository": {
     "type": "git",
@@ -14,10 +14,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "node --test test/node/test-*.js",
+    "test": "node --test test/node/test-*js",
     "build": "node tools/build.mjs",
-    "develop": "node tools/build.mjs --watch",
-    "analyze": "node tools/analyze.js"
+    "develop": "node tools/build.mjs --watch"
   },
   "author": "",
   "license": "ISC",

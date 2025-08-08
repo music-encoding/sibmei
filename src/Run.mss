@@ -67,7 +67,7 @@ function DoExport (score, filename) {
 
     // first, ensure we're running with a clean slate.
     // (initialization of libmei has moved to InitGlobals())
-    libmei.destroy();
+    ResetXml();
     SetGlobalsForScore(score);
 
     // Deal with the Progress GUI
@@ -79,9 +79,9 @@ function DoExport (score, filename) {
     // finally, process the score.
     ProcessScore();
 
-    doc = libmei.getDocument();
+    doc = GetDocument();
     // save the file
-    export_status = libmei.meiDocumentToFile(doc, filename);
+    export_status = MeiDocumentToFile(doc, filename);
 
     // start cleaning up.
     Sibelius.DestroyProgressDialog();
@@ -93,7 +93,7 @@ function DoExport (score, filename) {
     }
 
     // clean up after ourself
-    libmei.destroy();
+    ResetXml();
 
     if (export_status = False)
     {

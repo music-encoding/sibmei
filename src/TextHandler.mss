@@ -10,14 +10,14 @@ function InitTextHandlers() {
     );
 
     RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
-        'text.staff.expression', @Element('Dynam', noAttributes, FormattedText),
+        'text.staff.expression', @Element('dynam', noAttributes, FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
-        'text.staff.technique', @Element('Dir', @Attrs('type', 'technique'), FormattedText),
-        'text.system.page_aligned.composer', @Element('AnchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
-        'text.system.page_aligned.subtitle', @Element('AnchoredText', @Attrs('func', 'subtitle', 'tstamp', ' '), FormattedText),
-        'text.system.page_aligned.title', @Element('AnchoredText', @Attrs('func', 'title', 'tstamp', ' '), FormattedText),
-        'text.system.page_aligned.dedication', @Element('AnchoredText', @Attrs('func', 'dedication', 'tstamp', ' '), FormattedText),
-        'text.system.tempo', @Element('Tempo', noAttributes, FormattedText)
+        'text.staff.technique', @Element('dir', @Attrs('type', 'technique'), FormattedText),
+        'text.system.page_aligned.composer', @Element('anchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.subtitle', @Element('anchoredText', @Attrs('func', 'subtitle', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.title', @Element('anchoredText', @Attrs('func', 'title', 'tstamp', ' '), FormattedText),
+        'text.system.page_aligned.dedication', @Element('anchoredText', @Attrs('func', 'dedication', 'tstamp', ' '), FormattedText),
+        'text.system.tempo', @Element('tempo', noAttributes, FormattedText)
     ));
 
     RegisterTextHandlers('StyleId', 'FiguredBassTextHandler', @Attrs(
@@ -32,25 +32,25 @@ function RegisterTextHandlers (idProperty, handlerMethod, templatesById) {
 
 function InitTextSubstituteMap() {
     tempSubstituteMap = CreateDictionary(
-        'Title', @Element('Title'),
-        'Subtitle', @Element('Title', @Attrs('type', 'subordinate')),
+        'Title', @Element('title'),
+        'Subtitle', @Element('title', @Attrs('type', 'subordinate')),
         // <dedication> is only allowed on <titlePage> and <creation>, so use
         // generic element
-        'Dedication', @Element('Seg', @Attrs('type', 'Dedication')),
+        'Dedication', @Element('seg', @Attrs('type', 'Dedication')),
         // <composer>, <arranger>, <lyricist>, <userRestrict> and <publisher>
         // are only allowed in a few places, e.g. metadata or title pages.
         // We therfore use more generic elements
-        'Composer', @Element('PersName', @Attrs('role', 'Composer')),
-        'Arranger', @Element('PersName', @Attrs('role', 'Arranger')),
-        'Lyricist', @Element('PersName', @Attrs('role', 'Lyricist')),
-        'Artist', @Element('PersName', @Attrs('role', 'Artist')),
+        'Composer', @Element('persName', @Attrs('role', 'Composer')),
+        'Arranger', @Element('persName', @Attrs('role', 'Arranger')),
+        'Lyricist', @Element('persName', @Attrs('role', 'Lyricist')),
+        'Artist', @Element('persName', @Attrs('role', 'Artist')),
         // <useRestrict> is only allowed on <titlePage>, so use generic element
-        'Copyright', @Element('Seg', @Attrs('type', 'Copyright')),
+        'Copyright', @Element('seg', @Attrs('type', 'Copyright')),
         // <publisher> is only allowed in a few places, so use generic element
         // We don't even know if it's a person or an institution
-        'Publisher', @Element('Seg', @Attrs('type', 'Publisher')),
-        'MoreInfo', @Element('Seg', @Attrs('type', 'MoreInfo')),
-        'PartName', @Element('Seg', @Attrs('type', 'PartName'))
+        'Publisher', @Element('seg', @Attrs('type', 'Publisher')),
+        'MoreInfo', @Element('seg', @Attrs('type', 'MoreInfo')),
+        'PartName', @Element('seg', @Attrs('type', 'PartName'))
     );
 
     textSubstituteMap = CreateDictionary();
@@ -70,18 +70,18 @@ function InitTextSubstituteMap() {
 
 function FiguredBassTextHandler (this, textObject) {
     // 'text.staff.space.figuredbass'
-    harm = GenerateControlEvent(textObject, libmei.Harm());
+    harm = GenerateControlEvent(textObject, CreateElement('harm'));
 
     // uniquely, for figured bass we do not use the startid here,
     // since a figure can change halfway through a note. So we remove
     // the startid and replace it with corresp, pointing to the
     // same ID.
-    startidValue = libmei.GetAttribute(harm, 'startid');
-    libmei.RemoveAttribute(harm, 'startid');
-    libmei.AddAttribute(harm, 'corresp', startidValue);
+    startidValue = GetAttribute(harm, 'startid');
+    RemoveAttribute(harm, 'startid');
+    AddAttribute(harm, 'corresp', startidValue);
 
-    fb = libmei.Fb();
-    libmei.AddChild(harm, fb);
+    fb = CreateElement('fb');
+    AddChild(harm, fb);
     ConvertFbFigures(fb, textObject);
     return harm;
 }  //$end
@@ -99,9 +99,9 @@ function AddFormattedText (self, parentElement, textObject) {
         // We have a simple text element without special style properties
         if (parentElement.name = 'div')
         {
-            p = libmei.P();
-            libmei.SetText(p, textObject.Text);
-            libmei.AddChild(parentElement, p);
+            p = CreateElement('p');
+            SetText(p, textObject.Text);
+            AddChild(parentElement, p);
         }
         else
         {
@@ -131,13 +131,13 @@ function AddTextWithFormatting (parentElement, textWithFormatting) {
             case ('\\n')
             {
                 PushStyledText(state);
-                nodes.Push(libmei.Lb());
+                nodes.Push(CreateElement('lb'));
             }
             case ('\\N')
             {
                 PushStyledText(state);
-                // TODO: Add <p> if it is allowed within parentElement (use libmei.GetName())
-                nodes.Push(libmei.Lb());
+                // TODO: Add <p> if it is allowed within parentElement (use GetName())
+                nodes.Push(CreateElement('lb'));
             }
             case ('\\B')
             {
@@ -243,7 +243,7 @@ function AddTextWithFormatting (parentElement, textWithFormatting) {
         if (IsObject(node))
         {
             // We have an element
-            libmei.AddChild(parentElement, node);
+            AddChild(parentElement, node);
             precedingElement = node;
         }
         else
@@ -259,11 +259,11 @@ function AddTextWithFormatting (parentElement, textWithFormatting) {
 
             if (precedingElement = null)
             {
-                libmei.SetText(parentElement, text);
+                SetText(parentElement, text);
             }
             else
             {
-                libmei.SetTail(precedingElement, text);
+                SetTail(precedingElement, text);
             }
         }
         nodeIndex = nodeIndex + 1;
@@ -341,12 +341,12 @@ function PushStyledText (state) {
     }
     else
     {
-        rend = libmei.Rend();
+        rend = CreateElement('rend');
         for each Name attName in styleAttributes
         {
-            libmei.AddAttribute(rend, attName, styleAttributes[attName]);
+            AddAttribute(rend, attName, styleAttributes[attName]);
         }
-        libmei.SetText(rend, state.currentText);
+        SetText(rend, state.currentText);
         state.meiNodes.Push(rend);
     }
 
@@ -441,16 +441,16 @@ function AppendTextSubstitute (state, substituteName) {
     rendElement = null;
     if (null = styleAttributes)
     {
-        libmei.SetText(element, substitutedText);
+        SetText(element, substitutedText);
     }
     else
     {
-        rendElement = libmei.Rend();
-        libmei.AddChild(element, rendElement);
+        rendElement = CreateElement('rend');
+        AddChild(element, rendElement);
         for each Name attName in styleAttributes
         {
-            libmei.AddAttribute(rendElement, attName, styleAttributes[attName]);
+            AddAttribute(rendElement, attName, styleAttributes[attName]);
         }
-        libmei.SetText(rendElement, substitutedText);
+        SetText(rendElement, substitutedText);
     }
 }  //$end

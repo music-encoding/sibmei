@@ -11,7 +11,7 @@ function TestExportGenerators (suite) {
 
 function TestGenerateMEIHeader (assert, plugin) {
     //$module(TestExportGenerators.mss)
-    libmei.destroy();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 1);
     score.Title = 'My great title';
@@ -35,21 +35,21 @@ function TestGenerateMEIHeader (assert, plugin) {
 
     m = sibmei.GenerateMEIHeader();
 
-    mei = libmei.Mei();
-    libmei.setDocumentRoot(mei);
-    libmei.AddChild(mei, m);
+    mei = CreateElement('mei');
+    SetDocumentRoot(mei);
+    AddChild(mei, m);
 
-    d = libmei.getDocument();
+    d = GetDocument();
     filePath = Self._property:tempDir & 'header.mei';
-    e = libmei.meiDocumentToFile(d, filePath);
+    e = MeiDocumentToFile(d, filePath);
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
-    libmei.destroy();
+    ResetXml();
 }  //$end
 
 function TestGenerateMEIMusic (assert, plugin) {
     //$module(TestExportGenerators.mss)
-    libmei.destroy();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 10);
     SetGlobalsForScore(score);
@@ -112,22 +112,22 @@ function TestGenerateMEIMusic (assert, plugin) {
     sibmei._property:ActiveScore = score;
     music = sibmei.GenerateMEIMusic();
 
-    m = libmei.Mei();
-    libmei.AddChild(m, music);
+    m = CreateElement('mei');
+    AddChild(m, music);
 
-    libmei.setDocumentRoot(m);
+    SetDocumentRoot(m);
 
-    d = libmei.getDocument();
+    d = GetDocument();
     filePath = Self._property:tempDir & 'testmusic.mei';
-    e = libmei.meiDocumentToFile(d, filePath);
+    e = MeiDocumentToFile(d, filePath);
     assert.OK(e, 'The file ' & filePath & ' was successfully generated');
 
-    libmei.destroy();
+    ResetXml();
 }  //$end
 
 function TestGenerateMusicWithLyrics (assert, plugin) {
     //$module(TestExportGenerators.mss)
-    libmei.destroy();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 10);
     staff = score.NthStaff(1);
@@ -157,20 +157,20 @@ function TestGenerateMusicWithLyrics (assert, plugin) {
     sibmei._property:ActiveScore = score;
     music = sibmei.GenerateMEIMusic();
 
-    m = libmei.Mei();
-    libmei.AddChild(m, music);
+    m = CreateElement('mei');
+    AddChild(m, music);
 
-    libmei.setDocumentRoot(m);
+    SetDocumentRoot(m);
 
-    d = libmei.getDocument();
+    d = GetDocument();
     filePath = Self._property:tempDir & 'testlyrics.mei';
-    e = libmei.meiDocumentToFile(d, filePath);
-    libmei.destroy();
+    e = MeiDocumentToFile(d, filePath);
+    ResetXml();
 }  //$end
 
 function TestGenerateMusicWithEndings (assert, plugin) {
     //$module(TextExportGenerators.mss)
-    libmei.destroy();
+    ResetXml();
 
     score = CreateEmptyTestScore(1, 8);
     staff = score.NthStaff(1);
@@ -209,15 +209,15 @@ function TestGenerateMusicWithEndings (assert, plugin) {
     sibmei._property:ActiveScore = score;
     music = sibmei.GenerateMEIMusic();
 
-    m = libmei.Mei();
-    libmei.AddChild(m, music);
+    m = CreateElement('mei');
+    AddChild(m, music);
 
-    libmei.setDocumentRoot(m);
+    SetDocumentRoot(m);
 
-    d = libmei.getDocument();
+    d = GetDocument();
     filePath = Self._property:tempDir & 'testendings.mei';
-    e = libmei.meiDocumentToFile(d, filePath);
-    libmei.destroy();
+    e = MeiDocumentToFile(d, filePath);
+    ResetXml();
 }  //$end
 
 

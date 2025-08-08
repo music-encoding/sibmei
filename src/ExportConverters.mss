@@ -699,13 +699,13 @@ function ConvertFbFigures (fb, bobj) {
             // We reached a linebreak or the last component
             if (currentLine != '')
             {
-                f = libmei.F();
-                libmei.SetText(f, currentLine);
-                libmei.AddAttribute(f, 'n', n);
-                libmei.AddChild(fb, f);
+                f = CreateElement('f');
+                SetText(f, currentLine);
+                AddAttribute(f, 'n', n);
+                AddChild(fb, f);
                 if (altsym != null)
                 {
-                    libmei.AddAttribute(f, 'altsym', altsym);
+                    AddAttribute(f, 'altsym', altsym);
                     altsym = null;
                 }
             }

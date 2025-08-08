@@ -174,7 +174,7 @@ function InitExtensions (extensions, pluginList) {
 function CreateApiObject (extensionInfo) {
     apiObject = CreateDictionary(
         '_extensionInfo', extensionInfo,
-        'libmei', libmei,
+        'libmei', Self,
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText,
         'LyricText', LyricText
@@ -193,6 +193,7 @@ function CreateApiObject (extensionInfo) {
     apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
     apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
+    apiObject.SetMethod('AppendToMeasure', Self, 'ExtensionAPI_AppendToMeasure');
 
     return apiObject;
 }  //$end
@@ -228,4 +229,9 @@ function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
 
 function ExtensionAPI_GenerateModifier (this, bobj, element) {
     GenerateModifier(bobj, element);
+}   //$end
+
+function ExtensionAPI_AppendToMeasure (this, element) {
+    MeasureObjects.Push(element._id);
+    return element;
 }   //$end

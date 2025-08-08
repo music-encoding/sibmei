@@ -13,9 +13,6 @@ function InitGlobals (extensions) {
     // `extensions` can be null or a SparseArray. See `InitExtensions()` for
     // more detailed information.
 
-    // initialize libmei as soon as possible
-    Self._property:libmei = libmei4;
-
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);
@@ -59,7 +56,7 @@ function InitGlobals (extensions) {
     BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
     BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
     BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
-    // BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+    BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
     BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
     BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
     BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
@@ -90,6 +87,8 @@ function InitGlobals (extensions) {
     {
         return false;
     }
+
+    InitXmlGlobals();
 
     Self._property:_Initialized = true;
 

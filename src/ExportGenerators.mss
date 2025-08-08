@@ -5,93 +5,93 @@ function GenerateMEIHeader () {
     score = Self._property:ActiveScore;
 
 
-    header = libmei.MeiHead();
+    header = CreateElement('meiHead');
     Self._property:HeaderElement = header;
 
-    fileD = libmei.FileDesc();
-    titleS = libmei.TitleStmt();
-    libmei.AddChild(header, fileD);
-    libmei.AddChild(fileD, titleS);
+    fileD = CreateElement('fileDesc');
+    titleS = CreateElement('titleStmt');
+    AddChild(header, fileD);
+    AddChild(fileD, titleS);
 
     //encodingDesc must preceed workList in MEI 4.0
-    encodingD = libmei.EncodingDesc();
-    libmei.AddChild(header, encodingD);
+    encodingD = CreateElement('encodingDesc');
+    AddChild(header, encodingD);
     appI = GenerateApplicationInfo();
-    libmei.AddChild(encodingD, appI);
+    AddChild(encodingD, appI);
 
     //generate workList
-    workList = libmei.WorkList();
+    workList = CreateElement('workList');
     Self._property:WorkListElement = workList;
 
-    wd_work = libmei.Work();
-    wd_title = libmei.Title();
-    libmei.AddChild(wd_work, wd_title);
-    libmei.AddChild(workList, wd_work);
-    libmei.AddChild(header, workList);
+    wd_work = CreateElement('work');
+    wd_title = CreateElement('title');
+    AddChild(wd_work, wd_title);
+    AddChild(workList, wd_work);
+    AddChild(header, workList);
 
-    title = libmei.Title();
-    libmei.AddChild(titleS, title);
+    title = CreateElement('title');
+    AddChild(titleS, title);
 
     if (score.Title != '')
     {
-        libmei.SetText(title, score.Title);
-        libmei.SetText(wd_title, score.Title);
+        SetText(title, score.Title);
+        SetText(wd_title, score.Title);
     }
     if (score.Subtitle != '')
     {
-        subtitle = libmei.Title();
-        libmei.AddChild(titleS, subtitle);
-        libmei.SetText(subtitle, score.Subtitle);
-        libmei.AddAttribute(subtitle, 'type', 'subtitle');
+        subtitle = CreateElement('title');
+        AddChild(titleS, subtitle);
+        SetText(subtitle, score.Subtitle);
+        AddAttribute(subtitle, 'type', 'subtitle');
     }
     if (score.Composer != '')
     {
-        composer = libmei.Composer();
-        libmei.AddChild(titleS, composer);
-        libmei.SetText(composer, score.Composer);
-        wd_composer = libmei.Composer();
-        libmei.SetText(wd_composer, score.Composer);
-        libmei.AddChild(wd_work, wd_composer);
+        composer = CreateElement('composer');
+        AddChild(titleS, composer);
+        SetText(composer, score.Composer);
+        wd_composer = CreateElement('composer');
+        SetText(wd_composer, score.Composer);
+        AddChild(wd_work, wd_composer);
     }
     if (score.Lyricist != '')
     {
-        lyricist = libmei.Lyricist();
-        libmei.AddChild(titleS, lyricist);
-        libmei.SetText(lyricist, score.Lyricist);
-        wd_lyricist = libmei.Lyricist();
-        libmei.SetText(wd_lyricist, score.Lyricist);
-        libmei.AddChild(wd_work, wd_lyricist);
+        lyricist = CreateElement('lyricist');
+        AddChild(titleS, lyricist);
+        SetText(lyricist, score.Lyricist);
+        wd_lyricist = CreateElement('lyricist');
+        SetText(wd_lyricist, score.Lyricist);
+        AddChild(wd_work, wd_lyricist);
     }
     if (score.Arranger != '')
     {
-        arranger = libmei.Arranger();
-        libmei.AddChild(titleS, arranger);
-        libmei.SetText(arranger, score.Arranger);
-        wd_arranger = libmei.Arranger();
-        libmei.SetText(wd_arranger, score.Arranger);
-        libmei.AddChild(wd_work, wd_arranger);
+        arranger = CreateElement('arranger');
+        AddChild(titleS, arranger);
+        SetText(arranger, score.Arranger);
+        wd_arranger = CreateElement('arranger');
+        SetText(wd_arranger, score.Arranger);
+        AddChild(wd_work, wd_arranger);
     }
     if (score.OtherInformation != '')
     {
-        wd_notesStmt = libmei.NotesStmt();
-        ns_annot = libmei.Annot();
-        libmei.AddChild(wd_work, wd_notesStmt);
-        libmei.AddChild(wd_notesStmt, ns_annot);
-        libmei.SetText(ns_annot, score.OtherInformation);
+        wd_notesStmt = CreateElement('notesStmt');
+        ns_annot = CreateElement('annot');
+        AddChild(wd_work, wd_notesStmt);
+        AddChild(wd_notesStmt, ns_annot);
+        SetText(ns_annot, score.OtherInformation);
     }
 
-    respS = libmei.RespStmt();
-    libmei.AddChild(titleS, respS);
-    persN = libmei.PersName();
-    libmei.AddChild(respS, persN);
-    pubS = libmei.PubStmt();
-    libmei.AddChild(fileD, pubS);
+    respS = CreateElement('respStmt');
+    AddChild(titleS, respS);
+    persN = CreateElement('persName');
+    AddChild(respS, persN);
+    pubS = CreateElement('pubStmt');
+    AddChild(fileD, pubS);
 
-    avail = libmei.Availability();
-    ur = libmei.UseRestrict();
-    libmei.AddChild(avail, ur);
-    libmei.AddChild(pubS, avail);
-    libmei.SetText(ur, score.Copyright);
+    avail = CreateElement('availability');
+    ur = CreateElement('useRestrict');
+    AddChild(avail, ur);
+    AddChild(pubS, avail);
+    SetText(ur, score.Copyright);
 
     return header;
 }  //$end
@@ -99,39 +99,39 @@ function GenerateMEIHeader () {
 function GenerateApplicationInfo () {
     //$module(ExportGenerators.mss)
 
-    appI = libmei.AppInfo();
+    appI = CreateElement('appInfo');
 
-    applic = libmei.Application();
-    libmei.SetId(applic, 'sibelius');
-    libmei.AddChild(appI, applic);
-    libmei.AddAttribute(applic, 'version', Sibelius.ProgramVersion);
+    applic = CreateElement('application');
+    SetId(applic, 'sibelius');
+    AddChild(appI, applic);
+    AddAttribute(applic, 'version', Sibelius.ProgramVersion);
     isodate = ConvertDate(Sibelius.CurrentDate);
-    libmei.AddAttribute(applic, 'isodate', isodate);
-    osname = libmei.Name();
-    libmei.SetText(osname, Sibelius.OSVersionString);
-    libmei.AddAttribute(osname, 'type', 'operating-system');
-    libmei.AddChild(applic, osname);
+    AddAttribute(applic, 'isodate', isodate);
+    osname = CreateElement('name');
+    SetText(osname, Sibelius.OSVersionString);
+    AddAttribute(osname, 'type', 'operating-system');
+    AddChild(applic, osname);
 
-    plgapp = libmei.Application();
-    plgname = libmei.Name();
-    libmei.SetText(plgname, PluginName & ' (' & PluginVersion & ')');
-    libmei.AddAttribute(plgapp, 'type', 'plugin');
-    libmei.AddAttribute(plgapp, 'version', PluginVersion);
-    libmei.SetId(plgapp, 'sibmei');
-    libmei.AddChild(plgapp, plgname);
-    libmei.AddChild(appI, plgapp);
+    plgapp = CreateElement('application');
+    plgname = CreateElement('name');
+    SetText(plgname, PluginName & ' (' & PluginVersion & ')');
+    AddAttribute(plgapp, 'type', 'plugin');
+    AddAttribute(plgapp, 'version', PluginVersion);
+    SetId(plgapp, 'sibmei');
+    AddChild(plgapp, plgname);
+    AddChild(appI, plgapp);
 
     if (Self._property:ChosenExtensions)
     {
         for each Pair ext in Self._property:ChosenExtensions
         {
-            extapp = libmei.Application();
-            libmei.SetId(extapp, ext.Name);
-            libmei.AddAttribute(extapp, 'type', 'extension');
-            extName = libmei.Name();
-            libmei.SetText(extName, ext.Value);
-            libmei.AddChild(extapp, extName);
-            libmei.AddChild(appI,extapp);
+            extapp = CreateElement('application');
+            SetId(extapp, ext.Name);
+            AddAttribute(extapp, 'type', 'extension');
+            extName = CreateElement('name');
+            SetText(extName, ext.Value);
+            AddChild(extapp, extName);
+            AddChild(appI,extapp);
         }
     }
 
@@ -154,21 +154,21 @@ function GenerateMEIMusic () {
     // track page numbers
     Self._property:CurrentPageNumber = null;
     // We start the first page with a <pb> (good practice and helps Verovio)
-    Self._property:PageBreak = libmei.Pb();
+    Self._property:PageBreak = CreateElement('pb');
     Self._property:SystemBreak = null;
 
-    music = libmei.Music();
+    music = CreateElement('music');
 
     ProcessFrontMatter(music);
 
-    body = libmei.Body();
-    libmei.AddChild(music, body);
+    body = CreateElement('body');
+    AddChild(music, body);
     Self._property:BodyElement = body;
 
     // start with the first bar.
     FIRST_BAR = 1;
     mdiv = GenerateMDiv(FIRST_BAR);
-    libmei.AddChild(body, mdiv);
+    AddChild(body, mdiv);
 
     numbars = SystemStaff.BarCount;
     currentScoreDef = null;
@@ -198,7 +198,7 @@ function GenerateMEIMusic () {
         if (Self._property:PageBreak != null)
         {
             pb = Self._property:PageBreak;
-            libmei.AddChild(section, pb);
+            AddChild(section, pb);
             Self._property:PageBreak = null;
         }
 
@@ -207,7 +207,7 @@ function GenerateMEIMusic () {
         if (Self._property:SystemBreak != null)
         {
             sb = Self._property:SystemBreak;
-            libmei.AddChild(section, sb);
+            AddChild(section, sb);
             Self._property:SystemBreak = null;
         }
 
@@ -230,10 +230,10 @@ function GenerateMEIMusic () {
         {
             if (currentScoreDef = null)
             {
-                currentScoreDef = libmei.ScoreDef();
+                currentScoreDef = CreateElement('scoreDef');
             }
 
-            libmei.AddAttribute(currentScoreDef, 'key.sig', ConvertKeySignature(currKeyS.Sharps));
+            AddAttribute(currentScoreDef, 'keysig', ConvertKeySignature(currKeyS.Sharps));
         }
 
         if (currentScoreDef != null)
@@ -242,22 +242,22 @@ function GenerateMEIMusic () {
             // the proper order.
             if (ActiveVolta != null)
             {
-                libmei.AddChild(ActiveVolta, currentScoreDef);
+                AddChild(ActiveVolta, currentScoreDef);
             }
             else
             {
-                libmei.AddChild(section, currentScoreDef);
+                AddChild(section, currentScoreDef);
             }
             currentScoreDef = null;
         }
 
         if (ActiveVolta != null)
         {
-            libmei.AddChild(ActiveVolta, m);
+            AddChild(ActiveVolta, m);
         }
         else
         {
-            libmei.AddChild(section, m);
+            AddChild(section, m);
         }
     }
 
@@ -267,26 +267,26 @@ function GenerateMEIMusic () {
 function GenerateMDiv (barnum) {
     //$module(ExportGenerators.mss)
     // Add the first mdiv; Movements will add new ones.
-    mdiv = libmei.Mdiv();
+    mdiv = CreateElement('mdiv');
     Self._property:MDivElement = mdiv;
 
-    ano = libmei.Annot();
-    libmei.AddAttribute(ano, 'type', 'duration');
-    libmei.SetText(ano, ConvertTimeStamp(ActiveScore.ScoreDuration));
+    ano = CreateElement('annot');
+    AddAttribute(ano, 'type', 'duration');
+    SetText(ano, ConvertTimeStamp(ActiveScore.ScoreDuration));
 
-    sco = libmei.Score();
-    libmei.AddChild(mdiv, sco);
+    sco = CreateElement('score');
+    AddChild(mdiv, sco);
 
     scd = GenerateScoreDef(ActiveScore, barnum);
     Self._property:MainScoreDef = scd;
-    libmei.AddChild(sco, scd);
+    AddChild(sco, scd);
 
-    section = libmei.Section();
+    section = CreateElement('section');
     Self._property:SectionElement = section;
-    libmei.AddChild(sco, section);
+    AddChild(sco, section);
 
     //annot is valid as a child of score
-    libmei.AddChild(sco, ano);
+    AddChild(sco, ano);
 
     return mdiv;
 } //$end
@@ -295,8 +295,8 @@ function GenerateMeasure (num) {
     Self._property:MeasureTies = CreateSparseArray();
     Self._property:MeasureObjects = CreateSparseArray();
 
-    m = libmei.Measure();
-    libmei.AddAttribute(m, 'n', num);
+    m = CreateElement('measure');
+    AddAttribute(m, 'n', num);
 
     children = CreateSparseArray();
 
@@ -308,12 +308,12 @@ function GenerateMeasure (num) {
 
     if (sysBar.Length != (currTimeS.Numerator * 1024 / currTimeS.Denominator))
     {
-        libmei.AddAttribute(m, 'metcon', 'false');
+        AddAttribute(m, 'metcon', 'false');
     }
 
     if (sysBar.NthBarInSystem = 0)
     {
-        Self._property:SystemBreak = libmei.Sb();
+        Self._property:SystemBreak = CreateElement('sb');
     }
 
     for each this_staff in Staves
@@ -324,27 +324,27 @@ function GenerateMeasure (num) {
         if (curr_pn != Self._property:CurrentPageNumber)
         {
             Self._property:CurrentPageNumber = curr_pn;
-            pb = libmei.Pb();
+            pb = CreateElement('pb');
 
             // pages are stored internally as 0-based, so increment by one for the 'human' representation.
-            libmei.AddAttribute(pb, 'n', curr_pn + 1);
+            AddAttribute(pb, 'n', curr_pn + 1);
             Self._property:PageBreak = pb;
         }
 
-        if (bar.ExternalBarNumberString != bar.BarNumber and libmei.GetAttribute(m, 'label') = False)
+        if (bar.ExternalBarNumberString != bar.BarNumber and GetAttribute(m, 'label') = False)
         {
-            libmei.AddAttribute(m, 'label', bar.ExternalBarNumberString);
+            AddAttribute(m, 'label', bar.ExternalBarNumberString);
         }
 
         s = GenerateStaff(this_staff, num);
-        libmei.AddChild(m, s);
+        AddChild(m, s);
         for each beamSpan in s.beamSpans
         {
-            libmei.AddChild(m, beamSpan);
+            AddChild(m, beamSpan);
             startid = GetMeiNoteRestAtPosition(beamSpan.startNoteRest, false)._id;
-            libmei.AddAttribute(beamSpan, 'startid', '#' & startid);
+            AddAttribute(beamSpan, 'startid', '#' & startid);
             endid = GetMeiNoteRestAtPosition(beamSpan.endNoteRest, false)._id;
-            libmei.AddAttribute(beamSpan, 'endid', '#' & endid);
+            AddAttribute(beamSpan, 'endid', '#' & endid);
         }
 
         ProcessBarObjects(bar);
@@ -374,7 +374,7 @@ function GenerateMeasure (num) {
                 {
                     for each Name attName in attributes
                     {
-                        libmei.AddAttribute(m, attName, attributes[attName]);
+                        AddAttribute(m, attName, attributes[attName]);
                     }
                 }
             }
@@ -385,7 +385,7 @@ function GenerateMeasure (num) {
                     text = HandleStyle(TextHandlers, bobj);
                     if (text != null)
                     {
-                        libmei.AddChild(m, text);
+                        AddChild(m, text);
                     }
                 }
             }
@@ -396,7 +396,7 @@ function GenerateMeasure (num) {
                 {
                     ActiveVolta = MeiFactory(voltaTemplate);
                     ActiveVolta._property:endBarNumber = bobj.EndBarNumber;
-                    libmei.AddChild(SectionElement, ActiveVolta);
+                    AddChild(SectionElement, ActiveVolta);
                 }
             }
             case ('Graphic')
@@ -418,11 +418,7 @@ function GenerateMeasure (num) {
         body = Self._property:BodyElement;
         // create the mdiv for the next bar.
         newMdiv = GenerateMDiv(num + 1);
-        libmei.AddChild(body, newMdiv);
-        // a new section end means a new entry in the header.
-        workList = Self._property:WorkListElement;
-        workEl = libmei.Work();
-        libmei.AddChild(workList, workEl);
+        AddChild(body, newMdiv);
     }
 
     return m;
@@ -432,19 +428,19 @@ function GenerateMeasure (num) {
 function GenerateStaff (staff, measurenum) {
     bar = staff[measurenum];
 
-    stf = libmei.Staff();
+    stf = CreateElement('staff');
 
     if (bar.OnHiddenStave)
     {
-        libmei.AddAttribute(stf, 'visible', 'false');
+        AddAttribute(stf, 'visible', 'false');
     }
 
-    libmei.AddAttribute(stf, 'n', staff.StaffNum);
+    AddAttribute(stf, 'n', staff.StaffNum);
 
     layers = BuildLayerHierarchy(staff, measurenum);
     stf['beamSpans'] = layers.beamSpans;
     // NB: Completely resets any previous children!
-    libmei.SetChildren(stf, layers);
+    SetChildren(stf, layers);
 
     return stf;
 }  //$end
@@ -453,23 +449,23 @@ function GenerateStaff (staff, measurenum) {
 function GenerateClef (bobj) {
     //$module(ExportGenerators.mss)
     clefinfo = ConvertClef(bobj.StyleId);
-    clef_el = libmei.Clef();
+    clef_el = CreateElement('clef');
 
-    libmei.AddAttribute(clef_el, 'shape', clefinfo[0]);
-    libmei.AddAttribute(clef_el, 'line', clefinfo[1]);
-    libmei.AddAttribute(clef_el, 'dis', clefinfo[2]);
-    libmei.AddAttribute(clef_el, 'dis.place', clefinfo[3]);
-    libmei.AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
-    libmei.AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+    AddAttribute(clef_el, 'shape', clefinfo[0]);
+    AddAttribute(clef_el, 'line', clefinfo[1]);
+    AddAttribute(clef_el, 'dis', clefinfo[2]);
+    AddAttribute(clef_el, 'dis.place', clefinfo[3]);
+    AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
+    AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
 
     if (bobj.Color != 0)
     {
-        libmei.AddAttribute(clef_el, 'color', ConvertColor(bobj));
+        AddAttribute(clef_el, 'color', ConvertColor(bobj));
     }
 
     if (bobj.Hidden = true)
     {
-        libmei.AddAttribute(clef_el, 'visible', 'false');
+        AddAttribute(clef_el, 'visible', 'false');
     }
 
     return clef_el;
@@ -505,32 +501,32 @@ function GenerateNoteRest (bobj, layer) {
         // If the stemweight is less than zero, the stem will point up, otherwise it will point down.
         if (bobj.Stemweight < 0)
         {
-            libmei.AddAttribute(nr, 'stem.dir', 'up');
+            AddAttribute(nr, 'stem.dir', 'up');
         }
         else
         {
-            libmei.AddAttribute(nr, 'stem.dir', 'down');
+            AddAttribute(nr, 'stem.dir', 'down');
         }
     }
 
     if (bobj.Dx != 0)
     {
-        libmei.AddAttribute(nr, 'ho', ConvertOffsetsToMEI(bobj.Dx));
+        AddAttribute(nr, 'ho', ConvertOffsetsToMEI(bobj.Dx));
     }
 
-    if (bobj.CueSize = true and libmei.GetName(nr) != 'space')
+    if (bobj.CueSize = true and GetName(nr) != 'space')
     {
-        libmei.AddAttribute(nr, 'fontsize', 'small');
+        AddAttribute(nr, 'fontsize', 'small');
     }
 
-    if (bobj.Hidden = true and libmei.GetName(nr) != 'space')
+    if (bobj.Hidden = true and GetName(nr) != 'space')
     {
-        libmei.AddAttribute(nr, 'visible', 'false');
+        AddAttribute(nr, 'visible', 'false');
     }
 
     if (bobj.Color != 0)
     {
-        libmei.AddAttribute(nr, 'color', ConvertColor(bobj));
+        AddAttribute(nr, 'color', ConvertColor(bobj));
     }
 
     /* NB: If there is a problem with grace notes, look here first.
@@ -539,19 +535,19 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.GraceNote = True)
     {
-        libmei.AddAttribute(nr, 'grace', 'acc');
+        AddAttribute(nr, 'grace', 'acc');
     }
     */
 
     if (bobj.IsAppoggiatura = True)
     {
-        libmei.AddAttribute(nr, 'grace', 'acc');
+        AddAttribute(nr, 'grace', 'acc');
     }
 
     if (bobj.IsAcciaccatura = True)
     {
-        libmei.AddAttribute(nr, 'grace', 'unacc');
-        libmei.AddAttribute(nr, 'stem.mod', '1slash');
+        AddAttribute(nr, 'grace', 'unacc');
+        AddAttribute(nr, 'stem.mod', '1slash');
     }
 
     if (bobj.GetArticulation(PauseArtic))
@@ -571,73 +567,73 @@ function GenerateNoteRest (bobj, layer) {
 
     if (bobj.GetArticulation(StaccatoArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'stacc');
+        AddAttributeValue(nr, 'artic', 'stacc');
     }
 
     if (bobj.GetArticulation(TenutoArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'ten');
+        AddAttributeValue(nr, 'artic', 'ten');
     }
 
     if (bobj.GetArticulation(MarcatoArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'marc');
+        AddAttributeValue(nr, 'artic', 'marc');
     }
 
     if (bobj.GetArticulation(DownBowArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'dnbow');
+        AddAttributeValue(nr, 'artic', 'dnbow');
     }
 
     if (bobj.GetArticulation(UpBowArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'upbow');
+        AddAttributeValue(nr, 'artic', 'upbow');
     }
 
     if (bobj.GetArticulation(AccentArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'acc');
+        AddAttributeValue(nr, 'artic', 'acc');
     }
 
     if (bobj.GetArticulation(StaccatissimoArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'stacciss');
+        AddAttributeValue(nr, 'artic', 'stacciss');
     }
 
     if (bobj.GetArticulation(WedgeArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'spicc');
+        AddAttributeValue(nr, 'artic', 'spicc');
     }
 
     if (bobj.GetArticulation(PlusArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'stop');
+        AddAttributeValue(nr, 'artic', 'stop');
     }
 
     if (bobj.GetArticulation(HarmonicArtic))
     {
-        libmei.AddAttributeValue(nr, 'artic', 'harm');
+        AddAttributeValue(nr, 'artic', 'harm');
     }
 
     if (bobj.FallType = FallTypeDoit)
     {
-        libmei.AddAttributeValue(nr, 'artic', 'doit');
+        AddAttributeValue(nr, 'artic', 'doit');
     }
 
     if (bobj.FallType = FallTypeNormal)
     {
-        libmei.AddAttributeValue(nr, 'artic', 'fall');
+        AddAttributeValue(nr, 'artic', 'fall');
     }
 
     if (bobj.ScoopType = ScoopTypePlop)
     {
-        libmei.AddAttributeValue(nr, 'artic', 'plop');
+        AddAttributeValue(nr, 'artic', 'plop');
     }
 
     if ((bobj.SingleTremolos > 0) or (bobj.SingleTremolos = ZOnStem))
     {
-        // btrem = libmei.BTrem();
-        // libmei.AddChild(btrem, nr);
+        // btrem = CreateElement('bTrem');
+        // AddChild(btrem, nr);
 
         if (bobj.SingleTremolos = ZOnStem)
         {
@@ -648,10 +644,10 @@ function GenerateNoteRest (bobj, layer) {
             stemmod = bobj.SingleTremolos & 'slash';
         }
 
-        libmei.AddAttribute(nr, 'stem.mod', stemmod);
+        AddAttribute(nr, 'stem.mod', stemmod);
     }
 
-    libmei.AddAttribute(nr, 'tstamp.real', ConvertTimeStamp(bobj.Time));
+    AddAttribute(nr, 'tstamp.real', ConvertTimeStamp(bobj.Time));
 
     return nr;
 }  //$end
@@ -665,36 +661,36 @@ function GenerateRest (bobj) {
 
     if (bobj.Hidden)
     {
-        r = libmei.Space();
+        r = CreateElement('space');
     }
     else
     {
-        r = libmei.Rest();
+        r = CreateElement('rest');
     }
 
-    name = libmei.GetName(r);
-    libmei.AddAttribute(r, 'dur', meidur[0]);
-    libmei.AddAttribute(r, 'dur.ppq', dur);
-    libmei.AddAttribute(r, 'dots', meidur[1]);
+    name = GetName(r);
+    AddAttribute(r, 'dur', meidur[0]);
+    AddAttribute(r, 'dur.ppq', dur);
+    AddAttribute(r, 'dots', meidur[1]);
 
     if (bobj.Dx != 0 and name != 'space')
     {
-        libmei.AddAttribute(r, 'ho', ConvertOffsetsToMEI(bobj.Dx));
+        AddAttribute(r, 'ho', ConvertOffsetsToMEI(bobj.Dx));
     }
 
     if (bobj.Dy != 0 and name != 'space')
     {
-        libmei.AddAttribute(r, 'vo', ConvertOffsetsToMEI(bobj.Dy));
+        AddAttribute(r, 'vo', ConvertOffsetsToMEI(bobj.Dy));
     }
 
     if (bobj.CueSize = true and name != 'space')
     {
-        libmei.AddAttribute(r, 'fontsize', 'small');
+        AddAttribute(r, 'fontsize', 'small');
     }
 
     if (bobj.Color != 0 and name != 'space')
     {
-        libmei.AddAttribute(r, 'color', ConvertColor(bobj));
+        AddAttribute(r, 'color', ConvertColor(bobj));
     }
 
     return r;
@@ -729,7 +725,7 @@ function GenerateNote (nobj) {
     // SparseArray(shape, line, dis, dir);
     clefinfo = ConvertClef(clef.StyleId);
 
-    n = libmei.Note();
+    n = CreateElement('note');
     //hash = SimpleNoteHash(nobj);
     //n._property:hash = hash;
 
@@ -769,41 +765,41 @@ function GenerateNote (nobj) {
             pnum = pnum + 24;
         }
 
-        libmei.AddAttribute(n, 'oct.ges', octges);
+        AddAttribute(n, 'oct.ges', octges);
     }
 
     if (vel != 0)  // filter default value for manually entered notes
     {
-        libmei.AddAttribute(n, 'vel', vel);
+        AddAttribute(n, 'vel', vel);
     }
 
-    libmei.AddAttribute(n, 'pnum', pnum);
-    libmei.AddAttribute(n, 'pname', ntinfo[0]);
-    libmei.AddAttribute(n, 'oct', ntinfo[1]);
-    libmei.AddAttribute(n, 'dur', meidur[0]);
-    libmei.AddAttribute(n, 'dur.ppq', gesdur);
-    libmei.AddAttribute(n, 'dots', meidur[1]);
+    AddAttribute(n, 'pnum', pnum);
+    AddAttribute(n, 'pname', ntinfo[0]);
+    AddAttribute(n, 'oct', ntinfo[1]);
+    AddAttribute(n, 'dur', meidur[0]);
+    AddAttribute(n, 'dur.ppq', gesdur);
+    AddAttribute(n, 'dots', meidur[1]);
 
     if (nobj.Dx != 0)
     {
-        libmei.AddAttribute(n, 'ho', ConvertOffsetsToMEI(nobj.Dx));
+        AddAttribute(n, 'ho', ConvertOffsetsToMEI(nobj.Dx));
     }
 
     if (nobj.Color != nobj.ParentNoteRest.Color)
     {
-        libmei.AddAttribute(n, 'color', ConvertColor(nobj));
+        AddAttribute(n, 'color', ConvertColor(nobj));
     }
 
     staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
     layer = nobj.ParentNoteRest.VoiceNumber;
 
-    //libmei.AddAttribute(n, 'staff', staff);
-    //libmei.AddAttribute(n, 'layer', layer);
+    //AddAttribute(n, 'staff', staff);
+    //AddAttribute(n, 'layer', layer);
 
     if (nobj.NoteStyle != NormalNoteStyle)
     {
         nstyle = ConvertNoteStyle(nobj.NoteStyle);
-        libmei.AddAttribute(n, 'head.shape', nstyle);
+        AddAttribute(n, 'head.shape', nstyle);
     }
 
     accid = ConvertAccidental(nobj, keysig.Sharps);
@@ -812,27 +808,27 @@ function GenerateNote (nobj) {
 
     if (accVal != ' ')
     {
-        child = libmei.Accid();
-        libmei.AddChild(n, child);
+        child = CreateElement('accid');
+        AddChild(n, child);
 
         if (isVisible = True)
         {
-            libmei.AddAttribute(child, 'accid', accVal);
+            AddAttribute(child, 'accid', accVal);
         }
         else
         {
-            libmei.AddAttribute(child, 'accid.ges', accVal);
+            AddAttribute(child, 'accid.ges', accVal);
         }
 
         switch (nobj.AccidentalStyle)
         {
             case (CautionaryAcc)
             {
-                libmei.AddAttribute(child, 'func', 'caution');
+                AddAttribute(child, 'func', 'caution');
             }
             case (BracketedAcc)
             {
-                libmei.AddAttribute(child, 'enclose', 'paren');
+                AddAttribute(child, 'enclose', 'paren');
             }
         }
     }
@@ -847,8 +843,8 @@ function GenerateNote (nobj) {
     {
         // get the tie
         tie_id = tie_resolver[tie_idx];
-        tie_el = libmei.getElementById(tie_id);
-        libmei.AddAttribute(tie_el, 'endid', '#' & n._id);
+        tie_el = GetElementById(tie_id);
+        AddAttribute(tie_el, 'endid', '#' & n._id);
 
         // null it in case we get another one in this measure.
         tie_resolver[tie_idx] = null;
@@ -864,8 +860,8 @@ function GenerateNote (nobj) {
     if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
     {
         tie_id = tie_resolver[prev_tie_idx];
-        tie_el = libmei.getElementById(tie_id);
-        libmei.AddAttribute(tie_el, 'endid', '#' & n._id);
+        tie_el = GetElementById(tie_id);
+        AddAttribute(tie_el, 'endid', '#' & n._id);
 
         tie_resolver[prev_tie_idx] = null;
     }
@@ -874,8 +870,8 @@ function GenerateNote (nobj) {
     {
         measure_ties = Self._property:MeasureTies;
 
-        tie = libmei.Tie();
-        libmei.AddAttribute(tie, 'startid', '#' & n._id);
+        tie = CreateElement('tie');
+        AddAttribute(tie, 'startid', '#' & n._id);
         measure_ties.Push(tie._id);
         tie_dur = pos + dur;
 
@@ -894,18 +890,18 @@ function GenerateNote (nobj) {
 
 function GenerateChord (bobj) {
     //$module(ExportGenerators.mss)
-    n = libmei.Chord();
+    n = CreateElement('chord');
     dur = bobj.Duration;
     meidur = ConvertDuration(dur);
 
-    libmei.AddAttribute(n, 'dur', meidur[0]);
-    libmei.AddAttribute(n, 'dur.ppq', dur);
-    libmei.AddAttribute(n, 'dots', meidur[1]);
+    AddAttribute(n, 'dur', meidur[0]);
+    AddAttribute(n, 'dur.ppq', dur);
+    AddAttribute(n, 'dots', meidur[1]);
 
     for each note in bobj
     {
         sn = GenerateNote(note);
-        libmei.AddChild(n, sn);
+        AddChild(n, sn);
     }
 
     return n;
@@ -917,26 +913,26 @@ function GenerateBarRest (bobj) {
     {
         case(BreveBarRest)
         {
-            obj = libmei.MRest();
-            libmei.AddAttribute(obj, 'dur', 'breve');
+            obj = CreateElement('mRest');
+            AddAttribute(obj, 'dur', 'breve');
         }
         case (WholeBarRest)
         {
-            obj = libmei.MRest();
+            obj = CreateElement('mRest');
         }
         case (OneBarRepeat)
         {
-            obj = libmei.MRpt();
+            obj = CreateElement('mRpt');
         }
         case (TwoBarRepeat)
         {
-            obj = libmei.MRpt2();
+            obj = CreateElement('mRpt2');
         }
         case (FourBarRepeat)
         {
             // MEI now supports a four-bar repeat
-            obj = libmei.MultiRpt();
-            libmei.AddAttribute(obj, 'num', '4');
+            obj = CreateElement('multiRpt');
+            AddAttribute(obj, 'num', '4');
         }
     }
 
@@ -957,17 +953,17 @@ function GenerateBarRest (bobj) {
 
     if (bobj.Hidden = true)
     {
-        libmei.AddAttribute(obj, 'visible', 'false');
+        AddAttribute(obj, 'visible', 'false');
     }
 
-    libmei.AddAttribute(obj, 'tstamp.real', ConvertTimeStamp(bobj.Time));
+    AddAttribute(obj, 'tstamp.real', ConvertTimeStamp(bobj.Time));
 
     return obj;
 }  //$end
 
 function GenerateScoreDef (score, barnum) {
     //$module(ExportGenerators.mss)
-    scoredef = libmei.ScoreDef();
+    scoredef = CreateElement('scoreDef');
     docSettings = score.DocumentSetup;
 
     // this will ensure that the units specified by the user is the one that is
@@ -994,33 +990,36 @@ function GenerateScoreDef (score, barnum) {
 
     vuval = docSettings.StaffSize / 8;
 
-    libmei.AddAttribute(scoredef, 'page.width', docSettings.PageWidth & unit);
-    libmei.AddAttribute(scoredef, 'page.height', docSettings.PageHeight & unit);
-    libmei.AddAttribute(scoredef, 'page.leftmar', docSettings.PageLeftMargin & unit);
-    libmei.AddAttribute(scoredef, 'page.rightmar', docSettings.PageRightMargin & unit);
-    libmei.AddAttribute(scoredef, 'page.topmar', docSettings.PageTopMargin & unit);
-    libmei.AddAttribute(scoredef, 'page.botmar', docSettings.PageBottomMargin & unit);
-    libmei.AddAttribute(scoredef, 'vu.height', vuval & unit);
+    AddAttribute(scoredef, 'page.width', docSettings.PageWidth & unit);
+    AddAttribute(scoredef, 'page.height', docSettings.PageHeight & unit);
+    AddAttribute(scoredef, 'page.leftmar', docSettings.PageLeftMargin & unit);
+    AddAttribute(scoredef, 'page.rightmar', docSettings.PageRightMargin & unit);
+    AddAttribute(scoredef, 'page.topmar', docSettings.PageTopMargin & unit);
+    AddAttribute(scoredef, 'page.botmar', docSettings.PageBottomMargin & unit);
+    AddAttribute(scoredef, 'vu.height', vuval & unit);
 
     showCautionaryAccidentals = score.EngravingRules.CautionaryNaturalsInKeySignatures;
     if (showCautionaryAccidentals = true)
     {
-        libmei.AddAttribute(scoredef, 'keysig.showchange', 'true');
+        AddAttribute(scoredef, 'keysig.cancelaccid', 'before');
     }
 
-    libmei.AddAttribute(scoredef, 'music.name', score.MainMusicFontName);
-    libmei.AddAttribute(scoredef, 'text.name', score.MainTextFontName);
+    AddAttribute(scoredef, 'music.name', score.MainMusicFontName);
+    AddAttribute(scoredef, 'text.name', score.MainTextFontName);
     // We should read out the lyrics font styles here (e.g. `text.staff.space.hypen.lyrics.verse1`),
     // but the styles properties don't seem to be easily accessible.
-    libmei.AddAttribute(scoredef, 'lyric.name', score.MainTextFontName);
+    AddAttribute(scoredef, 'lyric.name', score.MainTextFontName);
 
-    libmei.AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
-    libmei.AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
+    AddAttribute(scoredef, 'spacing.staff', score.EngravingRules.SpacesBetweenStaves * 2);
+    AddAttribute(scoredef, 'spacing.system', score.EngravingRules.SpacesBetweenSystems * 2);
 
     GenerateMeterAttributes(scoredef, 1);
-    libmei.AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
+    AddAttribute(scoredef, 'ppq', '256'); // sibelius' internal ppq.
 
-    libmei.AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
+    if (score.StaffCount > 0)
+    {
+        AddChild(scoredef, BuildStaffGrpHierarchy(score, barnum));
+    }
 
     return scoredef;
 }  //$end
@@ -1052,11 +1051,11 @@ function GenerateMeterAttributes (scoredef, barNumber) {
 
     if (null = scoredef)
     {
-        scoredef = libmei.ScoreDef();
+        scoredef = CreateElement('scoreDef');
     }
     if (null = timesig or timesig.Hidden)
     {
-        libmei.AddAttribute(scoredef, 'meter.form', 'invis');
+        AddAttribute(scoredef, 'meter.visible', 'false');
     }
     if (null = timesig)
     {
@@ -1071,19 +1070,20 @@ function GenerateMeterAttributes (scoredef, barNumber) {
     meterFraction = SplitString(timesig.Text, '\\n', true);
     if (meterFraction.NumChildren = 2)
     {
-        libmei.AddAttribute(scoredef, 'meter.count', meterFraction[0]);
-        libmei.AddAttribute(scoredef, 'meter.unit', meterFraction[1]);
+        // SplitString() returns TreeNodes. `& ''` casts them to strings.
+        AddAttribute(scoredef, 'meter.count', meterFraction[0] & '');
+        AddAttribute(scoredef, 'meter.unit', meterFraction[1] & '');
         return scoredef;
     }
 
     meterSym = MeterSymMap[timesig.Text];
     if (meterSym != '')
     {
-        libmei.AddAttribute(scoredef, 'meter.sym', meterSym);
+        AddAttribute(scoredef, 'meter.sym', meterSym);
     }
 
-    libmei.AddAttribute(scoredef, 'meter.count', timesig.Numerator);
-    libmei.AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
+    AddAttribute(scoredef, 'meter.count', timesig.Numerator);
+    AddAttribute(scoredef, 'meter.unit', timesig.Denominator);
 
     return scoredef;
 }  //$end
@@ -1109,14 +1109,14 @@ function GenerateControlEvent (bobj, element) {
 function GenerateModifier (bobj, element) {
     if (bobj.Color != 0)
     {
-        libmei.AddAttribute(element, 'color', ConvertColor(bobj));
+        AddAttribute(element, 'color', ConvertColor(bobj));
     }
 
     nobj = GetNoteObjectAtPosition(bobj, 'Closest');
 
     if (nobj != null)
     {
-        libmei.AddChild(nobj, element);
+        AddChild(nobj, element);
     }
     else
     {
@@ -1138,12 +1138,12 @@ function GenerateModifier (bobj, element) {
 
 function GenerateTuplet(tupletObj) {
     //$module(ExportGenerators.mss)
-    tuplet = libmei.Tuplet();
+    tuplet = CreateElement('tuplet');
     dur = tupletObj.PlayedDuration;
 
-    libmei.AddAttribute(tuplet, 'dur.ppq', dur);
-    libmei.AddAttribute(tuplet, 'num', tupletObj.Left);
-    libmei.AddAttribute(tuplet, 'numbase', tupletObj.Right);
+    AddAttribute(tuplet, 'dur.ppq', dur);
+    AddAttribute(tuplet, 'num', tupletObj.Left);
+    AddAttribute(tuplet, 'numbase', tupletObj.Right);
 
     tupletStyle = tupletObj.Style;
 
@@ -1151,16 +1151,16 @@ function GenerateTuplet(tupletObj) {
     {
         case(TupletNoNumber)
         {
-            libmei.AddAttribute(tuplet, 'num.visible', 'false');
+            AddAttribute(tuplet, 'num.visible', 'false');
         }
         case(TupletLeft)
         {
-            libmei.AddAttribute(tuplet, 'num.format', 'count');
+            AddAttribute(tuplet, 'num.format', 'count');
         }
         case(TupletLeftRight)
         {
-            libmei.AddAttribute(tuplet, 'num.format', 'ratio');
-            libmei.AddAttribute(tuplet, 'num.visible', 'true');
+            AddAttribute(tuplet, 'num.format', 'ratio');
+            AddAttribute(tuplet, 'num.visible', 'true');
         }
     }
 
@@ -1170,11 +1170,11 @@ function GenerateTuplet(tupletObj) {
     {
         case(TupletBracketOn)
         {
-            libmei.AddAttribute(tuplet, 'bracket.visible', 'true');
+            AddAttribute(tuplet, 'bracket.visible', 'true');
         }
         case(TupletBracketOff)
         {
-            libmei.AddAttribute(tuplet, 'bracket.visible', 'false');
+            AddAttribute(tuplet, 'bracket.visible', 'false');
         }
     }
 
@@ -1223,23 +1223,23 @@ function GenerateArpeggio (bobj) {
         }
     }
 
-    arpeg = GenerateControlEvent(bobj, libmei.Arpeg());
+    arpeg = GenerateControlEvent(bobj, CreateElement('arpeg'));
 
     if (orientation = null)
     {
-        libmei.AddAttribute(arpeg, 'arrow', 'false');
+        AddAttribute(arpeg, 'arrow', 'false');
     }
     else
     {
-        libmei.AddAttribute(arpeg, 'arrow', 'true');
+        AddAttribute(arpeg, 'arrow', 'true');
 
         if (orientation > 0)
         {
-            libmei.AddAttribute(arpeg, 'order', 'up');
+            AddAttribute(arpeg, 'order', 'up');
         }
         else
         {
-            libmei.AddAttribute(arpeg, 'order', 'down');
+            AddAttribute(arpeg, 'order', 'down');
         }
     }
 
@@ -1249,10 +1249,10 @@ function GenerateArpeggio (bobj) {
 
 function GenerateFermata (bobj, shape, form) {
     //$module(ExportGenerators.mss)
-    fermata = GenerateControlEvent(bobj, libmei.Fermata());
+    fermata = GenerateControlEvent(bobj, CreateElement('fermata'));
 
-    libmei.AddAttribute(fermata, 'form', form);
-    libmei.AddAttribute(fermata, 'shape', shape);
+    AddAttribute(fermata, 'form', form);
+    AddAttribute(fermata, 'shape', shape);
 
     return fermata;
 }  //$end
@@ -1262,8 +1262,8 @@ function GenerateChordSymbol (bobj) {
     /*
         Generates a <harm> element containing chord symbol information
     */
-    harm = GenerateControlEvent(bobj, libmei.Harm());
-    libmei.SetText(harm, bobj.ChordNameAsPlainText);
+    harm = GenerateControlEvent(bobj, CreateElement('harm'));
+    SetText(harm, bobj.ChordNameAsPlainText);
 
     return harm;
 }  //$end
@@ -1280,25 +1280,25 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
     {
         if (Self._property:SymbolTable = null)
         {
-            symbolTable = libmei.SymbolTable();
+            symbolTable = CreateElement('symbolTable');
             scoreDef = Self._property:MainScoreDef;
-            libmei.AddChildAtPosition(scoreDef, symbolTable, 0);
+            AddChildAtPosition(scoreDef, symbolTable, 0);
             Self._property:SymbolTable = symbolTable;
         }
         symbolTable = Self._property:SymbolTable;
 
-        symbolDef = libmei.SymbolDef();
-        libmei.AddChild(symbolTable, symbolDef);
-        anchoredText = libmei.AnchoredText();
-        libmei.AddChild(symbolDef, anchoredText);
-        symbol = libmei.Symbol();
-        libmei.AddChild(anchoredText, symbol);
-        libmei.AddAttribute(symbol, 'glyph.auth', 'smufl');
-        libmei.AddAttribute(symbol, 'glyph.num', glyphnum);
-        libmei.AddAttribute(symbol, 'glyph.name', glyphname);
+        symbolDef = CreateElement('symbolDef');
+        AddChild(symbolTable, symbolDef);
+        anchoredText = CreateElement('anchoredText');
+        AddChild(symbolDef, anchoredText);
+        symbol = CreateElement('symbol');
+        AddChild(anchoredText, symbol);
+        AddAttribute(symbol, 'glyph.auth', 'smufl');
+        AddAttribute(symbol, 'glyph.num', glyphnum);
+        AddAttribute(symbol, 'glyph.name', glyphname);
         // Add x/y attributes to satisfy some Schematron rules
-        libmei.AddAttribute(symbol, 'x', '0');
-        libmei.AddAttribute(symbol, 'y', '0');
+        AddAttribute(symbol, 'x', '0');
+        AddAttribute(symbol, 'y', '0');
 
 
         symbolIds[glyphnum] = symbolDef._id;
