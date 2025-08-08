@@ -52,7 +52,7 @@ describe("attribute and element usage", async () => {
       "For the following lines, it can only be checked manually if the passed element or attribute names are legal:"
     );
     for (const [filePath, messages] of undecidableFiles) {
-        console.log("\x1b[43m  " + filePath + "\x1b[0m");
+      console.log("\x1b[43m  " + filePath + "\x1b[0m");
       for (const message of messages) {
         console.log("  " + message);
       }
@@ -126,7 +126,7 @@ function assertLine(line, legalAttributes, legalElements, errorExpected, undecid
 function checkLine(line, legalAttributes, legalElements) {
   const stringArgumentRegex = /^'([^']+)/;
 
-  const [a, b, attributeArgument] = line.match(/AddAttribute(Value)?\s*\(\s*[^,]+,\s*(.+)/) || [];
+  const [, , attributeArgument] = line.match(/AddAttribute(Value)?\s*\(\s*[^,]+,\s*(.+)/) || [];
   const [, attributeName] = attributeArgument?.match(stringArgumentRegex) || [];
   if (attributeArgument) {
     if (!attributeName) {
@@ -143,7 +143,7 @@ function checkLine(line, legalAttributes, legalElements) {
     if (!elementName) {
       return { undecidable: elementArgument };
     }
-    if (!legalElements.has(elementName)  && elementName !== '<!--') {
+    if (!legalElements.has(elementName) && elementName !== "<!--") {
       return { error: elementName + " is not a valid element name" };
     }
   }
