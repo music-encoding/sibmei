@@ -1,10 +1,10 @@
-function XMLComment (comment) {
+export function XMLComment (comment) {
     commentObj = CreateElement('<!--', null);
     commentObj.text = comment;
     return commentObj;
 } //$end
 
-function CreateElement (tagname) {
+export function CreateElement (tagname) {
     if (not IsLegalElement[tagname])
     {
         StopPlugin(tagname & ' is not an element name allowed in MEI ' & MeiVersion);
@@ -25,7 +25,7 @@ function CreateElement (tagname) {
     return element;
 } //$end
 
-function GetChildren (element) {
+export function GetChildren (element) {
         c = CreateSparseArray();
         for each child_id in element.children {
             child = Self.MEIFlattened[child_id];
@@ -38,7 +38,7 @@ function SetChildren (element, childarr) {
         element.children = childarr;
 } //$end
 
-function AddChildAtPosition (element, child, position) {
+export function AddChildAtPosition (element, child, position) {
         AddChild(element, child);
         c = element.children;
         // shift all children that are at a higher index than `position`
@@ -48,7 +48,7 @@ function AddChildAtPosition (element, child, position) {
         element.children[position] = child._id;
 } //$end
 
-function AddChild (element, child) {
+export function AddChild (element, child) {
         cid = child._id;
         child._parent = element._id;
         element.children.Push(cid);
@@ -57,7 +57,7 @@ function AddChild (element, child) {
         Self.MEIFlattened[cid] = child;
 } //$end
 
-function RemoveChild (element, child) {
+export function RemoveChild (element, child) {
     child._parent = null;
     UnregisterId(child._id);
     newarr = CreateSparseArray();
@@ -73,11 +73,11 @@ function RemoveChild (element, child) {
     element.children = newarr;
 } //$end
 
-function GetAttributes (element) {
+export function GetAttributes (element) {
     return element.attrs;
 } //$end
 
-function AddAttribute (element, attrname, attrval) {
+export function AddAttribute (element, attrname, attrval) {
     a = element.attrs;
     // check and replace any newlines
     val = EncodeEntities(attrval);
@@ -103,7 +103,7 @@ function AddAttributeValue (element, attrname, attrval) {
     element.attrs[attrname] = val;
 } //$end
 
-function GetAttribute (element, attrname) {
+export function GetAttribute (element, attrname) {
         attrs = element.attrs;
         if (attrs.PropertyExists(attrname))
         {
@@ -115,11 +115,11 @@ function GetAttribute (element, attrname) {
         }
 } //$end
 
-function GetId (element) {
+export function GetId (element) {
         return element._id;
 } //$end
 
-function SetId (element, newId) {
+export function SetId (element, newId) {
     UnregisterId(element._id);
     element._id = newId;
     Self.MEIFlattened[newId] = element;
@@ -131,7 +131,7 @@ function UnregisterId (id) {
     Self._property:MEIFlattened = newdict;
 } //$end
 
-function RemoveAttribute (element, attrname) {
+export function RemoveAttribute (element, attrname) {
     // since there are no delete functions
     // for dictionaries, we set the attribute
     // to a blank space and this will get
@@ -139,23 +139,23 @@ function RemoveAttribute (element, attrname) {
     element.attrs[attrname] = ' ';
 } //$end
 
-function GetName (element) {
+export function GetName (element) {
     return element.name;
 } //$end
 
-function SetText (element, val) {
+export function SetText (element, val) {
     element.text = EncodeEntities(val);
 } //$end
 
-function GetText (element) {
+export function GetText (element) {
     return element.text;
 } //$end
 
-function SetTail (element, val) {
+export function SetTail (element, val) {
     element.tail = EncodeEntities(val);
 } //$end
 
-function GetTail (element) {
+export function GetTail (element) {
     return element.tail;
 } //$end
 
@@ -219,7 +219,7 @@ function GetDocument () {
 } //$end
 
 
-function GetElementById (id) {
+export function GetElementById (id) {
         d = Self._property:MEIFlattened;
         if (d.PropertyExists(id))
         {

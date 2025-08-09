@@ -28,13 +28,17 @@ const sourceExtensions = new Set(["msd", "mss", "plg"]);
  * Converts JavaScript-like *.mss function syntax to *.plg syntax.
  * @param {string} mssCode  Code of an entire *.mss file
  * @param {string} filename  mss file name
+ * @param {string[]} exportedFunctions  If functions with `export` flag are
+ *   found, their name is added to this list.
  */
-function mssToPlg(mssCode, filename) {
+function mssToPlg(mssCode, filename, exportedFunctions) {
   return mssCode
     .split(/\/\/\s*\$end/)
     .filter((functionCode) => functionCode.match(/[^\s]/))
     .map((functionCode) => {
-      const [, functionName, body] = functionCode.match(/function\s+([^ (]+)\s*([\s\S]+})/) || [];
+      const [, exprt, functionName, body] =
+        functionCode.match(/(export +)?function\s+([^ (]+)\s*([\s\S]+})/) || [];
+
       if (!functionName) {
         throw new Error(
           'Syntax error: Could not split code into function name and body:\n\n"' +
@@ -47,7 +51,12 @@ function mssToPlg(mssCode, filename) {
       const bodyWithModuleInfo = body.match(/{\s*\/\/\s*\$module/)
         ? body
         : body.replace("{", `{\n    //$module(${filename})`);
-      return `${functionName} "${bodyWithModuleInfo}"`;
+      const output = [`${functionName} "${bodyWithModuleInfo}"`];
+      if (exprt) {
+        output.push(`ExtensionAPI_${functionName} "${bodyWithModuleInfo.replace("(", "(this, ")}"`);
+        exportedFunctions.push(functionName);
+      }
+      return output.join("\n");
     })
     .join("\n\n");
 }
@@ -122,19 +131,21 @@ function buildCompanionPlgs(sourceDir, targetDir) {
  * extensions other than msd, mss and plg are ignored.
  */
 function compile(sourceFiles) {
-  const compiledFiles = [];
+  const compiledCode = [];
+  const exportedFunctions = [];
   for (const filename of sourceFiles) {
     const [, extension] = filename.match(/.+\.([^.]+)$/) || [];
     if (!sourceExtensions.has(extension)) {
       continue;
     }
     const code = fs.readFileSync(filename, { encoding: "utf8" });
-    compiledFiles.push(
+    /** @type string[] */
+    compiledCode.push(
       (() => {
         switch (extension) {
           case "mss":
             // *.mss files use JavaScript-ish function syntax we have to compile
-            return mssToPlg(code, path.basename(filename));
+            return mssToPlg(code, path.basename(filename), exportedFunctions);
           case "msd":
             // *.msd files are raw ManuScript Data files that we copy verbatim
             return code;
@@ -145,7 +156,8 @@ function compile(sourceFiles) {
       })()
     );
   }
-  return compiledFiles.join("\n\n");
+  compiledCode.push(`ExportedFunctions {"${exportedFunctions.join('" "')}"}`);
+  return compiledCode.join("\n\n");
 }
 
 /**
