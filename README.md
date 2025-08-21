@@ -72,7 +72,12 @@ cmd /k npm test
 
 #### Mac: test.sh
 
-Help for testing and documenting for Mac welcome!
+```shell-script
+cd path/to/sibmei
+npm test
+```
+
+Make sure your script is [executable](https://support.apple.com/de-de/guide/terminal/apdd100908f-06b3-4e63-8a87-32e71241bab4)!
 
 #### Writing XPath tests
 
