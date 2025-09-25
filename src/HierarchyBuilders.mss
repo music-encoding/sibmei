@@ -589,12 +589,6 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
             AddAttribute(std, 'scale', score.EngravingRules.SmallStaffSizeScale & '%');
         }
 
-        clefinfo = ConvertClef(s.InitialClefStyleId);
-        AddAttribute(std, 'clef.shape', clefinfo[0]);
-        AddAttribute(std, 'clef.line', clefinfo[1]);
-        AddAttribute(std, 'clef.dis', clefinfo[2]);
-        AddAttribute(std, 'clef.dis.place', clefinfo[3]);
-
         keysig = s.CurrentKeySignature(barnum);
         AddAttribute(std, 'keysig', ConvertKeySignature(keysig.Sharps));
 
@@ -608,6 +602,7 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
         }
 
         AddLabelsToHierarchy(std, s.FullStaffNameWithFormatting, s.ShortStaffNameWithFormatting);
+        AddChild(std, MeiFactory(ClefTemplates[s.InitialClefStyleId]));
 
         AddChild(staffGrpByStaffNum[s.StaffNum], std);
     }

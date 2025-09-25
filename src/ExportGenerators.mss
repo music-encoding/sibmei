@@ -447,16 +447,7 @@ function GenerateStaff (staff, measurenum) {
 
 
 function GenerateClef (bobj) {
-    //$module(ExportGenerators.mss)
-    clefinfo = ConvertClef(bobj.StyleId);
-    clef_el = CreateElement('clef');
-
-    AddAttribute(clef_el, 'shape', clefinfo[0]);
-    AddAttribute(clef_el, 'line', clefinfo[1]);
-    AddAttribute(clef_el, 'dis', clefinfo[2]);
-    AddAttribute(clef_el, 'dis.place', clefinfo[3]);
-    AddAttribute(clef_el, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bobj.ParentBar));
-    AddAttribute(clef_el, 'staff', bobj.ParentBar.ParentStaff.StaffNum);
+    clef_el = MeiFactory(ClefTemplates[bobj.StyleId]);
 
     if (bobj.Color != 0)
     {
@@ -723,7 +714,8 @@ function GenerateNote (nobj) {
     keysig = nobj.ParentNoteRest.ParentBar.GetKeySignatureAt(pos);
     clef = nobj.ParentNoteRest.ParentBar.GetClefAt(pos);
     // SparseArray(shape, line, dis, dir);
-    clefinfo = ConvertClef(clef.StyleId);
+    clefTemplate = ClefTemplates[clef.StyleId];
+    clefAttributes = clefTemplate[1];
 
     n = CreateElement('note');
     //hash = SimpleNoteHash(nobj);
@@ -733,10 +725,10 @@ function GenerateNote (nobj) {
     pnum = nobj.Pitch;
     vel = nobj.OriginalVelocity;
 
-    dis = clefinfo[2];
-    dir = clefinfo[3];
+    dis = clefAttributes['dis'];
+    dir = clefAttributes['dis.place'];
 
-    if (dis != ' ')
+    if (dis != '')
     {
         octges = ' ';
         // there is a transposing clef in action, so we need to adjust the
