@@ -500,7 +500,6 @@ function ConvertNoteStyle (style) {
         }
         case (ShapedNote6NoteStyle)
         {
-            // In MEI 4.0, there is a square in data.HEADSHAPE.list
             noteStyle = 'square';
         }
         case (ShapedNote7NoteStyle)
