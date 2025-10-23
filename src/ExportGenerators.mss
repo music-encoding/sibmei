@@ -13,13 +13,13 @@ function GenerateMEIHeader () {
     AddChild(header, fileD);
     AddChild(fileD, titleS);
 
-    //encodingDesc must preceed workList in MEI 4.0
+    //encodingDesc
     encodingD = CreateElement('encodingDesc');
     AddChild(header, encodingD);
     appI = GenerateApplicationInfo();
     AddChild(encodingD, appI);
 
-    //generate workList
+    //workList
     workList = CreateElement('workList');
     Self._property:WorkListElement = workList;
 
