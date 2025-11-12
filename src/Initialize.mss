@@ -55,13 +55,16 @@ function InitGlobals (extensions) {
     BarlineAttributes[SpecialBarlineFinal] = @Attrs('right', 'end');
     BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
     BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
-    BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
-    BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
     BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
     BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
     BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
-    // no MEI equiv:
-    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+    if (Sibelius.ProgramVersion >= 20201200)
+    {
+        BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
+        BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+        // no MEI equiv:
+        // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+    }
 
     Self._property:ClefTemplates = CreateDictionary(
         'clef.alto',                    @Element('clef', @Attrs('shape', 'C', 'line', '3')),

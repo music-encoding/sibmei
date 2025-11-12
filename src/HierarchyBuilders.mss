@@ -601,7 +601,10 @@ function AddStaffDefsToHierarchy (score, staffGrpByStaffNum, barnum) {
             AddAttribute(std, 'key.mode', 'minor');
         }
 
-        AddLabelsToHierarchy(std, s.FullStaffNameWithFormatting, s.ShortStaffNameWithFormatting);
+        if (Sibelius.ProgramVersion >= 20201200)
+        {
+            AddLabelsToHierarchy(std, s.FullStaffNameWithFormatting, s.ShortStaffNameWithFormatting);
+        }
         AddChild(std, MeiFactory(ClefTemplates[s.InitialClefStyleId]));
 
         AddChild(staffGrpByStaffNum[s.StaffNum], std);
