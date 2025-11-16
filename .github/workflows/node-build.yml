@@ -21,11 +21,17 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Set short git commit SHA
+      id: vars
+      run: |
+        calculatedSha=$(git rev-parse --short ${{ github.sha }})
+        echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
+
     - name: Build development version
       run: npm run build
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: sibmei-develop-${{ github.sha }}
+        name: sibmei-develop-${{ env.COMMIT_SHORT_SHA }}
         path: build/release
