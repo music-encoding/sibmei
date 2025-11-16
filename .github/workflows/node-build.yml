@@ -27,5 +27,5 @@ jobs:
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: build-develop
-        path: build/develop
+        name: sibmei-develop-${{ github.sha }}
+        path: build/release
