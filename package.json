@@ -21,7 +21,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "chokidar": "^4.0.3",
+    "chokidar": "^5.0.0",
     "fontoxpath": "^3.33.2",
     "slimdom-sax-parser": "^1.5.3"
   },
