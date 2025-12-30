@@ -22,7 +22,7 @@
   "license": "ISC",
   "devDependencies": {
     "chokidar": "^5.0.0",
-    "fontoxpath": "^3.33.2",
+    "fontoxpath": "^3.34.0",
     "slimdom-sax-parser": "^1.5.3"
   },
   "resolutions": {

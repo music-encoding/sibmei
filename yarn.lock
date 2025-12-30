@@ -9,10 +9,10 @@ chokidar@^5.0.0:
   dependencies:
     readdirp "^5.0.0"
 
-fontoxpath@^3.33.2:
-  version "3.33.2"
-  resolved "https://registry.npmjs.org/fontoxpath/-/fontoxpath-3.33.2.tgz"
-  integrity sha512-MVtx/RYKiF91uDzcWsNmhKP4suRI+VLbR8ppB9Q1h9rhC0I48TgPh0U7JFGKAxFH70aJYr3/m3zBBKfATO52hQ==
+fontoxpath@^3.34.0:
+  version "3.34.0"
+  resolved "https://registry.yarnpkg.com/fontoxpath/-/fontoxpath-3.34.0.tgz#a17c8c97e82bb7f5c166b0e003669dc943ddd907"
+  integrity sha512-7FgBQRohn4WR/2eVdYqZtKBFZkJNaiP4kGdfqS6bAg465og05ixGA2OgfMdxsO1mnX67+64JX/8JKclVqS+bzA==
   dependencies:
     prsc "4.0.0"
     xspattern "^3.1.0"
