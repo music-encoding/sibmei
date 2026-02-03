@@ -174,7 +174,6 @@ function InitExtensions (extensions, pluginList) {
 function CreateApiObject (extensionInfo) {
     apiObject = CreateDictionary(
         '_extensionInfo', extensionInfo,
-        'libmei', Self,
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText,
         'LyricText', LyricText
@@ -194,6 +193,24 @@ function CreateApiObject (extensionInfo) {
     apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
     apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
     apiObject.SetMethod('AppendToMeasure', Self, 'ExtensionAPI_AppendToMeasure');
+    apiObject.SetMethod('XMLComment', Self, 'ExtensionAPI_XMLComment');
+    apiObject.SetMethod('CreateElement', Self, 'ExtensionAPI_CreateElement');
+    apiObject.SetMethod('GetChildren', Self, 'ExtensionAPI_GetChildren');
+    apiObject.SetMethod('AddChild', Self, 'ExtensionAPI_AddChild');
+    apiObject.SetMethod('AddChildAtPosition', Self, 'ExtensionAPI_AddChildAtPosition');
+    apiObject.SetMethod('RemoveChild', Self, 'ExtensionAPI_RemoveChild');
+    apiObject.SetMethod('GetAttribute', Self, 'ExtensionAPI_GetAttribute');
+    apiObject.SetMethod('GetAttributes', Self, 'ExtensionAPI_GetAttributes');
+    apiObject.SetMethod('AddAttribute', Self, 'ExtensionAPI_AddAttribute');
+    apiObject.SetMethod('RemoveAttribute', Self, 'ExtensionAPI_RemoveAttribute');
+    apiObject.SetMethod('GetId', Self, 'ExtensionAPI_GetId');
+    apiObject.SetMethod('SetId', Self, 'ExtensionAPI_SetId');
+    apiObject.SetMethod('GetName', Self, 'ExtensionAPI_GetName');
+    apiObject.SetMethod('SetText', Self, 'ExtensionAPI_SetText');
+    apiObject.SetMethod('GetText', Self, 'ExtensionAPI_GetText');
+    apiObject.SetMethod('SetTail', Self, 'ExtensionAPI_SetTail');
+    apiObject.SetMethod('GetTail', Self, 'ExtensionAPI_GetTail');
+    apiObject.SetMethod('GetElementById', Self, 'ExtensionAPI_GetElementById');
 
     return apiObject;
 }  //$end
@@ -235,3 +252,75 @@ function ExtensionAPI_AppendToMeasure (this, element) {
     MeasureObjects.Push(element._id);
     return element;
 }   //$end
+
+function ExtensionAPI_XMLComment (this, comment) {
+    return XMLComment(comment);
+} // $end
+
+function ExtensionAPI_CreateElement (this, tagname) {
+    return CreateElement(tagname);
+} // $end
+
+function ExtensionAPI_GetChildren (this, element) {
+    return GetChildren(element);
+} // $end
+
+function ExtensionAPI_AddChild (this, element, child) {
+    return AddChild(element, child);
+} // $end
+
+function ExtensionAPI_AddChildAtPosition (this, element, child, position) {
+    return AddChildAtPosition(element, child, position);
+} // $end
+
+function ExtensionAPI_RemoveChild (this, element, child) {
+    return RemoveChild(element, child);
+} // $end
+
+function ExtensionAPI_GetAttribute (this, element, attrname) {
+    return GetAttribute(element, attrname);
+} // $end
+
+function ExtensionAPI_GetAttributes (this, element) {
+    return GetAttributes(element);
+} // $end
+
+function ExtensionAPI_AddAttribute (this, element, attrname, attrval) {
+    return AddAttribute(element, attrname, attrval);
+} // $end
+
+function ExtensionAPI_RemoveAttribute (this, element, attrname) {
+    return RemoveAttribute(element, attrname);
+} // $end
+
+function ExtensionAPI_GetId (this, element) {
+    return GetId(element);
+} // $end
+
+function ExtensionAPI_SetId (this, element, newId) {
+    return SetId(element, newId);
+} // $end
+
+function ExtensionAPI_GetName (this, element) {
+    return GetName(element);
+} // $end
+
+function ExtensionAPI_SetText (this, ) {
+    return SetText();
+} // $end
+
+function ExtensionAPI_GetText (this, element) {
+    return GetText(element);
+} // $end
+
+function ExtensionAPI_SetTail (this, element, val) {
+    return SetTail(element, val);
+} // $end
+
+function ExtensionAPI_GetTail (this, element) {
+    return GetTail(element);
+} // $end
+
+function ExtensionAPI_GetElementById (this, id) {
+    return GetElementById(id);
+} // $end
