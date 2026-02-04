@@ -1,7 +1,4 @@
 function GenerateMEIHeader () {
-    //$module(ExportGenerators.mss)
-    // takes in a Sibelius Score object
-    // returns a libmei tree (i.e., nested objects and arrays) with a MEI header with metadata
     score = Self._property:ActiveScore;
 
 

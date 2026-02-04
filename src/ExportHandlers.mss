@@ -75,7 +75,7 @@ function FindPluginThatDefinesHandler (pluginInfo, handlerMethod) {
     {
         // It's a bit confusing. We have two classes of objects that represent
         // a Sibelius plugin. The one that can be referenced by Self or a plugin
-        // name (like `libmei4` if libmei4.plg is the plugin file) is needed for
+        // name (like `sibmei5` if sibmei5.plg is the plugin file) is needed for
         // `SetMethod()`, the other one (that is listed in Siblius.Plugins) is
         // needed for MethodExists().
         // We can retrieve the former kind of plugin by its name:
