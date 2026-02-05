@@ -14,7 +14,6 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
     //
     // `pluginList` is a persistent reference to `Sibelius.Plugins`.
 
-    apiSemver = SplitString(ExtensionAPIVersion, '.');
     errors = CreateSparseArray();
 
     for each pluginObject in pluginList
@@ -25,7 +24,7 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
             plgName = pluginObject.File.NameNoPath;
             extensionSemverString = @plgName.SibmeiExtensionAPIVersion;
             extensionSemver = SplitString(extensionSemverString, '.');
-            apiVersion = apiSemver[0];
+            apiVersion = ApiSemver[0];
 
             switch (true)
             {
@@ -33,13 +32,13 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
                 {
                     error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`. \'%s\' is not a valid version string.';
                 }
-                case ((apiSemver[0] = extensionSemver[0]) and (apiSemver[1] >= extensionSemver[1]))
+                case ((ApiSemver[0] = extensionSemver[0]) and (ApiSemver[1] >= extensionSemver[1]))
                 {
                     error = null;
                 }
                 case (
-                    (apiSemver[0] < extensionSemver[0])
-                    or (apiSemver[0] = extensionSemver[0] and apiSemver[1] < extensionSemver[1])
+                    (ApiSemver[0] < extensionSemver[0])
+                    or (ApiSemver[0] = extensionSemver[0] and ApiSemver[1] < extensionSemver[1])
                 )
                 {
                     error = 'Extension %s requires extension API version %s, but Sibmei %s only supports extension API version %s. Check for Sibmei updates supporting that extension API version.';
@@ -179,7 +178,7 @@ function CreateApiObject (extensionInfo) {
         'LyricText', LyricText
     );
 
-    if (extensionInfo.apiVersion != 2)
+    if (extensionInfo.apiVersion != ApiSemver[0])
     {
         StopPlugin('Unsupported extension API version: ' & extensionInfo.apiVersion);
     }

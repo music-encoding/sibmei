@@ -1,5 +1,5 @@
 {
-  SibmeiExtensionAPIVersion "2.0.0"
+  SibmeiExtensionAPIVersion "3.0.0"
 
   Initialize "() {
     AddToPluginsMenu('Sibmei extension test', 'Run');
