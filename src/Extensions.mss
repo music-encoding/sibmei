@@ -184,9 +184,9 @@ function CreateApiObject (extensionInfo) {
         StopPlugin('Unsupported extension API version: ' & extensionInfo.apiVersion);
     }
 
-    // All functions with the `export` are also compiled to version with an
-    // parameter `self` as a first parameter so that it can be called as a
-    // method from the apiObject.
+    // All functions flagged with `export` are also compiled to a version with
+    // `self` as the first parameter so that it can be called as a method from
+    // the apiObject.
     for each function in ExportedFunctions
     {
         apiObject.SetMethod(function, Self, 'ExtensionAPI_' & function);
