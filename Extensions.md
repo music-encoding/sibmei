@@ -61,10 +61,7 @@ Extensions must only interact with Sibmei through the API dictionary that is pas
 
 ### API data and methods
 
-The API dictionary exposes the following object:
 
-* **`libmei`**: A reference to libmei that can be used to construct and
-   manipulate MEI elements. *This dictionary must not be modified.*
 
 The API dictionary exposes the following [methods for registering Handlers](ExportHandlers.md#creating-and-registering-handlers) that must only be used inside the `InitSibmeiExtension()` method:
 
