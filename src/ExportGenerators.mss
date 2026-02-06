@@ -1,7 +1,4 @@
 function GenerateMEIHeader () {
-    //$module(ExportGenerators.mss)
-    // takes in a Sibelius Score object
-    // returns a libmei tree (i.e., nested objects and arrays) with a MEI header with metadata
     score = Self._property:ActiveScore;
 
 
@@ -1081,7 +1078,7 @@ function GenerateMeterAttributes (scoredef, barNumber) {
 }  //$end
 
 
-function GenerateControlEvent (bobj, element) {
+export function GenerateControlEvent (bobj, element) {
     // @endid can not yet be set. Register the line until the layer where it
     // ends is processed
     if (bobj.IsALine and element.attrs.PropertyExists('endid'))
@@ -1098,7 +1095,7 @@ function GenerateControlEvent (bobj, element) {
 }  //$end
 
 
-function GenerateModifier (bobj, element) {
+export function GenerateModifier (bobj, element) {
     if (bobj.Color != 0)
     {
         AddAttribute(element, 'color', ConvertColor(bobj));

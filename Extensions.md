@@ -61,10 +61,7 @@ Extensions must only interact with Sibmei through the API dictionary that is pas
 
 ### API data and methods
 
-The API dictionary exposes the following object:
 
-* **`libmei`**: A reference to libmei that can be used to construct and
-   manipulate MEI elements. *This dictionary must not be modified.*
 
 The API dictionary exposes the following [methods for registering Handlers](ExportHandlers.md#creating-and-registering-handlers) that must only be used inside the `InitSibmeiExtension()` method:
 
@@ -80,3 +77,5 @@ The following methods can be used by Handler methods:
 * [**`GenerateModifier()`**]((ExportHandlers.md#generatemodifier))
 * **`AppendToMeasure()`**. Use this if an element is measure-attached like a control event, but the element should not receive the control event attributes that `GenerateControlEvent()` would add. Takes a single argument, which is the element to be appended to the measure.
 * [**`MeiFactory()`**](ExportHandlers.md#meifactory)
+
+Methods for XML manipulation can be found in the [list of methods exposed to extensions](ExtensionApiMethods.md).

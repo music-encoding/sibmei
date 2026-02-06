@@ -28,18 +28,22 @@ const sourceExtensions = new Set(["msd", "mss", "plg"]);
  * Converts JavaScript-like *.mss function syntax to *.plg syntax.
  * @param {string} mssCode  Code of an entire *.mss file
  * @param {string} filename  mss file name
+ * @param {{name: string, parameters: string}[]} exportedFunctions  If functions
+ *   with `export` flag are found, their are registered in this list.
  */
-function mssToPlg(mssCode, filename) {
+function mssToPlg(mssCode, filename, exportedFunctions) {
   return mssCode
     .split(/\/\/\s*\$end/)
     .filter((functionCode) => functionCode.match(/[^\s]/))
     .map((functionCode) => {
-      const [, functionName, body] = functionCode.match(/function\s+([^ (]+)\s*([\s\S]+})/) || [];
-      if (!functionName) {
+      const [, exprt, name, parameters, body] =
+        functionCode.match(/(export +)?function\s+([^ (]+)\s*(\([^)]*\))\s*([\s\S]+})/) || [];
+
+      if (!name) {
         throw new Error(
           'Syntax error: Could not split code into function name and body:\n\n"' +
             functionCode +
-            '"'
+            '"',
         );
       }
       // Add module information so it's easier to find the source file of a
@@ -47,27 +51,16 @@ function mssToPlg(mssCode, filename) {
       const bodyWithModuleInfo = body.match(/{\s*\/\/\s*\$module/)
         ? body
         : body.replace("{", `{\n    //$module(${filename})`);
-      return `${functionName} "${bodyWithModuleInfo}"`;
+      const output = [`${name} "${parameters} ${bodyWithModuleInfo}"`];
+      if (exprt) {
+        output.push(
+          `ExtensionAPI_${name} "${parameters.replace("(", "(this, ")} ${bodyWithModuleInfo}"`,
+        );
+        exportedFunctions.push({ name, parameters });
+      }
+      return output.join("\n");
     })
     .join("\n\n");
-}
-
-/**
- * @param {string[]} sourceFiles  source file names
- * @param {string} target  name of target *.plg file
- * @param {boolean} [develop]  signals whether to include data only needed for
- * development
- */
-async function buildPlg(sourceFiles, target, develop = false) {
-  fs.writeFileSync(
-    target,
-    `${BOM}{
-    ${compile(sourceFiles)}
-    ${GLOBALS}
-    LegalElements ${await compileLegalElements(develop)}
-    }`,
-    { encoding: "utf16le" }
-  );
 }
 
 /**
@@ -112,40 +105,85 @@ function buildCompanionPlgs(sourceDir, targetDir) {
   for (const fileName of fs.readdirSync(sourceDir, { encoding: "utf8" })) {
     const targetPath = path.join(targetDir, `sibmei${majorVersion}_${fileName}`);
     if (fileName.endsWith(".plg")) {
-      buildPlg([path.join(sourceDir, fileName)], targetPath, false);
+      compile([path.join(sourceDir, fileName)], targetPath, false);
     }
   }
 }
 
 /**
  * @param {string[]} sourceFiles  Source file names.  Any file names with
- * extensions other than msd, mss and plg are ignored.
+ *   extensions other than msd, mss and plg are ignored.
+ * @param {string} target  name of target *.plg file
+ * @param {boolean} develop  signals whether to include data only needed for
+ * @param {string} [exportedMethodDocsPath]  If present, documentation about
+ *   functions with `export` keyword are written to this path.
  */
-function compile(sourceFiles) {
-  const compiledFiles = [];
+async function compile(sourceFiles, target, develop, exportedMethodDocsPath) {
+  const compiledCode = [];
+  /** @type {{name: string, parameters: string}[]} */
+  const exportedMethods = [];
   for (const filename of sourceFiles) {
     const [, extension] = filename.match(/.+\.([^.]+)$/) || [];
     if (!sourceExtensions.has(extension)) {
       continue;
     }
     const code = fs.readFileSync(filename, { encoding: "utf8" });
-    compiledFiles.push(
+    /** @type string[] */
+    compiledCode.push(
       (() => {
         switch (extension) {
           case "mss":
             // *.mss files use JavaScript-ish function syntax we have to compile
-            return mssToPlg(code, path.basename(filename));
+            return mssToPlg(code, path.basename(filename), exportedMethods);
           case "msd":
             // *.msd files are raw ManuScript Data files that we copy verbatim
             return code;
           case "plg":
             // *.plg is similar to *.msd, but has wrapping braces, which we strip
             return code.replace(/\s*{([\s\S]*)}/, "$1");
+          default:
+            throw new Error("Unsupported source extension: " + extension);
         }
-      })()
+      })(),
     );
   }
-  return compiledFiles.join("\n\n");
+  compiledCode.push(`ExportedFunctions {"${exportedMethods.map((f) => f.name).join('" "')}"}`);
+  writePlugin(target, compiledCode, develop);
+  if (exportedMethodDocsPath) {
+    writeExportedMethodDocs(exportedMethodDocsPath, exportedMethods);
+  }
+}
+
+/**
+ * @param {string} target
+ * @param {string[]} compiledCode
+ * @param {boolean} develop
+ */
+async function writePlugin(target, compiledCode, develop) {
+  fs.writeFileSync(
+    target,
+    `${BOM}{
+    ${compiledCode.join("\n\n")}
+    ${GLOBALS}
+    LegalElements ${await compileLegalElements(develop)}
+    }`,
+    { encoding: "utf16le" },
+  );
+}
+
+/**
+ * @param exportedMethodsDocPath {string}
+ * @param exportedMethods {{name: string, parameters: string}[]}
+ */
+function writeExportedMethodDocs(exportedMethodsDocPath, exportedMethods) {
+  fs.writeFileSync(exportedMethodsDocPath, [
+    "<!-- Autogenerated documentation. Do not modify. Changes will be overwritten. -->",
+    "# Methods Exposed to Extensions",
+    "The following methods are shared between Sibmei and extensions. For further information and usage examples see the [extension API documentation](Extensions.md).",
+    "```js",
+    `${exportedMethods.map((f) => `api.${f.name}${f.parameters}`).sort().join("\n")}`,
+    "```",
+  ].join("\n"));
 }
 
 /**
@@ -174,9 +212,14 @@ async function build() {
   const mainSourceFiles = fileList("src");
   const testSourceFiles = fileList(path.join("test", "sib-test"));
   info("Compiling release build");
-  await buildPlg(mainSourceFiles, `${path.join("build", "release", "sibmei")}${majorVersion}.plg`);
+  await compile(
+    mainSourceFiles,
+    `${path.join("build", "release", "sibmei")}${majorVersion}.plg`,
+    false,
+    "ExtensionApiMethods.md",
+  );
   info("Compiling development build");
-  await buildPlg(
+  await compile(
     [...mainSourceFiles, ...testSourceFiles],
     `${path.join("build", "develop", "sibmei")}${majorVersion}.plg`,
     true
