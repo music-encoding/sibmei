@@ -11,6 +11,8 @@ function InitTextHandlers() {
 
     RegisterTextHandlers('StyleId', 'ControlEventTemplateHandler', CreateDictionary(
         'text.staff.expression', @Element('dynam', noAttributes, FormattedText),
+        'text.staff.space.fingering', @Element('fing', noAttributes, FormattedText),
+        'text.staff.space.fingering', @Element('fing', @Attrs('type', 'guitar'), FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.technique', @Element('dir', @Attrs('type', 'technique'), FormattedText),
         'text.system.page_aligned.composer', @Element('anchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
