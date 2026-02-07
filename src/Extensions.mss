@@ -163,7 +163,7 @@ function InitExtensions (extensions, pluginList) {
         @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
-    SchemaUrl = GetSchemaUrl(chosenExtensions, extensionsInfo);
+    SchemaUri = GetSchemaUri(chosenExtensions, extensionsInfo);
 
     // Keep chosenExtensions as global variable for encoding <appInfo>
     Self._property:ChosenExtensions = chosenExtensions;
@@ -172,42 +172,42 @@ function InitExtensions (extensions, pluginList) {
 }  //$end
 
 
-function GetSchemaUrl (chosenExtensions, extensionsInfo) {
-    // To detect conflicting schema URLs defined by multiple active extensions,
+function GetSchemaUri (chosenExtensions, extensionsInfo) {
+    // To detect conflicting schema URIs defined by multiple active extensions,
     // collect all of them with info about the extensions that defined them.
-    schemaUrls = CreateDictionary();
+    schemaUris = CreateDictionary();
     for each Name plgName in chosenExtensions
     {
-        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaUrl'))
+        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaUri'))
         {
-            schemaUrls[@plgName.CustomSchemaUrl] = plgName;
+            schemaUris[@plgName.CustomSchemaUri] = plgName;
         }
     }
 
-    if (schemaUrls > 1)
+    if (schemaUris > 1)
     {
-        warning = CreateSparseArray('Active extensions defined conflicting schema URLs:\n');
-        for each Name schemaUrl in schemaUrls
+        warning = CreateSparseArray('Active extensions defined conflicting schema URIs:\n');
+        for each Name schemaUri in schemaUris
         {
-            plgName = schemaUrls[schemaUrl];
-            warning.Push(schemaUrl & '(' & plgName & ')');
+            plgName = schemaUris[schemaUri];
+            warning.Push(schemaUri & '(' & plgName & ')');
         }
         warning.Push('\nProcessing instructions for validation will be omitted');
-        if (warning != Self._property:LastSchemUrlWarning)
+        if (warning != Self._property:LastSchemUriWarning)
         {
             // It suffices if we show the warning once.
             Sibelius.MessageBox(warning.Join('\n'));
-            Self._property:LastSchemUrlWarning = warning;
+            Self._property:LastSchemUriWarning = warning;
         }
-        return 'OmitSchemaUrl';
+        return 'noSchema';
     }
 
-    for each Name customSchemaUrl in schemaUrls
+    for each Name CustomSchemaUri in schemaUris
     {
-        return customSchemaUrl;
+        return CustomSchemaUri;
     }
 
-    return DefaultSchemaUrl;
+    return DefaultSchemaUri;
 }  //$end
 
 
