@@ -10,9 +10,11 @@ To install this plugin, copy or symlink the `.plg` files in the Sibelius Plugin 
 
 If you're only interested in running the plugin in Sibelius, this is all you need to do.
 
+Sibmei development services and support for Sibmei based workflows is available from [Notengrafik Berlin](https://notengrafik.com/development/sibmei/?lang=en).
+
 ## Developing and Contributing
 
-### Install
+### Install for development
 
 For working on Sibmei, you need to have [git](https://git-scm.com/downloads) and [node](https://nodejs.org/en/download) installed. Then, on the command line, run:
 
