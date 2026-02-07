@@ -1,0 +1,12 @@
+{
+  SibmeiExtensionAPIVersion "3.0.0"
+  CustomSchemaUrl "https://example.com/schema/custom.rng"
+
+  Initialize "() {
+    AddToPluginsMenu('Sibmei extension schema test', 'Run');
+  }"
+
+  InitSibmeiExtension "(api) {
+    ;
+  }"
+}

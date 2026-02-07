@@ -163,10 +163,51 @@ function InitExtensions (extensions, pluginList) {
         @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
-    // store chosenExtensions as global to add application info
+    SchemaUrl = GetSchemaUrl(chosenExtensions, extensionsInfo);
+
+    // Keep chosenExtensions as global variable for encoding <appInfo>
     Self._property:ChosenExtensions = chosenExtensions;
 
     return true;
+}  //$end
+
+
+function GetSchemaUrl (chosenExtensions, extensionsInfo) {
+    // To detect conflicting schema URLs defined by multiple active extensions,
+    // collect all of them with info about the extensions that defined them.
+    schemaUrls = CreateDictionary();
+    for each Name plgName in chosenExtensions
+    {
+        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaUrl'))
+        {
+            schemaUrls[@plgName.CustomSchemaUrl] = plgName;
+        }
+    }
+
+    if (schemaUrls > 1)
+    {
+        warning = CreateSparseArray('Active extensions defined conflicting schema URLs:\n');
+        for each Name schemaUrl in schemaUrls
+        {
+            plgName = schemaUrls[schemaUrl];
+            warning.Push(schemaUrl & '(' & plgName & ')');
+        }
+        warning.Push('\nProcessing instructions for validation will be omitted');
+        if (warning != Self._property:LastSchemUrlWarning)
+        {
+            // It suffices if we show the warning once.
+            Sibelius.MessageBox(warning.Join('\n'));
+            Self._property:LastSchemUrlWarning = warning;
+        }
+        return 'OmitSchemaUrl';
+    }
+
+    for each Name customSchemaUrl in schemaUrls
+    {
+        return customSchemaUrl;
+    }
+
+    return DefaultSchemaUrl;
 }  //$end
 
 

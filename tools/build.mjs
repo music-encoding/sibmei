@@ -16,7 +16,7 @@ const GLOBALS = `
   MainPlgBaseName "sibmei${majorVersion}"
   PluginVersion "${version}"
   MeiVersion "${meiVersion}"
-  SchemaUrl "${SCHEMA_URL}"
+  DefaultSchemaUrl "${SCHEMA_URL}"
 `;
 
 // byte order mark

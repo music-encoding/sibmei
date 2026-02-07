@@ -50,9 +50,28 @@ function RunTests() {
     }
     ExportBatch(testFiles, CreateSparseArray(MainPlgBaseName & '_extension_test'));
 
-    if (Sibelius.PathSeparator = '/') {
+    // Test schema validation processing instruction creation
+    ExportBatch(
+        CreateSparseArray(testFolder & 'custom-schema.sib'),
+        CreateSparseArray(
+            MainPlgBaseName & '_extension_specific_schema',
+            MainPlgBaseName & '_extension_test'
+        )
+    );
+    ExportBatch(
+        CreateSparseArray(testFolder & 'no-schema.sib'),
+        CreateSparseArray(
+            MainPlgBaseName & '_extension_with_empty_schema',
+            MainPlgBaseName & '_extension_test'
+        )
+    );
+
+    if (Sibelius.PathSeparator = '/')
+    {
         nodeTestScript = pluginDir & 'test.sh';
-    } else {
+    }
+    else
+    {
         nodeTestScript = pluginDir & 'test.bat';
     }
     if (not (Sibelius.FileExists(nodeTestScript) and Sibelius.LaunchApplication(nodeTestScript))) {

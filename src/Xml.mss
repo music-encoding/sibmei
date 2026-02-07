@@ -360,12 +360,15 @@ function ConvertDictToXml (meiel, indent) {
 
 
 function _exportMeiDocument (meidoc) {
-        xdecl = '<?xml version=' & Chr(34) & '1.0' & Chr(34) & ' encoding=' & Chr(34) & 'UTF-16' & Chr(34) & ' ?>';
-        schema = '\n<?xml-model href=' & Chr(34) & SchemaUrl & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://relaxng.org/ns/structure/1.0' & Chr(34) & ' ?>';
-        schematron = '\n<?xml-model href=' & Chr(34) & SchemaUrl & Chr(34) & ' type=' & Chr(34) & 'application/xml' & Chr(34) & ' schematypens=' & Chr(34) & 'http://purl.oclc.org/dsdl/schematron' & Chr(34) & ' ?>';
-        meiout = xdecl & schema & schematron & ConvertDictToXml(meidoc[0], Chr(10));
+    meiout = '<?xml version=\'1.0\' encoding=\'UTF-16\' ?>';
+    if (SchemaUrl != 'OmitSchemaUrl')
+    {
+        meiout = meiout & '\n<?xml-model href=\'' & SchemaUrl & '\' type=\'application/xml\' schematypens=\'http://relaxng.org/ns/structure/1.0\' ?>';
+        meiout = meiout & '\n<?xml-model href=\'' & SchemaUrl & '\' type=\'application/xml\' schematypens=\'http://purl.oclc.org/dsdl/schematron\' ?>';
+    }
+    meiout = meiout & ConvertDictToXml(meidoc[0], Chr(10));
 
-        return meiout;
+    return meiout;
 } //$end
 
 
