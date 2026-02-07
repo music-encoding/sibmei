@@ -182,7 +182,7 @@ function HandleMySymbol (api, obj) {
     symbolElement = api.GenerateControlEvent(obj, api.MeiFactory(api.template, obj));
     if (obj.ColorRed = 255)
     {
-        api.libmei.AddAttribute(symbolElement, 'type', 'myRedType');
+        api.AddAttribute(symbolElement, 'type', 'myRedType');
     }
     return symbolElement;
 } //$end
@@ -196,12 +196,12 @@ While in the above example, the MEI element is generated from a registered templ
 
 ```js
 function HandleMySymbol (api, obj) {
-    symbolElement = api.GenerateControlEvent(api.libmei.Symbol());
-    api.libmei.AddAttribute(symbolElement, 'fontfam', 'myCustomFont');
-    api.libmei.AddAttribute(symbolElement, 'glyph.name', 'mySymbolGlyph');
+    symbolElement = api.GenerateControlEvent(api.Symbol());
+    api.AddAttribute(symbolElement, 'fontfam', 'myCustomFont');
+    api.AddAttribute(symbolElement, 'glyph.name', 'mySymbolGlyph');
     if (obj.ColorRed = 255)
     {
-        api.libmei.AddAttribute(symbolElement, 'type', 'myRedType');
+        api.AddAttribute(symbolElement, 'type', 'myRedType');
     }
     return symbolElement;
 } //$end
@@ -214,7 +214,7 @@ A Handler method can use the following methods:
 Takes two arguments:
 
 * `bobj`: A `BarObject`
-* `element`: An element that is either created by means of libmei or `MeiFactory()`.
+* `element`: An element that is created e.g. with `CreateElement()` or `MeiFactory()`.
 
 `GenerateControlEvent()` takes care of adding the element to the `<measures>` and adds the following control event attributes:
 
@@ -277,7 +277,7 @@ If a Handler is registered under a `StyleId` or `Index` property, this will alwa
 >
 > - A reference to the Template Action object (similar to how Python or Lua methods receive `self` as first parameter). This object has a `templateNode` field that references the template node the Template Action is attached to.
 >
-> - The parent element of the output MEI tree. The Template Action method is responsible for attaching any created text or element nodes to that parent element using `api.libmei.AddChild()`, `api.libmei.SetText()` or the like.
+> - The parent element of the output MEI tree. The Template Action method is responsible for attaching any created text or element nodes to that parent element using `api.AddChild()`, `api.SetText()` or the like.
 >
 > - The handled Sibelius BarObject, like a `LyricItem`.
 >
@@ -286,7 +286,7 @@ If a Handler is registered under a `StyleId` or `Index` property, this will alwa
 > ```js
 > function SomeElementAction (self, parent, bobj) {
 >     element = api.MeiFactory(self.templateNode, bobj);
->     api.libmei.AddAttribute(element, 'label', 'do something with the element');
->     api.libmei.AddChild(parent, element);
+>     api.AddAttribute(element, 'label', 'do something with the element');
+>     api.AddChild(parent, element);
 > } //$end
 > ```

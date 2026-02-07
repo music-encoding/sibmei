@@ -1,7 +1,5 @@
 function RunTests() {
-    Self._property:libmei = libmei4;
     Self._property:sibmei = @MainPlgBaseName;
-    sibmei._property:libmei = libmei;
     sibmei.InitGlobals(CreateSparseArray(MainPlgBaseName & '_extension_test'));
     sibmei.InitGlobalAliases(Self);
 
@@ -30,9 +28,11 @@ function RunTests() {
 
     suite = Test.Suite('Sibelius MEI Exporter', Self, sibmei);
 
+    ResetXml();
+
     suite
         .AddModule('TestExportConverters')
-        .AddModule('TestLibmei')
+        .AddModule('TestXml')
         .AddModule('TestExportGenerators')
         .AddModule('TestUtilities')
         .AddModule('TestHierarchyBuilders')
@@ -48,7 +48,7 @@ function RunTests() {
     {
         testFiles.Push(file);
     }
-    sibmei4.ExportBatch(testFiles, CreateSparseArray('sibmei4_extension_test'));
+    ExportBatch(testFiles, CreateSparseArray(MainPlgBaseName & '_extension_test'));
 
     if (Sibelius.PathSeparator = '/') {
         nodeTestScript = pluginDir & 'test.sh';
@@ -202,3 +202,11 @@ function CloseAllWindows () {
         Sibelius.New();
     }
 }  //$end
+
+
+function Debug (message) {
+    // Alternative to Trace(). It is better than Trace() to debug situations
+    // where Sibelius crashes and the Trace window closes. It is faster when
+    // loggin a lot of messages because Trace() seems to be O(n²).
+    Sibelius.AppendTextFile(pluginDir & 'debug-log.txt', message & '\n');
+} //$end

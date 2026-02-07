@@ -1,113 +1,3 @@
-
-function ConvertClef (clefid) {
-    //$module(ExportConverters.mss)
-    clefparts = MSplitString(clefid, '.');
-    shape = ' ';
-    line = ' ';
-    dis = ' ';
-    dir = ' ';
-
-    switch(clefparts[2])
-    {
-        case ('down')
-        {
-            dir = 'below';
-        }
-        case ('up')
-        {
-            dir = 'above';
-        }
-    }
-
-    switch(clefparts[3])
-    {
-        case ('8')
-        {
-            dis = '8';
-        }
-        case ('15')
-        {
-            dis = '15';
-        }
-    }
-
-    switch (clefparts[1]) {
-        case ('bass')
-        {
-            shape = 'F';
-            line = '4';
-        }
-        case ('treble')
-        {
-            if (clefparts[4] = 'old')
-            {
-                shape = 'GG';
-            }
-            else
-            {
-                shape = 'G';
-            }
-            line = '2';
-        }
-        case ('tenor')
-        {
-            shape = 'C';
-            line = '4';
-        }
-        case ('alto')
-        {
-            shape = 'C';
-            line = '3';
-        }
-        case ('soprano')
-        {
-            shape = 'C';
-            if (clefparts[2] = 'mezzo')
-            {
-                line = '2';
-            }
-            else
-            {
-                line = '1';
-            }
-        }
-        case ('baritone')
-        {
-            if (clefparts[2] = 'c')
-            {
-                shape = 'C';
-                line = '5';
-            }
-            else
-            {
-                shape = 'F';
-                line = '3';
-            }
-        }
-        case ('violin')
-        {
-            shape = 'G';
-            line = '1';
-        }
-        case ('sub-bass')
-        {
-            shape = 'F';
-            line = '5';
-        }
-        case ('tab')
-        {
-            shape = 'TAB';
-        }
-        case (('percussion') or ('percussion_2'))
-        {
-            shape = 'perc';
-        }
-    }
-
-    ret = CreateSparseArray(shape, line, dis, dir);
-    return ret;
-}  //$end
-
 function ConvertDiatonicPitch (diatonic_pitch) {
     //$module(ExportConverters)
     octv = (diatonic_pitch / 7) - 1;
@@ -610,7 +500,6 @@ function ConvertNoteStyle (style) {
         }
         case (ShapedNote6NoteStyle)
         {
-            // In MEI 4.0, there is a square in data.HEADSHAPE.list
             noteStyle = 'square';
         }
         case (ShapedNote7NoteStyle)
@@ -699,13 +588,13 @@ function ConvertFbFigures (fb, bobj) {
             // We reached a linebreak or the last component
             if (currentLine != '')
             {
-                f = libmei.F();
-                libmei.SetText(f, currentLine);
-                libmei.AddAttribute(f, 'n', n);
-                libmei.AddChild(fb, f);
+                f = CreateElement('f');
+                SetText(f, currentLine);
+                AddAttribute(f, 'n', n);
+                AddChild(fb, f);
                 if (altsym != null)
                 {
-                    libmei.AddAttribute(f, 'altsym', altsym);
+                    AddAttribute(f, 'altsym', altsym);
                     altsym = null;
                 }
             }

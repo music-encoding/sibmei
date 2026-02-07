@@ -13,9 +13,6 @@ function InitGlobals (extensions) {
     // `extensions` can be null or a SparseArray. See `InitExtensions()` for
     // more detailed information.
 
-    // initialize libmei as soon as possible
-    Self._property:libmei = libmei4;
-
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);
@@ -58,13 +55,49 @@ function InitGlobals (extensions) {
     BarlineAttributes[SpecialBarlineFinal] = @Attrs('right', 'end');
     BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
     BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
-    BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
-    // BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
     BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
     BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
     BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
-    // no MEI equiv:
-    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+    if (Sibelius.ProgramVersion >= 20201200)
+    {
+        BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
+        BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+        // no MEI equiv:
+        // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+    }
+
+    Self._property:ClefTemplates = CreateDictionary(
+        'clef.alto',                    @Element('clef', @Attrs('shape', 'C', 'line', '3')),
+        'clef.baritone.c',              @Element('clef', @Attrs('shape', 'C', 'line', '5')),
+        'clef.baritone.f',              @Element('clef', @Attrs('shape', 'F', 'line', '3')),
+        'clef.bass',                    @Element('clef', @Attrs('shape', 'F', 'line', '4')),
+        'clef.bass.down.8',             @Element('clef', @Attrs('shape', 'F', 'line', '4', 'dis', '8',  'dis.place', 'below')),
+        'clef.bass.up.15',              @Element('clef', @Attrs('shape', 'F', 'line', '4', 'dis', '15', 'dis.place', 'above')),
+        'clef.bass.up.8',               @Element('clef', @Attrs('shape', 'F', 'line', '4', 'dis', '8',  'dis.place', 'above')),
+        // Sibelius categorizes clef.null as percussion clef. It effectively
+        // works like a hidden percussion clef.
+        'clef.null',                    @Element('clef', @Attrs('shape', 'perc', 'visible', 'false')),
+        'clef.percussion',              @Element('clef', @Attrs('shape', 'perc')),
+        'clef.percussion_2',            @Element('clef', @Attrs('shape', 'perc', 'glyph.auth', 'smufl', 'glyph.num', 'U+E06A')),
+        'clef.soprano',                 @Element('clef', @Attrs('shape', 'C', 'line', '1')),
+        'clef.soprano.mezzo',           @Element('clef', @Attrs('shape', 'C', 'line', '2')),
+        'clef.tab',                     @Element('clef', @Attrs('shape', 'TAB')),
+        'clef.tab.small',               @Element('clef', @Attrs('shape', 'TAB', 'fontsize', 'small')),
+        // There is not a huge visual difference between 'clef.tab.small' and
+        // 'clef.tab.small.taller' with Sibelius' built-in fonts
+        'clef.tab.small.taller',        @Element('clef', @Attrs('shape', 'TAB', 'fontsize', 'small')),
+        'clef.tab.taller',              @Element('clef', @Attrs('shape', 'TAB', 'fontsize', 'large')),
+        'clef.tenor',                   @Element('clef', @Attrs('shape', 'C', 'line', '4')),
+        'clef.tenor.down.8',            @Element('clef', @Attrs('shape', 'C', 'line', '4', 'dis', '8', 'dis.place', 'below')),
+        'clef.treble',                  @Element('clef', @Attrs('shape', 'G', 'line', '2')),
+        'clef.treble.down.8',           @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '8', 'dis.place', 'below')),
+        'clef.treble.down.8.bracketed', @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '8', 'dis.place', 'below', 'glyph.auth', 'smufl', 'glyph.num', 'U+E057')),
+        'clef.treble.down.8.old',       @Element('clef', @Attrs('shape', 'GG', 'line', '2')),
+        'clef.treble.up.15',            @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '15', 'dis.place', 'above')),
+        'clef.treble.up.8',             @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '8', 'dis.place', 'above')),
+        'clef.violin.french',           @Element('clef', @Attrs('shape', 'G', 'line', '1')),
+        'clef.sub-bass.f',              @Element('clef', @Attrs('shape', 'F', 'line', '5'))
+    );
 
     // Sibelius apparently has a garbage collector issue with references to
     // Plugin objects. We have to keep a persistent reference to the PluginList
@@ -86,10 +119,13 @@ function InitGlobals (extensions) {
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
+    Self._property:ApiSemver = SplitString(ExtensionAPIVersion, '.');
     if (not InitExtensions(extensions, _PluginList))
     {
         return false;
     }
+
+    InitXmlGlobals();
 
     Self._property:_Initialized = true;
 

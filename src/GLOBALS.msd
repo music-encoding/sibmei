@@ -1,5 +1,5 @@
-Author      "Andrew Hankinson and Others"
-ExtensionAPIVersion "2.0.0"
+Author      "Andrew Hankinson, Thomas Weber, Klaus Rettinghaus and Others"
+ExtensionAPIVersion "3.0.0"
 
 _InitialProgressTitle "Exporting %s to MEI"
 _ExportFileIsNull "You must specify a file to save."
