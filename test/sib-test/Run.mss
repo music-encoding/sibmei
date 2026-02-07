@@ -48,7 +48,7 @@ function RunTests() {
     {
         testFiles.Push(file);
     }
-    ExportBatch(testFiles, CreateSparseArray(MainPlgBaseName & '_extension_test'));
+    ExportBatch(testFiles, CreateSparseArray(MainPlgBaseName & '_extension_test'), false);
 
     // Test schema validation processing instruction creation
     ExportBatch(
@@ -56,14 +56,16 @@ function RunTests() {
         CreateSparseArray(
             MainPlgBaseName & '_extension_specific_schema',
             MainPlgBaseName & '_extension_test'
-        )
+        ),
+        false
     );
     ExportBatch(
         CreateSparseArray(testFolder & 'no-schema.sib'),
         CreateSparseArray(
             MainPlgBaseName & '_extension_test_omitting_schema',
             MainPlgBaseName & '_extension_test'
-        )
+        ),
+        false
     );
 
     if (Sibelius.PathSeparator = '/')

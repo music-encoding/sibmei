@@ -126,7 +126,7 @@ function SetGlobalsForScore (score) {
 }  //$end
 
 
-function ExportBatch (files, extensions) {
+function ExportBatch (files, extensions, showFinalMessage) {
     if (not InitGlobals(extensions))
     {
         return null;
@@ -179,7 +179,10 @@ function ExportBatch (files, extensions) {
 
     Sibelius.DestroyProgressDialog();
 
-    Sibelius.MessageBox(exportCount & ' of ' & numFiles & ' files were exported.');
+    if (showFinalMessage)
+    {
+        Sibelius.MessageBox(exportCount & ' of ' & numFiles & ' files were exported.');
+    }
 
     return true;
 }  //$end
