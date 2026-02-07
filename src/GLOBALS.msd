@@ -17,3 +17,4 @@ LOGFILE "sibelius.log"
 
 AvailableExtensions
 SelectedExtensions
+IncompatibleExtensions
