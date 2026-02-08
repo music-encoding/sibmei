@@ -119,7 +119,7 @@ function InitGlobals (extensions) {
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
-    Self._property:SchemaUri = DefaultSchemaUri;
+    Self._property:SchemaLocation = DefaultSchemaLocation;
     Self._property:ApiSemver = SplitString(ExtensionAPIVersion, '.');
     if (not InitExtensions(extensions, _PluginList))
     {

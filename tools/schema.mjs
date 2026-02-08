@@ -10,7 +10,7 @@ const RNG = "mei-CMN.rng";
 const meiVersion = pckg.sibmei.meiVersion;
 const RNG_NS = "http://relaxng.org/ns/structure/1.0";
 const MEI_NS = "http://www.music-encoding.org/ns/mei";
-export const SCHEMA_URI = `https://music-encoding.org/schema/${meiVersion}/${RNG}`;
+export const SCHEMA_LOCATION = `https://music-encoding.org/schema/${meiVersion}/${RNG}`;
 
 /**
  * @typedef {Object} ElementInfo
@@ -94,7 +94,7 @@ export async function getRngDocument(rngCode) {
  */
 async function fetchSchema() {
   return new Promise((resolve, reject) => {
-    https.get(SCHEMA_URI, (res) => {
+    https.get(SCHEMA_LOCATION, (res) => {
       let data = "";
       console.log("Downloading MEI schema...");
 

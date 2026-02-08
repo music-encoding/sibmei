@@ -1,6 +1,6 @@
 {
   SibmeiExtensionAPIVersion "3.0.0"
-  CustomSchemaUri "noSchema"
+  CustomSchemaLocation "noSchema"
 
   Initialize "() {
     AddToPluginsMenu('Sibmei extension with empty schemas test', 'Run');

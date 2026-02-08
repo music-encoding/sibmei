@@ -163,7 +163,7 @@ function InitExtensions (extensions, pluginList) {
         @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
-    SchemaUri = GetSchemaUri(chosenExtensions, extensionsInfo);
+    SchemaLocation = GetSchemaLocation(chosenExtensions, extensionsInfo);
 
     // Keep chosenExtensions as global variable for encoding <appInfo>
     Self._property:ChosenExtensions = chosenExtensions;
@@ -172,42 +172,43 @@ function InitExtensions (extensions, pluginList) {
 }  //$end
 
 
-function GetSchemaUri (chosenExtensions, extensionsInfo) {
-    // To detect conflicting schema URIs defined by multiple active extensions,
-    // collect all of them with info about the extensions that defined them.
-    schemaUris = CreateDictionary();
+function GetSchemaLocation (chosenExtensions, extensionsInfo) {
+    // To detect conflicting schema locations defined by multiple active
+    // extensions, collect all of them with info about the extensions that
+    // defined them.
+    schemaLocations = CreateDictionary();
     for each Name plgName in chosenExtensions
     {
-        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaUri'))
+        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaLocation'))
         {
-            schemaUris[@plgName.CustomSchemaUri] = plgName;
+            schemaLocations[@plgName.CustomSchemaLocation] = plgName;
         }
     }
 
-    if (schemaUris > 1)
+    if (schemaLocations > 1)
     {
-        warning = CreateSparseArray('Active extensions defined conflicting schema URIs:\n');
-        for each Name schemaUri in schemaUris
+        warning = CreateSparseArray('Active extensions defined conflicting schema locations:\n');
+        for each Name schemaLocation in schemaLocations
         {
-            plgName = schemaUris[schemaUri];
-            warning.Push(schemaUri & '(' & plgName & ')');
+            plgName = schemaLocations[schemaLocation];
+            warning.Push(schemaLocation & '(' & plgName & ')');
         }
         warning.Push('\nProcessing instructions for validation will be omitted');
-        if (warning != Self._property:LastSchemUriWarning)
+        if (warning != Self._property:LastSchemaLocationWarning)
         {
             // It suffices if we show the warning once.
             Sibelius.MessageBox(warning.Join('\n'));
-            Self._property:LastSchemUriWarning = warning;
+            Self._property:LastSchemaLocationWarning = warning;
         }
         return 'noSchema';
     }
 
-    for each Name CustomSchemaUri in schemaUris
+    for each Name CustomSchemaLocation in schemaLocations
     {
-        return CustomSchemaUri;
+        return CustomSchemaLocation;
     }
 
-    return DefaultSchemaUri;
+    return DefaultSchemaLocation;
 }  //$end
 
 

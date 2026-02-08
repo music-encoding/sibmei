@@ -55,11 +55,11 @@ Register your symbol, text, line and lyrics Handlers in this function using the 
 
 ### Optional fields
 
-### `CustomSchemaUri`
+### `CustomSchemaLocation`
 
-By default, Sibmei writes schema validation processing instructions with the URL of the mei-CMN schema. A custom schema URI can be declared as `CustomSchemaUri`. If this field is `noSchema`, Sibelius will not write the validation processing instructions.
+By default, Sibmei writes schema validation processing instructions with the URL of the mei-CMN schema. A custom schema location can be declared as `CustomSchemaLocation`. If this field is `noSchema`, Sibelius will not write the validation processing instructions.
 
-See the examples for how to [declare a custom schema URI](./tree/develop/test/extension_specific_schema.plg) and how to [omit the processing instructions](./tree/develop/test/extension_test_omitting_schema.plg). Note that if multiple extensions are active and declare conflicting schema URIs, you will be notified and no processing instructions are written.
+See the examples for how to [declare a custom schema location](./tree/develop/test/extension_specific_schema.plg) and how to [omit the processing instructions](./tree/develop/test/extension_test_omitting_schema.plg). Note that if multiple extensions are active and declare conflicting schema locations, you will be notified and no processing instructions are written.
 
 ## API Dictionary
 

@@ -361,10 +361,10 @@ function ConvertDictToXml (meiel, indent) {
 
 function _exportMeiDocument (meidoc) {
     meiout = '<?xml version=\'1.0\' encoding=\'UTF-16\' ?>';
-    if (SchemaUri != 'noSchema')
+    if (SchemaLocation != 'noSchema')
     {
-        meiout = meiout & '\n<?xml-model href=\'' & SchemaUri & '\' type=\'application/xml\' schematypens=\'http://relaxng.org/ns/structure/1.0\' ?>';
-        meiout = meiout & '\n<?xml-model href=\'' & SchemaUri & '\' type=\'application/xml\' schematypens=\'http://purl.oclc.org/dsdl/schematron\' ?>';
+        meiout = meiout & '\n<?xml-model href=\'' & SchemaLocation & '\' type=\'application/xml\' schematypens=\'http://relaxng.org/ns/structure/1.0\' ?>';
+        meiout = meiout & '\n<?xml-model href=\'' & SchemaLocation & '\' type=\'application/xml\' schematypens=\'http://purl.oclc.org/dsdl/schematron\' ?>';
     }
     meiout = meiout & ConvertDictToXml(meidoc[0], Chr(10));
 

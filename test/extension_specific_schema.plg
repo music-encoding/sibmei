@@ -1,6 +1,6 @@
 {
   SibmeiExtensionAPIVersion "3.0.0"
-  CustomSchemaUri "https://example.com/schema/custom.rng"
+  CustomSchemaLocation "https://example.com/schema/custom.rng"
 
   Initialize "() {
     AddToPluginsMenu('Sibmei extension schema test', 'Run');
