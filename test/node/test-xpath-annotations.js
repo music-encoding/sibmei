@@ -1,3 +1,5 @@
+// @ts-check
+
 "use strict";
 
 const { describe, it } = require('node:test');
@@ -8,7 +10,7 @@ const utils = require('./utils');
 
 /**
  * This test iterates over all exported MEI test files, and in those files,
- * iterates over all <annot> elements with @type='xpath-test' and applies the
+ * iterates over all <annot> elements with `@type='xpath-test'` and applies the
  * content as XPath to the <annot>'s parent <measure>. The test passes if the
  * XPath result is truthy (i.e. returns true or matches something).
  *
@@ -28,6 +30,7 @@ let foundXPathTest = false;
 
 for (const fileName of utils.getExportedTestFileNames()) {
   const mei = utils.getTestMeiDom(fileName);
+  /** @type Element[] */
   let xpathAnnots = xpath.evaluateXPath("//*:annot[@type='xpath-test']", mei);
   // evaluateXPath() returns a single object when the XPath evaluates to a
   // single object or value, but we always want an array
@@ -40,9 +43,18 @@ for (const fileName of utils.getExportedTestFileNames()) {
   foundXPathTest = true;
   describe(fileName, () => {
     it(`${fileName} matches XPath tests`, function() {
+      /** @type string[] */
       const messages = [];
       for (const annot of xpathAnnots) {
-        const measure = annot.parentNode.getAttribute("n");
+        const measure = annot.parentElement?.getAttribute("n");
+        if (measure === undefined) {
+          messages.push("<annot type='xpath-test'> elements are expected to be children of <measure> elements");
+          continue;
+        }
+        if (measure === null) {
+          messages.push("<measure> elements are expected to have an @n attribute");
+          continue;
+        }
         const [, testXpath, expectedString, expectedNumber] = (
           annot.textContent.match(xpathWithComparison) || [, annot.textContent]
         );
@@ -52,9 +64,9 @@ for (const fileName of utils.getExportedTestFileNames()) {
           expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
           annot.parentNode
         );
-        if (expectedNumber) {
-          evaluateResult(messages, measure, testXpath, result, expectedNumber);
-        } else if (expectedString) {
+        if (expectedNumber !== undefined) {
+          evaluateResult(messages, measure, testXpath, result, testDescription, expectedNumber);
+        } else if (expectedString !== undefined) {
           const stringWithoutQuotes = expectedString.replace(/.(.*)./, "$1");
           evaluateResult(messages, measure, testXpath, result, testDescription, stringWithoutQuotes);
         } else {
@@ -66,6 +78,15 @@ for (const fileName of utils.getExportedTestFileNames()) {
   });
 }
 
+/**
+ * @param {string[]} messages  The function does not do an assertion, it only
+ *   appends found issues to this array as messages.
+ * @param {string} measure  `measure/@n` attribute
+ * @param {string} testXpath
+ * @param {*} result  The result of the XPath evaluation
+ * @param {string} testDescription
+ * @param {string|number} [expectedResult]
+ */
 function evaluateResult(messages, measure, testXpath, result, testDescription, expectedResult) {
   let message = '';
   if (expectedResult === undefined) {
