@@ -162,9 +162,9 @@ export function GetTail (element) {
 
 function InitXmlGlobals () {
     Self._property:EncodedChar = CreateSparseArray();
-    EncodedChar[34] = '&quot;';
     EncodedChar[60] = '&lt;';
     EncodedChar[38] = '&amp;';
+    EncodedChar[39] = '&apos;';
 
     // Create a string of all characters that have to be entity-encoded
     Self._property:EscapedCharacters = '';
@@ -244,7 +244,7 @@ function CreateXmlTag (name, id, attributesList, isTerminal) {
 
     if (id != null)
     {
-        attrstring = 'xml:id=' & Chr(34) & id & Chr(34);
+        attrstring = 'xml:id=\'' & id & '\'';
     }
 
     if (attributesList != null)
@@ -257,11 +257,11 @@ function CreateXmlTag (name, id, attributesList, isTerminal) {
                 if (attrstring = '')
                 {
                     // Don't add initial space
-                    attrstring = attr.Name & '=' & Chr(34) & attr.Value & Chr(34);
+                    attrstring = attr.Name & '=\'' & attr.Value & '\'';
                 }
                 else
                 {
-                    attrstring = attrstring & spacer & attr.Name & '=' & Chr(34) & attr.Value & Chr(34);
+                    attrstring = attrstring & spacer & attr.Name & '=\'' & attr.Value & '\'';
                 }
             }
         }
@@ -408,10 +408,8 @@ function EncodeEntities (string) {
 
 
 function GenerateRandomID () {
-    id = Self._property:MEIID + 1;
-    Self._property:MEIID = id;
-    id = 'm-' & id;
-    return id;
+    MEIID = MEIID + 1;
+    return 'm-' & MEIID;
 } //$end
 
 

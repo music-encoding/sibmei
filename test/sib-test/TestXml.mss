@@ -182,7 +182,8 @@ function TestGetSetId (assert, plugin) {
 
 function TestEncodeEntities (assert, plugin) {
     _AssertEntityEncoding(assert, 'abc&def', 'abc&amp;def');
-    _AssertEntityEncoding(assert, '<abc' & Chr(34), '&lt;abc&quot;');
+    _AssertEntityEncoding(assert, '<abc\'', '&lt;abc&apos;');
+    _AssertEntityEncoding(assert, '<abc' & Chr(34), '&lt;abc' & Chr(34));
     _AssertEntityEncoding(assert, 'abc', 'abc');
     _AssertEntityEncoding(assert, '', '');
     _AssertEntityEncoding(assert, '&&', '&amp;&amp;');
