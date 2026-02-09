@@ -61,7 +61,7 @@ function RunTests() {
     ExportBatch(
         CreateSparseArray(testFolder & 'no-schema.sib'),
         CreateSparseArray(
-            MainPlgBaseName & '_extension_with_empty_schema',
+            MainPlgBaseName & '_extension_test_omitting_schema',
             MainPlgBaseName & '_extension_test'
         )
     );
