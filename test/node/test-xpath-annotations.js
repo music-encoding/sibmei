@@ -22,7 +22,7 @@ const utils = require('./utils');
 */
 
 // If we have an XPath test that ends with an "=" followed by a string or a
-// number, we do assert.Equal() to make interpreting the test results easer. To
+// number, we do assert.Equal() to make interpreting the test results easier. To
 // do this we have to extract the right hand side from the XPath.
 const xpathWithComparison = /^(.*)\s*=\s*((\d+)|"([^"]*)"|'([^']*)')\s*$/;
 // Make sure that the export actually exported XPath test annotations
@@ -46,31 +46,31 @@ for (const fileName of utils.getExportedTestFileNames()) {
       /** @type string[] */
       const messages = [];
       for (const annot of xpathAnnots) {
-        const measure = annot.parentElement?.getAttribute("n");
-        if (measure === undefined) {
+        const measureN = annot.parentElement?.getAttribute("n");
+        if (measureN === undefined) {
           messages.push("<annot type='xpath-test'> elements are expected to be children of <measure> elements");
           continue;
         }
-        if (measure === null) {
+        if (measureN === null) {
           messages.push("<measure> elements are expected to have an @n attribute");
           continue;
         }
         const [, testXpath, expectedString, expectedNumber] = (
           annot.textContent.match(xpathWithComparison) || [, annot.textContent]
         );
-        // If we find a leading comment, we us it as test description
+        // If we find a leading comment, we use it as test description
         const testDescription = (annot.textContent.match(/s*\(:\s*(.*)\s*:\)/) || [])[1];
         const result = xpath.evaluateXPath(
           expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
           annot.parentNode
         );
         if (expectedNumber !== undefined) {
-          evaluateResult(messages, measure, testXpath, result, testDescription, expectedNumber);
+          evaluateResult(messages, measureN, testXpath, result, testDescription, expectedNumber);
         } else if (expectedString !== undefined) {
           const stringWithoutQuotes = expectedString.replace(/.(.*)./, "$1");
-          evaluateResult(messages, measure, testXpath, result, testDescription, stringWithoutQuotes);
+          evaluateResult(messages, measureN, testXpath, result, testDescription, stringWithoutQuotes);
         } else {
-          evaluateResult(messages, measure, testXpath, result, testDescription);
+          evaluateResult(messages, measureN, testXpath, result, testDescription);
         }
       }
       assert.ok(messages.length === 0, '\n' + messages.join('\n\n'));
@@ -81,23 +81,23 @@ for (const fileName of utils.getExportedTestFileNames()) {
 /**
  * @param {string[]} messages  The function does not do an assertion, it only
  *   appends found issues to this array as messages.
- * @param {string} measure  `measure/@n` attribute
+ * @param {string} measureN  `measure/@n` attribute
  * @param {string} testXpath
  * @param {*} result  The result of the XPath evaluation
  * @param {string} testDescription
  * @param {string|number} [expectedResult]
  */
-function evaluateResult(messages, measure, testXpath, result, testDescription, expectedResult) {
+function evaluateResult(messages, measureN, testXpath, result, testDescription, expectedResult) {
   let message = '';
   if (expectedResult === undefined) {
     const resultIsEmptyArray = result instanceof Array && result.length === 0;
     if (resultIsEmptyArray || result === false) {
-      message = `measure: ${measure}, XPath: ${testXpath}`;
+      message = `measure: ${measureN}, XPath: ${testXpath}`;
     }
   } else {
     // Intentionally compare with "!=" instead of "!=="
     if (result != expectedResult) {
-      message = `measure: ${measure}, XPath: ${testXpath}, expected: ${expectedResult}, actual: ${result}`;
+      message = `measure: ${measureN}, XPath: ${testXpath}, expected: "${expectedResult}", actual: "${result}"`;
     }
   }
   if (message) {
