@@ -4,7 +4,7 @@ ExtensionDialog "Dialog"
   X "138"
   Y "282"
   Width "205"
-  Height "180"
+  Height "230"
   Controls
   {
     Text
@@ -60,11 +60,27 @@ ExtensionDialog "Dialog"
       Width "205"
       Height "18"
     }
+    Text
+    {
+      Title "Extensions not compatible with this extension API version:"
+      X "1"
+      Y "127"
+      Width "205"
+      Height "14"
+    }
+    ListBox
+    {
+      X "2"
+      Y "140"
+      Width "201"
+      Height "30"
+      ListVar "IncompatibleExtensions"
+    }
     Button
     {
       Title "Export"
       X "152"
-      Y "135"
+      Y "188"
       Width "50"
       Height "14"
       DefaultButton "1"
@@ -74,7 +90,7 @@ ExtensionDialog "Dialog"
     {
       Title "Cancel"
       X "93"
-      Y "135"
+      Y "188"
       Width "50"
       Height "14"
       EndDialog "0"

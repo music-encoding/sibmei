@@ -1,8 +1,8 @@
-function RegisterAvailableExtensions (availableExtensions, extensionsInfo, pluginList) {
-    // `availableExtensions` must be an empty TreeNode Hash map object.
-    // Looks for existing extensions and registers them in this Hash map.
-    // Keys in the Hash map are the names by which the extension plugins can be
-    // referenced in ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`.
+function RegisterAvailableExtensions (extensionsInfo, pluginList) {
+    // Looks for existing extensions and registers in global variable
+    // `AvailableExtensions`.
+    // Keys of this Hash map are the names by which the extension plugins can
+    // be referenced in ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`.
     // Values are the full names that are displayed to the user.
     //
     // `extensionsInfo` must be an empty Dictionary. For each extension plugin,
@@ -14,7 +14,11 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
     //
     // `pluginList` is a persistent reference to `Sibelius.Plugins`.
 
-    errors = CreateSparseArray();
+    incompatibleExtensionsInfo = CreateSparseArray(
+        ExtensionAPIVersion & ' - Current extension API version'
+    );
+
+    AvailableExtensions = CreateHash();
 
     for each pluginObject in pluginList
     {
@@ -30,22 +34,22 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
             {
                 case (extensionSemver.NumChildren != 3)
                 {
-                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`. \'%s\' is not a valid version string.';
+                    incompatibilityInfo = 'Error: API version number is not a valid three-part semantic version number';
                 }
                 case ((ApiSemver[0] = extensionSemver[0]) and (ApiSemver[1] >= extensionSemver[1]))
                 {
-                    error = null;
+                    incompatibilityInfo = '';
                 }
                 case (
                     (ApiSemver[0] < extensionSemver[0])
                     or (ApiSemver[0] = extensionSemver[0] and ApiSemver[1] < extensionSemver[1])
                 )
                 {
-                    error = 'Extension %s requires extension API version %s, but Sibmei %s only supports extension API version %s. Check for Sibmei updates supporting that extension API version.';
+                    incompatibilityInfo = 'Requires a newer version of Sibmei';
                 }
                 default
                 {
-                    error = 'Extension %s needs to be updated to be compatible with the current Sibmei version';
+                    incompatibilityInfo = 'Requires an older version of Sibmei';
                 }
             }
 
@@ -55,23 +59,29 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
                 'apiVersion', extensionSemver[0] + 0
             );
 
-            if (null = error)
+            if (null = incompatibilityInfo)
             {
                 // Storing key/value pairs in old-style Hash TreeNodes needs @-indirection
-                availableExtensions.@plgName = pluginObject.Name;
+                AvailableExtensions.@plgName = pluginObject.Name;
             }
             else
             {
-                errors.Push(utils.Format(error, plgName, extensionSemverString, PluginVersion, ExtensionAPIVersion));
+                incompatibleExtensionsInfo.Push('');
+                incompatibleExtensionsInfo.Push(extensionSemverString & ' - ' & pluginObject.Name);
+                incompatibleExtensionsInfo.Push('       ' & incompatibilityInfo);
             }
         }
     }
 
-    return errors.Join('\n\n');
+    IncompatibleExtension = CreateArray();
+    for each line in incompatibleExtensionsInfo
+    {
+        IncompatibleExtensions[IncompatibleExtensions.NumChildren] = line;
+    }
 }  //$end
 
 
-function ChooseExtensions (availableExtensions, chosenExtensions) {
+function ChooseExtensions (chosenExtensions) {
     // Expects an empty Dictionary as second argument.
     // Runs the ExtensionDialog and stores all extensions the user chose in the
     // Dictionary. Adds key/value pairs in the same way as
@@ -129,18 +139,13 @@ function InitExtensions (extensions, pluginList) {
     // Returns false if the user aborted the selection of extensions or if there
     // are any errors, otherwise returns true.
 
-    AvailableExtensions = CreateHash();
     extensionsInfo = CreateDictionary();
-    errors = RegisterAvailableExtensions(AvailableExtensions, extensionsInfo, pluginList);
-    if (null != errors)
-    {
-        Sibelius.MessageBox(errors);
-    }
+    RegisterAvailableExtensions(extensionsInfo, pluginList);
 
     chosenExtensions = CreateDictionary();
     if (null = extensions)
     {
-        if (not ChooseExtensions(AvailableExtensions, chosenExtensions))
+        if (not ChooseExtensions(chosenExtensions))
         {
             return false;
         }
@@ -163,10 +168,52 @@ function InitExtensions (extensions, pluginList) {
         @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
-    // store chosenExtensions as global to add application info
+    SchemaLocation = GetSchemaLocation(chosenExtensions, extensionsInfo);
+
+    // Keep chosenExtensions as global variable for encoding <appInfo>
     Self._property:ChosenExtensions = chosenExtensions;
 
     return true;
+}  //$end
+
+
+function GetSchemaLocation (chosenExtensions, extensionsInfo) {
+    // To detect conflicting schema locations defined by multiple active
+    // extensions, collect all of them with info about the extensions that
+    // defined them.
+    schemaLocations = CreateDictionary();
+    for each Name plgName in chosenExtensions
+    {
+        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaLocation'))
+        {
+            schemaLocations[@plgName.CustomSchemaLocation] = plgName;
+        }
+    }
+
+    if (schemaLocations > 1)
+    {
+        warning = CreateSparseArray('Active extensions defined conflicting schema locations:\n');
+        for each Name schemaLocation in schemaLocations
+        {
+            plgName = schemaLocations[schemaLocation];
+            warning.Push(schemaLocation & '(' & plgName & ')');
+        }
+        warning.Push('\nProcessing instructions for validation will be omitted');
+        if (warning != Self._property:LastSchemaLocationWarning)
+        {
+            // It suffices if we show the warning once.
+            Sibelius.MessageBox(warning.Join('\n'));
+            Self._property:LastSchemaLocationWarning = warning;
+        }
+        return 'noSchema';
+    }
+
+    for each Name CustomSchemaLocation in schemaLocations
+    {
+        return CustomSchemaLocation;
+    }
+
+    return DefaultSchemaLocation;
 }  //$end
 
 

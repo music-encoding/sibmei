@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { argv } from "process";
 import pckg from "../package.json" with { type: "json" };
-import { getSchema, SCHEMA_URL } from "./schema.mjs";
+import { getSchema, SCHEMA_LOCATION } from "./schema.mjs";
 
 const {
   version,
@@ -16,7 +16,7 @@ const GLOBALS = `
   MainPlgBaseName "sibmei${majorVersion}"
   PluginVersion "${version}"
   MeiVersion "${meiVersion}"
-  SchemaUrl "${SCHEMA_URL}"
+  DefaultSchemaLocation "${SCHEMA_LOCATION}"
 `;
 
 // byte order mark
