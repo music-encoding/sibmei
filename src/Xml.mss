@@ -16,7 +16,7 @@ export function CreateElement (tagname) {
         'children', CreateSparseArray(),
         'text', '',
         'tail', '',
-        '_id', GenerateRandomID(),
+        '_id', GenerateID(),
         '_parent', null);
 
     f = Self._property:MEIFlattened;
@@ -162,9 +162,9 @@ export function GetTail (element) {
 
 function InitXmlGlobals () {
     Self._property:EncodedChar = CreateSparseArray();
+    EncodedChar[34] = '&quot;';
     EncodedChar[60] = '&lt;';
     EncodedChar[38] = '&amp;';
-    EncodedChar[39] = '&apos;';
 
     // Create a string of all characters that have to be entity-encoded
     Self._property:EscapedCharacters = '';
@@ -244,7 +244,7 @@ function CreateXmlTag (name, id, attributesList, isTerminal) {
 
     if (id != null)
     {
-        attrstring = 'xml:id=\'' & id & '\'';
+        attrstring = 'xml:id=""' & id & '""';
     }
 
     if (attributesList != null)
@@ -257,11 +257,11 @@ function CreateXmlTag (name, id, attributesList, isTerminal) {
                 if (attrstring = '')
                 {
                     // Don't add initial space
-                    attrstring = attr.Name & '=\'' & attr.Value & '\'';
+                    attrstring = attr.Name & '=""' & attr.Value & '""';
                 }
                 else
                 {
-                    attrstring = attrstring & spacer & attr.Name & '=\'' & attr.Value & '\'';
+                    attrstring = attrstring & spacer & attr.Name & '=""' & attr.Value & '""';
                 }
             }
         }
@@ -360,11 +360,11 @@ function ConvertDictToXml (meiel, indent) {
 
 
 function _exportMeiDocument (meidoc) {
-    meiout = '<?xml version=\'1.0\' encoding=\'UTF-16\' ?>';
+    meiout = '<?xml version=""1.0"" encoding=""UTF-16"" ?>';
     if (SchemaLocation != 'noSchema')
     {
-        meiout = meiout & '\n<?xml-model href=\'' & SchemaLocation & '\' type=\'application/xml\' schematypens=\'http://relaxng.org/ns/structure/1.0\' ?>';
-        meiout = meiout & '\n<?xml-model href=\'' & SchemaLocation & '\' type=\'application/xml\' schematypens=\'http://purl.oclc.org/dsdl/schematron\' ?>';
+        meiout = meiout & '\n<?xml-model href=""' & SchemaLocation & '"" type=""application/xml"" schematypens=""http://relaxng.org/ns/structure/1.0"" ?>';
+        meiout = meiout & '\n<?xml-model href=""' & SchemaLocation & '"" type=""application/xml"" schematypens=""http://purl.oclc.org/dsdl/schematron"" ?>';
     }
     meiout = meiout & ConvertDictToXml(meidoc[0], Chr(10));
 
@@ -407,7 +407,7 @@ function EncodeEntities (string) {
 } //$end
 
 
-function GenerateRandomID () {
+function GenerateID () {
     MEIID = MEIID + 1;
     return 'm-' & MEIID;
 } //$end
