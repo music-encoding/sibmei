@@ -286,7 +286,7 @@ function BuildNoteRestParentsByVoiceAndPosition (bar) {
         if (null = parentsInVoice[tuplet.Position])
         {
             // Found a tuplet without a note. Likely a MusicXML import artifact.
-            Trace(
+            Warnings.Push(
                 'Skipped corrupt data found in bar ' & bar.BarNumber & ', staff ' & bar.ParentStaff.StaffNum
                 & '. It is best to delete this bar from the Sibelius file and input it from scratch.'
             );
@@ -638,7 +638,7 @@ function OverlappingHierarchyWarning (poppedGroupItem, groupItem) {
     {
         affectedStaves = 'staves ' & groupItem.TopStaveNum & '-' & poppedGroupItem.BottomStaveNum;
     }
-    Trace(
+    Warnings.Push(
         'Warning: Overlapping '
         & poppedGroupItem.groupType
         & ' and '

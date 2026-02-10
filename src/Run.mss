@@ -86,10 +86,7 @@ function DoExport (score, filename) {
     Sibelius.DestroyProgressDialog();
 
     // display the warnings that were registered during the export process
-    for each warning in Self._property:warnings
-    {
-        trace('Warning: ' & warning);
-    }
+    Trace(Warnings.Join('\n'));
 
     // clean up after ourself
     ResetXml();
@@ -122,7 +119,7 @@ function SetGlobalsForScore (score) {
     }
 
     // Set up the warnings tracker
-    Self._property:warnings = CreateSparseArray();
+    Self._property:Warnings = CreateSparseArray();
 }  //$end
 
 

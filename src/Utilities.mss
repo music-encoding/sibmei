@@ -361,8 +361,7 @@ function AddControlEventAttributes (bobj, element) {
     {
         // assign it to the first voice, since we don't have any notes in voice/layer 0.
         voicenum = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
+        Warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
     }
 
     if (not element.attrs.PropertyExists('tstamp'))

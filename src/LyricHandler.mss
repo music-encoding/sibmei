@@ -58,8 +58,7 @@ function LyricTemplateHandler (this, lyricItem) {
     {
         barNum = lyricItem.ParentBar.BarNumber;
         voiceNum = lyricItem.VoiceNumber;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
+        Warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
     }
 
     element = MeiFactory(this.template, lyricItem);
@@ -81,16 +80,15 @@ function HandleLyricItem (lyricobj, objectPositions) {
         return null;
     }
 
-    barNum = lyricobj.ParentBar.BarNumber;
     staffNum = lyricobj.ParentBar.ParentStaff.StaffNum;
     voiceNum = lyricobj.VoiceNumber;
 
     if (voiceNum = 0)
     {
         // assign it to the first voice, since we don't have any notes in voice 0.
+        barNum = lyricobj.ParentBar.BarNumber;
         voiceNum = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, barNum, voiceNum, 'Lyric object'));
+        Warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, barNum, voiceNum, 'Lyric object'));
     }
 
     if (null = LyricWords[staffNum])
