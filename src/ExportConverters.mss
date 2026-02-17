@@ -52,68 +52,6 @@ function ConvertUnitsToPoints (units) {
     return (StaffHeight / 128.0 * units / 0.352778) & 'pt';
 }  //$end
 
-function ConvertDuration (dur) {
-    //$module(ExportConverters.mss)
-    // there doesn't really seem to be a smarter way to do this...
-    // 1024 = 1 whole note
-
-    ret = CreateSparseArray();
-
-    pow = PrevPow2(dur);
-    counter = pow;
-    dots = 0;
-    powcount = pow;
-    durset = false;
-
-    durrem = 1024 % dur;
-    if (durrem != 0)
-    {
-        while (counter < dur)
-        {
-            powcount = (powcount / 2);
-            counter = counter + powcount;
-            dots = dots + 1;
-
-            if (dots > 5)
-            {
-                // prevent a runaway loop.
-                counter = 1000000000;
-            }
-        }
-    }
-
-    switch (powcount)
-    {
-        case (pow >= 4096)
-        {
-            ret[0] = 'long';
-            durset = true;
-        }
-        case (pow >= 2048)
-        {
-            ret[0] = 'breve';
-            durset = true;
-        }
-        default
-        {
-            if (durset = false)
-            {
-                ret[0] = 1024 / pow;
-            }
-        }
-    }
-
-    if (dots = 0)
-    {
-        ret[1] = ' ';
-    }
-    else
-    {
-        ret[1] = dots;
-    }
-
-    return ret;
-}  //$end
 
 function ConvertKeySignature (numsharps) {
     //$module(ExportConverters.mss)

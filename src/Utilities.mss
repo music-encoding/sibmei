@@ -54,26 +54,6 @@ function SplitStringIncludeDelimiters (string, delimiters) {
 }  //$end
 
 
-function PrevPow2 (val) {
-    //$module(Utilities.mss)
-    if (val = 0)
-    {
-        return 0;
-    }
-    //val = val - 1;
-    val = utils.bwOR(val, utils.shr(val, 1));
-    val = utils.bwOR(val, utils.shr(val, 2));
-    val = utils.bwOR(val, utils.shr(val, 4));
-    val = utils.bwOR(val, utils.shr(val, 8));
-    val = utils.bwOR(val, utils.shr(val, 16));
-    // this might be a hack, but I wrote it in
-    // a power outage with no internet.
-    // we get the next power of two, and then
-    // divide by two to get the previous one.
-    val = (val + 1) / 2;
-    return val;
-}  //$end
-
 function SimpleNoteHash (nobj) {
     //$module(Utilities.mss)
     /*

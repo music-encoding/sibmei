@@ -36,6 +36,7 @@ function RunTests() {
         .AddModule('TestExportGenerators')
         .AddModule('TestUtilities')
         .AddModule('TestHierarchyBuilders')
+        .AddModule('TestInitialize')
     ;
 
     suite.Run();

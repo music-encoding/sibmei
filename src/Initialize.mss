@@ -99,6 +99,49 @@ function InitGlobals (extensions) {
         'clef.sub-bass.f',              @Element('clef', @Attrs('shape', 'F', 'line', '5'))
     );
 
+    // Cache all MEI duration attributes for all Duration values possible in
+    // Sibelius
+    Self._property:DurAttributesByDuration = CreateSparseArray();
+    // Smallest duration in Sibelius: 512th note
+    minNoteRestDuration = 2;
+    // MEI supports notes as short as a 2048th, but 512 is the equivalent to
+    // Sibelius' shortest duration.
+    minMeiDur = 512;
+    // Largest duration in Sibelius: triple dotted longa
+    maxNoteRestDuration = 7680;
+    baseDuration = minNoteRestDuration;
+    meiDur = minMeiDur;
+    Self._property:DurByDuration = CreateSparseArray();
+    Self._property:DotsByDuration = CreateSparseArray();
+    while (baseDuration <= maxNoteRestDuration)
+    {
+      dotDuration = baseDuration;
+      dottedDuration = 0;
+      for dotNumber = 0 to 4
+      {
+        if (dotDuration >= 2)
+        {
+          dottedDuration = dottedDuration + dotDuration;
+          DurByDuration[dottedDuration] = meiDur & '';
+          if (meiDur < 1)
+          {
+              DurByDuration[dottedDuration] = 'breve';
+          }
+          if (meiDur < 0.5)
+          {
+              DurByDuration[dottedDuration] = 'long';
+          }
+          if (dotNumber > 0)
+          {
+              DotsByDuration[dottedDuration] = dotNumber & '';
+          }
+          dotDuration = dotDuration / 2;
+        }
+      }
+      baseDuration = baseDuration * 2;
+      meiDur = meiDur * 0.5;
+    }
+
     // Sibelius apparently has a garbage collector issue with references to
     // Plugin objects. We have to keep a persistent reference to the PluginList
     // object (Sibelius.Plugins), otherwise Sibelius will crash immediately
