@@ -8,7 +8,6 @@ _ExportSuccess "The file was exported successfully."
 _VersionNotSupported "Versions earlier than Sibelius 7 are not supported."
 _ExportingBars "Exporting to MEI: Bar %s of %s"
 
-_ObjectIsOnAnIllogicalObject "Bar %s, voice %s. %s is added to a %s object. This will create invalid MEI. You should fix this in your Sibelius file if possible, or edit your MEI file after export."
 _ObjectCouldNotFindAttachment "Bar %s, voice %s. %s could not be attached to a Note object, so it will not appear in the output."
 
 LOGFILE "sibelius.log"

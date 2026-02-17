@@ -286,9 +286,10 @@ function BuildNoteRestParentsByVoiceAndPosition (bar) {
         if (null = parentsInVoice[tuplet.Position])
         {
             // Found a tuplet without a note. Likely a MusicXML import artifact.
-            Warnings.Push(
-                'Skipped corrupt data found in bar ' & bar.BarNumber & ', staff ' & bar.ParentStaff.StaffNum
-                & '. It is best to delete this bar from the Sibelius file and input it from scratch.'
+            RegisterWarning(
+                tuplet,
+                'Corrupt tuplet',
+                'Skipped corrupt data. It is best to delete the affected bar from the Sibelius file and input it from scratch'
             );
             return parentsByVoiceAndPosition;
         }
@@ -638,13 +639,15 @@ function OverlappingHierarchyWarning (poppedGroupItem, groupItem) {
     {
         affectedStaves = 'staves ' & groupItem.TopStaveNum & '-' & poppedGroupItem.BottomStaveNum;
     }
-    Warnings.Push(
-        'Warning: Overlapping '
+    RegisterWarning(
+        null,
+        'Overlapping hierarchies',
+        'Overlapping '
         & poppedGroupItem.groupType
         & ' and '
         & groupItem.groupType
         & ' in '
         & affectedStaves
-        & '. Overlapping hierarchies can not be encoded.'
+        & ' can not be encoded.'
     );
 } //$end

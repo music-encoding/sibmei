@@ -56,9 +56,7 @@ function LyricTemplateHandler (this, lyricItem) {
 
     if (GetName(parentElement) = 'rest')
     {
-        barNum = lyricItem.ParentBar.BarNumber;
-        voiceNum = lyricItem.VoiceNumber;
-        Warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
+        RegisterWarning(lyricItem, 'Rest-attached lyrics', 'Syllable `' & lyricItem.Text & '` is attached to a rest. This is invalid MEI.');
     }
 
     element = MeiFactory(this.template, lyricItem);
@@ -88,13 +86,17 @@ function HandleLyricItem (lyricobj, objectPositions) {
         layerNumbers = LayerNumbers[lyricobj.Voices];
         if (null = matchingNote)
         {
-            Warnings.Push(
+            RegisterWarning(
+                lyricobj,
+                'Unattached lyrics',
                 'No note found in voices ' & layerNumbers & ' to attache syllable `' & lyricobj.Text & '`'
             );
             return null;
         }
         voiceNum = matchingNote.VoiceNumber;
-        Warnings.Push(
+        RegisterWarning(
+            lyricobj,
+            'Multi-voice lyrics',
             'Syllable `' & lyricobj.Text & '` is attached to Sibelius voices ' & layerNumbers & ', but it can only be encoded on MEI layer ' & voiceNum
         );
     }
