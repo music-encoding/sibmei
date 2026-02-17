@@ -12,7 +12,6 @@ function Run() {
     {
         Sibelius.MessageBox(error);
     }
-
 }  //$end
 
 

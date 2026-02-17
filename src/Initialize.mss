@@ -128,6 +128,35 @@ function InitGlobals (extensions) {
 
     InitXmlGlobals();
 
+    // The Voices property of BarObjects is a bitmask.  The lookup table
+    // VoiceNumbers provides lists of all the voices in a bitmask, LayerNumbers
+    // the appropriate value for @layer attributes and VoicesMaskToVoiceFlags
+    // allows to check if a voice number is included in a Voices bitmask.
+    Self._property:VoiceNumbers = CreateSparseArray();
+    Self._property:LayerNumbers = CreateSparseArray();
+    // Keys are voice bitmasks, values are lookup SparseArrays where keys are
+    // voice numbers are true if the bitmask includes the voice number.
+    Self._property:VoicesMaskToVoiceFlags = CreateSparseArray();
+    // We start with bitmask value 0, although this value might not be in use
+    for voicesBitmask = 0 to 16
+    {
+        voiceNumbersOfBitmask = CreateSparseArray();
+        VoiceNumbers[voicesBitmask] = voiceNumbersOfBitmask;
+        voiceFlags = CreateSparseArray();
+        VoicesMaskToVoiceFlags[voicesBitmask] = voiceFlags;
+        bitshiftedVoicesValue = voicesBitmask;
+        for voiceNumber = 1 to 5
+        {
+            voiceFlags[voiceNumber] = bitshiftedVoicesValue % 2 = 1;
+            if (voiceFlags[voiceNumber])
+            {
+                VoiceNumbers[voicesBitmask].Push(voiceNumber);
+            }
+            bitshiftedVoicesValue = bitshiftedVoicesValue / 2;
+        }
+        LayerNumbers[voicesBitmask] = VoiceNumbers[voicesBitmask].Join(' ');
+    }
+
     Self._property:_Initialized = true;
 
     return true;

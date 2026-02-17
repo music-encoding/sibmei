@@ -80,33 +80,40 @@ function HandleLyricItem (lyricobj, objectPositions) {
         return null;
     }
 
-    staffNum = lyricobj.ParentBar.ParentStaff.StaffNum;
     voiceNum = lyricobj.VoiceNumber;
 
     if (voiceNum = 0)
     {
-        // assign it to the first voice, since we don't have any notes in voice 0.
-        barNum = lyricobj.ParentBar.BarNumber;
-        voiceNum = 1;
-        Warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, barNum, voiceNum, 'Lyric object'));
+        matchingNote = NoteInFirstMatchingVoice(lyricobj);
+        layerNumbers = LayerNumbers[lyricobj.Voices];
+        if (null = matchingNote)
+        {
+            Warnings.Push(
+                'No note found in voices ' & layerNumbers & ' to attache syllable `' & lyricobj.Text & '`'
+            );
+            return null;
+        }
+        voiceNum = matchingNote.VoiceNumber;
+        Warnings.Push(
+            'Syllable `' & lyricobj.Text & '` is attached to Sibelius voices ' & layerNumbers & ', but it can only be encoded on MEI layer ' & voiceNum
+        );
     }
 
+    staffNum = lyricobj.ParentBar.ParentStaff.StaffNum;
     if (null = LyricWords[staffNum])
     {
         LyricWords[staffNum] = CreateSparseArray();
     }
-
     lyricstaff = LyricWords[staffNum];
 
     if (null = lyricstaff[voiceNum])
     {
         lyricstaff[voiceNum] = CreateDictionary();
     }
-
     lyricvoice = lyricstaff[voiceNum];
 
-    // We can have multiple layers of lyrics (specifically multiple verses) on
-    // top of each other. Each layer has its own style.
+    // We can have multiple levels of lyrics (specifically multiple verses) on
+    // top of each other. Each level has its own style.
     if (null = lyricvoice[lyricobj.StyleId])
     {
         lyricvoice[lyricobj.StyleId] = CreateSparseArray();
