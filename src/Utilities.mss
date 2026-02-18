@@ -156,45 +156,83 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // `searchStrategy` is used to find another NoteRest and may be one of the
     // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
 
-    objectPositions = Self._property:NoteRestIdsByLocation;
+    bar = bobj.ParentBar;
     if (bobj.IsALine and positionProperty = 'EndPosition')
     {
         bobjPosition = bobj.EndPosition;
-        noteIdsByPosition = objectPositions[LayerHash(bobj.EndBarNumber, bobj)];
+        if (bar.BarNumber != bobj.EndBarNumber)
+        {
+            bar = bar.ParentStaff.NthBar(bobj.EndBarNumber);
+        }
     }
     else
     {
-        noteIdsByPosition = objectPositions[LayerHash(bobj.ParentBar, bobj)];
         bobjPosition = bobj.Position;
     }
 
+    voiceNumber = bobj.VoiceNumber;
+    if (voiceNumber != 0)
+    {
+        noteIdsByPosition = NoteRestIdsByLocation[LayerHash(bar, voiceNumber)];
+        closestPosition = GetClosestPosition(noteIdsByPosition, bobjPosition, searchStrategy);
+    }
+    else
+    {
+        closestPosition = null;
+        for each voiceNumber in VoiceNumbers[bobj.Voices]
+        {
+            noteIdsByPositionInVoice = NoteRestIdsByLocation[LayerHash(bar, voiceNumber)];
+            if (null != noteIdsByPositionInVoice)
+            {
+                closestPositionInLayer = GetClosestPosition(
+                    noteIdsByPositionInVoice, bobjPosition, searchStrategy
+                );
+                // closestPosition = null and closestPosition = '' would be
+                // truthy if closestPosition is 0. '' = closestPosition is what
+                // works.
+                if ('' = closestPosition or (
+                    utils.AbsoluteValue(bobjPosition - closestPositionInLayer)
+                    < utils.AbsoluteValue(bobjPosition - closestPosition)
+                ))
+                {
+                    closestPosition = closestPositionInLayer;
+                    noteIdsByPosition = noteIdsByPositionInVoice;
+                }
+            }
+        }
+    }
+
+    if ('' = closestPosition)
+    {
+        return null;
+    }
+    return GetElementById(noteIdsByPosition[closestPosition]);
+}  //$end
+
+
+function GetClosestPosition (noteIdsByPosition, position, searchStrategy) {
     if (null = noteIdsByPosition)
     {
         return null;
     }
-
-    objId = noteIdsByPosition[bobjPosition];
-    if (null != objId)
+    if (null != noteIdsByPosition[position])
     {
-        return GetElementById(objId);
+        // This is a precise match
+        return position;
     }
-
-    // `bobj` was not precisely attached to a NoteRest in the same voice.
     if (searchStrategy = 'PreciseMatch')
     {
         return null;
     }
 
-    // Try and find the best matching note according to the `searchStrategy`.
     noteRestPositions = noteIdsByPosition.ValidIndices;
-
-    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1 {
-        if (noteRestPositions[noteRestIndex] < bobjPosition)
+    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1
+    {
+        if (noteRestPositions[noteRestIndex] < position)
         {
             // We found the closest preceding and following positions
-            return GetClosestNoteObject(
-                noteIdsByPosition,
-                bobjPosition,
+            return PickClosestPosition(
+                position,
                 noteRestPositions[noteRestIndex],
                 noteRestPositions[noteRestIndex + 1],
                 searchStrategy
@@ -203,55 +241,41 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     }
 
     // We did not find a preceding position
-    return GetClosestNoteObject(
-        noteIdsByPosition, bobjPosition, null, noteRestPositions[0], searchStrategy
-    );
+    return PickClosestPosition(position, null, noteRestPositions[0], searchStrategy);
 }  //$end
 
 
-function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, followingPosition, searchStrategy) {
-    switch (true)
+function PickClosestPosition (position, precedingPosition, followingPosition, searchStrategy) {
+    // Returns either `precedingPosition` or `followingPosition`, depending on
+    // the `searchStrategy` and/or which of the two is closer to `position`.
+    if (searchStrategy = 'Next')
     {
-        case (searchStrategy = 'Next')
-        {
-            noteRestPosition = followingPosition;
-        }
-        case (searchStrategy = 'Previous')
-        {
-            noteRestPosition = precedingPosition;
-        }
-        case (searchStrategy != 'Closest')
-        {
-            Trace('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
-            ExitPlugin();
-        }
-        // `'' = x` is testig if x is null. We can not use `x = null` or
-        // `null = x` because both expressions are truthy if `x` is 0. We can't
-        // use `x = ''` either for the same reason.
-        case ('' = precedingPosition)
-        {
-            noteRestPosition = followingPosition;
-        }
-        case ('' = followingPosition)
-        {
-            noteRestPosition = precedingPosition;
-        }
-        case ((followingPosition - position) < (position - precedingPosition))
-        {
-            noteRestPosition = followingPosition;
-        }
-        default
-        {
-            noteRestPosition = precedingPosition;
-        }
+        return followingPosition;
     }
-
-    if ('' = noteRestPosition)
+    if (searchStrategy = 'Previous')
     {
-        return null;
+        return precedingPosition;
     }
-
-    return GetElementById(noteIdsByPosition[noteRestPosition]);
+    if (searchStrategy != 'Closest')
+    {
+        StopPlugin('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
+    }
+    // `'' = x` is testig if x is null. We can not use `x = null` or
+    // `null = x` because both expressions are truthy if `x` is 0. We can't
+    // use `x = ''` either for the same reason.
+    if ('' = precedingPosition)
+    {
+        return followingPosition;
+    }
+    if ('' = followingPosition)
+    {
+        return precedingPosition;
+    }
+    if ((followingPosition - position) < (position - precedingPosition))
+    {
+        return followingPosition;
+    }
+    return precedingPosition;
 } //$end
 
 
@@ -337,14 +361,6 @@ function AddControlEventAttributes (bobj, element) {
     voicenum = bobj.VoiceNumber;
     bar = bobj.ParentBar;
 
-    if (voicenum = 0)
-    {
-        // assign it to the first voice, since we don't have any notes in voice/layer 0.
-        voicenum = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
-    }
-
     if (not element.attrs.PropertyExists('tstamp'))
     {
         // Some templates might set `@tstamp` explicitly, especially to prevent
@@ -369,7 +385,7 @@ function AddControlEventAttributes (bobj, element) {
     {
         // Only add @staff if this is not attached to the SystemStaff
         AddAttribute(element, 'staff', staff.StaffNum);
-        AddAttribute(element, 'layer', voicenum);
+        AddAttribute(element, 'layer', LayerNumbers[bobj.Voices]);
     }
 
     score = staff.ParentScore;
@@ -820,5 +836,24 @@ function AppendText (element, text) {
         lastChildIndex = element.children.Length - 1;
         lastChild = GetElementById(element.children[lastChildIndex]);
         lastChild.tail = lastChild.tail & text;
+    }
+}  //$end
+
+
+function NoteInFirstMatchingVoice (bobj) {
+    matchingVoices = VoicesMaskToVoiceFlags[bobj.Voices];
+    position = bobj.Position;
+    noteRest = bobj;
+    while (true)
+    {
+        noteRest = noteRest.NextItem(0, 'NoteRest');
+        if (null = noteRest or noteRest.Position > position)
+        {
+            return null;
+        }
+        if (noteRest.NoteCount > 0 and matchingVoices[noteRest.VoiceNumber])
+        {
+            return noteRest;
+        }
     }
 }  //$end

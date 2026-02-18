@@ -50,6 +50,8 @@ function RunTests() {
         testFiles.Push(file);
     }
     ExportBatch(testFiles, CreateSparseArray(MainPlgBaseName & '_extension_test'), false);
+    // Test if writing warnings works
+    WriteWarningsAsCsv(testFolder & 'warnings.csv');
 
     // Test schema validation processing instruction creation
     ExportBatch(

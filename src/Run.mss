@@ -6,13 +6,17 @@ function Run() {
         return null;
     }
 
+    InitWarningsTracker();
     error = DoExport(Sibelius.ActiveScore, null);
 
     if (null != error)
     {
-        Sibelius.MessageBox(error);
+        InformAboutResults(error, false);
     }
-
+    else
+    {
+        InformAboutResults('Done', false);
+    }
 }  //$end
 
 
@@ -55,8 +59,7 @@ function DoExport (score, filename) {
         filename = GetExportFileName(score);
         if (null = filename)
         {
-            Sibelius.MessageBox(_ExportFileIsNull);
-            return null;
+            return _ExportFileIsNull;
         }
     }
 
@@ -85,12 +88,6 @@ function DoExport (score, filename) {
     // start cleaning up.
     Sibelius.DestroyProgressDialog();
 
-    // display the warnings that were registered during the export process
-    for each warning in Self._property:warnings
-    {
-        trace('Warning: ' & warning);
-    }
-
     // clean up after ourself
     ResetXml();
 
@@ -112,6 +109,7 @@ function SetGlobalsForScore (score) {
     {
         return 'Could not find an active score. Cannot export to ' & filename;
     }
+    Self._property:ActiveScoreFileName = ActiveScore.FileName & '';
 
     Self._property:StaffHeight = score.StaffHeight;
     Self._property:SystemStaff = score.SystemStaff;
@@ -120,9 +118,6 @@ function SetGlobalsForScore (score) {
     {
         Staves.Push(staff);
     }
-
-    // Set up the warnings tracker
-    Self._property:warnings = CreateSparseArray();
 }  //$end
 
 
@@ -131,6 +126,7 @@ function ExportBatch (files, extensions, showFinalMessage) {
     {
         return null;
     }
+    InitWarningsTracker();
 
     utils.SortArray(files, false);
 
@@ -145,11 +141,7 @@ function ExportBatch (files, extensions, showFinalMessage) {
 
         if (null = score)
         {
-            continue = Sibelius.YesNoMessageBox('File could not be opened:\n\n' & file & '\n\nContinue anyway?');
-            if (not continue)
-            {
-                return false;
-            }
+            RegisterWarning(null, 'File could not be opened', '');
         }
         else
         {
@@ -163,25 +155,24 @@ function ExportBatch (files, extensions, showFinalMessage) {
             {
                 Sibelius.CloseWindow(False);
             }
+
             if (null = error)
             {
                 exportCount = exportCount + 1;
             }
             else
             {
-                if (not Sibelius.YesNoMessageBox(error & '\n\nContinue anyway?'))
-                {
-                    return false;
-                }
+                RegisterWarning(null, 'Export failed', error);
             }
         }
     }
+
 
     Sibelius.DestroyProgressDialog();
 
     if (showFinalMessage)
     {
-        Sibelius.MessageBox(exportCount & ' of ' & numFiles & ' files were exported.');
+        InformAboutResults(exportCount & ' of ' & numFiles & ' files were exported.', true);
     }
 
     return true;
@@ -205,4 +196,56 @@ function GetScore (file) {
     }
 
     return null;
+}  //$end
+
+
+function InformAboutResults (message, batchMode) {
+    // Displays a final dialog and in case warnings have been registered, gives
+    // the option to save the warnings as CSV file.
+    if (Self._property:Warnings = 0)
+    {
+        return Sibelius.MessageBox(message);
+    }
+    message = message & '\n\nExport finished with ' & Warnings.Length & ' warnings of the the following categories:\n';
+    for each Name warningType in FoundWarningTypes
+    {
+        warningCount = FoundWarningTypes[warningType];
+        message = message & '\n' & warningCount & 'x ' & warningType;
+    }
+    csvPath = '';
+    if (not Sibelius.YesNoMessageBox(message & '\n\nWrite warnings to a CSV file?'))
+    {
+        return '';
+    }
+
+    defaultFolder = '';
+    defaultName = 'warnings.csv';
+    if (IsValid(ActiveScore))
+    {
+        defaultFolder = ActiveScore.FileName.Name & '.csv';
+    }
+    if (defaultFolder != '' and not batchMode)
+    {
+        defaultName = ActiveScore.FileName.NameNoPath & '_warnings.csv';
+    }
+
+    while (true)
+    {
+        csvPath = Sibelius.SelectFileToSave(
+            'Save warnings as CSV', defaultName, defaultFolder, 'csv', 'TEXT', 'CSV file'
+        );
+        error = '';
+        if ('' = csvPath)
+        {
+            error = 'No CSV file for saving warnings was selected.';
+        }
+        else
+        {
+            error = WriteWarningsAsCsv(csvPath);
+        }
+        if ('' = error or not Sibelius.MessageBox(error & '\n\nTry again? Otherwise the information collected during export will be lost.'))
+        {
+            return '';
+        }
+    }
 }  //$end

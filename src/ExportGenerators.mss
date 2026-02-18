@@ -1103,18 +1103,7 @@ export function GenerateModifier (bobj, element) {
     }
     else
     {
-        warnings = Self._property:warnings;
-        barNum = bobj.ParentBar.BarNumber;
-        voiceNum = bobj.VoiceNumber;
-        if (bobj.Type = 'SymbolItem' or bobj.Type = 'SystemSymbolitem')
-        {
-            name = bobj.Name;
-        }
-        else
-        {
-            name = bobj.StyleAsText;
-        }
-        warnings.Push(utils.Format(_ObjectCouldNotFindAttachment, barNum, voiceNum, name));
+        RegisterWarning(bobj, 'Unattached modifier', _ObjectCouldNotFindAttachment);
     }
 }  //$end
 

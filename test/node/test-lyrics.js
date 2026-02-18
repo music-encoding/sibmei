@@ -7,7 +7,7 @@ const utils = require('./utils');
 
 describe("Lyrics", () => {
   const mei = utils.getTestMeiDom('lyrics.mei');
-  const syls = xpath.evaluateXPath('//*:syl', mei);
+  const syls = xpath.evaluateXPath('//*:staff[@n=1]//*:syl', mei);
 
   describe("writes an elision", () => {
     const note1 = xpath.evaluateXPathToNodes('(//*:note)[1]', mei)[0];
