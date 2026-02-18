@@ -89,7 +89,7 @@ function HandleLyricItem (lyricobj, objectPositions) {
             RegisterWarning(
                 lyricobj,
                 'Unattached lyrics',
-                'No note found in voices ' & layerNumbers & ' to attache syllable `' & lyricobj.Text & '`'
+                'No notes were found in voices: ' & layerNumbers & ' to attach syllable `' & lyricobj.Text & '`'
             );
             return null;
         }
