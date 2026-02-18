@@ -56,7 +56,7 @@ function LyricTemplateHandler (this, lyricItem) {
 
     if (GetName(parentElement) = 'rest')
     {
-        RegisterWarning(lyricItem, 'Rest-attached lyrics', 'Syllable `' & lyricItem.Text & '` is attached to a rest. This is invalid MEI.');
+        RegisterWarning(lyricItem, 'Rest-attached lyrics', 'Syllable `' & lyricItem.Text & '` is attached to a rest. This is not valid in standard MEI.');
     }
 
     element = MeiFactory(this.template, lyricItem);

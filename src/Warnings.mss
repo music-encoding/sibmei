@@ -73,7 +73,7 @@ function WriteWarningsAsCsv (csvPath) {
             Sibelius.ResetStopWatch(timerId);
             if (not Sibelius.UpdateProgressDialog(i, 'Warning ' & i & '/' & Warnings.Length))
             {
-                return 'You aborted writing warnings to CSV.';
+                return 'You have aborted writing warnings to CSV.';
             }
         }
         Sibelius.AppendLineToFile(csvPath, JoinStrings(Warnings[i], ','));

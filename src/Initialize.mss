@@ -128,7 +128,7 @@ function InitGlobals (extensions) {
 
     InitXmlGlobals();
 
-    // The Voices property of BarObjects is a bitmask.  The lookup table
+    // The Voices property of BarObjects is a bitmask. The lookup table
     // VoiceNumbers provides lists of all the voices in a bitmask, LayerNumbers
     // the appropriate value for @layer attributes and VoicesMaskToVoiceFlags
     // allows to check if a voice number is included in a Voices bitmask.

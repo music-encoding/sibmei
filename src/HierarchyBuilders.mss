@@ -648,6 +648,6 @@ function OverlappingHierarchyWarning (poppedGroupItem, groupItem) {
         & groupItem.groupType
         & ' in '
         & affectedStaves
-        & ' can not be encoded.'
+        & ' cannot be encoded.'
     );
 } //$end
