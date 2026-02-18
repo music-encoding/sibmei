@@ -3,7 +3,6 @@ function TestUtilities (suite) {
     suite
         .Add('TestMSplitString')
         .Add('TestSplitStringIncludeDelimiters')
-        .Add('TestPrevPow2')
         .Add('TestGetTemplateElementsByTagName')
         ;
 } //$end
@@ -27,19 +26,6 @@ function TestSplitStringIncludeDelimiters (assert, plugin) {
 
     split = sibmei.SplitStringIncludeDelimiters('foo- bar', ' -');
     assert.Equal(split, CreateSparseArray('foo', '-', '', ' ', 'bar'), 'Do not reduce adjacent delimiters');
-}  //$end
-
-
-function TestPrevPow2 (assert, plugin) {
-    //$module(TestUtilities)
-    pow = sibmei.PrevPow2(1025);
-    assert.Equal(pow, 1024, 'Previous Power of two of 1025 is 1024');
-
-    pow = sibmei.PrevPow2(8);
-    assert.Equal(pow, 8, 'Previous Power of two of 8 is 8');
-
-    pow = sibmei.PrevPow2(7);
-    assert.Equal(pow, 4, 'Previous Power of two of 7 is 4');
 }  //$end
 
 

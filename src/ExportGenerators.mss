@@ -645,7 +645,6 @@ function GenerateRest (bobj) {
     // check if it's a rest
     // check if it's hidden, in which case make MEI <space> instead of <rest>
     dur = bobj.Duration;
-    meidur = ConvertDuration(dur);
 
     if (bobj.Hidden)
     {
@@ -657,9 +656,8 @@ function GenerateRest (bobj) {
     }
 
     name = GetName(r);
-    AddAttribute(r, 'dur', meidur[0]);
     AddAttribute(r, 'dur.ppq', dur);
-    AddAttribute(r, 'dots', meidur[1]);
+    GenerateDurationAttributes(r, bobj);
 
     if (bobj.Dx != 0 and name != 'space')
     {
@@ -705,7 +703,6 @@ function GenerateNote (nobj) {
     }
 
     dur = nobj.ParentNoteRest.Duration;
-    meidur = ConvertDuration(dur);
     pos = nobj.ParentNoteRest.Position;
     parent_bar = nobj.ParentNoteRest.ParentBar;
     keysig = nobj.ParentNoteRest.ParentBar.GetKeySignatureAt(pos);
@@ -765,9 +762,8 @@ function GenerateNote (nobj) {
     AddAttribute(n, 'pnum', pnum);
     AddAttribute(n, 'pname', ntinfo[0]);
     AddAttribute(n, 'oct', ntinfo[1]);
-    AddAttribute(n, 'dur', meidur[0]);
     AddAttribute(n, 'dur.ppq', gesdur);
-    AddAttribute(n, 'dots', meidur[1]);
+    GenerateDurationAttributes(n, nobj);
 
     if (nobj.Dx != 0)
     {
@@ -881,11 +877,9 @@ function GenerateChord (bobj) {
     //$module(ExportGenerators.mss)
     n = CreateElement('chord');
     dur = bobj.Duration;
-    meidur = ConvertDuration(dur);
 
-    AddAttribute(n, 'dur', meidur[0]);
     AddAttribute(n, 'dur.ppq', dur);
-    AddAttribute(n, 'dots', meidur[1]);
+    GenerateDurationAttributes(n, bobj);
 
     for each note in bobj
     {
@@ -1294,4 +1288,14 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
     }
 
     return '#' & symbolIds[glyphnum];
+}  //$end
+
+
+function GenerateDurationAttributes (element, bobj) {
+    duration = bobj.Duration;
+    AddAttribute(element, 'dur', DurByDuration[duration]);
+    if ('' != DotsByDuration[duration])
+    {
+        AddAttribute(element, 'dots', DotsByDuration[duration]);
+    }
 }  //$end
