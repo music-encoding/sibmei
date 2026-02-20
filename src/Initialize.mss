@@ -13,9 +13,6 @@ function InitGlobals (extensions) {
     // `extensions` can be null or a SparseArray. See `InitExtensions()` for
     // more detailed information.
 
-    // initialize libmei as soon as possible
-    Self._property:libmei = libmei4;
-
     if (Sibelius.FileExists(Self._property:Logfile) = False)
     {
         Sibelius.CreateTextFile(Self._property:Logfile);
@@ -49,22 +46,8 @@ function InitGlobals (extensions) {
     );
 
     InitGlobalAliases(Self);
-
-    Self._property:BarlineAttributes = CreateSparseArray();
-    BarlineAttributes[SpecialBarlineStartRepeat] = @Attrs('left', 'rptstart');
-    BarlineAttributes[SpecialBarlineEndRepeat] = @Attrs('right', 'rptend');
-    BarlineAttributes[SpecialBarlineDashed] = @Attrs('right', 'dashed');
-    BarlineAttributes[SpecialBarlineDouble] = @Attrs('right', 'dbl');
-    BarlineAttributes[SpecialBarlineFinal] = @Attrs('right', 'end');
-    BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
-    BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
-    BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
-    // BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
-    BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
-    BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
-    BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
-    // no MEI equiv:
-    // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+    InitElementAndAttributeTemplates();
+    InitDurationLookupTables();
 
     // Sibelius apparently has a garbage collector issue with references to
     // Plugin objects. We have to keep a persistent reference to the PluginList
@@ -86,14 +69,148 @@ function InitGlobals (extensions) {
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
+    Self._property:SchemaLocation = DefaultSchemaLocation;
+    Self._property:ApiSemver = SplitString(ExtensionAPIVersion, '.');
     if (not InitExtensions(extensions, _PluginList))
     {
         return false;
     }
 
+    InitXmlGlobals();
+
+    // The Voices property of BarObjects is a bitmask. The lookup table
+    // VoiceNumbers provides lists of all the voices in a bitmask, LayerNumbers
+    // the appropriate value for @layer attributes and VoicesMaskToVoiceFlags
+    // allows to check if a voice number is included in a Voices bitmask.
+    Self._property:VoiceNumbers = CreateSparseArray();
+    Self._property:LayerNumbers = CreateSparseArray();
+    // Keys are voice bitmasks, values are lookup SparseArrays where keys are
+    // voice numbers are true if the bitmask includes the voice number.
+    Self._property:VoicesMaskToVoiceFlags = CreateSparseArray();
+    // We start with bitmask value 0, although this value might not be in use
+    for voicesBitmask = 0 to 16
+    {
+        voiceNumbersOfBitmask = CreateSparseArray();
+        VoiceNumbers[voicesBitmask] = voiceNumbersOfBitmask;
+        voiceFlags = CreateSparseArray();
+        VoicesMaskToVoiceFlags[voicesBitmask] = voiceFlags;
+        bitshiftedVoicesValue = voicesBitmask;
+        for voiceNumber = 1 to 5
+        {
+            voiceFlags[voiceNumber] = bitshiftedVoicesValue % 2 = 1;
+            if (voiceFlags[voiceNumber])
+            {
+                VoiceNumbers[voicesBitmask].Push(voiceNumber);
+            }
+            bitshiftedVoicesValue = bitshiftedVoicesValue / 2;
+        }
+        LayerNumbers[voicesBitmask] = VoiceNumbers[voicesBitmask].Join(' ');
+    }
+
     Self._property:_Initialized = true;
 
     return true;
+}  //$end
+
+
+function InitElementAndAttributeTemplates () {
+    Self._property:BarlineAttributes = CreateSparseArray();
+    BarlineAttributes[SpecialBarlineStartRepeat] = @Attrs('left', 'rptstart');
+    BarlineAttributes[SpecialBarlineEndRepeat] = @Attrs('right', 'rptend');
+    BarlineAttributes[SpecialBarlineDashed] = @Attrs('right', 'dashed');
+    BarlineAttributes[SpecialBarlineDouble] = @Attrs('right', 'dbl');
+    BarlineAttributes[SpecialBarlineFinal] = @Attrs('right', 'end');
+    BarlineAttributes[SpecialBarlineInvisible] = @Attrs('right', 'invis');
+    BarlineAttributes[SpecialBarlineNormal] = @Attrs('right', 'single');
+    BarlineAttributes[SpecialBarlineBetweenStaves] = @Attrs('bar.method', 'mensur');
+    BarlineAttributes[SpecialBarlineTick] = @Attrs('bar.method', 'takt');
+    BarlineAttributes[SpecialBarlineShort] = @Attrs('bar.len', '4', 'bar.place', '2');
+    if (Sibelius.ProgramVersion >= 20201200)
+    {
+        BarlineAttributes[SpecialBarlineDotted] = @Attrs('right', 'dotted');
+        BarlineAttributes[SpecialBarlineThick] = @Attrs('right', 'heavy');
+        // no MEI equiv:
+        // BarlineTypeMap[SpecialBarlineTriple] = ' ';
+    }
+
+    Self._property:ClefTemplates = CreateDictionary(
+        'clef.alto',                    @Element('clef', @Attrs('shape', 'C', 'line', '3')),
+        'clef.baritone.c',              @Element('clef', @Attrs('shape', 'C', 'line', '5')),
+        'clef.baritone.f',              @Element('clef', @Attrs('shape', 'F', 'line', '3')),
+        'clef.bass',                    @Element('clef', @Attrs('shape', 'F', 'line', '4')),
+        'clef.bass.down.8',             @Element('clef', @Attrs('shape', 'F', 'line', '4', 'dis', '8',  'dis.place', 'below')),
+        'clef.bass.up.15',              @Element('clef', @Attrs('shape', 'F', 'line', '4', 'dis', '15', 'dis.place', 'above')),
+        'clef.bass.up.8',               @Element('clef', @Attrs('shape', 'F', 'line', '4', 'dis', '8',  'dis.place', 'above')),
+        // Sibelius categorizes clef.null as percussion clef. It effectively
+        // works like a hidden percussion clef.
+        'clef.null',                    @Element('clef', @Attrs('shape', 'perc', 'visible', 'false')),
+        'clef.percussion',              @Element('clef', @Attrs('shape', 'perc')),
+        'clef.percussion_2',            @Element('clef', @Attrs('shape', 'perc', 'glyph.auth', 'smufl', 'glyph.num', 'U+E06A')),
+        'clef.soprano',                 @Element('clef', @Attrs('shape', 'C', 'line', '1')),
+        'clef.soprano.mezzo',           @Element('clef', @Attrs('shape', 'C', 'line', '2')),
+        'clef.tab',                     @Element('clef', @Attrs('shape', 'TAB')),
+        'clef.tab.small',               @Element('clef', @Attrs('shape', 'TAB', 'fontsize', 'small')),
+        // There is not a huge visual difference between 'clef.tab.small' and
+        // 'clef.tab.small.taller' with Sibelius' built-in fonts
+        'clef.tab.small.taller',        @Element('clef', @Attrs('shape', 'TAB', 'fontsize', 'small')),
+        'clef.tab.taller',              @Element('clef', @Attrs('shape', 'TAB', 'fontsize', 'large')),
+        'clef.tenor',                   @Element('clef', @Attrs('shape', 'C', 'line', '4')),
+        'clef.tenor.down.8',            @Element('clef', @Attrs('shape', 'C', 'line', '4', 'dis', '8', 'dis.place', 'below')),
+        'clef.treble',                  @Element('clef', @Attrs('shape', 'G', 'line', '2')),
+        'clef.treble.down.8',           @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '8', 'dis.place', 'below')),
+        'clef.treble.down.8.bracketed', @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '8', 'dis.place', 'below', 'glyph.auth', 'smufl', 'glyph.num', 'U+E057')),
+        'clef.treble.down.8.old',       @Element('clef', @Attrs('shape', 'GG', 'line', '2')),
+        'clef.treble.up.15',            @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '15', 'dis.place', 'above')),
+        'clef.treble.up.8',             @Element('clef', @Attrs('shape', 'G', 'line', '2', 'dis', '8', 'dis.place', 'above')),
+        'clef.violin.french',           @Element('clef', @Attrs('shape', 'G', 'line', '1')),
+        'clef.sub-bass.f',              @Element('clef', @Attrs('shape', 'F', 'line', '5'))
+    );
+}  //$end
+
+
+function InitDurationLookupTables () {
+    // Cache all MEI duration attributes for all Duration values possible in
+    // Sibelius
+    Self._property:DurAttributesByDuration = CreateSparseArray();
+    // Smallest duration in Sibelius: 512th note
+    minNoteRestDuration = 2;
+    // MEI supports notes as short as a 2048th, but 512 is the equivalent to
+    // Sibelius' shortest duration.
+    minMeiDur = 512;
+    // Largest duration in Sibelius: triple dotted longa
+    maxNoteRestDuration = 7680;
+    baseDuration = minNoteRestDuration;
+    meiDur = minMeiDur;
+    Self._property:DurByDuration = CreateSparseArray();
+    Self._property:DotsByDuration = CreateSparseArray();
+    while (baseDuration <= maxNoteRestDuration)
+    {
+        dotDuration = baseDuration;
+        dottedDuration = 0;
+        for dotNumber = 0 to 4
+        {
+            if (dotDuration >= 2)
+            {
+                dottedDuration = dottedDuration + dotDuration;
+                DurByDuration[dottedDuration] = meiDur & '';
+                if (meiDur < 1)
+                {
+                    DurByDuration[dottedDuration] = 'breve';
+                }
+                if (meiDur < 0.5)
+                {
+                    DurByDuration[dottedDuration] = 'long';
+                }
+                if (dotNumber > 0)
+                {
+                    DotsByDuration[dottedDuration] = dotNumber & '';
+                }
+                dotDuration = dotDuration / 2;
+            }
+        }
+        baseDuration = baseDuration * 2;
+        meiDur = meiDur * 0.5;
+    }
 }  //$end
 
 

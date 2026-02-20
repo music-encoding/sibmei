@@ -1,8 +1,8 @@
-function RegisterAvailableExtensions (availableExtensions, extensionsInfo, pluginList) {
-    // `availableExtensions` must be an empty TreeNode Hash map object.
-    // Looks for existing extensions and registers them in this Hash map.
-    // Keys in the Hash map are the names by which the extension plugins can be
-    // referenced in ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`.
+function RegisterAvailableExtensions (extensionsInfo, pluginList) {
+    // Looks for existing extensions and registers in global variable
+    // `AvailableExtensions`.
+    // Keys of this Hash map are the names by which the extension plugins can
+    // be referenced in ManuScript, e.g. like `@name.SibmeiExtensionAPIVersion`.
     // Values are the full names that are displayed to the user.
     //
     // `extensionsInfo` must be an empty Dictionary. For each extension plugin,
@@ -14,8 +14,11 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
     //
     // `pluginList` is a persistent reference to `Sibelius.Plugins`.
 
-    apiSemver = SplitString(ExtensionAPIVersion, '.');
-    errors = CreateSparseArray();
+    incompatibleExtensionsInfo = CreateSparseArray(
+        ExtensionAPIVersion & ' - Current extension API version'
+    );
+
+    AvailableExtensions = CreateHash();
 
     for each pluginObject in pluginList
     {
@@ -25,28 +28,28 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
             plgName = pluginObject.File.NameNoPath;
             extensionSemverString = @plgName.SibmeiExtensionAPIVersion;
             extensionSemver = SplitString(extensionSemverString, '.');
-            apiVersion = apiSemver[0];
+            apiVersion = ApiSemver[0];
 
             switch (true)
             {
                 case (extensionSemver.NumChildren != 3)
                 {
-                    error = 'Extension %s must have a valid semantic versioning string in field `ExtensionAPIVersion`. \'%s\' is not a valid version string.';
+                    incompatibilityInfo = 'Error: API version number is not a valid three-part semantic version number';
                 }
-                case ((apiSemver[0] = extensionSemver[0]) and (apiSemver[1] >= extensionSemver[1]))
+                case ((ApiSemver[0] = extensionSemver[0]) and (ApiSemver[1] >= extensionSemver[1]))
                 {
-                    error = null;
+                    incompatibilityInfo = '';
                 }
                 case (
-                    (apiSemver[0] < extensionSemver[0])
-                    or (apiSemver[0] = extensionSemver[0] and apiSemver[1] < extensionSemver[1])
+                    (ApiSemver[0] < extensionSemver[0])
+                    or (ApiSemver[0] = extensionSemver[0] and ApiSemver[1] < extensionSemver[1])
                 )
                 {
-                    error = 'Extension %s requires extension API version %s, but Sibmei %s only supports extension API version %s. Check for Sibmei updates supporting that extension API version.';
+                    incompatibilityInfo = 'Requires a newer version of Sibmei';
                 }
                 default
                 {
-                    error = 'Extension %s needs to be updated to be compatible with the current Sibmei version';
+                    incompatibilityInfo = 'Requires an older version of Sibmei';
                 }
             }
 
@@ -56,23 +59,29 @@ function RegisterAvailableExtensions (availableExtensions, extensionsInfo, plugi
                 'apiVersion', extensionSemver[0] + 0
             );
 
-            if (null = error)
+            if (null = incompatibilityInfo)
             {
                 // Storing key/value pairs in old-style Hash TreeNodes needs @-indirection
-                availableExtensions.@plgName = pluginObject.Name;
+                AvailableExtensions.@plgName = pluginObject.Name;
             }
             else
             {
-                errors.Push(utils.Format(error, plgName, extensionSemverString, PluginVersion, ExtensionAPIVersion));
+                incompatibleExtensionsInfo.Push('');
+                incompatibleExtensionsInfo.Push(extensionSemverString & ' - ' & pluginObject.Name);
+                incompatibleExtensionsInfo.Push('       ' & incompatibilityInfo);
             }
         }
     }
 
-    return errors.Join('\n\n');
+    IncompatibleExtension = CreateArray();
+    for each line in incompatibleExtensionsInfo
+    {
+        IncompatibleExtensions[IncompatibleExtensions.NumChildren] = line;
+    }
 }  //$end
 
 
-function ChooseExtensions (availableExtensions, chosenExtensions) {
+function ChooseExtensions (chosenExtensions) {
     // Expects an empty Dictionary as second argument.
     // Runs the ExtensionDialog and stores all extensions the user chose in the
     // Dictionary. Adds key/value pairs in the same way as
@@ -130,18 +139,13 @@ function InitExtensions (extensions, pluginList) {
     // Returns false if the user aborted the selection of extensions or if there
     // are any errors, otherwise returns true.
 
-    AvailableExtensions = CreateHash();
     extensionsInfo = CreateDictionary();
-    errors = RegisterAvailableExtensions(AvailableExtensions, extensionsInfo, pluginList);
-    if (null != errors)
-    {
-        Sibelius.MessageBox(errors);
-    }
+    RegisterAvailableExtensions(extensionsInfo, pluginList);
 
     chosenExtensions = CreateDictionary();
     if (null = extensions)
     {
-        if (not ChooseExtensions(AvailableExtensions, chosenExtensions))
+        if (not ChooseExtensions(chosenExtensions))
         {
             return false;
         }
@@ -164,35 +168,82 @@ function InitExtensions (extensions, pluginList) {
         @plgName.InitSibmeiExtension(CreateApiObject(extensionsInfo[plgName]));
     }
 
-    // store chosenExtensions as global to add application info
+    SchemaLocation = GetSchemaLocation(chosenExtensions, extensionsInfo);
+
+    // Keep chosenExtensions as global variable for encoding <appInfo>
     Self._property:ChosenExtensions = chosenExtensions;
 
     return true;
 }  //$end
 
 
+function GetSchemaLocation (chosenExtensions, extensionsInfo) {
+    // To detect conflicting schema locations defined by multiple active
+    // extensions, collect all of them with info about the extensions that
+    // defined them.
+    schemaLocations = CreateDictionary();
+    for each Name plgName in chosenExtensions
+    {
+        if (extensionsInfo[plgName].plugin.DataExists('CustomSchemaLocation'))
+        {
+            schemaLocations[@plgName.CustomSchemaLocation] = plgName;
+        }
+    }
+
+    if (schemaLocations > 1)
+    {
+        warning = CreateSparseArray('Active extensions defined conflicting schema locations:\n');
+        for each Name schemaLocation in schemaLocations
+        {
+            plgName = schemaLocations[schemaLocation];
+            warning.Push(schemaLocation & '(' & plgName & ')');
+        }
+        warning.Push('\nProcessing instructions for validation will be omitted');
+        if (warning != Self._property:LastSchemaLocationWarning)
+        {
+            // It suffices if we show the warning once.
+            Sibelius.MessageBox(warning.Join('\n'));
+            Self._property:LastSchemaLocationWarning = warning;
+        }
+        return 'noSchema';
+    }
+
+    for each Name CustomSchemaLocation in schemaLocations
+    {
+        return CustomSchemaLocation;
+    }
+
+    return DefaultSchemaLocation;
+}  //$end
+
+
 function CreateApiObject (extensionInfo) {
     apiObject = CreateDictionary(
         '_extensionInfo', extensionInfo,
-        'libmei', libmei,
         'FormattedText', FormattedText,
         'UnformattedText', UnformattedText,
         'LyricText', LyricText
     );
 
-    if (extensionInfo.apiVersion != 2)
+    if (extensionInfo.apiVersion != ApiSemver[0])
     {
         StopPlugin('Unsupported extension API version: ' & extensionInfo.apiVersion);
     }
 
+    // All functions flagged with `export` are also compiled to a version with
+    // `self` as the first parameter so that it can be called as a method from
+    // the apiObject.
+    for each function in ExportedFunctions
+    {
+        apiObject.SetMethod(function, Self, 'ExtensionAPI_' & function);
+    }
+
+    // Some methods are special and need to be added explicitly
     apiObject.SetMethod('RegisterSymbolHandlers', Self, 'ExtensionAPI_RegisterSymbolHandlers');
     apiObject.SetMethod('RegisterTextHandlers', Self, 'ExtensionAPI_RegisterTextHandlers');
     apiObject.SetMethod('RegisterLineHandlers', Self, 'ExtensionAPI_RegisterLineHandlers');
     apiObject.SetMethod('RegisterLyricHandlers', Self, 'ExtensionAPI_RegisterLyricHandlers');
-    apiObject.SetMethod('MeiFactory', Self, 'ExtensionAPI_MeiFactory');
     apiObject.SetMethod('AddFormattedText', Self, 'AddFormattedText');
-    apiObject.SetMethod('GenerateControlEvent', Self, 'ExtensionAPI_GenerateControlEvent');
-    apiObject.SetMethod('GenerateModifier', Self, 'ExtensionAPI_GenerateModifier');
 
     return apiObject;
 }  //$end
@@ -214,18 +265,7 @@ function ExtensionAPI_RegisterLyricHandlers (this, idProperty, handlerMethod, te
     RegisterHandlers(this, LyricHandlers, idProperty, handlerMethod, templatesById);
 }  //$end
 
-function ExtensionAPI_MeiFactory (this, templateObject, bobj) {
-    MeiFactory(templateObject, bobj);
-}  //$end
-
-function ExtensionAPI_MeiFactory_LegacyApiVersion1 (this, templateObject) {
-    MeiFactory(templateObject, null);
-}  //$end
-
-function ExtensionAPI_GenerateControlEvent (this, bobj, element) {
-    GenerateControlEvent(bobj, element);
-}   //$end
-
-function ExtensionAPI_GenerateModifier (this, bobj, element) {
-    GenerateModifier(bobj, element);
+export function AppendToMeasure (element) {
+    MeasureObjects.Push(element._id);
+    return element;
 }   //$end

@@ -6,16 +6,16 @@ function InitLyricHandlers() {
         'StyleAsText', CreateDictionary()
     );
 
-    sylTemplate = @Element('Syl', null, LyricText);
+    sylTemplate = @Element('syl', null, LyricText);
 
     RegisterLyricHandlers('StyleId', 'LyricTemplateHandler', CreateDictionary(
-        'text.staff.space.hypen.lyrics.above', @Element('Verse', @Attrs('place', 'above'), sylTemplate),
-        'text.staff.space.hypen.lyrics.chorus', @Element('Refrain', null, sylTemplate),
-        'text.staff.space.hypen.lyrics.verse1', @Element('Verse', @Attrs('n', '1'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse2', @Element('Verse', @Attrs('n', '2'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse3', @Element('Verse', @Attrs('n', '3'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse4', @Element('Verse', @Attrs('n', '4'), sylTemplate),
-        'text.staff.space.hypen.lyrics.verse5', @Element('Verse', @Attrs('n', '5'), sylTemplate)
+        'text.staff.space.hypen.lyrics.above', @Element('verse', @Attrs('place', 'above'), sylTemplate),
+        'text.staff.space.hypen.lyrics.chorus', @Element('refrain', null, sylTemplate),
+        'text.staff.space.hypen.lyrics.verse1', @Element('verse', @Attrs('n', '1'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse2', @Element('verse', @Attrs('n', '2'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse3', @Element('verse', @Attrs('n', '3'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse4', @Element('verse', @Attrs('n', '4'), sylTemplate),
+        'text.staff.space.hypen.lyrics.verse5', @Element('verse', @Attrs('n', '5'), sylTemplate)
     ));
 }  //$end
 
@@ -30,7 +30,7 @@ function PreprocessLyricTemplates (templatesById) {
         {
             // <syl> elements in the template need special handling, so we have
             // to register an action for them.
-            for each sylTemplate in GetTemplateElementsByTagName(template, 'Syl')
+            for each sylTemplate in GetTemplateElementsByTagName(template, 'syl')
             {
                 SetTemplateAction(sylTemplate, Self, 'SylElementAction');
             }
@@ -54,16 +54,13 @@ function LyricTemplateHandler (this, lyricItem) {
         return null;
     }
 
-    if (libmei.GetName(parentElement) = 'rest')
+    if (GetName(parentElement) = 'rest')
     {
-        barNum = lyricItem.ParentBar.BarNumber;
-        voiceNum = lyricItem.VoiceNumber;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectIsOnAnIllogicalObject, barNum, voiceNum, 'Lyric', 'rest'));
+        RegisterWarning(lyricItem, 'Rest-attached lyrics', 'Syllable `' & lyricItem.Text & '` is attached to a rest. This is not valid in standard MEI.');
     }
 
     element = MeiFactory(this.template, lyricItem);
-    libmei.AddChild(parentElement, element);
+    AddChild(parentElement, element);
     return element;
 }  //$end
 
@@ -81,34 +78,44 @@ function HandleLyricItem (lyricobj, objectPositions) {
         return null;
     }
 
-    barNum = lyricobj.ParentBar.BarNumber;
-    staffNum = lyricobj.ParentBar.ParentStaff.StaffNum;
     voiceNum = lyricobj.VoiceNumber;
 
     if (voiceNum = 0)
     {
-        // assign it to the first voice, since we don't have any notes in voice 0.
-        voiceNum = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, barNum, voiceNum, 'Lyric object'));
+        matchingNote = NoteInFirstMatchingVoice(lyricobj);
+        layerNumbers = LayerNumbers[lyricobj.Voices];
+        if (null = matchingNote)
+        {
+            RegisterWarning(
+                lyricobj,
+                'Unattached lyrics',
+                'No notes were found in voices: ' & layerNumbers & ' to attach syllable `' & lyricobj.Text & '`'
+            );
+            return null;
+        }
+        voiceNum = matchingNote.VoiceNumber;
+        RegisterWarning(
+            lyricobj,
+            'Multi-voice lyrics',
+            'Syllable `' & lyricobj.Text & '` is attached to Sibelius voices ' & layerNumbers & ', but it can only be encoded on MEI layer ' & voiceNum
+        );
     }
 
+    staffNum = lyricobj.ParentBar.ParentStaff.StaffNum;
     if (null = LyricWords[staffNum])
     {
         LyricWords[staffNum] = CreateSparseArray();
     }
-
     lyricstaff = LyricWords[staffNum];
 
     if (null = lyricstaff[voiceNum])
     {
         lyricstaff[voiceNum] = CreateDictionary();
     }
-
     lyricvoice = lyricstaff[voiceNum];
 
-    // We can have multiple layers of lyrics (specifically multiple verses) on
-    // top of each other. Each layer has its own style.
+    // We can have multiple levels of lyrics (specifically multiple verses) on
+    // top of each other. Each level has its own style.
     if (null = lyricvoice[lyricobj.StyleId])
     {
         lyricvoice[lyricobj.StyleId] = CreateSparseArray();
@@ -139,7 +146,7 @@ function HandleLyricItem (lyricobj, objectPositions) {
         lyricElement = HandleStyle(LyricHandlers, lyricItem);
         if (null != lyricElement and lyricItem.Color != 0)
         {
-            libmei.AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
+            AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
         }
     }
 
@@ -172,12 +179,12 @@ function SylElementAction (actionDict, parent, lyricItem) {
         if (elisionDelimiter = '_')
         {
             // breve (curved line below) connector
-            libmei.AddAttribute(lastSylElement, 'con', 'b');
+            AddAttribute(lastSylElement, 'con', 'b');
         }
         else
         {
             // space connector
-            libmei.AddAttribute(lastSylElement, 'con', 's');
+            AddAttribute(lastSylElement, 'con', 's');
         }
 
         lastSylElement = CreateSylChild(parent, actionDict.templateNode, lyricItem, elisionSyl);
@@ -190,22 +197,22 @@ function SylElementAction (actionDict, parent, lyricItem) {
         // conditions are met (plus lyricItem.SyllableType = EndOfWord).
         if (lyricItem.NumNotes > 1 and lyricItem.Duration > 0)
         {
-            libmei.AddAttribute(lastSylElement, 'con', 'u'); // 'underscore'
+            AddAttribute(lastSylElement, 'con', 'u'); // 'underscore'
         }
     }
     else
     {
         // Word continues after lyricItem, so we need a dash connector.
-        libmei.AddAttribute(lastSylElement, 'con', 'd');
+        AddAttribute(lastSylElement, 'con', 'd');
         // We're in initial word position if the lyricItem starts the word, or
         // if a new word started within the lyricItem because of an elision.
         if (lyricItem._property:startOfWord or syllables.Length > 1)
         {
-            libmei.AddAttribute(lastSylElement, 'wordpos', 'i'); // 'initial'
+            AddAttribute(lastSylElement, 'wordpos', 'i'); // 'initial'
         }
         else
         {
-            libmei.AddAttribute(lastSylElement, 'wordpos', 'm'); // 'medial'
+            AddAttribute(lastSylElement, 'wordpos', 'm'); // 'medial'
         }
     }
 
@@ -214,7 +221,7 @@ function SylElementAction (actionDict, parent, lyricItem) {
     // @wordpos should be written.
     if ((lyricItem.SyllableType = EndOfWord or syllables.Length > 1) and not lyricItem._property:startOfWord)
     {
-        libmei.AddAttribute(firstSylElement, 'wordpos', 't'); // 'terminal'
+        AddAttribute(firstSylElement, 'wordpos', 't'); // 'terminal'
     }
 } //$end
 
@@ -227,7 +234,7 @@ function CreateSylChild (parent, template, lyricItem, sylText) {
     // inserted text.
     lyricItem._property:currentSyllable = sylText;
     sylElement = MeiFactory(template, lyricItem);
-    libmei.AddChild(parent, sylElement);
+    AddChild(parent, sylElement);
     return sylElement;
 } //$end
 

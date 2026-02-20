@@ -1,0 +1,12 @@
+{
+  SibmeiExtensionAPIVersion "3.0.0"
+  CustomSchemaLocation "noSchema"
+
+  Initialize "() {
+    AddToPluginsMenu('Sibmei extension with empty schemas test', 'Run');
+  }"
+
+  InitSibmeiExtension "(api) {
+    ;
+  }"
+}

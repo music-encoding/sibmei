@@ -38,13 +38,13 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
 
 See [another example](./lib/extension_test.plg) for an extension plugin that also handles symbols, lines and lyrics.
 
-## Required data and methods
+## Required fields and methods
 
 ### `SibmeiExtensionAPIVersion`
 
 A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#Degree_of_compatibility) specifying for which version of the Sibmei extension
 API the extension was written. The current API version of Sibmei can be found in
-[`GLOBALS.mss`](./src/GLOBALS.mss).
+[`GLOBALS.mss`](./tree/develop/src/GLOBALS.mss).
 
 The API is guaranteed to remain backwards compatible with newer releases that retain the same major version number for `ExtensionAPIVersion`. Sibmei may support legacy extension plugins with a lower major version number for a while. With minor version numbers, new functionality is added while existing functionality remains backwards compatible.
 
@@ -52,6 +52,14 @@ The API is guaranteed to remain backwards compatible with newer releases that re
 
 Sibmei calls this method and passes an API Dictionary as argument (see below).
 Register your symbol, text, line and lyrics Handlers in this function using the methods listed [below](#api-data-and-methods).
+
+### Optional fields
+
+### `CustomSchemaLocation`
+
+By default, Sibmei writes schema validation processing instructions with the URL of the mei-CMN schema. A custom schema location can be declared as `CustomSchemaLocation`. If this field is `noSchema`, Sibelius will not write the validation processing instructions.
+
+See the examples for how to [declare a custom schema location](./tree/develop/test/extension_specific_schema.plg) and how to [omit the processing instructions](./tree/develop/test/extension_test_omitting_schema.plg). Note that if multiple extensions are active and declare conflicting schema locations, you will be notified and no processing instructions are written.
 
 ## API Dictionary
 
@@ -61,10 +69,7 @@ Extensions must only interact with Sibmei through the API dictionary that is pas
 
 ### API data and methods
 
-The API dictionary exposes the following object:
 
-* **`libmei`**: A reference to libmei that can be used to construct and
-   manipulate MEI elements. *This dictionary must not be modified.*
 
 The API dictionary exposes the following [methods for registering Handlers](ExportHandlers.md#creating-and-registering-handlers) that must only be used inside the `InitSibmeiExtension()` method:
 
@@ -78,4 +83,7 @@ The following methods can be used by Handler methods:
 * [**`AddFormattedText()`** ](ExportHandlers.md#addformattedtext)
 * [**`GenerateControlEvent()`**](ExportHandlers.md#generatecontrolevent)
 * [**`GenerateModifier()`**]((ExportHandlers.md#generatemodifier))
+* **`AppendToMeasure()`**. Use this if an element is measure-attached like a control event, but the element should not receive the control event attributes that `GenerateControlEvent()` would add. Takes a single argument, which is the element to be appended to the measure.
 * [**`MeiFactory()`**](ExportHandlers.md#meifactory)
+
+Methods for XML manipulation can be found in the [list of methods exposed to extensions](ExtensionApiMethods.md).

@@ -3,12 +3,10 @@ function TestExportConverters (suite) {
     suite
         .Add('TestDiatonicPitchConverter')
         .Add('TestOffsetConverter')
-        .Add('TestDurationConverter')
         .Add('TestPitchesInKeySignature')
         .Add('TestHasVisibleAccidentalConverter')
         .Add('TestAccidentalConverter')
         .Add('TestKeySignatureConverter')
-        .Add('TestClefConverter')
         .Add('TestBracketConverter')
         .Add('TestPositionToTimestampConverter')
         .Add('TestConvertTimeStamp')
@@ -32,25 +30,6 @@ function TestOffsetConverter(assert, plugin) {
     Self._property:StaffHeight = Sibelius.ActiveScore.StaffHeight;
     output = sibmei.ConvertOffsetsToMillimeters(100);
     assert.Equal(output, '5.4688mm', 'Offset of 100 1/32nds of a space is 5mm');
-}  //$end
-
-function TestDurationConverter(assert, plugin) {
-    //$module(TestNoteNameConverter)
-    output = sibmei.ConvertDuration(1024);
-    assert.Equal(output[0], 1, '1024 has an MEI duration of 1');
-    assert.Equal(output[1], ' ', '1024 has no dotted duration');
-
-    output = sibmei.ConvertDuration(384);
-    assert.Equal(output[0], 4, '384 is a dotted quarter');
-    assert.Equal(output[1], 1, '384 has one dot');
-
-    output = sibmei.ConvertDuration(2048);
-    assert.Equal(output[0], 'breve', '2048 is a breve');
-    assert.Equal(output[1], ' ', '2048 is not a dotted duration');
-
-    output = sibmei.ConvertDuration(3584);
-    assert.Equal(output[0], 'breve', '2048 is a breve');
-    assert.Equal(output[1], 2, '3584 is a double-dotted duration');
 }  //$end
 
 function TestPitchesInKeySignature (assert, plugin) {
@@ -220,33 +199,6 @@ function TestKeySignatureConverter (assert, plugin) {
 
     keyF = sibmei.ConvertKeySignature(-1);
     assert.Equal(keyF, '1f', 'The key of F has 1 flat');
-}  //$end
-
-function TestClefConverter (assert, plugin) {
-    //$module(TestExportConverters.mss)
-    gClef = sibmei.ConvertClef('clef.treble');
-    assert.Equal(gClef[0], 'G', 'The clef shape of a treble is G');
-    assert.Equal(gClef[1], '2', 'The clef line of a treble is 2');
-    assert.Equal(gClef[2], ' ', 'No displacement on this clef');
-    assert.Equal(gClef[3], ' ', 'No direction on this clef');
-
-    gDown = sibmei.ConvertClef('clef.treble.down.8');
-    assert.Equal(gDown[0], 'G', 'The clef shape of an octava treble is G');
-    assert.Equal(gDown[1], '2', 'The clef line of an octava treble is 2');
-    assert.Equal(gDown[2], '8', 'An octave displacement on this clef');
-    assert.Equal(gDown[3], 'below', 'Below direction on this clef');
-
-    mezzoS = sibmei.ConvertClef('clef.soprano.mezzo');
-    assert.Equal(mezzoS[0], 'C', 'The clef shape of a mezzo is C');
-    assert.Equal(mezzoS[1], '2', 'The clef line of a mezzo is 2');
-    assert.Equal(mezzoS[2], ' ', 'No displacement on this clef');
-    assert.Equal(mezzoS[3], ' ', 'No direction on this clef');
-
-    baritoneF = sibmei.ConvertClef('clef.baritone.f');
-    assert.Equal(baritoneF[0], 'F', 'The clef shape of a baritone F is F');
-    assert.Equal(baritoneF[1], '3', 'The clef line of a baritone F is 3');
-    assert.Equal(baritoneF[2], ' ', 'No displacement on this clef');
-    assert.Equal(baritoneF[3], ' ', 'No direction on this clef');
 }  //$end
 
 function TestBracketConverter (assert, plugin) {

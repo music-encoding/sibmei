@@ -10,9 +10,11 @@ To install this plugin, copy or symlink the `.plg` files in the Sibelius Plugin 
 
 If you're only interested in running the plugin in Sibelius, this is all you need to do.
 
+Sibmei development services and support for Sibmei based workflows is available from [Notengrafik Berlin](https://notengrafik.com/development/sibmei/?lang=en).
+
 ## Developing and Contributing
 
-### Install
+### Install for development
 
 For working on Sibmei, you need to have [git](https://git-scm.com/downloads) and [node](https://nodejs.org/en/download) installed. Then, on the command line, run:
 
@@ -56,7 +58,7 @@ There are two kinds of tests in two subfolders of the `test` folder that are run
 
 ### Sibmei Test Runner
 
-The unit tests in the `test/sib-test` folder are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, developed by Tido. You should download and install this plugin first. After unloading and reloading Sibmei, (as described above), tests can be run by starting the "Sibmei Test Runner" from the menu/ribbon, or using a keyboard shortcut of your choice that can be assigned in File => Preferences => Keyboard Shortcuts (in "Tab or category" choose Plug-ins, then in "Feature" choose  the Sibmei Test Runner and assign a shortcut).
+The unit tests in the `test/sib-test` folder are primarily used to test specific Sibmei functions. They use the [sib-test](https://github.com/tido/sib-test) plugin, developed by Tido. You should download and install this plugin first. After unloading and reloading Sibmei, (as described above), tests can be run by starting the "Sibmei Test Runner" from the menu/ribbon, or using a keyboard shortcut of your choice that can be assigned in File => Preferences => Keyboard Shortcuts (in "Tab or category" choose Plug-ins, then in "Feature" choose the Sibmei Test Runner and assign a shortcut).
 
 ### Node Test Runner
 

@@ -1,113 +1,3 @@
-
-function ConvertClef (clefid) {
-    //$module(ExportConverters.mss)
-    clefparts = MSplitString(clefid, '.');
-    shape = ' ';
-    line = ' ';
-    dis = ' ';
-    dir = ' ';
-
-    switch(clefparts[2])
-    {
-        case ('down')
-        {
-            dir = 'below';
-        }
-        case ('up')
-        {
-            dir = 'above';
-        }
-    }
-
-    switch(clefparts[3])
-    {
-        case ('8')
-        {
-            dis = '8';
-        }
-        case ('15')
-        {
-            dis = '15';
-        }
-    }
-
-    switch (clefparts[1]) {
-        case ('bass')
-        {
-            shape = 'F';
-            line = '4';
-        }
-        case ('treble')
-        {
-            if (clefparts[4] = 'old')
-            {
-                shape = 'GG';
-            }
-            else
-            {
-                shape = 'G';
-            }
-            line = '2';
-        }
-        case ('tenor')
-        {
-            shape = 'C';
-            line = '4';
-        }
-        case ('alto')
-        {
-            shape = 'C';
-            line = '3';
-        }
-        case ('soprano')
-        {
-            shape = 'C';
-            if (clefparts[2] = 'mezzo')
-            {
-                line = '2';
-            }
-            else
-            {
-                line = '1';
-            }
-        }
-        case ('baritone')
-        {
-            if (clefparts[2] = 'c')
-            {
-                shape = 'C';
-                line = '5';
-            }
-            else
-            {
-                shape = 'F';
-                line = '3';
-            }
-        }
-        case ('violin')
-        {
-            shape = 'G';
-            line = '1';
-        }
-        case ('sub-bass')
-        {
-            shape = 'F';
-            line = '5';
-        }
-        case ('tab')
-        {
-            shape = 'TAB';
-        }
-        case (('percussion') or ('percussion_2'))
-        {
-            shape = 'perc';
-        }
-    }
-
-    ret = CreateSparseArray(shape, line, dis, dir);
-    return ret;
-}  //$end
-
 function ConvertDiatonicPitch (diatonic_pitch) {
     //$module(ExportConverters)
     octv = (diatonic_pitch / 7) - 1;
@@ -162,68 +52,6 @@ function ConvertUnitsToPoints (units) {
     return (StaffHeight / 128.0 * units / 0.352778) & 'pt';
 }  //$end
 
-function ConvertDuration (dur) {
-    //$module(ExportConverters.mss)
-    // there doesn't really seem to be a smarter way to do this...
-    // 1024 = 1 whole note
-
-    ret = CreateSparseArray();
-
-    pow = PrevPow2(dur);
-    counter = pow;
-    dots = 0;
-    powcount = pow;
-    durset = false;
-
-    durrem = 1024 % dur;
-    if (durrem != 0)
-    {
-        while (counter < dur)
-        {
-            powcount = (powcount / 2);
-            counter = counter + powcount;
-            dots = dots + 1;
-
-            if (dots > 5)
-            {
-                // prevent a runaway loop.
-                counter = 1000000000;
-            }
-        }
-    }
-
-    switch (powcount)
-    {
-        case (pow >= 4096)
-        {
-            ret[0] = 'long';
-            durset = true;
-        }
-        case (pow >= 2048)
-        {
-            ret[0] = 'breve';
-            durset = true;
-        }
-        default
-        {
-            if (durset = false)
-            {
-                ret[0] = 1024 / pow;
-            }
-        }
-    }
-
-    if (dots = 0)
-    {
-        ret[1] = ' ';
-    }
-    else
-    {
-        ret[1] = dots;
-    }
-
-    return ret;
-}  //$end
 
 function ConvertKeySignature (numsharps) {
     //$module(ExportConverters.mss)
@@ -610,7 +438,6 @@ function ConvertNoteStyle (style) {
         }
         case (ShapedNote6NoteStyle)
         {
-            // In MEI 4.0, there is a square in data.HEADSHAPE.list
             noteStyle = 'square';
         }
         case (ShapedNote7NoteStyle)
@@ -699,13 +526,13 @@ function ConvertFbFigures (fb, bobj) {
             // We reached a linebreak or the last component
             if (currentLine != '')
             {
-                f = libmei.F();
-                libmei.SetText(f, currentLine);
-                libmei.AddAttribute(f, 'n', n);
-                libmei.AddChild(fb, f);
+                f = CreateElement('f');
+                SetText(f, currentLine);
+                AddAttribute(f, 'n', n);
+                AddChild(fb, f);
                 if (altsym != null)
                 {
-                    libmei.AddAttribute(f, 'altsym', altsym);
+                    AddAttribute(f, 'altsym', altsym);
                     altsym = null;
                 }
             }

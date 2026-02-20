@@ -54,26 +54,6 @@ function SplitStringIncludeDelimiters (string, delimiters) {
 }  //$end
 
 
-function PrevPow2 (val) {
-    //$module(Utilities.mss)
-    if (val = 0)
-    {
-        return 0;
-    }
-    //val = val - 1;
-    val = utils.bwOR(val, utils.shr(val, 1));
-    val = utils.bwOR(val, utils.shr(val, 2));
-    val = utils.bwOR(val, utils.shr(val, 4));
-    val = utils.bwOR(val, utils.shr(val, 8));
-    val = utils.bwOR(val, utils.shr(val, 16));
-    // this might be a hack, but I wrote it in
-    // a power outage with no internet.
-    // we get the next power of two, and then
-    // divide by two to get the previous one.
-    val = (val + 1) / 2;
-    return val;
-}  //$end
-
 function SimpleNoteHash (nobj) {
     //$module(Utilities.mss)
     /*
@@ -176,45 +156,83 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     // `searchStrategy` is used to find another NoteRest and may be one of the
     // the following strings: `PreciseMatch`, `Next`, `Previous` or `Closest`.
 
-    objectPositions = Self._property:NoteRestIdsByLocation;
+    bar = bobj.ParentBar;
     if (bobj.IsALine and positionProperty = 'EndPosition')
     {
         bobjPosition = bobj.EndPosition;
-        noteIdsByPosition = objectPositions[LayerHash(bobj.EndBarNumber, bobj)];
+        if (bar.BarNumber != bobj.EndBarNumber)
+        {
+            bar = bar.ParentStaff.NthBar(bobj.EndBarNumber);
+        }
     }
     else
     {
-        noteIdsByPosition = objectPositions[LayerHash(bobj.ParentBar, bobj)];
         bobjPosition = bobj.Position;
     }
 
+    voiceNumber = bobj.VoiceNumber;
+    if (voiceNumber != 0)
+    {
+        noteIdsByPosition = NoteRestIdsByLocation[LayerHash(bar, voiceNumber)];
+        closestPosition = GetClosestPosition(noteIdsByPosition, bobjPosition, searchStrategy);
+    }
+    else
+    {
+        closestPosition = null;
+        for each voiceNumber in VoiceNumbers[bobj.Voices]
+        {
+            noteIdsByPositionInVoice = NoteRestIdsByLocation[LayerHash(bar, voiceNumber)];
+            if (null != noteIdsByPositionInVoice)
+            {
+                closestPositionInLayer = GetClosestPosition(
+                    noteIdsByPositionInVoice, bobjPosition, searchStrategy
+                );
+                // closestPosition = null and closestPosition = '' would be
+                // truthy if closestPosition is 0. '' = closestPosition is what
+                // works.
+                if ('' = closestPosition or (
+                    utils.AbsoluteValue(bobjPosition - closestPositionInLayer)
+                    < utils.AbsoluteValue(bobjPosition - closestPosition)
+                ))
+                {
+                    closestPosition = closestPositionInLayer;
+                    noteIdsByPosition = noteIdsByPositionInVoice;
+                }
+            }
+        }
+    }
+
+    if ('' = closestPosition)
+    {
+        return null;
+    }
+    return GetElementById(noteIdsByPosition[closestPosition]);
+}  //$end
+
+
+function GetClosestPosition (noteIdsByPosition, position, searchStrategy) {
     if (null = noteIdsByPosition)
     {
         return null;
     }
-
-    objId = noteIdsByPosition[bobjPosition];
-    if (null != objId)
+    if (null != noteIdsByPosition[position])
     {
-        return libmei.getElementById(objId);
+        // This is a precise match
+        return position;
     }
-
-    // `bobj` was not precisely attached to a NoteRest in the same voice.
     if (searchStrategy = 'PreciseMatch')
     {
         return null;
     }
 
-    // Try and find the best matching note according to the `searchStrategy`.
     noteRestPositions = noteIdsByPosition.ValidIndices;
-
-    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1 {
-        if (noteRestPositions[noteRestIndex] < bobjPosition)
+    for noteRestIndex = noteRestPositions.Length- 1 to -1 step -1
+    {
+        if (noteRestPositions[noteRestIndex] < position)
         {
             // We found the closest preceding and following positions
-            return GetClosestNoteObject(
-                noteIdsByPosition,
-                bobjPosition,
+            return PickClosestPosition(
+                position,
                 noteRestPositions[noteRestIndex],
                 noteRestPositions[noteRestIndex + 1],
                 searchStrategy
@@ -223,55 +241,41 @@ function GetNoteObjectAtPosition (bobj, searchStrategy, positionProperty) {
     }
 
     // We did not find a preceding position
-    return GetClosestNoteObject(
-        noteIdsByPosition, bobjPosition, null, noteRestPositions[0], searchStrategy
-    );
+    return PickClosestPosition(position, null, noteRestPositions[0], searchStrategy);
 }  //$end
 
 
-function GetClosestNoteObject (noteIdsByPosition, position, precedingPosition, followingPosition, searchStrategy) {
-    switch (true)
+function PickClosestPosition (position, precedingPosition, followingPosition, searchStrategy) {
+    // Returns either `precedingPosition` or `followingPosition`, depending on
+    // the `searchStrategy` and/or which of the two is closer to `position`.
+    if (searchStrategy = 'Next')
     {
-        case (searchStrategy = 'Next')
-        {
-            noteRestPosition = followingPosition;
-        }
-        case (searchStrategy = 'Previous')
-        {
-            noteRestPosition = precedingPosition;
-        }
-        case (searchStrategy != 'Closest')
-        {
-            Trace('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
-            ExitPlugin();
-        }
-        // `'' = x` is testig if x is null. We can not use `x = null` or
-        // `null = x` because both expressions are truthy if `x` is 0. We can't
-        // use `x = ''` either for the same reason.
-        case ('' = precedingPosition)
-        {
-            noteRestPosition = followingPosition;
-        }
-        case ('' = followingPosition)
-        {
-            noteRestPosition = precedingPosition;
-        }
-        case ((followingPosition - position) < (position - precedingPosition))
-        {
-            noteRestPosition = followingPosition;
-        }
-        default
-        {
-            noteRestPosition = precedingPosition;
-        }
+        return followingPosition;
     }
-
-    if ('' = noteRestPosition)
+    if (searchStrategy = 'Previous')
     {
-        return null;
+        return precedingPosition;
     }
-
-    return libmei.getElementById(noteIdsByPosition[noteRestPosition]);
+    if (searchStrategy != 'Closest')
+    {
+        StopPlugin('\'' & searchStrategy & '\' is not an accepted value for parameter `searchStrategy`');
+    }
+    // `'' = x` is testig if x is null. We can not use `x = null` or
+    // `null = x` because both expressions are truthy if `x` is 0. We can't
+    // use `x = ''` either for the same reason.
+    if ('' = precedingPosition)
+    {
+        return followingPosition;
+    }
+    if ('' = followingPosition)
+    {
+        return precedingPosition;
+    }
+    if ((followingPosition - position) < (position - precedingPosition))
+    {
+        return followingPosition;
+    }
+    return precedingPosition;
 } //$end
 
 
@@ -301,7 +305,7 @@ function GetMeiNoteRestAtPosition (bobj, endPosition) {
 
     if (null != id)
     {
-        return libmei.getElementById(id);
+        return GetElementById(id);
     }
 
     // If there is no NoteRest at the precise position, linearly search the
@@ -321,7 +325,7 @@ function GetMeiNoteRestAtPosition (bobj, endPosition) {
                 i = i - 1;
             }
             id = noteRestIdsByPosition[noteRestPositions[i]];
-            return libmei.getElementById(id);
+            return GetElementById(id);
         }
     }
 
@@ -357,30 +361,22 @@ function AddControlEventAttributes (bobj, element) {
     voicenum = bobj.VoiceNumber;
     bar = bobj.ParentBar;
 
-    if (voicenum = 0)
-    {
-        // assign it to the first voice, since we don't have any notes in voice/layer 0.
-        voicenum = 1;
-        warnings = Self._property:warnings;
-        warnings.Push(utils.Format(_ObjectAssignedToAllVoicesWarning, bar.BarNumber, voicenum, 'Bar object'));
-    }
-
     if (not element.attrs.PropertyExists('tstamp'))
     {
         // Some templates might set `@tstamp` explicitly, especially to prevent
         // `@tstamp` from being output for elements that don't allow it.
-        libmei.AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+        AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
     }
 
     start_obj = GetNoteObjectAtPosition(bobj, 'PreciseMatch', 'Position');
     if (start_obj != null)
     {
-        libmei.AddAttribute(element, 'startid', '#' & start_obj._id);
+        AddAttribute(element, 'startid', '#' & start_obj._id);
     }
 
     if (TypeHasEndBarNumberProperty[bobj.Type])
     {
-        libmei.AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
+        AddAttribute(element, 'tstamp2', ConvertPositionWithDurationToTimestamp(bobj));
     }
 
     staff = bar.ParentStaff;
@@ -388,8 +384,8 @@ function AddControlEventAttributes (bobj, element) {
     if (staff.StaffNum > 0)
     {
         // Only add @staff if this is not attached to the SystemStaff
-        libmei.AddAttribute(element, 'staff', staff.StaffNum);
-        libmei.AddAttribute(element, 'layer', voicenum);
+        AddAttribute(element, 'staff', staff.StaffNum);
+        AddAttribute(element, 'layer', LayerNumbers[bobj.Voices]);
     }
 
     score = staff.ParentScore;
@@ -399,27 +395,27 @@ function AddControlEventAttributes (bobj, element) {
         // lines have durations, but symbols do not.
         if (bobj.Duration > 0)
         {
-            libmei.AddAttribute(element, 'dur.ppq', bobj.Duration);
+            AddAttribute(element, 'dur.ppq', bobj.Duration);
         }
 
         // lines have a left hand and a right hand offset
         // left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(bobj.Dx));
+            AddAttribute(element, 'startho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         if (bobj.Dy > 0)
         {
-            libmei.AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(bobj.Dy));
+            AddAttribute(element, 'startvo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
         // right hand offset
         if (bobj.RhDx > 0)
         {
-            libmei.AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(bobj.Dx));
+            AddAttribute(element, 'endho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         if (bobj.RhDy > 0)
         {
-            libmei.AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(bobj.Dy));
+            AddAttribute(element, 'endvo', ConvertOffsetsToMillimeters(bobj.Dy));
         }
     }
     else
@@ -427,18 +423,15 @@ function AddControlEventAttributes (bobj, element) {
         // other types only have a left hand offset
         if (bobj.Dx > 0)
         {
-            libmei.AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
+            AddAttribute(element, 'ho', ConvertOffsetsToMillimeters(bobj.Dx));
         }
         // we don't write @vo because Dy is conceptually different
         // see discussion in https://github.com/music-encoding/sibmei/pull/139
     }
 
-    if (bobj.Type != 'Text')
+    if (bobj.Color != 0)
     {
-        if (bobj.Color != 0)
-        {
-            libmei.AddAttribute(element, 'color', ConvertColor(bobj));
-        }
+        AddAttribute(element, 'color', ConvertColor(bobj));
     }
 
     return element;
@@ -729,7 +722,7 @@ function InitFigbassCharMap () {
 }  //$end
 
 
-function MeiFactory (data, bobj) {
+export function MeiFactory (data, bobj) {
     // Parameter `data` is a template SparseArray with the following entries:
     //
     // 0. The capitalized tag name
@@ -740,14 +733,14 @@ function MeiFactory (data, bobj) {
     // For further documentation, see Extensions.md
 
     tagName = data[0];
-    element = libmei.@tagName();
+    element = CreateElement(tagName);
 
     attributes = data[1];
     if (null != attributes)
     {
         for each Name attName in attributes
         {
-            libmei.AddAttribute(element, attName, attributes[attName]);
+            AddAttribute(element, attName, attributes[attName]);
         }
     }
 
@@ -771,7 +764,7 @@ function MeiFactory (data, bobj) {
                 {
                     // We have a child element
                     currentChild = MeiFactory(childData, bobj);
-                    libmei.AddChild(element, currentChild);
+                    AddChild(element, currentChild);
                 }
             }
         }
@@ -836,12 +829,31 @@ function GetTemplateElementsByTagName (template, tagName) {
 function AppendText (element, text) {
     if (element.children.Length = 0)
     {
-        libmei.SetText(element, element.text & text);
+        SetText(element, element.text & text);
     }
     else
     {
         lastChildIndex = element.children.Length - 1;
-        lastChild = libmei.getElementById(element.children[lastChildIndex]);
+        lastChild = GetElementById(element.children[lastChildIndex]);
         lastChild.tail = lastChild.tail & text;
+    }
+}  //$end
+
+
+function NoteInFirstMatchingVoice (bobj) {
+    matchingVoices = VoicesMaskToVoiceFlags[bobj.Voices];
+    position = bobj.Position;
+    noteRest = bobj;
+    while (true)
+    {
+        noteRest = noteRest.NextItem(0, 'NoteRest');
+        if (null = noteRest or noteRest.Position > position)
+        {
+            return null;
+        }
+        if (noteRest.NoteCount > 0 and matchingVoices[noteRest.VoiceNumber])
+        {
+            return noteRest;
+        }
     }
 }  //$end

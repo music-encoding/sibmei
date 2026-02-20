@@ -20,6 +20,6 @@
             files.Push(file);
         }
 
-        @MainPlgBaseName.ExportBatch(files, null);
+        @MainPlgBaseName.ExportBatch(files, null, true);
     }"
 }
