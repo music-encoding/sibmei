@@ -44,7 +44,7 @@ See [another example](./lib/extension_test.plg) for an extension plugin that als
 
 A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#Degree_of_compatibility) specifying for which version of the Sibmei extension
 API the extension was written. The current API version of Sibmei can be found in
-[`GLOBALS.mss`](./tree/develop/src/GLOBALS.mss).
+[`GLOBALS.msd`](./tree/develop/src/GLOBALS.msd) as `ExtensionAPIVersion`.
 
 The API is guaranteed to remain backwards compatible with newer releases that retain the same major version number for `ExtensionAPIVersion`. Sibmei may support legacy extension plugins with a lower major version number for a while. With minor version numbers, new functionality is added while existing functionality remains backwards compatible.
 
