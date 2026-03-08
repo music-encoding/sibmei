@@ -12,7 +12,7 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
 {
   //"The `SibmeiExtensionAPIVersion` field must be present so Sibmei can"
   //"recognize compatible extensions"
-  SibmeiExtensionAPIVersion "2.0.0"
+  SibmeiExtensionAPIVersion "3.0.0"
 
   Initialize "() {
     // The extension choice dialog will list this extension as
@@ -36,7 +36,7 @@ Extensions are regular Sibelius plugins written in ManuScript. When running Sibm
 }
 ```
 
-See [another example](./lib/extension_test.plg) for an extension plugin that also handles symbols, lines and lyrics.
+See [another example](./test/extension_test.plg) for an extension plugin that also handles symbols, lines and lyrics.
 
 ## Required fields and methods
 
