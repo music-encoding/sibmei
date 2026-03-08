@@ -46,7 +46,7 @@ A [semantic version string](https://en.wikipedia.org/wiki/Software_versioning#De
 API the extension was written. The current API version of Sibmei can be found in
 [`GLOBALS.mss`](./tree/develop/src/GLOBALS.mss).
 
-The API is guaranteed to remain backwards compatible with newer releases that retain the same major version number for `ExtensionAPIVersion`. Sibmei may support legacy extension plugins with a lower major version number for a while. With minor version numbers, new functionality is added while existing functionality remains backwards compatible.
+Extensions remain compatible with newer Sibmei versions as long as Sibmei does not change the major version number. When minor version numbers change, new functionality is added while existing functionality remains backwards compatible.
 
 ### `InitSibmeiExtension()`
 
@@ -57,7 +57,7 @@ Register your symbol, text, line and lyrics Handlers in this function using the 
 
 ### `CustomSchemaLocation`
 
-By default, Sibmei writes schema validation processing instructions with the URL of the mei-CMN schema. A custom schema location can be declared as `CustomSchemaLocation`. If this field is `noSchema`, Sibelius will not write the validation processing instructions.
+By default, Sibmei writes schema validation processing instructions with the URL of the mei-CMN schema. A custom schema location can be declared as `CustomSchemaLocation`. If this field is `noSchema`, Sibmei will not write the validation processing instructions.
 
 See the examples for how to [declare a custom schema location](./tree/develop/test/extension_specific_schema.plg) and how to [omit the processing instructions](./tree/develop/test/extension_test_omitting_schema.plg). Note that if multiple extensions are active and declare conflicting schema locations, you will be notified and no processing instructions are written.
 
