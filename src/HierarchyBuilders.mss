@@ -443,7 +443,7 @@ function BuildStaffGrpHierarchy(score, barnum) {
     }
     staffNum = 1;
     staffCount = score.StaffCount;
-    while (staffNum < staffCount)
+    while (staffNum <= staffCount)
     {
         staff = score.NthStaff(staffNum);
         sibGroupItems.Push(staff);
