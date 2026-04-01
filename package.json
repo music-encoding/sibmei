@@ -1,6 +1,6 @@
 {
   "name": "sibmei",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "MEI export plugin for Avid Sibelius",
   "sibmei": {
     "meiVersion": "5.1"
@@ -24,11 +24,5 @@
     "chokidar": "^5.0.0",
     "fontoxpath": "^3.34.0",
     "slimdom-sax-parser": "^1.5.3"
-  },
-  "resolutions": {
-    "graceful-fs": "^4.2.10"
-  },
-  "overrides": {
-    "graceful-fs": "^4.2.10"
   }
 }
