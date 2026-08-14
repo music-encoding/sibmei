@@ -14,6 +14,7 @@ function TestXml (suite) {
         .Add('TestGetSetId')
         .Add('TestEncodeEntities')
         .Add('TestElementsUsedInTemplates')
+        .Add('TestAttributeTemplates')
         ;
 } //$end
 
@@ -213,9 +214,41 @@ function TestElementsUsedInTemplates (assert, plugin) {
             }
         }
     }
+
+    for each Name styleId in ClefTemplates
+    {
+        _TestTemplate(assert, ClefTemplates[styleId], styleId);
+    }
 } //$end
 
-function _TestTemplate(assert, template, styleId) {
+function TestAttributeTemplates (assert, plugin) {
+    // validClefAttributes = Schema.clef.attributes;
+    // for each Name clefId in ClefTemplates
+    // {
+    //     foundClefAttributes = ClefTemplates[clefId];
+    //     usageDescription = 'Used for ' & clefId;
+    //     _TestAttributeTemplate(
+    //         assert, 'clef', foundClefAttributes, validClefAttributes, usageDescription
+    //     );
+    // }
+
+    validNoteAttributes = Schema.note.attributes;
+    noteStyles = NoteStyleAttributes.NoteStyle;
+    for each noteStyle in noteStyles.ValidIndices
+    {
+        attributesByDuration = noteStyles[noteStyle];
+        for each duration in attributesByDuration.ValidIndices
+        {
+            foundNoteAttributes = attributesByDuration[duration];
+            usageDescription = 'Used for note style ' & noteStyle & ', duration ' & duration;
+            _TestAttributeTemplate(
+                assert, 'note', foundNoteAttributes, validNoteAttributes, usageDescription
+            );
+        }
+    }
+} //$end
+
+function _TestTemplate (assert, template, styleId) {
     if (0.0 = styleId and null != styleId)
     {
         // Found `styleId` to be an integer, i.e. we're dealing with a symbol.
@@ -236,15 +269,9 @@ function _TestTemplate(assert, template, styleId) {
     }
     if (null != template[1])
     {
-        for each Name attributeName in template[1]
-        {
-            assert.OK(
-                // If ' ' is assigned as attribute value, this explicitly
-                // suppresses the attribute from being added.
-                properties.attributes[attributeName] or template[1].@attributeName = ' ',
-                'expect ' & tagName & '/@' & attributeName & ' to be legal.' & usageDescription
-            );
-        }
+        _TestAttributeTemplate(
+            assert, tagName, template[1], properties.attributes, usageDescription
+        );
     }
     childCount = utils.max(template.Length - 2, 0);
     for childIndex = 0 to childCount
@@ -260,7 +287,18 @@ function _TestTemplate(assert, template, styleId) {
             {
                 _TestTemplate(assert, child, styleId);
             }
-
         }
+    }
+} //$end
+
+function _TestAttributeTemplate (assert, tagName, foundAttributes, validAttributes, usageDescription) {
+    for each Name attributeName in foundAttributes
+    {
+        assert.OK(
+            // If ' ' is assigned as attribute value, this explicitly
+            // suppresses the attribute from being added.
+            validAttributes[attributeName] or foundAttributes.@attributeName = ' ',
+            'expect ' & tagName & '/@' & attributeName & ' to be legal.' & usageDescription
+        );
     }
 } //$end
