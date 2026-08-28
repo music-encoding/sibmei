@@ -358,7 +358,6 @@ function AddControlEventAttributes (bobj, element) {
         adds timing and position info (tstamps, etc.) to an element.
         This info is mostly derived from the base BarObject class.
     */
-    voicenum = bobj.VoiceNumber;
     bar = bobj.ParentBar;
 
     if (not element.attrs.PropertyExists('tstamp'))
