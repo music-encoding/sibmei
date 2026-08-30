@@ -110,6 +110,8 @@ function InitGlobals (extensions) {
         LayerNumbers[voicesBitmask] = VoiceNumbers[voicesBitmask].Join(' ');
     }
 
+    Self._property:MusicTextToSmufl = InitMusicTextToSmuflMap();
+
     Self._property:_Initialized = true;
 
     return true;
