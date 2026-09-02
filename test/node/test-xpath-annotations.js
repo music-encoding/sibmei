@@ -60,10 +60,15 @@ for (const fileName of utils.getExportedTestFileNames()) {
         );
         // If we find a leading comment, we use it as test description
         const testDescription = (annot.textContent.match(/s*\(:\s*(.*)\s*:\)/) || [])[1];
-        const result = xpath.evaluateXPath(
-          expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
-          annot.parentNode
-        );
+        let result;
+        try {
+          result = xpath.evaluateXPath(
+            expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
+            annot.parentNode
+          );
+        } catch (e) {
+          messages.push(`measure ${measureN}, ${testDescription  || testXpath}: ` + e);
+        }
         if (expectedNumber !== undefined) {
           evaluateResult(messages, measureN, testXpath, result, testDescription, expectedNumber);
         } else if (expectedString !== undefined) {

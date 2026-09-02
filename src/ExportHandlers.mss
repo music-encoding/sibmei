@@ -10,6 +10,7 @@ function InitHandlers () {
     InitLineHandlers();
     InitTextHandlers();
     InitLyricHandlers();
+    InitNoteStyleAttributes();
 }  //$end
 
 function RegisterHandlers(pluginInfo, handlers, idProperty, handlerMethod, templatesById) {

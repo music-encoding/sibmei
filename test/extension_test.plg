@@ -70,6 +70,10 @@
         )
       )
     ));
+
+    api.RegisterNoteStyle('NoteStyleName', 'My Notehead', 0, 511, @Attrs(
+      'head.shape', 'U+E655', 'head.auth', 'smufl'
+    ));
   }"
 
   HandleMySymbol "(api, obj) {
