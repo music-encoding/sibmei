@@ -601,37 +601,24 @@ function ConvertTimeStamp (time) {
         return ' ';
     }
 
-    mins = utils.GetMinutesFromTime(time);
-
     secs = time % 60000.0 / 1000.0;
-    // We need to ensure that values always have two digits
-    if (secs < 10.0)
+    mins = time % 3600000 / 60000;
+    hours = time / 3600000;
+
+    if (secs < 10)
     {
         secs = '0' & secs;
     }
-
-    hours = 0;
-    if (mins > 60)
+    if (mins < 10)
     {
-        rem = mins % 60;
-        hours = (mins - rem) / 60;
-        mins = rem;
-
-        // Only if mins > 60 we need to make sure, that there are two digits
-        if (mins < 10)
-        {
-            mins = '0' & mins;
-        }
+        mins = '0' & mins;
     }
-
-    // In the case of a very long score, we need to make sure, that there are always two digits
     if (hours < 10)
     {
         hours = '0' & hours;
     }
 
-    isodate = utils.Format('%s:%s:%s', hours, mins, secs);
-    return isodate;
+    return hours & ':' & mins & ':' & secs;
 }  //$end
 
 function ConvertFermataForm (bobj) {

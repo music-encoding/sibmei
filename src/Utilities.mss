@@ -366,6 +366,7 @@ function AddControlEventAttributes (bobj, element) {
         // Some templates might set `@tstamp` explicitly, especially to prevent
         // `@tstamp` from being output for elements that don't allow it.
         AddAttribute(element, 'tstamp', ConvertPositionToTimestamp(bobj.Position, bar));
+        AddAttribute(element, 'tstamp.real', ConvertTimeStamp(bobj.Time));
     }
 
     start_obj = GetNoteObjectAtPosition(bobj, 'PreciseMatch', 'Position');
