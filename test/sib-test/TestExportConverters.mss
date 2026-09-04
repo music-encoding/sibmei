@@ -10,6 +10,7 @@ function TestExportConverters (suite) {
         .Add('TestBracketConverter')
         .Add('TestPositionToTimestampConverter')
         .Add('TestConvertTimeStamp')
+        .Add('TestConvertChord')
         ;
 } //$end
 
@@ -269,3 +270,65 @@ function TestConvertTimeStamp (assert, plugin) {
     assert.Equal(tstamp4, '11:00:34.7', '39634700 milliseconds are should be converted to 11:00:34.7');
 
 }   //$end
+
+
+function TestConvertChord (assert, plugin) {
+    rendSup = @Attrs('rend', 'sup');
+    rendSmcaps = @Attrs('rend', 'smcaps');
+    glyphAuthSmufl = @Attrs('glyph.auth', 'smufl');
+    num2 = @Element('num', null, '2');
+    num4 = @Element('num', null, '4');
+    num5 = @Element('num', null, '5');
+    num9 = @Element('num', null, '9');
+    segEmpty = @Element('seg', null);
+    segFlat = @Element('seg', null, '♭');
+
+    _TestConvertChord(assert, 'µ', 'N.C.');
+    _TestConvertChord(assert, 'A¨/B¨', 'A♭/B♭');
+    _TestConvertChord(assert, 'A¨<7/E¨', CreateSparseArray('A♭', @Element('rend', rendSup, 'MA7'), '/E♭'));
+    _TestConvertChord(assert, 'DŒ„Š11', CreateSparseArray('D', @Element('rend', rendSup, 'maj11')));
+    _TestConvertChord(assert, 'C‹7(b5)', CreateSparseArray('Cm', @Element('rend', rendSup, '7(♭5)')));
+    _TestConvertChord(assert, 'D[“Ê]', CreateSparseArray(
+        'D(',
+        @Element('rend', rendSup,
+            'sus'
+        ),
+        @Element('rend', @Attrs('fontsize', 'small'),
+            @Element('stack', null, num2, num4)
+        ),
+        ')'
+    ));
+    _TestConvertChord(assert, '¼', CreateSparseArray(@Element('rend', glyphAuthSmufl, SmuflChar.repeatBarSlash)));
+    // Not sure if this chord symbol makes sense, but that's not the point
+    _TestConvertChord(assert, 'AÎî', CreateSparseArray(
+        'A',
+        @Element('rend', @Attrs('fontsize', 'small'),
+            @Element('stack', null, num9, num9, num5),
+            @Element('stack', null, segEmpty, segEmpty, segFlat)
+        )
+    ));
+    _TestConvertChord(assert, 'Ré(™œ3)', CreateSparseArray(
+        'Ré',
+        @Element('rend', rendSup,
+            '(', @Element('rend', rendSmcaps, 'NO'), '3)'
+        )
+    ));
+}  //$end
+
+function _TestConvertChord (assert, styledString, expectedChildren) {
+    guitarFrame = CreateDictionary('ChordNameAsStyledString', styledString, 'ChordNameAsPlainText', '');
+    expected = @Element('harm', @Attrs('label', ''));
+    if (IsObject(expectedChildren))
+    {
+        expected = expected.Concat(expectedChildren);
+    }
+    else
+    {
+        expected.Push(expectedChildren);
+    }
+    if (not assert.Equal(ConvertChord(guitarFrame), expected, 'ChordNameAsStyledString: ' & styledString))
+    {
+        NGBJson.Trace(ConvertChord(guitarFrame));
+        NGBJson.Trace(expected);
+    }
+}  //$end

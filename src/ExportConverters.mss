@@ -642,3 +642,59 @@ function ConvertFermataForm (bobj) {
     }
 
 }  //$end
+
+
+function ConvertChord (guitarFrame) {
+    // Converts a GuitarFrame to an element template
+
+    harm = @Element('harm', @Attrs('label', guitarFrame.ChordNameAsPlainText));
+    styledString = guitarFrame.ChordNameAsStyledString;
+
+    for i = 0 to Length(styledString)
+    {
+        char = CharAt(styledString, i);
+        previousItem = harm[-1];
+        currentItem = ChordFontMap[char];
+        switch (true) {
+            case ('' = currentItem)
+            {
+                RegisterWarning(guitarFrame, 'Unsupported chord character', char & ' (' & (char + 0) & ')');
+            }
+            case (harm.Length < 3)
+            {
+                // This is the first child
+                harm.Push(currentItem);
+            }
+            case (IsObject(previousItem) != IsObject(currentItem))
+            {
+                // items are not compatible and can not be combined
+                harm.Push(currentItem);
+            }
+            case (not IsObject(currentItem))
+            {
+                // both items are strings and can be joined
+                harm[-1] = previousItem & currentItem;
+            }
+            case (previousItem.Slice(0, 2) != currentItem.Slice(0, 2))
+            {
+                // Tag name or attributes differ. Items can't be combined.
+                harm.Push(currentItem);
+            }
+            case (IsObject(previousItem[-1]) or IsObject(currentItem[-1]))
+            {
+                // Combine element or mixed text/element children of both items
+                // Clone (slice) the previous item to not modify the template
+                harm[-1] = previousItem.Slice(0, previousItem.Length).Concat(currentItem.Slice(2));
+            }
+            default
+            {
+                // Combine text children of both items
+                // Clone (slice) the previous item to not modify the template
+                harm[-1] = previousItem.Slice(0, previousItem.Length - 1);
+                harm[-1].Push(previousItem[-1] & currentItem[-1]);
+            }
+        }
+    }
+
+    return harm;
+}  //$end

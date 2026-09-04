@@ -1248,14 +1248,14 @@ function GenerateFermata (bobj, shape, form) {
 }  //$end
 
 function GenerateChordSymbol (bobj) {
-    //$module(ExportGenerators.mss)
-    /*
-        Generates a <harm> element containing chord symbol information
-    */
-    harm = GenerateControlEvent(bobj, CreateElement('harm'));
-    SetText(harm, bobj.ChordNameAsPlainText);
+    // Generates a <harm> element containing chord symbol information
+    chordTemplate = ChordCache[bobj.ChordNameAsStyledString];
+    if (null = chordTemplate)
+    {
+        chordTemplate = ConvertChord(bobj);
+    }
 
-    return harm;
+    return GenerateControlEvent(bobj, MeiFactory(chordTemplate, bobj));
 }  //$end
 
 function GenerateSmuflAltsym (glyphnum, glyphname) {
