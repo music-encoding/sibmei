@@ -707,17 +707,21 @@ function ConvertChordGrid (guitarFrame) {
     if (null = Self._property:ChordTable)
     {
         Self._property:ChordTable = CreateElement('chordTable');
-        AddChild(MainScoreDef, ChordTable);
+        // Schema requires this to precede <staffGrp> elements
+        AddChildAtPosition(MainScoreDef, ChordTable, 0);
     }
 
     chordDef = CreateElement('chordDef');
     AddChild(ChordTable, chordDef);
     AddAttribute(chordDef, 'label', guitarFrame.ChordNameAsPlainText);
-    AddAttribute(chordDef, 'tab.position', guitarFrame.LowestVisibleFret);
-
+    if (guitarFrame.LowestVisibleFret > 1)
+    {
+        AddAttribute(chordDef, 'tab.pos', guitarFrame.LowestVisibleFret);
+    }
     currentBarreIndex = -1;
     numBarresInChord = guitarFrame.NumBarresInChord;
     barreEndString = -1;
+    barres = CreateSparseArray();
     barre = null;
 
     fingerings = guitarFrame.Fingerings;
@@ -768,7 +772,7 @@ function ConvertChordGrid (guitarFrame) {
                 return chordDef;
             }
             barre = CreateElement('barre');
-            AddChild(chordDef, barre);
+            barres.Push(barre);
             AddAttribute(barre, 'startid', '#' & chordMember._id);
             // The specs say, @fret is deprecated in favour of @tab.fret, which
             // however is not yet available on <barre>
@@ -780,6 +784,12 @@ function ConvertChordGrid (guitarFrame) {
             AddAttribute(barre, 'endid', '#' & chordMember._id);
             barre = null;
         }
+    }
+
+    // <barre>s must follow <chordMember>s
+    for each barre in barres
+    {
+        AddChild(chordDef, barre);
     }
 
     return '#' & chordDef._id;
