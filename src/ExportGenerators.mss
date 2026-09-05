@@ -1249,13 +1249,43 @@ function GenerateFermata (bobj, shape, form) {
 
 function GenerateChordSymbol (bobj) {
     // Generates a <harm> element containing chord symbol information
-    chordTemplate = ChordCache[bobj.ChordNameAsStyledString];
-    if (null = chordTemplate)
+
+    if (bobj.TextIsVisible)
     {
-        chordTemplate = ConvertChord(bobj);
+        chordTemplate = ChordCache[bobj.ChordNameAsStyledString];
+        if (null = chordTemplate)
+        {
+            chordTemplate = ConvertChord(bobj);
+            ChordCache[bobj.ChordNameAsStyledString] = chordTemplate;
+        }
+        harm = GenerateControlEvent(bobj, MeiFactory(chordTemplate, bobj));
+    }
+    else
+    {
+        harm = CreateElement('harm');
     }
 
-    return GenerateControlEvent(bobj, MeiFactory(chordTemplate, bobj));
+    if (bobj.FrameIsVisible)
+    {
+        chordGridHash = ConvertToChordGridHash(bobj);
+        chordGridRef = ChordGridCache[chordGridHash];
+        if (null = chordGridRef)
+        {
+            chordGridRef = ConvertChordGrid(bobj);
+            ChordGridCache[chordGridHash] = chordGridRef;
+        }
+        AddAttribute(harm, 'chordref', chordGridRef);
+        if (bobj.TextIsVisible)
+        {
+            AddAttribute(harm, 'rendgrid', 'gridtext');
+        }
+        else
+        {
+            AddAttribute(harm, 'rendgrid', 'grid');
+        }
+    }
+
+    return harm;
 }  //$end
 
 function GenerateSmuflAltsym (glyphnum, glyphname) {
