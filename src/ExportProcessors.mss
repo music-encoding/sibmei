@@ -220,6 +220,10 @@ function ProcessBarObjects (bar) {
                     HandleStyle(TextHandlers, bobj);
                 }
             }
+            case ('RitardLine')
+            {
+                HandleStyle(LineHandlers, bobj);
+            }
             case('SymbolItem')
             {
                 HandleSymbol(bobj);
