@@ -6,7 +6,7 @@ const xpath = require('fontoxpath');
 const utils = require('./utils');
 
 describe("Slurs", () => {
-  const mei = utils.getTestMeiDom('slurs.mei');
+  const mei = utils.getTestMeiDom('slurs-and-ties.mei');
 
   const measure1Layer1Slurs = xpath.evaluateXPathToNodes('//*:measure[1]/*:slur[@layer="1"]', mei);
   const measure1Layer2Slurs = xpath.evaluateXPathToNodes('//*:measure[1]/*:slur[@layer="2"]', mei);

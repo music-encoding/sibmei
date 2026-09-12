@@ -647,3 +647,17 @@ function ConvertFermataForm (bobj) {
     }
 
 }  //$end
+
+
+function ConvertToAbsoluteDuration (noteRest) {
+    // Factors in tuplets to calculate an 'absolute' duration, based on
+    // non-tuplet whole note duration = 1024.
+    absoluteDuration = noteRest.Duration * 1.0;
+    tuplet = noteRest.ParentTupletIfAny;
+    while (null != tuplet)
+    {
+        absoluteDuration = absoluteDuration * tuplet.Right / tuplet.Left;
+        tuplet = tuplet.ParentTupletIfAny;
+    }
+    return absoluteDuration;
+}  //$end
