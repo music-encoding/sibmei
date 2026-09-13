@@ -702,10 +702,10 @@ function GenerateRest (bobj) {
 function GenerateNote (nobj) {
     //$module(ExportGenerators.mss)
 
-    pos = nobj.ParentNoteRest.Position;
-    parent_bar = nobj.ParentNoteRest.ParentBar;
-    keysig = nobj.ParentNoteRest.ParentBar.GetKeySignatureAt(pos);
-    clef = nobj.ParentNoteRest.ParentBar.GetClefAt(pos);
+    pos = nobj.Position;
+    parentBar = nobj.ParentBar;
+    keysig = parentBar.GetKeySignatureAt(pos);
+    clef = parentBar.GetClefAt(pos);
     // SparseArray(shape, line, dis, dir);
     clefTemplate = ClefTemplates[clef.StyleId];
     clefAttributes = clefTemplate[1];
@@ -819,18 +819,20 @@ function GenerateNote (nobj) {
 
     // construct an index that will be used to open a tie, or check if a tie is open.
     // this may be modified below if the tie extends to the next bar
-    staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
-    tie_idx = parent_bar.BarNumber & '-' & staff & '-' & nobj.ParentNoteRest.VoiceNumber & '-' & pnum;
+    staffNumber = parentBar.ParentStaff.StaffNum;
+    barNumber = parentBar.BarNumber;
+    voiceNumber = nobj.VoiceNumber;
+    tieIdx = barNumber & '-' & staffNumber & '-' & voiceNumber & '-' & pnum;
 
-    if (tie_resolver.PropertyExists(tie_idx) and tie_resolver[tie_idx] != null)
+    if (tie_resolver.PropertyExists(tieIdx) and tie_resolver[tieIdx] != null)
     {
         // get the tie
-        tie_id = tie_resolver[tie_idx];
+        tie_id = tie_resolver[tieIdx];
         tie_el = GetElementById(tie_id);
         AddAttribute(tie_el, 'endid', '#' & n._id);
 
         // null it in case we get another one in this measure.
-        tie_resolver[tie_idx] = null;
+        tie_resolver[tieIdx] = null;
     }
 
     /*
@@ -838,15 +840,15 @@ function GenerateNote (nobj) {
         assume that it stretches to this bar. Look backwards to see if this is the case
         and set it as the end of the tie.
     */
-    prev_tie_idx = (parent_bar.BarNumber - 1) & '-' & staff & '-' & nobj.ParentNoteRest.VoiceNumber & '-' & pnum;
+    prevTieIdx = (barNumber - 1) & '-' & staffNumber & '-' & voiceNumber & '-' & pnum;
 
-    if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
+    if (tie_resolver.PropertyExists(prevTieIdx) and tie_resolver[prevTieIdx] != null)
     {
-        tie_id = tie_resolver[prev_tie_idx];
+        tie_id = tie_resolver[prevTieIdx];
         tie_el = GetElementById(tie_id);
         AddAttribute(tie_el, 'endid', '#' & n._id);
 
-        tie_resolver[prev_tie_idx] = null;
+        tie_resolver[prevTieIdx] = null;
     }
 
     if (nobj.Tied = True)
@@ -860,12 +862,12 @@ function GenerateNote (nobj) {
 
         // if the tie extends beyond the length of the bar, increment the
         // bar by one so that we can pick up on it later...
-        if (tieEndPosition >= parent_bar.Length)
+        if (tieEndPosition >= parentBar.Length)
         {
-            tie_idx = (parent_bar.BarNumber + 1) & '-' & staff & '-' & nobj.ParentNoteRest.VoiceNumber & '-' & pnum;
+            tieIdx = (barNumber + 1) & '-' & staffNumber & '-' & voiceNumber & '-' & pnum;
         }
 
-        tie_resolver[tie_idx] = tie._id;
+        tie_resolver[tieIdx] = tie._id;
     }
 
     return n;
