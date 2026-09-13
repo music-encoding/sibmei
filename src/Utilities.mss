@@ -867,3 +867,31 @@ function NoteInFirstMatchingVoice (bobj) {
         }
     }
 }  //$end
+
+
+function InitHexDigitValues () {
+    map = CreateSparseArray();
+    for char = '0' to '9' + 1
+    {
+        map[char] = char - '0';
+    }
+    for char = 'A' to 'F'
+    {
+        map[char] = char - 'A' + 10;
+    }
+    for char = 'a' to 'f'
+    {
+        map[char] = char - 'a' + 10;
+    }
+    return map;
+}  //$end
+
+
+function ParseHex (string) {
+    value = 0;
+    for i = 0 to Length(string)
+    {
+        value = 16 * value + HexDigitValues[CharAt(string, i)];
+    }
+    return value;
+}  //$end

@@ -66,6 +66,9 @@ function InitGlobals (extensions) {
         StopPlugin('Internal Sibmei error: Could not initialize global variable SibmeiPlugin');
     }
 
+    Self._property:HexDigitValues = InitHexDigitValues();
+    InitSmuflMaps();
+
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
 
@@ -218,4 +221,121 @@ function InitGlobalAliases (plugin) {
     // Aliases that make writing/reading templates clearer
     plugin._property:Element = 'CreateSparseArray';
     plugin._property:Attrs = 'CreateDictionary';
+}  //$end
+
+
+function InitSmuflMaps () {
+    // TODO: Let the compiler fetch
+    // https://smufl.formats.music/metadata/glyphnames.json
+    // or add a submodule and compile the JSON into global variable map.
+
+    // Start with a reverse map, which is nicer to read and maintain
+    reverseSmuflMap = CreateDictionary(
+        // In a text context, Unicode accidentals work better with Verovio than
+        // SMuFL codepoints ED60, ED61 and ED62
+        '266D', 'csymAccidentalFlat',
+        '266E', 'csymAccidentalNatural',
+        '266F', 'csymAccidentalSharp',
+        'E047', 'segno',
+        'E048', 'coda',
+        'E082', 'timeSig2',
+        'E084', 'timeSig4',
+        'E085', 'timeSig5',
+        'E086', 'timeSig6',
+        'E0A9', 'noteheadXBlack',
+        'E0AA', 'noteheadXOrnate',
+        'E0B3', 'noteheadCircleX',
+        'E0B7', 'noteheadVoidWithX',
+        'E0BF', 'noteheadTriangleLeftWhite',
+        'E0C0', 'noteheadTriangleLeftBlack',
+        'E0C6', 'noteheadTriangleDownWhite',
+        'E0C7', 'noteheadTriangleDownBlack',
+        'E0C8', 'noteheadTriangleUpRightWhite',
+        'E0C9', 'noteheadTriangleUpRightBlack',
+        'E0DB', 'noteheadDiamondBlack',
+        'E0DD', 'noteheadDiamondWhite',
+        'E100', 'noteheadSlashVerticalEnds',
+        'E104', 'noteheadSlashDiamondWhite',
+        'E1F1', 'textBlackNoteLongStem',
+        'E1F3', 'textBlackNoteFrac8thLongStem',
+        'E1F5', 'textBlackNoteFrac16thLongStem',
+        'E1F6', 'textBlackNoteFrac32ndLongStem',
+        'E1FA', 'textCont16thBeamLongStem',
+        'E1FB', 'textCont32ndBeamLongStem',
+        'E1FD', 'textTie',
+        'E201', 'textTupletBracketStartLongStem',
+        'E202', 'textTuplet3LongStem',
+        'E203', 'textTupletBracketEndLongStem',
+        'E2F9', 'accidentalEnharmonicTilde',
+        'E4EF', 'restHBarLeft',
+        'E4F1', 'restHBarRight',
+        'E500', 'repeat1Bar',
+        'E504', 'repeatBarSlash',
+        'E520', 'dynamicPiano',
+        'E521', 'dynamicMezzo',
+        'E522', 'dynamicForte',
+        'E523', 'dynamicRinforzando',
+        'E524', 'dynamicSforzando',
+        'E525', 'dynamicZ',
+        'E526', 'dynamicNiente',
+        'E551', 'lyricsElision',
+        'E612', 'stringsUpBow',
+        'E650', 'keyboardPedalPed',
+        'E680', 'harpPedalRaised',
+        'E681', 'harpPedalCentered',
+        'E682', 'harpPedalLowered',
+        'E683', 'harpPedalDivider',
+        'E873', 'csymMajorSeventh',
+        'E880', 'tuplet0',
+        'E881', 'tuplet1',
+        'E882', 'tuplet2',
+        'E883', 'tuplet3',
+        'E884', 'tuplet4',
+        'E885', 'tuplet5',
+        'E886', 'tuplet6',
+        'E887', 'tuplet7',
+        'E888', 'tuplet8',
+        'E889', 'tuplet9',
+        'E88A', 'tupletColon',
+        'EA53', 'figbass2Raised',
+        'EA56', 'figbass4Raised',
+        'EA58', 'figbass5Raised1',
+        'EA5A', 'figbass5Raised3',
+        'EA5E', 'figbass7Raised1',
+        'EA62', 'figbass9Raised',
+        'EA67', 'figbassDoubleSharp',
+        'EA6F', 'figbass6Raised',
+        'EC60', 'miscDoNotPhotocopy',
+        'ECA0', 'metNoteDoubleWhole',
+        'ECA1', 'metNoteDoubleWholeSquare',
+        'ECA2', 'metNoteWhole',
+        'ECA3', 'metNoteHalfUp',
+        'ECA5', 'metNoteQuarterUp',
+        'ECA7', 'metNote8thUp',
+        'ECA9', 'metNote16thUp',
+        'ECAB', 'metNote32ndUp',
+        'ECAD', 'metNote64thUp',
+        'ECB7', 'metAugmentationDot',
+        // The following glyphs are already registered under codepoints 266D,
+        // 266E and 266F
+        // 'ED60', 'csymAccidentalFlat',
+        // 'ED61', 'csymAccidentalNatural',
+        // 'ED62', 'csymAccidentalSharp'
+        'ED63', 'csymAccidentalDoubleSharp',
+        'ED64', 'csymAccidentalDoubleFlat'
+    );
+
+    Self._property:SmuflChar = CreateDictionary();
+    Self._property:SmuflHex = CreateDictionary();
+    for each Name codepointAsString in reverseSmuflMap
+    {
+        glyphName = reverseSmuflMap[codepointAsString];
+        codepoint = ParseHex(codepointAsString);
+        if (codepoint >= (256 * 256))
+        {
+            StopPlugin('Codepoint for ' & glyphName & ' is out of range (' & codepointAsString & '). SMuFL codepoints should be 2 bytes.');
+        }
+        SmuflChar[glyphName] = Chr(codepoint);
+        SmuflHex[glyphName] = 'U+' & codepointAsString;
+    }
 }  //$end
