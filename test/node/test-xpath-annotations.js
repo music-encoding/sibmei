@@ -2,114 +2,168 @@
 
 "use strict";
 
-const { describe, it } = require('node:test');
-const assert = require('assert');
-const xpath = require('fontoxpath');
+const { describe, it } = require("node:test");
+const assert = require("assert");
+const xpath = require("fontoxpath");
 
-const utils = require('./utils');
+const utils = require("./utils");
 
 /**
  * This test iterates over all exported MEI test files, and in those files,
- * iterates over all <annot> elements with `@type='xpath-test'` and applies the
- * content as XPath to the <annot>'s parent <measure>. The test passes if the
- * XPath result is truthy (i.e. returns true or matches something).
+ * iterates over all <annot> elements with `@type='xquery-test'` and applies the
+ * content as XQuery to the <annot>'s parent <measure>. The test passes if the
+ * XQuery result is truthy (i.e. returns true or matches something).
  *
- * XPath annotations are input in Sibelius with a text style named 'XPath
- * test'. The text must be a valid XPath expression that can be evaluated in
- * the context of the measure. This style is present e.g. in lines.sib and can
- * be copied from there (by simply copying a text object of that style).
- *
-*/
+ * XQuery annotations are input in Sibelius with a text style named 'XQuery
+ * test' (or, for legacy reasons, 'XPath test'). The text must be a valid XQuery
+ * expression that can be evaluated in the context of the measure. This style is
+ * present e.g. in lines.sib and can be copied from there (by simply copying a
+ * text object of that style).
+ */
 
-// If we have an XPath test that ends with an "=" followed by a string or a
-// number, we do assert.Equal() to make interpreting the test results easier. To
-// do this we have to extract the right hand side from the XPath.
-const xpathWithComparison = /^(.*)\s*=\s*((\d+)|"([^"]*)"|'([^']*)')\s*$/;
-// Make sure that the export actually exported XPath test annotations
-let foundXPathTest = false;
+/** @type {{[prefix: string]: string}} */
+const namespaceMap = {
+  assert: "NS:ASSERT",
+  mei: "http://www.music-encoding.org/ns/mei",
+  xlink: "http://www.w3.org/1999/xlink",
+};
+
+/**
+ * @param {any} _domFacade  (unused)
+ * @param {any} a  Any XQuery value
+ * @param {any} b  Any XQuery value
+ * @param {string} [testDescription ]
+ * @returns {boolean}
+ */
+function xqueryAssertEqual(_domFacade, a, b, testDescription) {
+  // Do comparison with XQuery semantics
+  /** @type boolean */
+  const valuesEqual = xpath.evaluateXPath("$a = $b", null, null, { a, b });
+  if (valuesEqual) return true;
+  const atomicValues = [a, b].map((v) => xpath.evaluateXPath("data($v)", null, null, { v }));
+  const message = testDescription ? "Failed: " + testDescription + "\n" : "";
+  // Use JSON.stringify to better show the types of `a` and `b`
+  assert.fail(message + atomicValues.map((v) => JSON.stringify(v)).join(" != "));
+}
+
+/**
+ * @param {any} _domFacade  (unused)
+ * @param {any} result  The result of an evaluated XQuery.  Assertion fails if
+ *  this result is empty or falsy.
+ * @param {string} [message]
+ * @returns {boolean}
+ */
+function xqueryAssertOk(_domFacade, result, message) {
+  message = message && "Failed: " + message;
+  if (result instanceof Array && result.length === 0) {
+    assert.ok(false, message || "XQuery did not match the expected node(s)");
+  }
+  assert(result !== false, message || "XQuery evaluated to a falsy result");
+  return true;
+}
+
+/**
+ * @param {string} localName
+ * @param {(_domFacade: any, ...functionArgs: any[]) => any} callback
+ * @param {string[]} minimalSignature  Signature including all optional parameters
+ */
+function registerXQueryAssertion(localName, callback, minimalSignature) {
+  const namespaceURI = namespaceMap.assert;
+  const returnType = "xs:boolean";
+  // Register function with and without assertion message as last parameter
+  for (const signature of [minimalSignature, [...minimalSignature, "xs:string"]]) {
+    xpath.registerCustomXPathFunction({ namespaceURI, localName }, signature, returnType, callback);
+  }
+}
+
+registerXQueryAssertion("ok", xqueryAssertOk, ["item()*"]);
+registerXQueryAssertion("equal", xqueryAssertEqual, ["item()?", "item()?"]);
+
+// Make sure that the export actually exported XQuery test annotations
+let foundXQueryTest = false;
 
 for (const fileName of utils.getExportedTestFileNames()) {
   const mei = utils.getTestMeiDom(fileName);
   /** @type Element[] */
-  let xpathAnnots = xpath.evaluateXPath("//*:annot[@type='xpath-test']", mei);
-  // evaluateXPath() returns a single object when the XPath evaluates to a
+  let xqueryAnnots = xpath.evaluateXPath("//*:annot[@type='xquery-test']", mei);
+  // evaluateXPath() returns a single object when the XQuery evaluates to a
   // single object or value, but we always want an array
-  if (!Array.isArray(xpathAnnots)) {
-    xpathAnnots = [xpathAnnots];
+  if (!Array.isArray(xqueryAnnots)) {
+    xqueryAnnots = [xqueryAnnots];
   }
-  if (xpathAnnots.length === 0) {
+  if (xqueryAnnots.length === 0) {
     continue;
   }
-  foundXPathTest = true;
+  foundXQueryTest = true;
   describe(fileName, () => {
-    it(`${fileName} matches XPath tests`, function() {
+    it(`${fileName} matches XQuery tests`, function () {
       /** @type string[] */
       const messages = [];
-      for (const annot of xpathAnnots) {
-        const measureN = annot.parentElement?.getAttribute("n");
-        if (measureN === undefined) {
-          messages.push("<annot type='xpath-test'> elements are expected to be children of <measure> elements");
+      for (const annot of xqueryAnnots) {
+        const measureN = xpath.evaluateXPathToString("ancestor::*:measure/@n", annot);
+        if (!measureN) {
+          messages.push(
+            "<annot type='xquery-test'> elements are expected to be children of <measure> elements with an @n attribute",
+          );
           continue;
         }
-        if (measureN === null) {
-          messages.push("<measure> elements are expected to have an @n attribute");
-          continue;
-        }
-        const [, testXpath, expectedString, expectedNumber] = (
-          annot.textContent.match(xpathWithComparison) || [, annot.textContent]
-        );
+        const annotText = annot.textContent;
         // If we find a leading comment, we use it as test description
-        const testDescription = (annot.textContent.match(/s*\(:\s*(.*)\s*:\)/) || [])[1];
-        const result = xpath.evaluateXPath(
-          expectedString || expectedNumber ? `string-join(${testXpath}, '')` : testXpath,
-          annot.parentNode
-        );
-        if (expectedNumber !== undefined) {
-          evaluateResult(messages, measureN, testXpath, result, testDescription, expectedNumber);
-        } else if (expectedString !== undefined) {
-          const stringWithoutQuotes = expectedString.replace(/.(.*)./, "$1");
-          evaluateResult(messages, measureN, testXpath, result, testDescription, stringWithoutQuotes);
-        } else {
-          evaluateResult(messages, measureN, testXpath, result, testDescription);
+        const [, , testDescription, testXquery] =
+          annotText.match(/^\s*(\(:\s*(.*?)\s*:\))?([\s\S]*)$/) || [];
+        try {
+          assertTestXQuery(annot, testXquery, testDescription);
+        } catch (e) {
+          messages.push(
+            `measure: ${measureN}\n${testDescription ? testDescription + "\n" : ""}XQuery: ${testXquery}\n${e}`,
+          );
         }
       }
-      assert.ok(messages.length === 0, '\n' + messages.join('\n\n'));
+      assert.ok(messages.length === 0, "\n" + messages.join("\n\n"));
     });
   });
 }
 
+const evaluationOptions = {
+  language: xpath.evaluateXPath.XQUERY_3_1_LANGUAGE,
+  /** @param {string} prefix */
+  namespaceResolver(prefix) {
+    return namespaceMap[prefix || "mei"];
+  },
+};
+
 /**
- * @param {string[]} messages  The function does not do an assertion, it only
- *   appends found issues to this array as messages.
- * @param {string} measureN  `measure/@n` attribute
- * @param {string} testXpath
- * @param {*} result  The result of the XPath evaluation
- * @param {string} testDescription
- * @param {string|number} [expectedResult]
+ * @param {Element} annot
+ * @param {string} testXquery
+ * @param {string} [testDescription]
  */
-function evaluateResult(messages, measureN, testXpath, result, testDescription, expectedResult) {
-  let message = '';
-  if (expectedResult === undefined) {
-    const resultIsEmptyArray = result instanceof Array && result.length === 0;
-    if (resultIsEmptyArray || result === false) {
-      message = `measure: ${measureN}, XPath: ${testXpath}`;
-    }
-  } else {
-    // Intentionally compare with "!=" instead of "!=="
-    if (result != expectedResult) {
-      message = `measure: ${measureN}, XPath: ${testXpath}, expected: "${expectedResult}", actual: "${result}"`;
-    }
-  }
-  if (message) {
-    if (testDescription) {
-      message = message + '\n' + testDescription;
-    }
-    messages.push(message);
-  }
+function assertTestXQuery(annot, testXquery, testDescription) {
+  const measure = xpath.evaluateXPathToFirstNode("ancestor::*:measure", annot);
+  assert(measure, "XQuery test <annot> must have an ancestor <measure>");
+  const staffN = annot.getAttribute("staff");
+  const staff = staffN && xpath.evaluateXPathToFirstNode(`*:staff[@n='${staffN}']`, measure);
+  assert(
+    staff,
+    `<staff> ${staffN} for XQuery test <annot> ${annot.getAttribute("xml:id")} not found`,
+  );
+  xqueryAssertOk(
+    xpath.evaluateXPath(
+      testXquery,
+      annot.parentNode,
+      null,
+      {
+        measure,
+        staff,
+      },
+      undefined,
+      evaluationOptions,
+    ),
+    testDescription,
+  );
 }
 
-describe("XPath annotation export", function() {
-  it("exports XPath annotations", function() {
-    assert.ok(foundXPathTest, "No XPath test annotations were exported");
+describe("XQuery annotation export", function () {
+  it("exports XQuery annotations", function () {
+    assert.ok(foundXQueryTest, "No XQuery test annotations were exported");
   });
 });
