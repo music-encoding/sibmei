@@ -72,6 +72,9 @@ function ProcessPageAndSystemBreaks (bar) {
 
 
 function ProcessBlankPages (bar, startPageNum, endPageNum) {
+    // Processes any blank pages associated with `bar`
+
+    // OnNthPage is a 0-based index, but we work with 1-based page numbers
     referencePageNumber = bar.OnNthPage + 1;
     bobjsByPageNum = CreateSparseArray();
     for each SystemTextItem bobj in bar
@@ -102,9 +105,9 @@ function ProcessBlankPages (bar, startPageNum, endPageNum) {
             for each bobj in bobjsOnPage
             {
                 element = HandleStyle(TextHandlers, bobj);
-                element['bobj'] = bobj;
                 if (null != element)
                 {
+                    element['bobj'] = bobj;
                     if (element.name = 'head')
                     {
                         headingsOnPage.Push(element);
@@ -124,7 +127,7 @@ function ProcessBlankPages (bar, startPageNum, endPageNum) {
             AddChild(SectionElement, div);
             if (null != ActiveVolta)
             {
-                RegisterWarning(element.bobj, 'Blank page text must be encoded on wrong page', '<pb n=\'' & pageNum & '\'> starting a \'blank page\' is inside an <ending> element. Text content of that blank page can not be encoded inside this <ending> in schema conformant way and can is placed after the <ending> element.');
+                RegisterWarning(element.bobj, 'Blank page text is encoded on the wrong page', '<pb n=\'' & pageNum & '\'> starting a \'blank page\' is inside an <ending> element. Text content of that blank page can not be encoded inside this <ending> in schema conformant way, so it is placed after the <ending> element.');
             }
             for each element in headingsOnPage.Concat(nonHeadingTextOnPage)
             {

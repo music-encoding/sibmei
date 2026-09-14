@@ -500,12 +500,7 @@ function ConvertFbFigures (fb, bobj) {
     {
         Self._property:FigbassCharMap = InitFigbassCharMap();
     }
-    if (Self._property:FigbassSmuflMap = null)
-    {
-        Self._property:FigbassSmuflMap = CreateDictionary();
-    }
     figbassCharMap = Self._property:FigbassCharMap;
-    figbassSmuflMap = Self._property:FigbassSmuflMap;
 
     n = 1;
     currentLine = '';
