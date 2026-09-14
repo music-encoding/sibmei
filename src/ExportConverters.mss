@@ -647,3 +647,21 @@ function ConvertFermataForm (bobj) {
     }
 
 }  //$end
+
+
+function ConvertMusicTextToSmufl (text) {
+    result = '';
+    for i = 0 to Length(text)
+    {
+        char = CharAt(text, i);
+        if ('' != MusicTextToSmufl[char])
+        {
+            result = result & MusicTextToSmufl[char];
+        }
+        else
+        {
+            result = result & char;
+        }
+    }
+    return result;
+}  //$end

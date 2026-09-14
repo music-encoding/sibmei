@@ -192,11 +192,12 @@ function AddTextWithFormatting (parentElement, textWithFormatting) {
             }
             case ('\\c')
             {
-                // TODO: Can we sensibly handle a character style change? The
-                // only built-in one seem to be `text.character.musictext`. We
-                // might want to allow Extensions to handle custom character
-                // styles.
-                ;
+                characterStyle = GetTextCommandArg(component);
+                if (characterStyle = 'text.character.musictext')
+                {
+                    SwitchTextStyle(state, 'glyph.auth', 'smufl');
+                }
+                // TODO: Allow Extensions to handle custom character styles.
             }
             case ('\\s')
             {
@@ -360,6 +361,10 @@ function PushStyledText (state) {
         for each Name attName in styleAttributes
         {
             AddAttribute(rend, attName, styleAttributes[attName]);
+        }
+        if (styleAttributes['glyph.auth'] = 'smufl')
+        {
+            state.currentText = ConvertMusicTextToSmufl(state.currentText);
         }
         SetText(rend, state.currentText);
         state.meiNodes.Push(rend);
