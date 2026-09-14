@@ -246,26 +246,15 @@ function TestPositionToTimestampConverter (assert, plugin) {
 }  //$end
 
 function TestConvertTimeStamp (assert, plugin) {
-    //$module(TestExportConverters.mss)
-
-    //Case 1: only seconds with milliseconds
-    time1 = 4500;
-    tstamp1 = sibmei.ConvertTimeStamp(time1);
-    assert.Equal(tstamp1, '00:00:04.5', '4500 milliseconds are 4.5 seconds');
-
-    //Case 2: minutes, seconds with milliseconds
-    time2 = 75200;
-    tstamp2 = sibmei.ConvertTimeStamp(time2);
-    assert.Equal(tstamp2, '00:01:15.2', '75200 milliseconds are should be converted to 00:01:15.2');
-
-    //Case 3: hours, minutes, seconds with milliseconds
-    time3 = 3845800;
-    tstamp3 = sibmei.ConvertTimeStamp(time3);
-    assert.Equal(tstamp3, '01:04:05.8', '3845800 milliseconds are should be converted to 01:04:05.8');
-
-    //Case 4: a very long piece (over 10 hours)
-    time4 = 39634700;
-    tstamp4 = sibmei.ConvertTimeStamp(time4);
-    assert.Equal(tstamp4, '11:00:34.7', '39634700 milliseconds are should be converted to 11:00:34.7');
-
+    _TestConvertTimeStamp(assert, 4500, '00:00:04.5');
+    _TestConvertTimeStamp(assert, 75200, '00:01:15.2');
+    _TestConvertTimeStamp(assert, 75200, '00:01:15.2');
+    _TestConvertTimeStamp(assert, 3600000, '01:00:00');
+    _TestConvertTimeStamp(assert, 3601000, '01:00:01');
+    _TestConvertTimeStamp(assert, 3845800, '01:04:05.8');
+    _TestConvertTimeStamp(assert, 39634700, '11:00:34.7');
 }   //$end
+
+function _TestConvertTimeStamp (assert, millis, expected) {
+    assert.Equal(ConvertTimeStamp(millis), expected, millis & ' milliseconds should be converted to ' & expected);
+}  //$end
