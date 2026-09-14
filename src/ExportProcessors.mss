@@ -127,7 +127,7 @@ function ProcessBlankPages (bar, startPageNum, endPageNum) {
             AddChild(SectionElement, div);
             if (null != ActiveVolta)
             {
-                RegisterWarning(element.bobj, 'Blank page text had to be encoded on wrong page', '<pb n=\'' & pageNum & '\'> starting a \'blank page\' is inside an <ending> element. Text content of that blank page can not be encoded inside this <ending> in schema conformant way and can is placed after the <ending> element.');
+                RegisterWarning(element.bobj, 'Blank page text is encoded on the wrong page', '<pb n=\'' & pageNum & '\'> starting a \'blank page\' is inside an <ending> element. Text content of that blank page can not be encoded inside this <ending> in schema conformant way, so it is placed after the <ending> element.');
             }
             for each element in headingsOnPage.Concat(nonHeadingTextOnPage)
             {
