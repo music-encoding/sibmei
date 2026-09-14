@@ -642,3 +642,184 @@ function ConvertFermataForm (bobj) {
     }
 
 }  //$end
+
+
+function ConvertChord (guitarFrame) {
+    // Converts a GuitarFrame to an element template
+
+    harm = @Element('harm', @Attrs('label', guitarFrame.ChordNameAsPlainText));
+    styledString = guitarFrame.ChordNameAsStyledString;
+
+    for i = 0 to Length(styledString)
+    {
+        char = CharAt(styledString, i);
+        previousItem = harm[-1];
+        currentItem = ChordFontMap[char];
+        switch (true) {
+            case ('' = currentItem)
+            {
+                RegisterWarning(guitarFrame, 'Unsupported chord character', char & ' (' & (char + 0) & ')');
+            }
+            case (harm.Length < 3)
+            {
+                // This is the first child
+                harm.Push(currentItem);
+            }
+            case (IsObject(previousItem) != IsObject(currentItem))
+            {
+                // items are not compatible and can not be combined
+                harm.Push(currentItem);
+            }
+            case (not IsObject(currentItem))
+            {
+                // both items are strings and can be joined
+                harm[-1] = previousItem & currentItem;
+            }
+            case (previousItem.Slice(0, 2) != currentItem.Slice(0, 2))
+            {
+                // Tag name or attributes differ. Items can't be combined.
+                harm.Push(currentItem);
+            }
+            case (IsObject(previousItem[-1]) or IsObject(currentItem[-1]))
+            {
+                // Combine element or mixed text/element children of both items
+                // Clone (slice) the previous item to not modify the template
+                harm[-1] = previousItem.Slice(0, previousItem.Length).Concat(currentItem.Slice(2));
+            }
+            default
+            {
+                // Combine text children of both items
+                // Clone (slice) the previous item to not modify the template
+                harm[-1] = previousItem.Slice(0, previousItem.Length - 1);
+                harm[-1].Push(previousItem[-1] & currentItem[-1]);
+            }
+        }
+    }
+
+    return harm;
+}  //$end
+
+
+function ConvertChordGrid (guitarFrame) {
+    // Creates a <chordDef>, attaches it to <chordTable> and returns the
+    // reference to the <chordDef> (ID prefixed with '#')
+
+    if (null = Self._property:ChordTable)
+    {
+        Self._property:ChordTable = CreateElement('chordTable');
+        // Schema requires this to precede <staffGrp> elements
+        AddChildAtPosition(MainScoreDef, ChordTable, 0);
+    }
+
+    chordDef = CreateElement('chordDef');
+    AddChild(ChordTable, chordDef);
+    AddAttribute(chordDef, 'label', guitarFrame.ChordNameAsPlainText);
+    if (guitarFrame.LowestVisibleFret > 1)
+    {
+        AddAttribute(chordDef, 'tab.pos', guitarFrame.LowestVisibleFret);
+    }
+    currentBarreIndex = -1;
+    numBarresInChord = guitarFrame.NumBarresInChord;
+    barreEndString = -1;
+    barres = CreateSparseArray();
+    barre = null;
+
+    fingerings = guitarFrame.Fingerings;
+
+    numberOfStrings = guitarFrame.NumberOfStrings;
+
+    for stringIndex = 0 to numberOfStrings
+    {
+        chordMember = CreateElement('chordMember');
+        AddChild(chordDef, chordMember);
+        // In Sibelius, course 0 is lowest, but the convention is the reverse
+        AddAttribute(chordMember, 'tab.course', numberOfStrings - stringIndex);
+        fretPosition = guitarFrame.GetPositionOfFingerOnNthString(stringIndex);
+        switch (fretPosition)
+        {
+            case (-1)
+            {
+                AddAttribute(chordMember, 'tab.fing', 'x');
+            }
+            case (0)
+            {
+                AddAttribute(chordMember, 'tab.fing', 'o');
+                AddAttribute(chordMember, 'tab.fret', '0');
+            }
+            default
+            {
+                AddAttribute(chordMember, 'tab.fret', fretPosition);
+                fingering = CharAt(fingerings, stringIndex);
+                // The schema only allows fingerings from 1 to 4. Single quotes
+                // are required because we're dealing with char, not int.
+                if (fingering >= '1' and fingering <= '4')
+                {
+                    AddAttribute(chordMember, 'tab.fing', fingering);
+                }
+            }
+        }
+
+        if (guitarFrame.IsNthStringPartOfBarre(stringIndex) and null = barre)
+        {
+            currentBarreIndex = currentBarreIndex + 1;
+            if (
+                currentBarreIndex >= numBarresInChord
+                or guitarFrame.GetStartStringForNthBarre(currentBarreIndex) != stringIndex
+            )
+            {
+                // There is a bug with either Sibelius or this function
+                RegisterWarning(guitarFrame, 'internal barre generation failure', 'Can not encode barre number ' & (currentBarreIndex + 1) & '. Please report this issue at https://github.com/music-encoding/sibmei/issues/new and attach ' & ActiveScore.FileName);
+                return chordDef;
+            }
+            barre = CreateElement('barre');
+            barres.Push(barre);
+            AddAttribute(barre, 'startid', '#' & chordMember._id);
+            // The specs say, @fret is deprecated in favour of @tab.fret, which
+            // however is not yet available on <barre>
+            AddAttribute(barre, 'fret', fretPosition);
+            barreEndString = guitarFrame.GetEndStringForNthBarre(currentBarreIndex);
+        }
+        if (stringIndex = barreEndString)
+        {
+            AddAttribute(barre, 'endid', '#' & chordMember._id);
+            barre = null;
+        }
+    }
+
+    // <barre>s must follow <chordMember>s
+    for each barre in barres
+    {
+        AddChild(chordDef, barre);
+    }
+
+    return '#' & chordDef._id;
+}  //$end
+
+
+function ConvertToChordGridHash (guitarFrame) {
+    // This hash is used to identify the <chordDef> that `guitarFrame` belongs
+    // to. The hash is composed of:
+    //  * A letter defining the lowest visible fret (A: 1st fret)
+    //  * fingering (1 character per string)
+    //  * semicolon (like this we know for sure how many strings there are)
+    //  * finger position (1 character per string, '/' for quiet strings)
+    //  * barre information (1 cryptic character per barre)
+
+    numberOfStrings = guitarFrame.NumberOfStrings;
+    hash = Chr(guitarFrame.LowestVisibleFret + 'A' - 1) & guitarFrame.Fingerings & ';';
+    for stringIndex = 0 to guitarFrame.NumberOfStrings
+    {
+        // Finger position of empty string (-1) becomes `/` in the hash because
+        // '/' precedes '0' in ASCII/Unicode.
+        hash = hash & (Chr(guitarFrame.GetPositionOfFingerOnNthString(stringIndex) + '0'));
+    }
+    for barreIndex = 0 to guitarFrame.NumBarresInChord
+    {
+        // Sibelius allows a maximum of 128 strings
+        hash = hash & Chr(
+            guitarFrame.GetStartStringForNthBarre(barreIndex) * 128
+            + guitarFrame.GetEndStringForNthBarre(barreIndex)
+        );
+    }
+    return hash;
+}  //$end

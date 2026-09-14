@@ -1248,12 +1248,42 @@ function GenerateFermata (bobj, shape, form) {
 }  //$end
 
 function GenerateChordSymbol (bobj) {
-    //$module(ExportGenerators.mss)
-    /*
-        Generates a <harm> element containing chord symbol information
-    */
-    harm = GenerateControlEvent(bobj, CreateElement('harm'));
-    SetText(harm, bobj.ChordNameAsPlainText);
+    // Generates a <harm> element containing chord symbol information
+
+    if (bobj.TextIsVisible)
+    {
+        chordTemplate = ChordCache[bobj.ChordNameAsStyledString];
+        if (null = chordTemplate)
+        {
+            chordTemplate = ConvertChord(bobj);
+            ChordCache[bobj.ChordNameAsStyledString] = chordTemplate;
+        }
+        harm = GenerateControlEvent(bobj, MeiFactory(chordTemplate, bobj));
+    }
+    else
+    {
+        harm = CreateElement('harm');
+    }
+
+    if (bobj.FrameIsVisible)
+    {
+        chordGridHash = ConvertToChordGridHash(bobj);
+        chordGridRef = ChordGridCache[chordGridHash];
+        if (null = chordGridRef)
+        {
+            chordGridRef = ConvertChordGrid(bobj);
+            ChordGridCache[chordGridHash] = chordGridRef;
+        }
+        AddAttribute(harm, 'chordref', chordGridRef);
+        if (bobj.TextIsVisible)
+        {
+            AddAttribute(harm, 'rendgrid', 'gridtext');
+        }
+        else
+        {
+            AddAttribute(harm, 'rendgrid', 'grid');
+        }
+    }
 
     return harm;
 }  //$end
