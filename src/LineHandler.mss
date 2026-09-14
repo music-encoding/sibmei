@@ -139,7 +139,35 @@ function InitLineHandlers () {
         'line.staff.hairpin.diminuendo.bracketed',  @Element('hairpin', @Attrs('form', 'dim')),
         'line.staff.hairpin.diminuendo.dashed',     @Element('hairpin', @Attrs('form', 'dim', 'lform', 'dashed')),
         'line.staff.hairpin.diminuendo.dotted',     @Element('hairpin', @Attrs('form', 'dim', 'lform', 'dotted')),
-        'line.staff.hairpin.diminuendo.tosilence',  @Element('hairpin', @Attrs('form', 'dim', 'niente', 'true'))
+        'line.staff.hairpin.diminuendo.tosilence',  @Element('hairpin', @Attrs('form', 'dim', 'niente', 'true')),
+
+        // Type = 'RitardLine'
+        'line.system.tempo.accel',                 @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'accel.')),
+        'line.system.tempo.accel.italic',          @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'normal', 'fontstyle', 'italic'), 'accel.')),
+        'line.system.tempo.accel.molto',           @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'molto accel.')),
+        'line.system.tempo.accel.poco',            @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'poco accel.')),
+        'line.system.tempo.rall',                  @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'rall.')),
+        'line.system.tempo.rall.italic',           @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'normal', 'fontstyle', 'italic'), 'rall.')),
+        'line.system.tempo.rall.molto',            @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'molto rall.')),
+        'line.system.tempo.rall.poco',             @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'poco rall.')),
+        'line.system.tempo.rit',                   @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'rit.')),
+        'line.system.tempo.rit.italic',            @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'normal', 'fontstyle', 'italic'), 'rit.')),
+        'line.system.tempo.rit.molto',             @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'molto rit.')),
+        'line.system.tempo.rit.poco',              @Element('tempo', @Attrs('extender', 'true', 'lform', 'dashed'), @Element('rend', @Attrs('fontweight', 'bold'), 'poco rit.')),
+
+        // The following have no visible extender, but still imply a duration.
+        'line.system.tempo.accel.italic.textonly', @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'normal', 'fontstyle', 'italic'), 'accel.')),
+        'line.system.tempo.accel.molto.textonly',  @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'molto accel.')),
+        'line.system.tempo.accel.poco.textonly',   @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'poco accel.')),
+        'line.system.tempo.accel.textonly',        @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'accel.')),
+        'line.system.tempo.rall.italic.textonly',  @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'normal', 'fontstyle', 'italic'), 'rall.')),
+        'line.system.tempo.rall.molto.textonly',   @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'molto rall.')),
+        'line.system.tempo.rall.poco.textonly',    @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'poco rall.')),
+        'line.system.tempo.rall.textonly',         @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'rall.')),
+        'line.system.tempo.rit.italic.textonly',   @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'normal', 'fontstyle', 'italic'), 'rit.')),
+        'line.system.tempo.rit.molto.textonly',    @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'molto rit.')),
+        'line.system.tempo.rit.poco.textonly',     @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'poco rit.')),
+        'line.system.tempo.rit.textonly',          @Element('tempo', null, @Element('rend', @Attrs('fontweight', 'bold'), 'rit.'))
     ));
 
     Self._property:VoltaTemplates = CreateDictionary(
@@ -161,31 +189,6 @@ function InitLineHandlers () {
     //   line.staff.box
     // Type = 'HighLight'
     //   line.highlight
-    // Type = 'RitardLine'
-    //   line.system.tempo.accel
-    //   line.system.tempo.accel.italic
-    //   line.system.tempo.accel.italic.textonly
-    //   line.system.tempo.accel.molto
-    //   line.system.tempo.accel.molto.textonly
-    //   line.system.tempo.accel.poco
-    //   line.system.tempo.accel.poco.textonly
-    //   line.system.tempo.accel.textonly
-    //   line.system.tempo.rall
-    //   line.system.tempo.rall.italic
-    //   line.system.tempo.rall.italic.textonly
-    //   line.system.tempo.rall.molto
-    //   line.system.tempo.rall.molto.textonly
-    //   line.system.tempo.rall.poco
-    //   line.system.tempo.rall.poco.textonly
-    //   line.system.tempo.rall.textonly
-    //   line.system.tempo.rit
-    //   line.system.tempo.rit.italic
-    //   line.system.tempo.rit.italic.textonly
-    //   line.system.tempo.rit.molto
-    //   line.system.tempo.rit.molto.textonly
-    //   line.system.tempo.rit.poco
-    //   line.system.tempo.rit.poco.textonly
-    //   line.system.tempo.rit.textonly
 } //$end
 
 

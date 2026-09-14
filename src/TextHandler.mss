@@ -16,10 +16,12 @@ function InitTextHandlers() {
         'text.staff.space.fingering.guitar', @Element('fing', @Attrs('type', 'right-hand guitar'), FormattedText),
         'text.staff.space.figuredbass', 'FiguredBassTextHandler',
         'text.staff.technique', @Element('dir', @Attrs('type', 'technique'), FormattedText),
+        'text.system.boxed', @Element('dir', noAttributes, @Element('rend', @Attrs('rend', 'box'), FormattedText)),
         'text.system.page_aligned.composer', @Element('anchoredText', @Attrs('func', 'composer', 'tstamp', ' '), FormattedText),
         'text.system.page_aligned.subtitle', @Element('anchoredText', @Attrs('func', 'subtitle', 'tstamp', ' '), FormattedText),
         'text.system.page_aligned.title', @Element('anchoredText', @Attrs('func', 'title', 'tstamp', ' '), FormattedText),
         'text.system.page_aligned.dedication', @Element('anchoredText', @Attrs('func', 'dedication', 'tstamp', ' '), FormattedText),
+        'text.system.repeat', @Element('repeatMark', noAttributes, @Element('rend', @Attrs('halign', 'right'), FormattedText)),
         'text.system.tempo', @Element('tempo', noAttributes, FormattedText)
     ));
 
