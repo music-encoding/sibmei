@@ -778,11 +778,7 @@ function GenerateNote (nobj) {
         AddAttribute(n, 'color', ConvertColor(nobj));
     }
 
-    if (nobj.NoteStyle != NormalNoteStyle)
-    {
-        nstyle = ConvertNoteStyle(nobj.NoteStyle);
-        AddAttribute(n, 'head.shape', nstyle);
-    }
+    HandleNoteStyle(nobj, n);
 
     accid = ConvertAccidental(nobj, keysig.Sharps);
     accVal = accid[0];
