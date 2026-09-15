@@ -674,7 +674,6 @@ function GenerateRest (bobj) {
     }
 
     name = GetName(r);
-    AddAttribute(r, 'dur.ppq', dur);
     GenerateDurationAttributes(r, bobj);
 
     if (bobj.Dx != 0 and name != 'space')
@@ -703,28 +702,10 @@ function GenerateRest (bobj) {
 function GenerateNote (nobj) {
     //$module(ExportGenerators.mss)
 
-    // handle modifications to the gestural duration
-    // if this particular note is a member of a tuplet.
-    gesdur = null;
-    if (nobj.ParentNoteRest.ParentTupletIfAny != null)
-    {
-        dur = nobj.ParentNoteRest.Duration;
-        ptuplet = nobj.ParentNoteRest.ParentTupletIfAny;
-        pnum = ptuplet.Left;
-        pden = ptuplet.Right;
-        floatgesdur = (pden * 1.0 / pnum) * dur;
-        gesdur = Round(floatgesdur);
-    }
-    else
-    {
-        gesdur = nobj.ParentNoteRest.Duration;
-    }
-
-    dur = nobj.ParentNoteRest.Duration;
-    pos = nobj.ParentNoteRest.Position;
-    parent_bar = nobj.ParentNoteRest.ParentBar;
-    keysig = nobj.ParentNoteRest.ParentBar.GetKeySignatureAt(pos);
-    clef = nobj.ParentNoteRest.ParentBar.GetClefAt(pos);
+    pos = nobj.Position;
+    parentBar = nobj.ParentBar;
+    keysig = parentBar.GetKeySignatureAt(pos);
+    clef = parentBar.GetClefAt(pos);
     // SparseArray(shape, line, dis, dir);
     clefTemplate = ClefTemplates[clef.StyleId];
     clefAttributes = clefTemplate[1];
@@ -780,8 +761,12 @@ function GenerateNote (nobj) {
     AddAttribute(n, 'pnum', pnum);
     AddAttribute(n, 'pname', ntinfo[0]);
     AddAttribute(n, 'oct', ntinfo[1]);
-    AddAttribute(n, 'dur.ppq', gesdur);
-    GenerateDurationAttributes(n, nobj);
+
+    if (nobj.NoteCount = 1)
+    {
+        // We're not in a chord, so encode duration attributes on the note
+        GenerateDurationAttributes(n, nobj);
+    }
 
     if (nobj.Dx != 0)
     {
@@ -792,12 +777,6 @@ function GenerateNote (nobj) {
     {
         AddAttribute(n, 'color', ConvertColor(nobj));
     }
-
-    staff = nobj.ParentNoteRest.ParentBar.ParentStaff.StaffNum;
-    layer = nobj.ParentNoteRest.VoiceNumber;
-
-    //AddAttribute(n, 'staff', staff);
-    //AddAttribute(n, 'layer', layer);
 
     if (nobj.NoteStyle != NormalNoteStyle)
     {
@@ -840,17 +819,20 @@ function GenerateNote (nobj) {
 
     // construct an index that will be used to open a tie, or check if a tie is open.
     // this may be modified below if the tie extends to the next bar
-    tie_idx = parent_bar.BarNumber & '-' & staff & '-' & nobj.ParentNoteRest.VoiceNumber & '-' & pnum;
+    staffNumber = parentBar.ParentStaff.StaffNum;
+    barNumber = parentBar.BarNumber;
+    voiceNumber = nobj.VoiceNumber;
+    tieIdx = barNumber & '-' & staffNumber & '-' & voiceNumber & '-' & pnum;
 
-    if (tie_resolver.PropertyExists(tie_idx) and tie_resolver[tie_idx] != null)
+    if (tie_resolver.PropertyExists(tieIdx) and tie_resolver[tieIdx] != null)
     {
         // get the tie
-        tie_id = tie_resolver[tie_idx];
+        tie_id = tie_resolver[tieIdx];
         tie_el = GetElementById(tie_id);
         AddAttribute(tie_el, 'endid', '#' & n._id);
 
         // null it in case we get another one in this measure.
-        tie_resolver[tie_idx] = null;
+        tie_resolver[tieIdx] = null;
     }
 
     /*
@@ -858,15 +840,15 @@ function GenerateNote (nobj) {
         assume that it stretches to this bar. Look backwards to see if this is the case
         and set it as the end of the tie.
     */
-    prev_tie_idx = (parent_bar.BarNumber - 1) & '-' & staff & '-' & nobj.ParentNoteRest.VoiceNumber & '-' & pnum;
+    prevTieIdx = (barNumber - 1) & '-' & staffNumber & '-' & voiceNumber & '-' & pnum;
 
-    if (tie_resolver.PropertyExists(prev_tie_idx) and tie_resolver[prev_tie_idx] != null)
+    if (tie_resolver.PropertyExists(prevTieIdx) and tie_resolver[prevTieIdx] != null)
     {
-        tie_id = tie_resolver[prev_tie_idx];
+        tie_id = tie_resolver[prevTieIdx];
         tie_el = GetElementById(tie_id);
         AddAttribute(tie_el, 'endid', '#' & n._id);
 
-        tie_resolver[prev_tie_idx] = null;
+        tie_resolver[prevTieIdx] = null;
     }
 
     if (nobj.Tied = True)
@@ -876,16 +858,16 @@ function GenerateNote (nobj) {
         tie = CreateElement('tie');
         AddAttribute(tie, 'startid', '#' & n._id);
         measure_ties.Push(tie._id);
-        tie_dur = pos + dur;
+        tieEndPosition = pos + ConvertToAbsoluteDuration(nobj);
 
         // if the tie extends beyond the length of the bar, increment the
         // bar by one so that we can pick up on it later...
-        if (tie_dur >= parent_bar.Length)
+        if (tieEndPosition >= parentBar.Length)
         {
-            tie_idx = (parent_bar.BarNumber + 1) & '-' & staff & '-' & nobj.ParentNoteRest.VoiceNumber & '-' & pnum;
+            tieIdx = (barNumber + 1) & '-' & staffNumber & '-' & voiceNumber & '-' & pnum;
         }
 
-        tie_resolver[tie_idx] = tie._id;
+        tie_resolver[tieIdx] = tie._id;
     }
 
     return n;
@@ -1300,9 +1282,12 @@ function GenerateSmuflAltsym (glyphnum, glyphname) {
 
 function GenerateDurationAttributes (element, bobj) {
     duration = bobj.Duration;
+
     AddAttribute(element, 'dur', DurByDuration[duration]);
     if ('' != DotsByDuration[duration])
     {
         AddAttribute(element, 'dots', DotsByDuration[duration]);
     }
+
+    AddAttribute(element, 'dur.ppq', Round(ConvertToAbsoluteDuration(bobj)));
 }  //$end
