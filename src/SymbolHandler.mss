@@ -107,9 +107,9 @@ function InitSymbolHandlers () {
         // triangular fermata below
         238, @Element('fermata', @Attrs('shape', 'angular', 'form', 'inv')),
         // double slash caesura
-        249, @Element('caesura', @Attrs('glyph.auth', 'smufl', 'glyph.num', 'U+E4D1')),
+        249, @Element('caesura', @Attrs('glyph.auth', 'smufl', 'glyph.num', SmuflHex.caesura)),
         // thick double slash caesura
-        250, @Element('caesura', @Attrs('glyph.auth', 'smufl', 'glyph.num', 'U+E4D2'))
+        250, @Element('caesura', @Attrs('glyph.auth', 'smufl', 'glyph.num', SmuflHex.caesura))
     ));
 }//$end
 
