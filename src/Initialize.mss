@@ -45,6 +45,8 @@ function InitGlobals (extensions) {
         'C', 'cut'
     );
 
+    Self._property:HexDigitValues = InitHexDigitValues();
+    InitSmuflMaps();
     InitGlobalAliases(Self);
     InitElementAndAttributeTemplates();
     InitDurationLookupTables();
@@ -65,9 +67,6 @@ function InitGlobals (extensions) {
     {
         StopPlugin('Internal Sibmei error: Could not initialize global variable SibmeiPlugin');
     }
-
-    Self._property:HexDigitValues = InitHexDigitValues();
-    InitSmuflMaps();
 
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
@@ -269,7 +268,7 @@ function InitSmuflMaps () {
         'E202', 'textTuplet3LongStem',
         'E203', 'textTupletBracketEndLongStem',
         'E2F9', 'accidentalEnharmonicTilde',
-        'E4D1', 'caesura'.
+        'E4D1', 'caesura',
         'E4EF', 'restHBarLeft',
         'E4F1', 'restHBarRight',
         'E500', 'repeat1Bar',
