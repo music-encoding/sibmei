@@ -732,11 +732,8 @@ function ConvertChordGrid (guitarFrame) {
     {
         AddAttribute(chordDef, 'tab.pos', guitarFrame.LowestVisibleFret);
     }
-    currentBarreIndex = -1;
-    numBarresInChord = guitarFrame.NumBarresInChord;
     barreEndString = -1;
     barres = CreateSparseArray();
-    barre = null;
 
     fingerings = guitarFrame.Fingerings;
 
@@ -773,30 +770,21 @@ function ConvertChordGrid (guitarFrame) {
             }
         }
 
-        if (guitarFrame.IsNthStringPartOfBarre(stringIndex) and null = barre)
+        startingBarreIndex = IndexOfBarreStartingAtString(guitarFrame, stringIndex);
+        if (startingBarreIndex >= 0)
         {
-            currentBarreIndex = currentBarreIndex + 1;
-            if (
-                currentBarreIndex >= numBarresInChord
-                or guitarFrame.GetStartStringForNthBarre(currentBarreIndex) != stringIndex
-            )
-            {
-                // There is a bug with either Sibelius or this function
-                RegisterWarning(guitarFrame, 'internal barre generation failure', 'Can not encode barre number ' & (currentBarreIndex + 1) & '. Please report this issue at https://github.com/music-encoding/sibmei/issues/new and attach ' & ActiveScore.FileName);
-                return chordDef;
-            }
             barre = CreateElement('barre');
             barres.Push(barre);
             AddAttribute(barre, 'startid', '#' & chordMember._id);
             // The specs say, @fret is deprecated in favour of @tab.fret, which
             // however is not yet available on <barre>
             AddAttribute(barre, 'fret', fretPosition);
-            barreEndString = guitarFrame.GetEndStringForNthBarre(currentBarreIndex);
+            barreEndString = guitarFrame.GetEndStringForNthBarre(startingBarreIndex);
         }
+
         if (stringIndex = barreEndString)
         {
-            AddAttribute(barre, 'endid', '#' & chordMember._id);
-            barre = null;
+            AddAttribute(barres[-1], 'endid', '#' & chordMember._id);
         }
     }
 
@@ -807,6 +795,42 @@ function ConvertChordGrid (guitarFrame) {
     }
 
     return '#' & chordDef._id;
+}  //$end
+
+
+function IndexOfBarreStartingAtString (guitarFrame, startStringIndex) {
+    // Returns index n >= 0 if startStringIndex is the first string of the nth
+    // barre and that barre is plausible (i.e. all strings in the barre are
+    // stopped at the same fret and there are no gaps in the barre). This check
+    // is done because some barres that ManuScript reports are not actually
+    // present in the chord diagram that Sibelius displays.
+    //
+    // If the string does not start a barre, -1 is returned.
+
+    for barreIndex = 0 to guitarFrame.NumBarresInChord
+    {
+        if (startStringIndex = guitarFrame.GetStartStringForNthBarre(barreIndex))
+        {
+            fretPosition = guitarFrame.GetPositionOfFingerOnNthString(startStringIndex);
+            endStringIndex = guitarFrame.GetEndStringForNthBarre(barreIndex);
+            if (endStringIndex > startStringIndex)
+            {
+                for stringIndex = startStringIndex + 1 to endStringIndex
+                {
+                    if (guitarFrame.GetPositionOfFingerOnNthString(stringIndex) < fretPosition)
+                    {
+                        barreIndex = -1;
+                    }
+                }
+                if (barreIndex >= 0)
+                {
+                    return barreIndex;
+                }
+            }
+        }
+    }
+
+    return -1;
 }  //$end
 
 
