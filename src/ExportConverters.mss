@@ -718,9 +718,9 @@ function ConvertChordGrid (guitarFrame) {
     // Creates a <chordDef>, attaches it to <chordTable> and returns the
     // reference to the <chordDef> (ID prefixed with '#')
 
-    if (null = Self._property:ChordTable)
+    if (null = ChordTable)
     {
-        Self._property:ChordTable = CreateElement('chordTable');
+        ChordTable = CreateElement('chordTable');
         // Schema requires this to precede <staffGrp> elements
         AddChildAtPosition(MainScoreDef, ChordTable, 0);
     }

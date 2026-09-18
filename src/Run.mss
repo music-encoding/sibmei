@@ -118,6 +118,9 @@ function SetGlobalsForScore (score) {
     {
         Staves.Push(staff);
     }
+    Self._property:ChordCache = CreateDictionary();
+    Self._property:ChordGridCache = CreateDictionary();
+    Self._property:ChordTable = null;
 }  //$end
 
 
