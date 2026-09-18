@@ -69,9 +69,6 @@ function InitGlobals (extensions) {
     }
 
     InitChordCharacterMaps();
-    Self._property:ChordCache = CreateDictionary();
-    Self._property:ChordGridCache = CreateDictionary();
-    Self._property:ChordTable = null;
 
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
