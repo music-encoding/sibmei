@@ -213,6 +213,16 @@ function TestElementsUsedInTemplates (assert, plugin) {
             }
         }
     }
+
+    for each opusChordsChar in ChordFontMap
+    {
+        value = ChordFontMap[opusChordsChar];
+        if (IsObject(value))
+        {
+            harmTemplate = @Element('harm', null, value);
+            _TestTemplate(assert, harmTemplate, opusChordsChar);
+        }
+    }
 } //$end
 
 function _TestTemplate(assert, template, styleId) {
