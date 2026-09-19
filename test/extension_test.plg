@@ -90,9 +90,9 @@
     textWithFormatting = textObj.TextWithFormatting;
     for i = 0 to textWithFormatting.NumChildren {
       if (CharAt(textWithFormatting[i], 0) = '\\') {
-        // Remove formatting and newlines. fontoxpath will complain if there is
-        // additional whitespace in XPath expressions.
-        textWithFormatting[i] = '';
+        // Remove formatting and newlines. fontoxpath may complain if there are
+        // newlines, but spaces should be OK.
+        textWithFormatting[i] = ' ';
       }
     }
     api.SetText(annotElement, JoinStrings(textWithFormatting, ''));
