@@ -144,9 +144,9 @@ function HandleLyricItem (lyricobj, objectPositions) {
             lyricItem._property:startOfWord = true;
         }
         lyricElement = HandleStyle(LyricHandlers, lyricItem);
-        if (null != lyricElement and lyricItem.Color != 0)
+        if (null != lyricElement)
         {
-            AddAttribute(lyricElement, 'color', ConvertColor(lyricItem));
+            ProcessColor(lyricItem, lyricElement);
         }
     }
 

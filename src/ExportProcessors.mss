@@ -234,3 +234,11 @@ function ProcessBarObjects (bar) {
         }
     }
 } //$end
+
+
+function ProcessColor (bobj, element) {
+    if (bobj.Color != 0 or bobj.ColorAlpha != 255)
+    {
+        AddAttribute(element, 'color', ConvertColor(bobj));
+    }
+}  //$end

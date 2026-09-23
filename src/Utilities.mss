@@ -429,10 +429,7 @@ function AddControlEventAttributes (bobj, element) {
         // see discussion in https://github.com/music-encoding/sibmei/pull/139
     }
 
-    if (bobj.Color != 0)
-    {
-        AddAttribute(element, 'color', ConvertColor(bobj));
-    }
+    ProcessColor(bobj, element);
 
     return element;
 
