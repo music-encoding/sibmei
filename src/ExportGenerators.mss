@@ -464,10 +464,7 @@ function GenerateStaff (staff, measurenum) {
 function GenerateClef (bobj) {
     clef_el = MeiFactory(ClefTemplates[bobj.StyleId]);
 
-    if (bobj.Color != 0)
-    {
-        AddAttribute(clef_el, 'color', ConvertColor(bobj));
-    }
+    ProcessColor(bobj, clef_el);
 
     if (bobj.Hidden = true)
     {
@@ -530,10 +527,7 @@ function GenerateNoteRest (bobj, layer) {
         AddAttribute(nr, 'visible', 'false');
     }
 
-    if (bobj.Color != 0)
-    {
-        AddAttribute(nr, 'color', ConvertColor(bobj));
-    }
+    ProcessColor(bobj, nr);
 
     /* NB: If there is a problem with grace notes, look here first.
         I think most of these cases should be covered by appog. and acciacc.
@@ -691,9 +685,9 @@ function GenerateRest (bobj) {
         AddAttribute(r, 'fontsize', 'small');
     }
 
-    if (bobj.Color != 0 and name != 'space')
+    if (name != 'space')
     {
-        AddAttribute(r, 'color', ConvertColor(bobj));
+        ProcessColor(bobj, r);
     }
 
     return r;
@@ -773,7 +767,8 @@ function GenerateNote (nobj) {
         AddAttribute(n, 'ho', ConvertOffsetsToMEI(nobj.Dx));
     }
 
-    if (nobj.Color != nobj.ParentNoteRest.Color)
+    noteRest = nobj.ParentNoteRest;
+    if (nobj.Color != noteRest.Color or nobj.ColorAlpha != noteRest.ColorAlpha)
     {
         AddAttribute(n, 'color', ConvertColor(nobj));
     }
@@ -1086,10 +1081,7 @@ export function GenerateControlEvent (bobj, element) {
 
 
 export function GenerateModifier (bobj, element) {
-    if (bobj.Color != 0)
-    {
-        AddAttribute(element, 'color', ConvertColor(bobj));
-    }
+    ProcessColor(bobj, element);
 
     nobj = GetNoteObjectAtPosition(bobj, 'Closest');
 
