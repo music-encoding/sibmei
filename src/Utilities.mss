@@ -976,3 +976,15 @@ function ParseHex (string) {
     }
     return value;
 }  //$end
+
+
+function AllNotesAreBracketed (noteRest) {
+    for each note in noteRest
+    {
+        if (not note.Bracketed)
+        {
+            return false;
+        }
+    }
+    return true;
+} //$end

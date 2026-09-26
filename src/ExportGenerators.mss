@@ -752,6 +752,12 @@ function GenerateNote (nobj) {
         AddAttribute(n, 'vel', vel);
     }
 
+    // Add bracket, unless it was already added on the <chord>
+    if (nobj.Bracketed and (nobj.NoteCount = 1 or not AllNotesAreBracketed(nobj)))
+    {
+        AddAttribute(n, 'enclose', 'paren');
+    }
+
     AddAttribute(n, 'pnum', pnum);
     AddAttribute(n, 'pname', ntinfo[0]);
     AddAttribute(n, 'oct', ntinfo[1]);
@@ -871,6 +877,11 @@ function GenerateChord (bobj) {
 
     AddAttribute(n, 'dur.ppq', dur);
     GenerateDurationAttributes(n, bobj);
+
+    if (AllNotesAreBracketed(bobj))
+    {
+        AddAttribute(n, 'enclose', 'paren');
+    }
 
     for each note in bobj
     {
