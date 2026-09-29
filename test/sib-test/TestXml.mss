@@ -219,6 +219,16 @@ function TestElementsUsedInTemplates (assert, plugin) {
     {
         _TestTemplate(assert, ClefTemplates[styleId], styleId);
     }
+
+    for each opusChordsChar in ChordFontMap
+    {
+        value = ChordFontMap[opusChordsChar];
+        if (IsObject(value))
+        {
+            harmTemplate = @Element('harm', null, value);
+            _TestTemplate(assert, harmTemplate, opusChordsChar);
+        }
+    }
 } //$end
 
 function TestAttributeTemplates (assert, plugin) {
