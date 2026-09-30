@@ -560,6 +560,84 @@ function ConvertToAbsoluteDuration (noteRest) {
         tuplet = tuplet.ParentTupletIfAny;
     }
     return absoluteDuration;
+}  //$ends
+
+
+function ConvertChord (guitarFrame) {
+    // Converts a GuitarFrame to an element template
+
+    styledString = guitarFrame.ChordNameAsStyledString;
+
+    if (null != HarmTemplateCache[styledString])
+    {
+        return HarmTemplateCache[styledString];
+    }
+
+    harm = @Element('harm', @Attrs('label', guitarFrame.ChordNameAsPlainText));
+
+    // Iterate over every character in the styled string. 'Styled string' means
+    // that the characters in the font are already styled in the sense that
+    // they can be superscript, small caps, reduced in size etc. This implicit
+    // formatting is mapped to explicit MEI markup using ChordFontMap.
+    for i = 0 to Length(styledString)
+    {
+        char = CharAt(styledString, i);
+        previousItem = harm[-1];
+        currentItem = ChordFontMap[char];
+        switch (true) {
+            case ('' = currentItem)
+            {
+                RegisterWarning(guitarFrame, 'Unsupported chord character', char & ' (' & (char + 0) & ')');
+            }
+            case (harm.Length < 3)
+            {
+                // This is the first child
+                harm.Push(currentItem);
+            }
+            // Multiple adjacent characters with identical formatting (like
+            // a superscript 'M' and a superscript 'A') can be combined into
+            // one element (like `<rend rend='sup'>MA</rend>`). The following
+            // checks find out if this is the case.
+            case (IsObject(previousItem) != IsObject(currentItem))
+            {
+                // Only one of the items is formatted (wrapped in a template
+                // Object), the other is plain text. They can not be combined.
+                harm.Push(currentItem);
+            }
+            case (not IsObject(currentItem))
+            {
+                // both items are plain, unformatted text and can be joined
+                harm[-1] = previousItem & currentItem;
+            }
+            case (previousItem.Slice(0, 2) != currentItem.Slice(0, 2))
+            {
+                // Both items are template arrays, but their first two entries
+                // (tag name and attributes) deviate. Items can't be combined.
+                harm.Push(currentItem);
+            }
+            // In the remaining cases, both items are styled the same way.
+            // Children of currentItem can be appended to the previous content.
+            // previousItem is cloned (sliced) so no template from ChordFontMap
+            // gets modified.
+            case (IsObject(previousItem[-1]) or IsObject(currentItem[2]))
+            {
+                // Combine element or mixed text/element children of both items
+                harm[-1] = previousItem.Slice(0, previousItem.Length).Concat(currentItem.Slice(2));
+            }
+            default
+            {
+                // previousItem ends with text, currentItem starts with text
+                harm[-1] = previousItem.Slice(0, previousItem.Length - 1);
+                harm[-1].Push(previousItem[-1] & currentItem[2]);
+                // There might be more element or mixed text/element children
+                harm[-1] = harm[-1].Concat(currentItem.Slice(3));
+            }
+        }
+    }
+
+    HarmTemplateCache[styledString] = harm;
+
+    return harm;
 }  //$end
 
 
@@ -578,4 +656,159 @@ function ConvertMusicTextToSmufl (text) {
         }
     }
     return result;
+}  //$end
+
+
+function ConvertChordGrid (guitarFrame) {
+    // Creates a <chordDef>, attaches it to <chordTable> and returns the
+    // reference to the <chordDef> (ID prefixed with '#')
+
+    if (null = ChordTable)
+    {
+        ChordTable = CreateElement('chordTable');
+        // Schema requires this to precede <staffGrp> elements
+        AddChildAtPosition(MainScoreDef, ChordTable, 0);
+    }
+
+    chordDef = CreateElement('chordDef');
+    AddChild(ChordTable, chordDef);
+    AddAttribute(chordDef, 'label', guitarFrame.ChordNameAsPlainText);
+    if (guitarFrame.LowestVisibleFret > 1)
+    {
+        AddAttribute(chordDef, 'tab.pos', guitarFrame.LowestVisibleFret);
+    }
+    // Initialize barreEndString to an impossible string index so that barre
+    // end handling is only triggered once we have an actual end string index.
+    barreEndString = -1;
+    barres = CreateSparseArray();
+
+    fingerings = guitarFrame.Fingerings;
+
+    numberOfStrings = guitarFrame.NumberOfStrings;
+
+    for stringIndex = 0 to numberOfStrings
+    {
+        chordMember = CreateElement('chordMember');
+        AddChild(chordDef, chordMember);
+        // In Sibelius, course 0 is lowest, but the convention is the reverse
+        AddAttribute(chordMember, 'tab.course', numberOfStrings - stringIndex);
+        fretPosition = guitarFrame.GetPositionOfFingerOnNthString(stringIndex);
+        switch (fretPosition)
+        {
+            case (-1)
+            {
+                AddAttribute(chordMember, 'tab.fing', 'x');
+            }
+            case (0)
+            {
+                AddAttribute(chordMember, 'tab.fing', 'o');
+                AddAttribute(chordMember, 'tab.fret', '0');
+            }
+            default
+            {
+                AddAttribute(chordMember, 'tab.fret', fretPosition);
+                fingering = CharAt(fingerings, stringIndex);
+                // The schema only allows fingerings from 1 to 4. Single quotes
+                // are required because we're dealing with char, not int.
+                if (fingering >= '1' and fingering <= '4')
+                {
+                    AddAttribute(chordMember, 'tab.fing', fingering);
+                }
+            }
+        }
+
+        startingBarreIndex = IndexOfBarreStartingAtString(guitarFrame, stringIndex);
+        if (startingBarreIndex >= 0)
+        {
+            barre = CreateElement('barre');
+            barres.Push(barre);
+            AddAttribute(barre, 'startid', '#' & chordMember._id);
+            // The specs say, @fret is deprecated in favour of @tab.fret, which
+            // however is not yet available on <barre>
+            AddAttribute(barre, 'fret', fretPosition);
+            barreEndString = guitarFrame.GetEndStringForNthBarre(startingBarreIndex);
+        }
+
+        if (stringIndex = barreEndString)
+        {
+            AddAttribute(barres[-1], 'endid', '#' & chordMember._id);
+        }
+    }
+
+    // <barre>s must follow <chordMember>s
+    for each barre in barres
+    {
+        AddChild(chordDef, barre);
+    }
+
+    return '#' & chordDef._id;
+}  //$end
+
+
+function IndexOfBarreStartingAtString (guitarFrame, startStringIndex) {
+    // Returns index n >= 0 if startStringIndex is the first string of the nth
+    // barre and that barre is plausible. This check is done because some
+    // barres that ManuScript reports are not actually present in the chord
+    // diagram that Sibelius displays.
+    //
+    // If no (plausible) barre starts at startStringIndex, -1 is returned.
+
+    for barreIndex = 0 to guitarFrame.NumBarresInChord
+    {
+        if (startStringIndex = guitarFrame.GetStartStringForNthBarre(barreIndex))
+        {
+            fretPosition = guitarFrame.GetPositionOfFingerOnNthString(startStringIndex);
+            endStringIndex = guitarFrame.GetEndStringForNthBarre(barreIndex);
+            // Between start and end string, it is possible to stop a string at
+            // a higher position than the barre, but never at a lower one.
+            if (endStringIndex > startStringIndex)
+            {
+                for stringIndex = startStringIndex + 1 to endStringIndex
+                {
+                    if (guitarFrame.GetPositionOfFingerOnNthString(stringIndex) < fretPosition)
+                    {
+                        // This barre is implausible
+                        barreIndex = -1;
+                    }
+                }
+                if (barreIndex >= 0)
+                {
+                    // Strings are stopped in a plausible way. Barre seems ok.
+                    return barreIndex;
+                }
+            }
+            // Found barre is implausible. Maybe the index makes more sense.
+        }
+    }
+
+    // No (plausible) barre was found.
+    return -1;
+}  //$end
+
+
+function ConvertToChordGridHash (guitarFrame) {
+    // This hash is used to identify the <chordDef> that `guitarFrame` belongs
+    // to. The hash is composed of:
+    //  * A letter defining the lowest visible fret ('A' = 1st fret)
+    //  * fingering (1 character per string)
+    //  * semicolon (like this we know for sure how many strings there are)
+    //  * finger position (1 character per string, '/' for quiet strings)
+    //  * barre start/end information (1 cryptic character per barre)
+
+    numberOfStrings = guitarFrame.NumberOfStrings;
+    hash = Chr(guitarFrame.LowestVisibleFret + 'A' - 1) & guitarFrame.Fingerings & ';';
+    for stringIndex = 0 to guitarFrame.NumberOfStrings
+    {
+        // Finger position of empty string (-1) conveniently becomes `/` in the
+        // hash because '/' precedes '0' in ASCII/Unicode.
+        hash = hash & (Chr(guitarFrame.GetPositionOfFingerOnNthString(stringIndex) + '0'));
+    }
+    for barreIndex = 0 to guitarFrame.NumBarresInChord
+    {
+        hash = hash & Chr(
+            guitarFrame.GetStartStringForNthBarre(barreIndex) * numberOfStrings
+            + guitarFrame.GetEndStringForNthBarre(barreIndex)
+        );
+    }
+    return hash;
 }  //$end
