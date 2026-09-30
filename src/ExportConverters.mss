@@ -566,8 +566,14 @@ function ConvertToAbsoluteDuration (noteRest) {
 function ConvertChord (guitarFrame) {
     // Converts a GuitarFrame to an element template
 
-    harm = @Element('harm', @Attrs('label', guitarFrame.ChordNameAsPlainText));
     styledString = guitarFrame.ChordNameAsStyledString;
+
+    if (null != HarmTemplateCache[styledString])
+    {
+        return HarmTemplateCache[styledString];
+    }
+
+    harm = @Element('harm', @Attrs('label', guitarFrame.ChordNameAsPlainText));
 
     // Iterate over every character in the styled string. 'Styled string' means
     // that the characters in the font are already styled in the sense that
@@ -628,6 +634,8 @@ function ConvertChord (guitarFrame) {
             }
         }
     }
+
+    HarmTemplateCache[styledString] = harm;
 
     return harm;
 }  //$end

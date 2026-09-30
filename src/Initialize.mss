@@ -69,6 +69,7 @@ function InitGlobals (extensions) {
     }
 
     InitChordCharacterMaps();
+    Self._property:HarmTemplateCache = CreateDictionary();
 
     InitHandlers();
     Self._property:TextSubstituteMap = InitTextSubstituteMap();
