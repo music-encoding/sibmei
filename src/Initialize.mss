@@ -38,6 +38,21 @@ function InitGlobals (extensions) {
         'Trill', true
     );
 
+    Self._property:IsHandledByStandardLineHandler = CreateDictionary();
+    IsHandledByStandardLineHandler['BeamLine'] = true;
+    IsHandledByStandardLineHandler['Bend'] = true;
+    IsHandledByStandardLineHandler['Box'] = true;
+    IsHandledByStandardLineHandler['CrescendoLine'] = true;
+    IsHandledByStandardLineHandler['DiminuendoLine'] = true;
+    IsHandledByStandardLineHandler['GlissandoLine'] = true;
+    IsHandledByStandardLineHandler['HighLight'] = true;
+    IsHandledByStandardLineHandler['Line'] = true;
+    IsHandledByStandardLineHandler['OctavaLine'] = true;
+    IsHandledByStandardLineHandler['PedalLine'] = true;
+    IsHandledByStandardLineHandler['RitardLine'] = true;
+    IsHandledByStandardLineHandler['Slur'] = true;
+    IsHandledByStandardLineHandler['Trill'] = true;
+
     Self._property:MeterSymMap = CreateDictionary(
         CommonTimeString, 'common',
         AllaBreveTimeString, 'cut',

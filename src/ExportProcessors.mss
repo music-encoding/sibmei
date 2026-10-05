@@ -178,58 +178,34 @@ function ProcessBarObjects (bar) {
     // Clef.
     for each bobj in bar
     {
-        switch (bobj.Type)
+        type = bobj.Type;
+        if (IsHandledByStandardLineHandler[type])
         {
-            case('GuitarFrame')
+            HandleStyle(LineHandlers, bobj);
+        }
+        else
+        {
+            switch (type)
             {
-                GenerateChordSymbol(bobj);
-            }
-            case('Slur')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('CrescendoLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('DiminuendoLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('OctavaLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('GlissandoLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('Trill')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('ArpeggioLine')
-            {
-                GenerateArpeggio(bobj);
-            }
-            case('Line')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('Text')
-            {
-                if (bobj.Text != '')
+                case('Text')
                 {
-                    HandleStyle(TextHandlers, bobj);
+                    if (bobj.Text != '')
+                    {
+                        HandleStyle(TextHandlers, bobj);
+                    }
                 }
-            }
-            case ('RitardLine')
-            {
-                HandleStyle(LineHandlers, bobj);
-            }
-            case('SymbolItem')
-            {
-                HandleSymbol(bobj);
+                case('SymbolItem')
+                {
+                    HandleSymbol(bobj);
+                }
+                case('GuitarFrame')
+                {
+                    GenerateChordSymbol(bobj);
+                }
+                case('ArpeggioLine')
+                {
+                    GenerateArpeggio(bobj);
+                }
             }
         }
     }
