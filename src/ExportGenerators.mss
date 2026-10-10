@@ -893,8 +893,20 @@ function GenerateChord (bobj) {
 }  //$end
 
 function GenerateBarRest (bobj) {
-    //$module(ExportGenerators.mss)
-    switch (bobj.RestType)
+    if (bobj.Hidden)
+    {
+        // Neither of <mRest>, <mRpt>, <mRpt2>, <multiRpt> or <fermata> support
+        // @visible, so use <mSpace> and skip any fermata when Hidden=true.
+        restType = MSpaceRestType;
+        pauseType = PauseTypeNone;
+    }
+    else
+    {
+        restType = bobj.RestType;
+        pauseType = bobj.PauseType;
+    }
+
+    switch (restType)
     {
         case(BreveBarRest)
         {
@@ -915,13 +927,20 @@ function GenerateBarRest (bobj) {
         }
         case (FourBarRepeat)
         {
-            // MEI now supports a four-bar repeat
             obj = CreateElement('multiRpt');
             AddAttribute(obj, 'num', '4');
         }
+        case (MSpaceRestType)
+        {
+            obj = CreateElement('mSpace');
+        }
+        default
+        {
+            StopPlugin('Internal error. Unhandled rest type: ' & restType);
+        }
     }
 
-    switch (bobj.PauseType) {
+    switch (pauseType) {
         case(PauseTypeRound)
         {
             GenerateFermata(bobj, 'curved', ConvertFermataForm(bobj));
@@ -934,11 +953,6 @@ function GenerateBarRest (bobj) {
         {
             GenerateFermata(bobj, 'square', ConvertFermataForm(bobj));
         }
-    }
-
-    if (bobj.Hidden = true)
-    {
-        AddAttribute(obj, 'visible', 'false');
     }
 
     AddAttribute(obj, 'tstamp.real', ConvertTimeStamp(bobj.Time));
