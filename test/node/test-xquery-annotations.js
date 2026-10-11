@@ -147,6 +147,7 @@ function assertTestXQuery(annot, testXquery, testDescription) {
     `<staff> ${staffN} for XQuery test <annot> ${annot.getAttribute("xml:id")} not found`,
   );
   xqueryAssertOk(
+    null,
     xpath.evaluateXPath(
       testXquery,
       annot.parentNode,
