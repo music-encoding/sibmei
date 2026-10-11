@@ -111,6 +111,8 @@ function InitGlobals (extensions) {
 
     Self._property:MusicTextToSmufl = InitMusicTextToSmuflMap();
 
+    Self._property:MSpaceRestType = -1;
+
     Self._property:_Initialized = true;
 
     return true;
