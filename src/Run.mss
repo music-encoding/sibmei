@@ -70,7 +70,11 @@ function DoExport (score, filename) {
 
     // first, ensure we're running with a clean slate.
     ResetXml();
-    SetGlobalsForScore(score);
+    error = SetGlobalsForScore(score, filename);
+    if (null != error)
+    {
+        return error;
+    }
 
     // Deal with the Progress GUI
     progCount = SystemStaff.BarCount;
@@ -98,7 +102,7 @@ function DoExport (score, filename) {
 }  //$end
 
 
-function SetGlobalsForScore (score) {
+function SetGlobalsForScore (score, filename) {
     // Sets some globals with information about the currently processed score.
     // Some functions get a significant performance boost when we're caching
     // properties of the Score object rather than passing it around or
@@ -118,6 +122,9 @@ function SetGlobalsForScore (score) {
     {
         Staves.Push(staff);
     }
+    Self._property:ChordCache = CreateDictionary();
+    Self._property:ChordGridCache = CreateDictionary();
+    Self._property:ChordTable = null;
 }  //$end
 
 
