@@ -22,7 +22,7 @@ function RunTests() {
 
     CloseAllWindows();
 
-    Self._property:pluginDir = GetPluginFolder(MainPlgBaseName & '.plg');
+    InitTestGlobals();
     Self._property:tempDir = CreateNewTempDir();
     Self._property:_SibTestFileDirectory = pluginDir & 'sibmeiTestSibs' & Sibelius.PathSeparator;
 
@@ -83,6 +83,18 @@ function RunTests() {
         Sibelius.MessageBox('Run `npm test` to test output written to ' & _SibTestFileDirectory);
     }
 }  //$end
+
+
+function InitTestGlobals () {
+    if (Self._property:TestGlobalsInitialized)
+    {
+        return '';
+    }
+
+    Self._property:pluginDir = GetPluginFolder(MainPlgBaseName & '.plg');
+
+    Self._property:TestGlobalsInitialized = true;
+} //$end
 
 
 function GetPluginFolder(plgName) {
@@ -231,6 +243,7 @@ function CloseAllWindows () {
 function Debug (message) {
     // Alternative to Trace(). It is better than Trace() to debug situations
     // where Sibelius crashes and the Trace window closes. It is faster when
-    // loggin a lot of messages because Trace() seems to be O(n²).
+    // logging a lot of messages because Trace() seems to be O(n²).
+    InitTestGlobals();
     Sibelius.AppendTextFile(pluginDir & 'debug-log.txt', message & '\n');
 } //$end
