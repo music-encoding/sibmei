@@ -181,10 +181,19 @@ function InitLineHandlers () {
     );
 
     // Line types not handled yet:
-    // Type = 'BeamLine'
-    //   line.staff.beam
     // Type = 'Bend'
     //   line.staff.bend
+    // Type = 'PedalLine'
+    //   line.staff.pedal
+    //   line.staff.pedal.lift
+    //   line.staff.pedal.lift.again
+    //   line.staff.pedal.lift.finally
+    //   line.staff.pedal.noline
+
+    // Line types that have no clear mapping to MEI elements. If needed, project
+    // specific extensions should define how to export them.
+    // Type = 'BeamLine'
+    //   line.staff.beam
     // Type = 'Box'
     //   line.staff.box
     // Type = 'HighLight'
